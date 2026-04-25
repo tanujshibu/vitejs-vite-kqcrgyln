@@ -6348,179 +6348,370 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
   );
 }
 
+// ─── STORY ONBOARDING FACTS ───────────────────────────────────────────────────
+const ONBOARDING_FACTS = {
+  gender: {
+    male: {
+      stat: "167hrs", color: "#2E5BFF",
+      headline: "Your workout is the least important hour of your day",
+      body: "You train for 1 hour. There are 167 others. What happens in those hours — sleep, protein, stress, recovery — decides 90% of your results. Most people obsess over the 1 and ignore the 167. That ends here.",
+    },
+    female: {
+      stat: "0", color: "#BF5AF2",
+      headline: "The number of women who got bulky from lifting",
+      body: "Women have 15–20× less testosterone than men. Lifting heavy won't make you bulky — it makes you harder, leaner, and more defined. The fear of 'getting too big' has cost women years of real progress.",
+    },
+  },
+  frequency: {
+    high: {
+      stat: "48hrs", color: "#FF4B2B",
+      headline: "Your muscles are still growing from your last session right now",
+      body: "Muscle protein synthesis stays elevated for 24–48 hours after training. Hit the same muscle too soon and you're interrupting your own growth. The protocol will make sure your split is as smart as your effort.",
+    },
+    med: {
+      stat: "Rest days", color: "#C9A84C",
+      headline: "Are doing more work than your gym days",
+      body: "Muscles don't grow during training. They grow during rest. 3–4 sessions/week lets your body fully repair, overcompensate, and come back stronger. Most transformations happen on the days you don't go to the gym.",
+    },
+    low: {
+      stat: "2 sessions", color: "#30D158",
+      headline: "Done perfectly, beats five done wrong. Every time.",
+      body: "Consistency over intensity. Two sessions with proper progression, nutrition, and sleep outperforms daily training with poor recovery. The goal isn't to train more. It's to make every session count.",
+    },
+  },
+  caffeine: {
+    high: {
+      stat: "40min", color: "#FF9F0A",
+      headline: "You've been timing your pre-workout wrong",
+      body: "Caffeine reaches peak plasma concentration 30–45 minutes after ingestion. Most people take it right before training. The real window opens before your warm-up even starts. That single timing shift changes everything.",
+    },
+    med: {
+      stat: "200mg", color: "#C9A84C",
+      headline: "More caffeine doesn't mean more performance",
+      body: "Studies show 200mg of caffeine maximizes training output without spiking cortisol. Most pre-workouts contain 300–400mg. You're getting extra anxiety, not extra reps. Precision always beats volume.",
+    },
+    low: {
+      stat: "10 days", color: "#30D158",
+      headline: "You can feel pre-workout like day one again",
+      body: "Caffeine tolerance builds fast — and resets just as fast. A 10-day caffeine reset returns your adenosine receptors to baseline. Your next pre-workout will hit harder than any you've ever taken. We'll cycle this in.",
+    },
+  },
+  bottleneck: {
+    sleep: {
+      stat: "30%", color: "#5AC8FA",
+      headline: "Poor sleep erases 30% of your workout",
+      body: "Sleep-deprived athletes lose up to 30% of the anabolic response from training. Growth hormone, testosterone, cortisol — all governed while you're unconscious. Your workout sends the signal. Sleep delivers the result.",
+    },
+    soreness: {
+      stat: "72hrs", color: "#FF4B2B",
+      headline: "Soreness isn't a sign you worked hard. It means you recovered poorly.",
+      body: "DOMS peaks at 72 hours and is mostly inflammation from inadequate recovery nutrition. Elite athletes rarely get sore because their recovery is dialed in. You can train harder and feel less sore — at the same time.",
+    },
+    fog: {
+      stat: "6×", color: "#BF5AF2",
+      headline: "Your brain is the muscle most people forget to recover",
+      body: "Post-workout brain fog is your central nervous system in recovery mode. The CNS controls every rep, every contraction, every skill. Athletes who optimize neural recovery outperform those who don't by 6× in their next session.",
+    },
+  },
+  archetype: {
+    vtaper:           { stat: "12wks", color: "#2E5BFF",  headline: "People will ask what you changed", body: "In 12 structured weeks, the average V-Taper trainee adds 1.5\" to shoulder width while losing 2\" from the waist. The visual shift is so dramatic, people stop noticing your height and start noticing your shape." },
+    mass_builder:     { stat: "0.5lbs", color: "#FF4B2B", headline: "Per week. That's the biological ceiling.", body: "Natural athletes can build 0.25–0.5lbs of pure lean muscle per week under optimal conditions. Gain faster than this and it's fat, not muscle. We calculate your exact ceiling and target it precisely." },
+    abs:              { stat: "1 layer", color: "#00FFAB", headline: "You already have a six-pack. It's just hidden.", body: "Every person has abs. They emerge at 10–13% body fat for men. The average gym member is at 22%. There's literally one layer of fat between you and them — and a 300-calorie daily deficit removes it in 16 weeks." },
+    recomp:           { stat: "Impossible", color: "#D4AF37", headline: "That's what they said about losing fat and gaining muscle at the same time", body: "For decades sports science said recomposition couldn't happen. New research proved otherwise. With precise protein timing and progressive overload, your body can build and burn simultaneously. Your protocol is built around this." },
+    glute_builder:    { stat: "6wks", color: "#BF5AF2",   headline: "Measurable change in 6 weeks. Visible change in 12.", body: "Glutes respond to volume and frequency faster than almost any other muscle. With targeted training 3× per week, you'll have data showing hypertrophy in 6 weeks. This isn't a long game. It starts fast." },
+    legs_back:        { stat: "70%", color: "#FF9F0A",    headline: "Your legs are 70% of your total muscle mass", body: "Leg-focused training doesn't just build legs — it floods your entire body with anabolic hormones. Heavy squats and deadlifts trigger more testosterone and growth hormone than any upper body movement. Legs make everything grow." },
+    lean_build:       { stat: "Cycle", color: "#30D158",  headline: "Your hormones can be your biggest training advantage", body: "Female physiology isn't a limitation — it's a precision tool. Follicular phase is your strength window. Luteal phase is your endurance window. Syncing training to your cycle can add 15–20% more results from the exact same effort." },
+    full_body_recomp: { stat: "24wks", color: "#5AC8FA",  headline: "At 24 weeks, people will think you're a different person", body: "The full transformation — where simultaneous fat loss and muscle gain peak visually — typically hits around the 24-week mark. Every session between now and then is a layer being added. You won't see it daily. You'll see it all at once." },
+    athletic_performance: { stat: "8%", color: "#FF4B2B", headline: "Adding structure to your training unlocks 8% more you", body: "Athletes who add structured conditioning on top of strength training see 8–12% improvements in peak output within 6 weeks. Speed, power, and endurance don't just add — they compound each other." },
+    longevity:        { stat: "14yrs", color: "#00FFAB",  headline: "Active adults have the biology of people 14 years younger", body: "Exercise is the most powerful anti-aging intervention ever discovered. Consistent training doesn't just extend lifespan — it compresses disease, maintains cognition, and keeps your biological age a decade and a half behind your real age." },
+    core_definition:  { stat: "1 variable", color: "#2E5BFF", headline: "Core definition has exactly one requirement", body: "Core visibility is a body fat problem, not a training problem. Most people already have strong, developed abs. They're just hidden under one layer that 8 weeks of protocol-level nutrition completely removes. The work is done. Time to reveal it." },
+    default:          { stat: "10×", color: "#2E5BFF",    headline: "Protocol beats motivation every single time", body: "People with structured, personalized protocols are 10× more likely to reach their physique goals than those training on instinct and willpower. Motivation is a feeling. Protocol is a system. You just chose the system." },
+  },
+};
+
+function FactFlash({ data, onContinue, theme }) {
+  const T = D[theme] || D.dark;
+  useEffect(() => {
+    const t = setTimeout(onContinue, 4000);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+      transition={{ duration: 0.22 }}
+      onClick={onContinue}
+      style={{
+        position: "fixed", inset: 0, zIndex: 9999,
+        background: theme === "dark" ? "#07081A" : "#f2f2f8",
+        display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center",
+        padding: "40px 28px", cursor: "pointer", overflow: "hidden",
+      }}>
+      {/* Expanding burst */}
+      <motion.div
+        initial={{ scale: 0, opacity: 0.7 }} animate={{ scale: 18, opacity: 0 }}
+        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          position: "absolute", width: 80, height: 80, borderRadius: "50%",
+          background: data.color, pointerEvents: "none",
+        }}
+      />
+      {/* Soft glow */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: `radial-gradient(ellipse 70% 60% at 50% 42%, ${data.color}1A, transparent)`,
+        pointerEvents: "none",
+      }}/>
+      {/* Floating ring */}
+      <motion.div
+        initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 0.18 }}
+        transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+        style={{
+          position: "absolute", width: 340, height: 340, borderRadius: "50%",
+          border: `1.5px solid ${data.color}`, pointerEvents: "none",
+        }}
+      />
+      {/* Stat */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.4, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ delay: 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          fontSize: 88, fontWeight: 900, color: data.color,
+          letterSpacing: "-0.05em", lineHeight: 1, textAlign: "center",
+          textShadow: `0 0 60px ${data.color}66, 0 0 120px ${data.color}33`,
+          marginBottom: 20,
+        }}>
+        {data.stat}
+      </motion.div>
+      {/* Headline */}
+      <motion.div
+        initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.32, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        style={{
+          fontSize: 23, fontWeight: 900, color: T.text, letterSpacing: "-0.025em",
+          textAlign: "center", marginBottom: 16, lineHeight: 1.2, maxWidth: 300,
+        }}>
+        {data.headline}
+      </motion.div>
+      {/* Divider line */}
+      <motion.div
+        initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+        transition={{ delay: 0.5, duration: 0.4, ease: "easeOut" }}
+        style={{ width: 40, height: 2, background: data.color, borderRadius: 2, marginBottom: 16, transformOrigin: "left" }}
+      />
+      {/* Body */}
+      <motion.div
+        initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.55, duration: 0.45 }}
+        style={{
+          fontSize: 15, color: T.muted, textAlign: "center",
+          lineHeight: 1.7, maxWidth: 305,
+        }}>
+        {data.body}
+      </motion.div>
+      {/* Tap hint */}
+      <motion.div
+        initial={{ opacity: 0 }} animate={{ opacity: 0.35 }}
+        transition={{ delay: 1.8 }}
+        style={{ position: "absolute", bottom: 52, fontSize: 10, color: T.faint, letterSpacing: ".16em" }}>
+        TAP TO CONTINUE
+      </motion.div>
+      {/* Bottom progress bar */}
+      <motion.div
+        initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+        transition={{ duration: 4.0, ease: "linear" }}
+        style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: data.color, transformOrigin: "left" }}
+      />
+    </motion.div>
+  );
+}
+
 // ─── BIOLOGY STEP ─────────────────────────────────────────────────────────────
+// One question per screen with fact flash between each
 function BiologyStep({ mode, onSelect, onBack, theme }) {
-  const T = D[theme];
+  const T = D[theme] || D.dark;
   const M = OS_MODES[mode];
   const ac = T[M.accentKey];
+  // phases: 0=gender, 1=frequency, 2=caffeine, 3=bottleneck
   const [phase, setPhase] = useState(0);
-  const [gender,    setGender]    = useState(null);
-  const [frequency, setFrequency] = useState(null);
-  const [caffeine,  setCaffeine]  = useState(null);
-  const [bottleneck,setBottleneck]= useState(null);
+  const [gender,     setGender]     = useState(null);
+  const [frequency,  setFrequency]  = useState(null);
+  const [caffeine,   setCaffeine]   = useState(null);
+  const [bottleneck, setBottleneck] = useState(null);
+  const [factData,   setFactData]   = useState(null);
 
-  const genderChoices = [
-    { id:"male",   label:"MAN",   sym:"♂", color:"#2E5BFF", sub:"Testosterone-optimized protocol" },
-    { id:"female", label:"WOMAN", sym:"♀", color:"#BF5AF2", sub:"Hormonal precision protocol"     },
-  ];
-
-  const intakeQuestions = [
-    {
-      id:"frequency", label:"TRAINING FREQUENCY", icon:"⬡",
-      desc:"How many sessions per week do you train?",
-      options:[
-        { id:"high", label:"HIGH",   sub:"5+ sessions / week",     color:"#FF4B2B" },
-        { id:"med",  label:"MEDIUM", sub:"3–4 sessions / week",  color:"#C9A84C" },
-        { id:"low",  label:"LOW",    sub:"1–2 sessions / week",  color:"#30D158" },
-      ],
-      value: frequency, set: setFrequency,
-    },
-    {
-      id:"caffeine", label:"CAFFEINE SENSITIVITY", icon:"◎",
-      desc:"Your biomarker for pre-workout precision.",
-      options:[
-        { id:"high", label:"HIGH",   sub:"Jittery on 1 cup", color:"#FF4B2B" },
-        { id:"med",  label:"MEDIUM", sub:"Standard tolerance",color:"#C9A84C" },
-        { id:"low",  label:"LOW",    sub:"3+ cups daily",    color:"#30D158" },
-      ],
-      value: caffeine, set: setCaffeine,
-    },
-    {
-      id:"bottleneck", label:"PRIMARY RECOVERY BOTTLENECK", icon:"◗",
-      desc:"What limits your recovery most?",
-      options:[
-        { id:"sleep",   label:"SLEEP",    sub:"Poor sleep quality",  color:"#5AC8FA" },
-        { id:"soreness",label:"SORENESS", sub:"Muscle soreness",     color:"#FF4B2B" },
-        { id:"fog",     label:"MENTAL FOG",sub:"Next-day brain fog", color:"#BF5AF2" },
-      ],
-      value: bottleneck, set: setBottleneck,
-    },
-  ];
-
-  const allIntakeDone = frequency && caffeine && bottleneck;
-
-  function handleFinish() {
-    if (allIntakeDone) onSelect({ gender, frequency, caffeine, bottleneck });
+  function flash(fact, next) {
+    setFactData({ ...fact, onDone: () => { setFactData(null); next(); } });
   }
 
-  return (
-    <Screen theme={theme}>
-      <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <BackBtn onBack={phase===0 ? onBack : () => setPhase(0)} theme={theme}/>
-        <RVNLogo size={30}/>
-      </div>
-      <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center",
-        justifyContent:phase===0?"center":"flex-start", padding:"24px 24px 40px", overflowY:"auto" }}>
+  if (factData) return <FactFlash data={factData} onContinue={factData.onDone} theme={theme}/>;
 
-        <AnimatePresence mode="wait">
-        {phase === 0 && (
-          <motion.div key="gender" {...FX.up} style={{ width:"100%", display:"flex", flexDirection:"column", alignItems:"center" }}>
-            <StepProgress step={1} total={5} label="BIOLOGICAL PROFILE" accent={ac} theme={theme}/>
-            <motion.div {...FX.up} style={{ marginTop:32, marginBottom:8, textAlign:"center" }}>
-              <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
-                Your Biology
-              </div>
-              <div style={{ fontSize:13, color:T.muted, marginTop:6 }}>
-                Protocol calibration begins here
+  // Shared question screen builder
+  function QuestionScreen({ stepNum, stepLabel, question, options, onPick, onBackFn }) {
+    return (
+      <Screen theme={theme}>
+        <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <BackBtn onBack={onBackFn} theme={theme}/>
+          <RVNLogo size={30}/>
+        </div>
+        <motion.div
+          key={`q-${stepNum}`}
+          initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
+          transition={{ duration:.36, ease:[.22,1,.36,1] }}
+          style={{ flex:1, display:"flex", flexDirection:"column", padding:"24px 24px 48px" }}>
+          <StepProgress step={stepNum} total={5} label={stepLabel} accent={ac} theme={theme}/>
+          <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center" }}>
+            <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
+              style={{ marginBottom:36 }}>
+              <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.2 }}>
+                {question}
               </div>
             </motion.div>
-            <div style={{ display:"flex", gap:14, marginTop:32, width:"100%", maxWidth:360 }}>
-              {genderChoices.map((c, i) => (
-                <motion.button key={c.id}
-                  {...FX.stagger(i,.2)}
-                  whileHover={{ scale:1.05, y:-5 }}
-                  whileTap={{ scale:.96 }}
-                  onClick={() => { setGender(c.id); setPhase(1); }}
+            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+              {options.map((opt, i) => (
+                <motion.button key={opt.id}
+                  initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
+                  transition={{ delay:.15 + i*.08, duration:.32, ease:[.22,1,.36,1] }}
+                  whileTap={{ scale:.97 }}
+                  onClick={() => onPick(opt.id)}
                   style={{
-                    flex:1, padding:"36px 18px",
-                    background:T.glass, backdropFilter:"blur(20px)",
-                    border:`1.5px solid ${T.border}`, borderRadius:22,
-                    cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:14,
+                    width:"100%", padding:"20px 22px",
+                    background: T.glass, backdropFilter:"blur(16px)",
+                    border:`1.5px solid ${T.border}`,
+                    borderRadius:18, cursor:"pointer",
+                    display:"flex", alignItems:"center", justifyContent:"space-between",
+                    textAlign:"left", transition:"all .2s",
                   }}>
+                  <div>
+                    <div style={{ fontSize:17, fontWeight:800, color:T.text, letterSpacing:"-.01em" }}>{opt.label}</div>
+                    {opt.sub && <div style={{ fontSize:12, color:T.faint, marginTop:3 }}>{opt.sub}</div>}
+                  </div>
                   <div style={{
-                    width:76, height:76, borderRadius:"50%",
-                    background:`${c.color}18`, border:`1.5px solid ${c.color}55`,
+                    width:32, height:32, borderRadius:"50%",
+                    background:`${opt.color}18`, border:`1.5px solid ${opt.color}55`,
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:34, color:c.color,
-                  }}>{c.sym}</div>
-                  <div style={{ fontSize:20, fontWeight:900, letterSpacing:".04em", color:T.text }}>{c.label}</div>
-                  <div style={{ fontSize:11, color:T.faint, textAlign:"center", letterSpacing:".04em", lineHeight:1.5 }}>{c.sub}</div>
+                    fontSize:14, color:opt.color, flexShrink:0,
+                  }}>→</div>
                 </motion.button>
               ))}
             </div>
-          </motion.div>
-        )}
+          </div>
+        </motion.div>
+      </Screen>
+    );
+  }
 
-        {phase === 1 && (
-          <motion.div key="intake" initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
-            exit={{ opacity:0, x:-40 }} transition={{ duration:.38, ease:[.22,1,.36,1] }}
-            style={{ width:"100%", maxWidth:400 }}>
-            <StepProgress step={1} total={5} label="ELITE INTAKE" accent={ac} theme={theme}/>
-            <div style={{ textAlign:"center", marginBottom:24, marginTop:18 }}>
-              <div style={{ fontSize:26, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
-                Precision Calibration
-              </div>
-              <div style={{ fontSize:12, color:T.muted, marginTop:5 }}>
-                3 bio-markers to personalize your protocol
-              </div>
+  // Phase 0: Gender
+  if (phase === 0) return (
+    <Screen theme={theme}>
+      <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <BackBtn onBack={onBack} theme={theme}/>
+        <RVNLogo size={30}/>
+      </div>
+      <motion.div
+        initial={{ opacity:0 }} animate={{ opacity:1 }}
+        style={{ flex:1, display:"flex", flexDirection:"column", padding:"24px 24px 48px" }}>
+        <StepProgress step={1} total={5} label="BIOLOGICAL PROFILE" accent={ac} theme={theme}/>
+        <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center" }}>
+          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
+            style={{ marginBottom:36 }}>
+            <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.2 }}>
+              Let's start with your biology.
             </div>
-
-            {intakeQuestions.map((q, qi) => (
-              <div key={q.id} style={{ marginBottom:20 }}>
-                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
-                  <span style={{ fontSize:16, color:ac }}>{q.icon}</span>
+            <div style={{ fontSize:14, color:T.muted, marginTop:8 }}>Your protocol is calibrated differently based on this.</div>
+          </motion.div>
+          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+            {[
+              { id:"male",   label:"Man",   sub:"Testosterone-optimized protocol", color:"#2E5BFF", sym:"♂" },
+              { id:"female", label:"Woman", sub:"Hormonal precision protocol",      color:"#BF5AF2", sym:"♀" },
+            ].map((c, i) => (
+              <motion.button key={c.id}
+                initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
+                transition={{ delay:.15 + i*.1, duration:.32, ease:[.22,1,.36,1] }}
+                whileTap={{ scale:.97 }}
+                onClick={() => {
+                  setGender(c.id);
+                  flash(ONBOARDING_FACTS.gender[c.id], () => setPhase(1));
+                }}
+                style={{
+                  width:"100%", padding:"22px 22px",
+                  background: T.glass, backdropFilter:"blur(16px)",
+                  border:`1.5px solid ${T.border}`,
+                  borderRadius:18, cursor:"pointer",
+                  display:"flex", alignItems:"center", justifyContent:"space-between",
+                  textAlign:"left",
+                }}>
+                <div style={{ display:"flex", alignItems:"center", gap:16 }}>
+                  <div style={{
+                    width:44, height:44, borderRadius:"50%",
+                    background:`${c.color}18`, border:`1.5px solid ${c.color}55`,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:20, color:c.color,
+                  }}>{c.sym}</div>
                   <div>
-                    <div style={{ fontSize:9.5, fontWeight:800, color:T.faint, letterSpacing:".14em" }}>
-                      {q.label}
-                    </div>
-                    <div style={{ fontSize:11, color:T.muted }}>{q.desc}</div>
+                    <div style={{ fontSize:17, fontWeight:800, color:T.text }}>{c.label}</div>
+                    <div style={{ fontSize:12, color:T.faint, marginTop:2 }}>{c.sub}</div>
                   </div>
                 </div>
-                <div style={{ display:"flex", gap:8 }}>
-                  {q.options.map(opt => (
-                    <motion.button key={opt.id}
-                      whileTap={{ scale:.93 }}
-                      onClick={() => q.set(opt.id)}
-                      style={{
-                        flex:1, padding:"12px 6px",
-                        background: q.value===opt.id ? `${opt.color}22` : T.glass,
-                        backdropFilter:"blur(12px)",
-                        border:`1.5px solid ${q.value===opt.id ? opt.color : T.border}`,
-                        borderRadius:14, cursor:"pointer", textAlign:"center",
-                        boxShadow: q.value===opt.id ? `0 0 16px ${opt.color}33` : "none",
-                        transition:"all .2s",
-                      }}>
-                      <div style={{ fontSize:12, fontWeight:900, color: q.value===opt.id ? opt.color : T.text,
-                        letterSpacing:".04em" }}>{opt.label}</div>
-                      <div style={{ fontSize:9, color:T.faint, marginTop:3, lineHeight:1.4 }}>{opt.sub}</div>
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
+                <div style={{ color:c.color, fontSize:18, opacity:0.7 }}>→</div>
+              </motion.button>
             ))}
-
-            <motion.button
-              whileTap={{ scale:.95 }}
-              onClick={handleFinish}
-              disabled={!allIntakeDone}
-              style={{
-                width:"100%", padding:"16px",
-                background: allIntakeDone ? `linear-gradient(135deg,${ac},${ac}cc)` : T.glass,
-                border:`1.5px solid ${allIntakeDone ? ac : T.border}`,
-                borderRadius:16, cursor:allIntakeDone?"pointer":"default",
-                fontSize:14, fontWeight:900, color:allIntakeDone?(theme==="dark"?"#000":"#fff"):T.faint,
-                letterSpacing:".08em", marginTop:8,
-                boxShadow:allIntakeDone?`0 0 24px ${ac}44`:"none",
-                transition:"all .3s",
-              }}>
-              {allIntakeDone ? "CALIBRATE PROTOCOL  →" : `SELECT ALL ${3-[frequency,caffeine,bottleneck].filter(Boolean).length} REMAINING`}
-            </motion.button>
-          </motion.div>
-        )}
-        </AnimatePresence>
-      </div>
+          </div>
+        </div>
+      </motion.div>
     </Screen>
   );
+
+  // Phase 1: Training frequency
+  if (phase === 1) return QuestionScreen({
+    stepNum: 1, stepLabel: "TRAINING HABITS",
+    question: "How often do you currently train?",
+    onBackFn: () => setPhase(0),
+    options: [
+      { id:"high", label:"5 or more times a week", sub:"High frequency", color:"#FF4B2B" },
+      { id:"med",  label:"3 to 4 times a week",    sub:"Moderate frequency", color:"#C9A84C" },
+      { id:"low",  label:"1 to 2 times a week",    sub:"Getting started", color:"#30D158" },
+    ],
+    onPick: (id) => {
+      setFrequency(id);
+      flash(ONBOARDING_FACTS.frequency[id], () => setPhase(2));
+    },
+  });
+
+  // Phase 2: Caffeine sensitivity
+  if (phase === 2) return QuestionScreen({
+    stepNum: 1, stepLabel: "STIMULANT PROFILE",
+    question: "How sensitive are you to caffeine?",
+    onBackFn: () => setPhase(1),
+    options: [
+      { id:"high", label:"Very sensitive", sub:"Jittery on even one coffee", color:"#FF4B2B" },
+      { id:"med",  label:"Normal tolerance", sub:"Standard reaction to caffeine", color:"#C9A84C" },
+      { id:"low",  label:"High tolerance", sub:"3+ cups and barely feel it", color:"#30D158" },
+    ],
+    onPick: (id) => {
+      setCaffeine(id);
+      flash(ONBOARDING_FACTS.caffeine[id], () => setPhase(3));
+    },
+  });
+
+  // Phase 3: Recovery bottleneck
+  if (phase === 3) return QuestionScreen({
+    stepNum: 1, stepLabel: "RECOVERY PROFILE",
+    question: "What kills your recovery most?",
+    onBackFn: () => setPhase(2),
+    options: [
+      { id:"sleep",    label:"Sleep quality", sub:"I don't sleep well or long enough", color:"#5AC8FA" },
+      { id:"soreness", label:"Muscle soreness", sub:"Still sore before my next session", color:"#FF4B2B" },
+      { id:"fog",      label:"Mental fog", sub:"Brain is slow the day after training", color:"#BF5AF2" },
+    ],
+    onPick: (id) => {
+      setBottleneck(id);
+      flash(ONBOARDING_FACTS.bottleneck[id], () => onSelect({ gender, frequency, caffeine, bottleneck: id }));
+    },
+  });
+
+  return null;
 }
 
 // ─── TARGET STEP ──────────────────────────────────────────────────────────────
@@ -6532,6 +6723,13 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
   ? (biology?.gender==="female" ? FEMALE_GYM_ARCHETYPES : GYM_ARCHETYPES)
   : STORE_ARCHETYPES;
   const [hovered, setHovered] = useState(null);
+  const [factData, setFactData] = useState(null);
+
+  if (factData) return (
+    <AnimatePresence mode="wait">
+      <FactFlash key="target-fact" data={factData} onContinue={factData.onDone} theme={theme}/>
+    </AnimatePresence>
+  );
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }}>
@@ -6556,7 +6754,10 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
               whileTap={{ scale:.95 }}
               onHoverStart={() => setHovered(arch.id)}
               onHoverEnd={() => setHovered(null)}
-              onClick={() => onSelect(arch.id)}
+              onClick={() => {
+                const fact = ONBOARDING_FACTS.archetype[arch.id] || ONBOARDING_FACTS.archetype.default;
+                setFactData({ ...fact, onDone: () => { setFactData(null); onSelect(arch.id); } });
+              }}
               style={{
                 background: hovered===arch.id
                   ? `linear-gradient(145deg,${arch.glow}22,${T.glass})`
@@ -6605,9 +6806,37 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
 
   const [sel, setSel]    = useState(metrics[0].id);
   const [vals, setVals]  = useState(() => Object.fromEntries(metrics.map(m => [m.id, m.default])));
+  const [factData, setFactData] = useState(null);
   const metric = metrics.find(m=>m.id===sel);
   const val = vals[sel];
   const pct = ((val-metric.min)/(metric.max-metric.min))*100;
+
+  function buildPerfFact(allVals) {
+    if (isGym) {
+      const bw = allVals.bw || 175;
+      const bench = allVals.bench || 135;
+      const proteinTarget = Math.round(bw * 0.4536 * 1.8);
+      const ratio = (bench / bw).toFixed(2);
+      const percentile = bench > 275 ? "top 5%" : bench > 185 ? "top 30%" : bench > 135 ? "top 55%" : "top 80%";
+      return {
+        stat: `${proteinTarget}g`,
+        icon: "⬡",
+        headline: `Your daily protein target — starting today`,
+        body: `At ${bw}lbs your optimal protein intake is ${proteinTarget}g/day. The average person eats ~65g. That gap explains 80% of failed physique transformations. Your protocol fixes this.`,
+        color: "#2E5BFF",
+      };
+    } else {
+      const sleep = allVals.sleep || 6.5;
+      const deficit = Math.max(0, (8 - sleep) * 60);
+      return {
+        stat: `${deficit}min`,
+        icon: "◗",
+        headline: `Your nightly recovery deficit`,
+        body: `At ${sleep}hrs of sleep, you're running a ${deficit}-minute recovery deficit every night. This compresses growth hormone release and blunts training adaptations by up to 30%. Your protocol targets this first.`,
+        color: "#5AC8FA",
+      };
+    }
+  }
 
   const insight = useMemo(() => {
     if (!isGym) {
@@ -6626,6 +6855,12 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
     }
     return { text:"Baseline logged. Protocol calibrated to your current output capacity.", color:"#00FFAB" };
   }, [sel, val, isGym]);
+
+  if (factData) return (
+    <AnimatePresence mode="wait">
+      <FactFlash key="perf-fact" data={factData} onContinue={factData.onDone} theme={theme}/>
+    </AnimatePresence>
+  );
 
   return (
     <Screen theme={theme}>
@@ -6729,12 +6964,11 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
           style={{ marginBottom:12, textAlign:"center" }}>
           <button
             onClick={() => {
-              // Auto-fill all metrics with surgical population defaults
               const defaults = Object.fromEntries(metrics.map(m => [m.id, m.default]));
               setVals(defaults);
               track("Surgical Defaults Applied", { mode, archetypeId, step: "performance" });
-              // Auto-advance after brief confirmation delay
-              setTimeout(() => onSubmit({ metric:sel, value:defaults[sel], all:defaults }), 320);
+              const fact = buildPerfFact(defaults);
+              setFactData({ ...fact, onDone: () => { setFactData(null); onSubmit({ metric:sel, value:defaults[sel], all:defaults }); } });
             }}
             style={{
               background: "transparent",
@@ -6750,7 +6984,10 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
           </div>
         </motion.div>
 
-        <ShimmerCTA label="Confirm Baseline  →" onClick={() => onSubmit({ metric:sel, value:val, all:vals })} theme={theme} color={ac}/>
+        <ShimmerCTA label="Confirm Baseline  →" onClick={() => {
+          const fact = buildPerfFact(vals);
+          setFactData({ ...fact, onDone: () => { setFactData(null); onSubmit({ metric:sel, value:val, all:vals }); } });
+        }} theme={theme} color={ac}/>
       </div>
     </Screen>
   );

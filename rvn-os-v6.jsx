@@ -6910,22 +6910,30 @@ function FactVisual({ type, color: C }) {
 
   // Fat layer slides up, abs blocks revealed underneath
   if (type === "layer_reveal") return (
-    <svg viewBox="0 0 168 68" width="168" height="68" style={{ overflow:"visible" }}>
-      {[[0,0],[28,0],[56,0],[0,28],[28,28],[56,28]].map(([x,y],i) => (
-        <motion.rect key={i} x={x+10} y={y+6} width="22" height="22" rx="6" fill={C} opacity={0.75}
-          initial={{ opacity:0, scale:0.4 }} animate={{ opacity:0.75, scale:1 }}
-          style={{ transformOrigin:`${x+10+11}px ${y+6+11}px` }}
-          transition={{ delay:0.7+i*0.07, type:"spring", stiffness:280 }}/>
-      ))}
-      <motion.rect x="4" y="2" width="84" height="62" rx="10" fill={C}
-        initial={{ opacity:0.4, y:0 }} animate={{ opacity:0, y:-58 }}
-        transition={{ delay:0.2, duration:0.85, ease:[.22,1,.36,1] }}/>
-      <motion.rect x="4" y="2" width="84" height="62" rx="10" fill="none" stroke={C} strokeWidth="2"
-        initial={{ opacity:0.55, y:0 }} animate={{ opacity:0, y:-58 }}
-        transition={{ delay:0.2, duration:0.85, ease:[.22,1,.36,1] }}/>
-      <motion.text x="84" y="38" textAnchor="middle" fontSize="8" fill={C} opacity="0"
+    <svg viewBox="0 0 160 78" width="160" height="78" style={{ overflow:"visible" }}>
+      {/* Abs: 6 blocks centered (3 cols × 2 rows) */}
+      {[0,1,2,3,4,5].map(i => {
+        const col = i%3, row = Math.floor(i/3);
+        const bx = 28 + col*36, by = 8 + row*34;
+        return (
+          <motion.rect key={i} x={bx} y={by} width="28" height="26" rx="7" fill={C}
+            opacity={0.75}
+            initial={{ opacity:0, scale:0.5 }} animate={{ opacity:0.75, scale:1 }}
+            style={{ transformOrigin:`${bx+14}px ${by+13}px` }}
+            transition={{ delay:0.65+i*0.07, type:"spring", stiffness:260 }}/>
+        );
+      })}
+      {/* Fat layer — covers all abs, slides up and fades */}
+      <motion.rect x="20" y="2" width="120" height="68" rx="12" fill={C}
+        initial={{ opacity:0.32, y:0 }} animate={{ opacity:0, y:-76 }}
+        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="20" y="2" width="120" height="68" rx="12" fill="none" stroke={C} strokeWidth="2"
+        initial={{ opacity:0.65, y:0 }} animate={{ opacity:0, y:-76 }}
+        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
+      <motion.text x="80" y="40" textAnchor="middle" fontSize="9" fill={C}
         fontFamily="inherit" fontWeight="800"
-        animate={{ opacity:0.5 }} transition={{ delay:1.1 }}>← 1 LAYER OF FAT</motion.text>
+        initial={{ opacity:0.8, y:0 }} animate={{ opacity:0, y:-76 }}
+        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}>FAT LAYER</motion.text>
     </svg>
   );
 
@@ -6981,9 +6989,9 @@ function FactVisual({ type, color: C }) {
 const ONBOARDING_FACTS = {
   gender: {
     male: {
-      stat: "10hrs", color: "#2E5BFF", visual: "bar_compare",
-      headline: "The other 158 decide your results",
-      body: "10 gym hours a week is only 6% of your life. Sleep, food, and recovery own the rest.",
+      stat: "168", color: "#2E5BFF", visual: "bar_compare",
+      headline: "Only 10 of these hours are gym. The rest decide your results.",
+      body: "10 gym hours is 6% of your week. Sleep, food, and recovery own the other 94%. Your protocol addresses all of it.",
     },
     female: {
       stat: "Zero", color: "#BF5AF2", visual: "dumbbell",
@@ -7432,6 +7440,15 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
   const [sel, setSel]    = useState(metrics[0].id);
   const [vals, setVals]  = useState(() => Object.fromEntries(metrics.map(m => [m.id, m.default])));
   const [factData, setFactData] = useState(null);
+  const afterFlash = useRef(null);
+
+  function flash(fact, next) { afterFlash.current = next; setFactData(fact); }
+  useEffect(() => {
+    if (!factData && afterFlash.current) {
+      const cb = afterFlash.current; afterFlash.current = null; cb();
+    }
+  }, [factData]);
+
   const metric = metrics.find(m=>m.id===sel);
   const val = vals[sel];
   const pct = ((val-metric.min)/(metric.max-metric.min))*100;
@@ -7481,11 +7498,7 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
     return { text:"Baseline logged. Protocol calibrated to your current output capacity.", color:"#00FFAB" };
   }, [sel, val, isGym]);
 
-  if (factData) return (
-    <AnimatePresence mode="wait">
-      <FactFlash key="perf-fact" data={factData} onContinue={factData.onDone} theme={theme}/>
-    </AnimatePresence>
-  );
+  if (factData) return <FactFlash key="perf-fact" data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
   return (
     <Screen theme={theme}>
@@ -7593,7 +7606,7 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
               setVals(defaults);
               track("Surgical Defaults Applied", { mode, archetypeId, step: "performance" });
               const fact = buildPerfFact(defaults);
-              setFactData({ ...fact, onDone: () => { setFactData(null); onSubmit({ metric:sel, value:defaults[sel], all:defaults }); } });
+              flash(fact, () => onSubmit({ metric:sel, value:defaults[sel], all:defaults }));
             }}
             style={{
               background: "transparent",
@@ -7611,7 +7624,7 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
 
         <ShimmerCTA label="Confirm Baseline  →" onClick={() => {
           const fact = buildPerfFact(vals);
-          setFactData({ ...fact, onDone: () => { setFactData(null); onSubmit({ metric:sel, value:val, all:vals }); } });
+          flash(fact, () => onSubmit({ metric:sel, value:val, all:vals }));
         }} theme={theme} color={ac}/>
       </div>
     </Screen>

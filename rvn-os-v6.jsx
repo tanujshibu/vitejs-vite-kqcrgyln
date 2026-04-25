@@ -8787,12 +8787,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
     try { return localStorage.getItem("rvn_checkin") === _todayStr(); } catch { return false; }
   });
 
-  // Request notification permission + schedule daily notifs on first load
+  // Schedule notifs if permission already granted (no prompt on load)
   useEffect(() => {
-    (async () => {
-      const granted = await requestNotifPermission();
-      if (granted) scheduleDailyNotifs();
-    })();
+    if (typeof window !== "undefined" && window.Notification?.permission === "granted") {
+      scheduleDailyNotifs();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -8946,13 +8945,16 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
   const bioScore = calcBioScore(archetypeId, bioData);
 
   // One-tap check-in handler
-  const handleCheckIn = () => {
+  const handleCheckIn = async () => {
     if (checkInDone) return;
     try { localStorage.setItem("rvn_checkin", _todayStr()); } catch {}
     const newStreak = bumpStreak("session");
     setStreaks(getStreaks());
     setCheckInDone(true);
     track("Quick Check-In", { archetype: archetypeId, streak: newStreak });
+    // Request notification permission on first user-initiated action
+    const granted = await requestNotifPermission();
+    if (granted) scheduleDailyNotifs();
   };
 
   return (

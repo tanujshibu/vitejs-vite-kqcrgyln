@@ -6744,12 +6744,10 @@ function FactVisual({ type, color: C }) {
       })}
       {/* Hour hand pointing up (12) */}
       <line x1="50" y1="50" x2="50" y2="22" stroke={C} strokeWidth="3" strokeLinecap="round" opacity={0.45}/>
-      {/* Minute hand sweeps from 0 → :40 (the 40min caffeine window) */}
-      <motion.line x1="50" y1="50"
-        x2={50+30*Math.cos(-Math.PI/2+(40/60)*2*Math.PI)}
-        y2={50+30*Math.sin(-Math.PI/2+(40/60)*2*Math.PI)}
+      {/* Minute hand — starts at 12, sweeps clockwise to :40 = 240° */}
+      <motion.line x1="50" y1="50" x2="50" y2="20"
         stroke={C} strokeWidth="3" strokeLinecap="round"
-        initial={{ rotate:0 }} animate={{ rotate:(40/60)*360 }}
+        initial={{ rotate:0 }} animate={{ rotate:240 }}
         style={{ transformOrigin:"50px 50px" }}
         transition={{ delay:0.35, duration:1.1, ease:[.22,1,.36,1] }}/>
       {/* Center dot */}

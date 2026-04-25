@@ -6971,7 +6971,7 @@ const ONBOARDING_FACTS = {
 function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
   useEffect(() => {
-    const t = setTimeout(onContinue, 4200);
+    const t = setTimeout(onContinue, 6500);
     return () => clearTimeout(t);
   }, []);
   return (
@@ -7034,13 +7034,13 @@ function FactFlash({ data, onContinue, theme }) {
         {data.body}
       </motion.div>
       {/* Tap hint */}
-      <motion.div initial={{ opacity:0 }} animate={{ opacity:0.3 }} transition={{ delay:2 }}
+      <motion.div initial={{ opacity:0 }} animate={{ opacity:0.35 }} transition={{ delay:1.2 }}
         style={{ position:"absolute", bottom:48, fontSize:9.5, color:T.faint, letterSpacing:".16em" }}>
         TAP TO CONTINUE
       </motion.div>
       {/* Progress bar */}
       <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
-        transition={{ duration:4.2, ease:"linear" }}
+        transition={{ duration:6.5, ease:"linear" }}
         style={{ position:"absolute", bottom:0, left:0, right:0, height:3, background:data.color, transformOrigin:"left" }}/>
     </motion.div>
   );

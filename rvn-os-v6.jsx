@@ -6656,7 +6656,7 @@ function FactVisual({ type, color: C }) {
 
   // Dumbbell for "zero women got bulky"
   if (type === "dumbbell") return (
-    <svg viewBox="0 0 180 60" width="180" height="60">
+    <svg viewBox="0 0 180 60" width="180" height="60" style={{ overflow:"visible" }}>
       {[{x:4},{x:140}].map((p,i) => (
         <g key={i}>
           <motion.rect x={p.x} y="8" width="28" height="44" rx="8" fill={C} opacity={0.18}
@@ -6687,7 +6687,7 @@ function FactVisual({ type, color: C }) {
 
   // Three growing bars: muscle synthesis over 24 / 48 / 72hrs
   if (type === "bars_grow") return (
-    <svg viewBox="0 0 160 100" width="160" height="100">
+    <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
       {[{x:6,h:28,l:"24h",d:0.15},{x:60,h:62,l:"48h",d:0.28},{x:114,h:90,l:"72h",d:0.42}].map(b => (
         <g key={b.l}>
           <motion.rect x={b.x} y={88-b.h} width="40" height={b.h} rx="7" fill={C}
@@ -6710,7 +6710,7 @@ function FactVisual({ type, color: C }) {
 
   // Two bars: training day vs rest day — rest is taller
   if (type === "two_bars") return (
-    <svg viewBox="0 0 140 100" width="140" height="100">
+    <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
       {[{x:8,h:36,l:"TRAIN",tag:"active",d:0.15},{x:76,h:84,l:"REST",tag:"grow",d:0.28}].map(b => (
         <g key={b.l}>
           <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
@@ -6748,11 +6748,10 @@ function FactVisual({ type, color: C }) {
       })}
       {/* Hour hand pointing up (12) */}
       <line x1="50" y1="50" x2="50" y2="22" stroke={C} strokeWidth="3" strokeLinecap="round" opacity={0.45}/>
-      {/* Minute hand — starts at 12, sweeps clockwise to :40 = 240° */}
-      <motion.line x1="50" y1="50" x2="50" y2="20"
+      {/* Minute hand — sweeps from 12 o'clock to :40 (240° CW = endpoint ~24,65) */}
+      <motion.line x1="50" y1="50"
         stroke={C} strokeWidth="3" strokeLinecap="round"
-        initial={{ rotate:0 }} animate={{ rotate:240 }}
-        style={{ transformOrigin:"50px 50px" }}
+        initial={{ x2:50, y2:20 }} animate={{ x2:24, y2:65 }}
         transition={{ delay:0.35, duration:1.1, ease:[.22,1,.36,1] }}/>
       {/* Center dot */}
       <circle cx="50" cy="50" r="5" fill={C}/>
@@ -6871,11 +6870,10 @@ function FactVisual({ type, color: C }) {
       <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke="#FF4B2B" strokeWidth="6"
         strokeLinecap="round" pathLength="1" strokeDasharray="0.25 0.75" strokeDashoffset="-0.75" opacity={0.4}
         initial={{ opacity:0 }} animate={{ opacity:0.35 }} transition={{ delay:0.9 }}/>
-      {/* Needle */}
-      <motion.line x1="70" y1="72" x2="70" y2="28"
+      {/* Needle — sweeps from left (0) to center (sweet spot) */}
+      <motion.line x1="70" y1="72"
         stroke={C} strokeWidth="3" strokeLinecap="round"
-        style={{ transformOrigin:"70px 72px" }}
-        initial={{ rotate:-90 }} animate={{ rotate:0 }}
+        initial={{ x2:26, y2:72 }} animate={{ x2:70, y2:28 }}
         transition={{ delay:0.4, duration:0.9, ease:[.22,1,.36,1] }}/>
       <circle cx="70" cy="72" r="6" fill={C}/>
       {/* Labels */}

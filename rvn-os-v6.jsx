@@ -6354,28 +6354,40 @@ function FactVisual({ type, color: C }) {
 
   // 168 tiny dots (24×7 = 1 week of hours). 1 glows bright — the gym hour.
   if (type === "bar_compare") {
-    const COLS = 24, ROWS = 7, S = 6, G = 2; // size, gap
+    const COLS = 24, ROWS = 7, S = 7, G = 2, PAD = 4;
+    const W = PAD + COLS*(S+G);
+    const H = PAD + ROWS*(S+G) + 16;
+    // Gym dot is in the middle of the grid for visual drama
+    const GYM_IDX = Math.floor(ROWS/2)*COLS + Math.floor(COLS/2);
     return (
-      <svg viewBox={`0 0 ${COLS*(S+G)} ${ROWS*(S+G)+14}`} width={COLS*(S+G)} height={ROWS*(S+G)+14} style={{ overflow:"visible" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ overflow:"visible" }}>
         {Array.from({length: COLS*ROWS}).map((_,i) => {
           const col = i % COLS, row = Math.floor(i / COLS);
-          const isGym = i === 0;
+          const cx = PAD + col*(S+G) + S/2;
+          const cy = PAD + row*(S+G) + S/2;
+          const isGym = i === GYM_IDX;
           return (
-            <motion.rect key={i}
-              x={col*(S+G)} y={row*(S+G)} width={S} height={S} rx="1.5"
+            <motion.circle key={i}
+              cx={cx} cy={cy} r={isGym ? S/2 + 1 : S/2}
               fill={C}
               initial={{ opacity:0 }}
-              animate={{ opacity: isGym ? 1 : 0.11 }}
-              transition={{ delay: isGym ? 0.05 : 0.08 + i*0.004, duration:0.2 }}/>
+              animate={{ opacity: isGym ? 1 : 0.1 }}
+              transition={{ delay: 0.04 + i*0.003, duration:0.15 }}/>
           );
         })}
-        {/* Pulsing ring on the gym dot */}
-        <motion.rect x={-3} y={-3} width={S+6} height={S+6} rx="4" fill="none" stroke={C} strokeWidth="1.2"
-          animate={{ opacity:[0,0.8,0], scale:[0.7,1.4,0.7] }}
-          style={{ transformOrigin:`${S/2}px ${S/2}px` }}
-          transition={{ delay:0.6, duration:1.2, repeat:Infinity }}/>
-        <text x={0} y={ROWS*(S+G)+13} fontSize="8" fill={C} opacity="0.45" fontFamily="inherit" fontWeight="700">← GYM</text>
-        <text x={COLS*(S+G)-2} y={ROWS*(S+G)+13} textAnchor="end" fontSize="8" fill={C} opacity="0.3" fontFamily="inherit">REST →</text>
+        {/* Pulsing rings on the gym dot */}
+        {[1,2].map(k => {
+          const cx = PAD + Math.floor(GYM_IDX%COLS)*(S+G) + S/2;
+          const cy = PAD + Math.floor(GYM_IDX/COLS)*(S+G) + S/2;
+          return (
+            <motion.circle key={k} cx={cx} cy={cy} r={S/2 + 2 + k*6}
+              fill="none" stroke={C} strokeWidth="1.2"
+              animate={{ opacity:[0, 0.7, 0], scale:[0.7, 1.3, 0.7] }}
+              style={{ transformOrigin:`${cx}px ${cy}px` }}
+              transition={{ delay: 0.7 + k*0.25, duration:1.3, repeat:Infinity, repeatDelay:0.2 }}/>
+          );
+        })}
+        <text x={PAD} y={H-1} fontSize="8.5" fill={C} opacity="0.4" fontFamily="inherit" fontWeight="700">168 HOURS IN A WEEK</text>
       </svg>
     );
   }
@@ -6789,12 +6801,24 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   const [caffeine,   setCaffeine]   = useState(null);
   const [bottleneck, setBottleneck] = useState(null);
   const [factData,   setFactData]   = useState(null);
+  const afterFlash = useRef(null);
 
+  // Call flash(fact, callback) — shows fact screen, then fires callback when dismissed
   function flash(fact, next) {
-    setFactData({ ...fact, onDone: () => { setFactData(null); next(); } });
+    afterFlash.current = next;
+    setFactData(fact);
   }
 
-  if (factData) return <FactFlash data={factData} onContinue={factData.onDone} theme={theme}/>;
+  // When factData clears, fire the pending callback
+  useEffect(() => {
+    if (!factData && afterFlash.current) {
+      const cb = afterFlash.current;
+      afterFlash.current = null;
+      cb();
+    }
+  }, [factData]);
+
+  if (factData) return <FactFlash data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
   // Shared question screen builder
   function QuestionScreen({ stepNum, stepLabel, question, options, onPick, onBackFn }) {

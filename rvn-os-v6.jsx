@@ -18343,23 +18343,21 @@ function RVNRoot() {
     }
   }, []);
 
-  // ── Auth gate — show nothing until session is resolved ───────────────────────
-  if (!authChecked) {
-    return (
-      <div style={{ minHeight:"100dvh", display:"flex", alignItems:"center", justifyContent:"center", background: D[theme]?.bg || "#0D0F1A" }}>
-        <div style={{ width:32, height:32, borderRadius:"50%", border:`3px solid ${D[theme]?.blue || "#0A84FF"}`, borderTopColor:"transparent", animation:"spin 0.8s linear infinite" }}/>
-        <style>{`@keyframes spin { to { transform:rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  if (!authSession) {
-    return (
-      <AnimatePresence mode="wait">
-        <AuthScreen key="auth" theme={theme} onAuth={session => setAuthSession(session)}/>
-      </AnimatePresence>
-    );
-  }
+  // ── Auth check — if user already has a session, skip straight to protocol ────
+  // (don't gate the whole app — auth happens at the account creation step)
+  useEffect(() => {
+    if (authChecked && authSession && screen === "splash") {
+      // Returning user with valid session — skip onboarding
+      const savedProfile = (() => {
+        try { return JSON.parse(localStorage.getItem("rvn_profile") || "{}"); } catch { return {}; }
+      })();
+      if (savedProfile?.macroGoals?.protein) {
+        // Has a real profile — go straight to protocol
+        setTimeout(() => go("protocol"), 1200);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authChecked, authSession]);
 
   return (
     <>

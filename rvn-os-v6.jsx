@@ -6612,37 +6612,38 @@ function FactVisual({ type, color: C }) {
 
   // 168 tiny dots (24×7 = 1 week of hours). 1 glows bright — the gym hour.
   if (type === "bar_compare") {
+    // 168 dots = 1 week of hours. 10 lit = ~5 days × 2hrs gym time.
     const COLS = 24, ROWS = 7, S = 7, G = 2, PAD = 4;
     const W = PAD + COLS*(S+G);
     const H = PAD + ROWS*(S+G) + 16;
-    // Gym dot is in the middle of the grid for visual drama
-    const GYM_IDX = Math.floor(ROWS/2)*COLS + Math.floor(COLS/2);
+    // Spread 10 gym dots across the first two rows so they look natural, not bunched
+    const GYM_SLOTS = new Set([2,5,8,11,14,17,20,26,30,35]);
     return (
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ overflow:"visible" }}>
         {Array.from({length: COLS*ROWS}).map((_,i) => {
           const col = i % COLS, row = Math.floor(i / COLS);
           const cx = PAD + col*(S+G) + S/2;
           const cy = PAD + row*(S+G) + S/2;
-          const isGym = i === GYM_IDX;
+          const isGym = GYM_SLOTS.has(i);
           return (
             <motion.circle key={i}
               cx={cx} cy={cy} r={isGym ? S/2 + 1 : S/2}
               fill={C}
               initial={{ opacity:0 }}
               animate={{ opacity: isGym ? 1 : 0.1 }}
-              transition={{ delay: 0.04 + i*0.003, duration:0.15 }}/>
+              transition={{ delay: 0.04 + i*0.003, duration: isGym ? 0.3 : 0.15 }}/>
           );
         })}
-        {/* Pulsing rings on the gym dot */}
-        {[1,2].map(k => {
-          const cx = PAD + Math.floor(GYM_IDX%COLS)*(S+G) + S/2;
-          const cy = PAD + Math.floor(GYM_IDX/COLS)*(S+G) + S/2;
+        {/* Soft glow behind each gym dot */}
+        {[...GYM_SLOTS].map(idx => {
+          const col = idx % COLS, row = Math.floor(idx / COLS);
+          const cx = PAD + col*(S+G) + S/2;
+          const cy = PAD + row*(S+G) + S/2;
           return (
-            <motion.circle key={k} cx={cx} cy={cy} r={S/2 + 2 + k*6}
-              fill="none" stroke={C} strokeWidth="1.2"
-              animate={{ opacity:[0, 0.7, 0], scale:[0.7, 1.3, 0.7] }}
-              style={{ transformOrigin:`${cx}px ${cy}px` }}
-              transition={{ delay: 0.7 + k*0.25, duration:1.3, repeat:Infinity, repeatDelay:0.2 }}/>
+            <motion.circle key={`g${idx}`} cx={cx} cy={cy} r={S/2 + 5}
+              fill={C} opacity={0}
+              animate={{ opacity:[0, 0.18, 0] }}
+              transition={{ delay: 0.8 + idx*0.01, duration:1.6, repeat:Infinity, repeatDelay:0.4 }}/>
           );
         })}
         <text x={PAD} y={H-1} fontSize="8.5" fill={C} opacity="0.4" fontFamily="inherit" fontWeight="700">168 HOURS IN A WEEK</text>
@@ -6889,9 +6890,9 @@ function FactVisual({ type, color: C }) {
 const ONBOARDING_FACTS = {
   gender: {
     male: {
-      stat: "167hrs", color: "#2E5BFF", visual: "bar_compare",
-      headline: "The gym is just 1 of them",
-      body: "Sleep, food, and recovery fill the other 167. Those hours decide 90% of your results.",
+      stat: "10hrs", color: "#2E5BFF", visual: "bar_compare",
+      headline: "The other 158 decide your results",
+      body: "10 gym hours a week is only 6% of your life. Sleep, food, and recovery own the rest.",
     },
     female: {
       stat: "Zero", color: "#BF5AF2", visual: "dumbbell",

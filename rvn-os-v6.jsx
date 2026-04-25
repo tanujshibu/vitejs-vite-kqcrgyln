@@ -6349,12 +6349,190 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
 }
 
 // ─── STORY ONBOARDING FACTS ───────────────────────────────────────────────────
+// ─── FACT VISUALS (animated SVG illustrations) ────────────────────────────────
+function FactVisual({ type, color: C }) {
+  if (type === "bar_compare") return (
+    <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
+      <motion.rect x="10" y="82" width="34" height="12" rx="4" fill={C}
+        initial={{ height:0, y:94 }} animate={{ height:12, y:82 }}
+        transition={{ delay:0.25, duration:0.4, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="62" y="12" width="68" height="82" rx="5" fill={C} opacity={0.12}
+        initial={{ height:0, y:94 }} animate={{ height:82, y:12 }}
+        transition={{ delay:0.35, duration:0.6, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="62" y="12" width="68" height="82" rx="5" fill="none" stroke={C} strokeWidth="1.5"
+        initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:"94px 94px" }}
+        transition={{ delay:0.35, duration:0.6, ease:[.22,1,.36,1] }}/>
+      <text x="27" y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.6" fontFamily="inherit" fontWeight="700">GYM</text>
+      <text x="96" y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.6" fontFamily="inherit" fontWeight="700">REST</text>
+    </svg>
+  );
+  if (type === "dumbbell") return (
+    <svg viewBox="0 0 160 56" width="160" height="56" style={{ overflow:"visible" }}>
+      {[{x:6},{x:122}].map((p,i) => (
+        <g key={i}>
+          <motion.rect x={p.x} y="10" width="22" height="36" rx="6" fill={C} opacity={0.2}
+            initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:`${p.x+11}px 28px` }}
+            transition={{ delay:0.2, duration:0.4 }}/>
+          <motion.rect x={p.x} y="10" width="22" height="36" rx="6" fill="none" stroke={C} strokeWidth="1.5"
+            initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:`${p.x+11}px 28px` }}
+            transition={{ delay:0.2, duration:0.4 }}/>
+        </g>
+      ))}
+      <motion.rect x="28" y="23" width="18" height="10" rx="3" fill={C}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"28px 28px" }}
+        transition={{ delay:0.38, duration:0.3 }}/>
+      <motion.rect x="114" y="23" width="18" height="10" rx="3" fill={C}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"132px 28px" }}
+        transition={{ delay:0.38, duration:0.3 }}/>
+      <motion.rect x="46" y="25" width="68" height="6" rx="3" fill={C} opacity={0.55}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 28px" }}
+        transition={{ delay:0.5, duration:0.4 }}/>
+      <motion.text x="148" y="12" fontSize="16"
+        initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
+        transition={{ delay:0.85, duration:0.3, type:"spring" }}>✦</motion.text>
+    </svg>
+  );
+  if (type === "bars_grow") return (
+    <svg viewBox="0 0 140 90" width="140" height="90">
+      {[{x:8,h:34,l:"24h",d:0.2},{x:54,h:60,l:"48h",d:0.35},{x:100,h:80,l:"72h",d:0.5}].map(b => (
+        <g key={b.l}>
+          <motion.rect x={b.x} y={82-b.h} width="32" height={b.h} rx="5" fill={C} opacity={0.18}
+            initial={{ height:0, y:82 }} animate={{ height:b.h, y:82-b.h }}
+            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
+          <motion.rect x={b.x} y={82-b.h} width="32" height={b.h} rx="5" fill="none" stroke={C} strokeWidth="1.5"
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+16}px 82px` }}
+            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
+          <text x={b.x+16} y="90" textAnchor="middle" fontSize="8" fill={C} opacity="0.55" fontFamily="inherit" fontWeight="700">{b.l}</text>
+        </g>
+      ))}
+    </svg>
+  );
+  if (type === "two_bars") return (
+    <svg viewBox="0 0 120 90" width="120" height="90">
+      {[{x:8,h:45,l:"TRAIN",d:0.2},{x:66,h:80,l:"REST",d:0.35}].map(b => (
+        <g key={b.l}>
+          <motion.rect x={b.x} y={82-b.h} width="46" height={b.h} rx="6" fill={C}
+            opacity={b.l==="REST" ? 0.25 : 0.1}
+            initial={{ height:0, y:82 }} animate={{ height:b.h, y:82-b.h }}
+            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
+          <motion.rect x={b.x} y={82-b.h} width="46" height={b.h} rx="6" fill="none" stroke={C} strokeWidth="1.5"
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+23}px 82px` }}
+            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
+          <text x={b.x+23} y="90" textAnchor="middle" fontSize="8" fill={C} opacity="0.6" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          {b.l==="REST" && <motion.text x={b.x+30} y={82-b.h-6} fontSize="14"
+            initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.8 }}>✦</motion.text>}
+        </g>
+      ))}
+    </svg>
+  );
+  if (type === "clock") return (
+    <svg viewBox="0 0 90 90" width="90" height="90">
+      <motion.circle cx="45" cy="45" r="38" fill="none" stroke={C} strokeWidth="1.5" opacity={0.35}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.2, duration:0.6 }}/>
+      <circle cx="45" cy="45" r="3" fill={C}/>
+      {[0,3,6,9].map(i => {
+        const a=(i/12)*Math.PI*2-Math.PI/2;
+        return <line key={i} x1={45+30*Math.cos(a)} y1={45+30*Math.sin(a)} x2={45+36*Math.cos(a)} y2={45+36*Math.sin(a)} stroke={C} strokeWidth="1.5" opacity={0.4}/>;
+      })}
+      <motion.line x1="45" y1="45"
+        x2={45+26*Math.cos(-Math.PI/2+(40/60)*Math.PI*2)}
+        y2={45+26*Math.sin(-Math.PI/2+(40/60)*Math.PI*2)}
+        stroke={C} strokeWidth="2.5" strokeLinecap="round"
+        initial={{ rotate:-360, originX:"45px", originY:"45px" }}
+        animate={{ rotate: (40/60)*360-90 }}
+        transition={{ delay:0.45, duration:1, ease:[.22,1,.36,1] }}/>
+      <line x1="45" y1="45" x2="45" y2="20" stroke={C} strokeWidth="2" strokeLinecap="round" opacity={0.5}/>
+      <motion.text x="58" y="72" fontSize="8" fill={C} opacity="0.7" fontFamily="inherit" fontWeight="800"
+        initial={{ opacity:0 }} animate={{ opacity:0.7 }} transition={{ delay:1.1 }}>40min</motion.text>
+    </svg>
+  );
+  if (type === "battery") return (
+    <svg viewBox="0 0 140 60" width="140" height="60">
+      <motion.rect x="4" y="12" width="112" height="36" rx="8" fill="none" stroke={C} strokeWidth="1.5"
+        initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.2 }}/>
+      <rect x="116" y="22" width="16" height="16" rx="4" fill={C} opacity={0.4}/>
+      <rect x="10" y="18" width="100" height="24" rx="5" fill={C} opacity={0.07}/>
+      <motion.rect x="10" y="18" width="0" height="24" rx="5" fill={C} opacity={0.55}
+        animate={{ width:30 }} transition={{ delay:0.4, duration:0.8, ease:[.22,1,.36,1] }}/>
+      <motion.text x="70" y="34" textAnchor="middle" fontSize="9" fill={C} opacity="0.45"
+        fontFamily="inherit" fontWeight="800"
+        initial={{ opacity:0 }} animate={{ opacity:0.45 }} transition={{ delay:1 }}>GAINS DRAINED</motion.text>
+    </svg>
+  );
+  if (type === "timeline_dots") return (
+    <svg viewBox="0 0 200 52" width="200" height="52">
+      <motion.line x1="20" y1="24" x2="180" y2="24" stroke={C} strokeWidth="1" opacity={0.25}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.2, duration:0.5 }}/>
+      {[{x:20,l:"0h"},{x:60,l:"24h"},{x:100,l:"48h"},{x:140,l:"72h",bright:true},{x:180,l:"96h"}].map((d,i) => (
+        <g key={d.l}>
+          <motion.circle cx={d.x} cy="24" r={d.bright?9:6} fill={C}
+            opacity={d.bright?1:0.2+i*0.1}
+            initial={{ scale:0 }} animate={{ scale:1 }}
+            transition={{ delay:0.2+i*0.12, duration:0.3, type:"spring" }}/>
+          <text x={d.x} y="44" textAnchor="middle" fontSize="7.5" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{d.l}</text>
+          {d.bright && <motion.circle cx={d.x} cy="24" r="16" fill="none" stroke={C} strokeWidth="1"
+            animate={{ opacity:[0,0.5,0], scale:[0.8,1.2,0.8] }}
+            transition={{ delay:0.9, duration:1.4, repeat:Infinity }}/>}
+        </g>
+      ))}
+    </svg>
+  );
+  if (type === "brain_pulse") return (
+    <svg viewBox="0 0 100 80" width="100" height="80">
+      <motion.path d="M50 16 C36 9,18 16,18 33 C18 43,24 49,22 57 C20 65,28 71,38 69 C42 75,48 77,50 77 C52 77,58 75,62 69 C72 71,80 65,78 57 C76 49,82 43,82 33 C82 16,64 9,50 16 Z"
+        fill={C} opacity={0.15} stroke={C} strokeWidth="1.5"
+        initial={{ opacity:0, scale:0.7 }} animate={{ opacity:0.15, scale:1 }}
+        transition={{ delay:0.2, duration:0.5 }}/>
+      {[0,1,2].map(i => (
+        <motion.circle key={i} cx="50" cy="47" r={16+i*13} fill="none" stroke={C} strokeWidth="1"
+          animate={{ opacity:[0,0.45,0] }}
+          transition={{ delay:0.5+i*0.28, duration:1.3, repeat:Infinity, repeatDelay:0.4 }}/>
+      ))}
+    </svg>
+  );
+  if (type === "calendar_dots") return (
+    <svg viewBox="0 0 180 50" width="180" height="50">
+      {Array.from({length:10}).map((_,i) => (
+        <motion.circle key={i} cx={14+i*16} cy="24" r="7"
+          fill={C} opacity={i<3?0.15:0.85} stroke={C} strokeWidth="1"
+          initial={{ scale:0 }} animate={{ scale:1 }}
+          transition={{ delay:0.12+i*0.07, duration:0.25, type:"spring" }}>
+        </motion.circle>
+      ))}
+      <motion.text x="90" y="46" textAnchor="middle" fontSize="8" fill={C} opacity="0.5"
+        fontFamily="inherit" fontWeight="700"
+        initial={{ opacity:0 }} animate={{ opacity:0.5 }} transition={{ delay:1 }}>DAYS TO RESET TOLERANCE</motion.text>
+    </svg>
+  );
+  if (type === "gauge") return (
+    <svg viewBox="0 0 130 75" width="130" height="75">
+      <motion.path d="M15 68 A 50 50 0 0 1 115 68" fill="none" stroke={C} strokeWidth="4" opacity={0.15} strokeLinecap="round"/>
+      <motion.path d="M15 68 A 50 50 0 0 1 115 68" fill="none" stroke={C} strokeWidth="4"
+        strokeLinecap="round" pathLength="1"
+        initial={{ pathLength:0 }} animate={{ pathLength:0.5 }}
+        transition={{ delay:0.4, duration:0.8, ease:[.22,1,.36,1] }}/>
+      <motion.line x1="65" y1="68" x2="65" y2="26"
+        stroke={C} strokeWidth="2.5" strokeLinecap="round"
+        style={{ transformOrigin:"65px 68px" }}
+        initial={{ rotate:-90 }} animate={{ rotate:0 }}
+        transition={{ delay:0.5, duration:0.8, ease:[.22,1,.36,1] }}/>
+      <circle cx="65" cy="68" r="5" fill={C}/>
+      <text x="10" y="65" fontSize="8" fill={C} opacity="0.45" fontFamily="inherit">0</text>
+      <text x="109" y="65" fontSize="8" fill={C} opacity="0.45" fontFamily="inherit">∞</text>
+      <motion.text x="65" y="50" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.8"
+        fontFamily="inherit" fontWeight="800"
+        initial={{ opacity:0 }} animate={{ opacity:0.8 }} transition={{ delay:1 }}>SWEET SPOT</motion.text>
+    </svg>
+  );
+  return null;
+}
+
 const ONBOARDING_FACTS = {
   gender: {
     male: {
-      stat: "167hrs", color: "#2E5BFF",
-      headline: "Your workout is the least important hour of your day",
-      body: "You train for 1 hour. There are 167 others. What happens in those hours — sleep, protein, stress, recovery — decides 90% of your results. Most people obsess over the 1 and ignore the 167. That ends here.",
+      stat: "167hrs", color: "#2E5BFF", visual: "bar_compare",
+      headline: "The gym is just 1 of them",
+      body: "Sleep, food, and recovery fill the other 167. Those hours decide 90% of your results.",
     },
     female: {
       stat: "0", color: "#BF5AF2",
@@ -6419,110 +6597,90 @@ const ONBOARDING_FACTS = {
     abs:              { stat: "1 layer", color: "#00FFAB", headline: "You already have a six-pack. It's just hidden.", body: "Every person has abs. They emerge at 10–13% body fat for men. The average gym member is at 22%. There's literally one layer of fat between you and them — and a 300-calorie daily deficit removes it in 16 weeks." },
     recomp:           { stat: "Impossible", color: "#D4AF37", headline: "That's what they said about losing fat and gaining muscle at the same time", body: "For decades sports science said recomposition couldn't happen. New research proved otherwise. With precise protein timing and progressive overload, your body can build and burn simultaneously. Your protocol is built around this." },
     glute_builder:    { stat: "6wks", color: "#BF5AF2",   headline: "Measurable change in 6 weeks. Visible change in 12.", body: "Glutes respond to volume and frequency faster than almost any other muscle. With targeted training 3× per week, you'll have data showing hypertrophy in 6 weeks. This isn't a long game. It starts fast." },
-    legs_back:        { stat: "70%", color: "#FF9F0A",    headline: "Your legs are 70% of your total muscle mass", body: "Leg-focused training doesn't just build legs — it floods your entire body with anabolic hormones. Heavy squats and deadlifts trigger more testosterone and growth hormone than any upper body movement. Legs make everything grow." },
-    lean_build:       { stat: "Cycle", color: "#30D158",  headline: "Your hormones can be your biggest training advantage", body: "Female physiology isn't a limitation — it's a precision tool. Follicular phase is your strength window. Luteal phase is your endurance window. Syncing training to your cycle can add 15–20% more results from the exact same effort." },
-    full_body_recomp: { stat: "24wks", color: "#5AC8FA",  headline: "At 24 weeks, people will think you're a different person", body: "The full transformation — where simultaneous fat loss and muscle gain peak visually — typically hits around the 24-week mark. Every session between now and then is a layer being added. You won't see it daily. You'll see it all at once." },
-    athletic_performance: { stat: "8%", color: "#FF4B2B", headline: "Adding structure to your training unlocks 8% more you", body: "Athletes who add structured conditioning on top of strength training see 8–12% improvements in peak output within 6 weeks. Speed, power, and endurance don't just add — they compound each other." },
-    longevity:        { stat: "14yrs", color: "#00FFAB",  headline: "Active adults have the biology of people 14 years younger", body: "Exercise is the most powerful anti-aging intervention ever discovered. Consistent training doesn't just extend lifespan — it compresses disease, maintains cognition, and keeps your biological age a decade and a half behind your real age." },
-    core_definition:  { stat: "1 variable", color: "#2E5BFF", headline: "Core definition has exactly one requirement", body: "Core visibility is a body fat problem, not a training problem. Most people already have strong, developed abs. They're just hidden under one layer that 8 weeks of protocol-level nutrition completely removes. The work is done. Time to reveal it." },
-    default:          { stat: "10×", color: "#2E5BFF",    headline: "Protocol beats motivation every single time", body: "People with structured, personalized protocols are 10× more likely to reach their physique goals than those training on instinct and willpower. Motivation is a feeling. Protocol is a system. You just chose the system." },
+    legs_back:        { stat: "70%", color: "#FF9F0A",   visual: "bar_compare", headline: "Legs are 70% of your total muscle", body: "Leg training floods your whole body with anabolic hormones. Heavy squats trigger more growth hormone than any upper body movement." },
+    lean_build:       { stat: "+20%", color: "#30D158",  visual: "two_bars",   headline: "Your cycle is a training superpower", body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort. Your protocol does this automatically." },
+    full_body_recomp: { stat: "24wks", color: "#5AC8FA", visual: "bars_grow",  headline: "At 24 weeks you're unrecognizable", body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
+    athletic_performance: { stat: "8%", color: "#FF4B2B", visual: "bars_grow", headline: "Structure unlocks 8% more of you", body: "Adding conditioning to strength training improves peak output by 8–12% in 6 weeks. Speed, power, and endurance compound each other." },
+    longevity:        { stat: "14yrs", color: "#00FFAB", visual: "two_bars",   headline: "Active adults are 14 years younger biologically", body: "Training doesn't just extend lifespan — it keeps your biological age a decade and a half behind your real age." },
+    core_definition:  { stat: "1 thing", color: "#2E5BFF", visual: "bar_compare", headline: "Core visibility needs exactly one thing", body: "It's a body fat problem, not a training problem. 8 weeks of protocol-level nutrition reveals the abs you already have." },
+    default:          { stat: "10×", color: "#2E5BFF",   visual: "two_bars",   headline: "Protocol beats motivation every time", body: "Structured protocols are 10× more likely to reach goals than training on instinct. Motivation fades. Protocol doesn't." },
   },
 };
 
 function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
   useEffect(() => {
-    const t = setTimeout(onContinue, 4000);
+    const t = setTimeout(onContinue, 4200);
     return () => clearTimeout(t);
   }, []);
   return (
     <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-      transition={{ duration: 0.22 }}
+      initial={{ opacity:0 }} animate={{ opacity:1 }}
+      transition={{ duration:0.2 }}
       onClick={onContinue}
       style={{
-        position: "fixed", inset: 0, zIndex: 9999,
-        background: theme === "dark" ? "#07081A" : "#f2f2f8",
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        padding: "40px 28px", cursor: "pointer", overflow: "hidden",
+        position:"fixed", inset:0, zIndex:9999,
+        background: theme==="dark" ? "#07081A" : "#f1f1f8",
+        display:"flex", flexDirection:"column",
+        alignItems:"center", justifyContent:"center",
+        padding:"32px 28px 60px", cursor:"pointer", overflow:"hidden",
       }}>
-      {/* Expanding burst */}
+      {/* Color burst */}
       <motion.div
-        initial={{ scale: 0, opacity: 0.7 }} animate={{ scale: 18, opacity: 0 }}
-        transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          position: "absolute", width: 80, height: 80, borderRadius: "50%",
-          background: data.color, pointerEvents: "none",
-        }}
-      />
-      {/* Soft glow */}
-      <div style={{
-        position: "absolute", inset: 0,
-        background: `radial-gradient(ellipse 70% 60% at 50% 42%, ${data.color}1A, transparent)`,
-        pointerEvents: "none",
-      }}/>
-      {/* Floating ring */}
+        initial={{ scale:0, opacity:0.6 }} animate={{ scale:20, opacity:0 }}
+        transition={{ duration:1.0, ease:[0.22,1,0.36,1] }}
+        style={{ position:"absolute", width:70, height:70, borderRadius:"50%", background:data.color, pointerEvents:"none" }}/>
+      {/* Glow */}
+      <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse 65% 55% at 50% 38%, ${data.color}1A, transparent)`, pointerEvents:"none" }}/>
+      {/* Ring */}
       <motion.div
-        initial={{ scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 0.18 }}
-        transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
-        style={{
-          position: "absolute", width: 340, height: 340, borderRadius: "50%",
-          border: `1.5px solid ${data.color}`, pointerEvents: "none",
-        }}
-      />
+        initial={{ scale:0.3, opacity:0 }} animate={{ scale:1, opacity:0.12 }}
+        transition={{ delay:0.3, duration:0.9 }}
+        style={{ position:"absolute", width:300, height:300, borderRadius:"50%", border:`1px solid ${data.color}`, pointerEvents:"none" }}/>
+      {/* Animated visual */}
+      <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:0.1, duration:0.4 }}
+        style={{ marginBottom:16, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <FactVisual type={data.visual} color={data.color}/>
+      </motion.div>
       {/* Stat */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.4, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ delay: 0.08, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity:0, scale:0.55, y:12 }} animate={{ opacity:1, scale:1, y:0 }}
+        transition={{ delay:0.16, duration:0.48, ease:[0.22,1,0.36,1] }}
         style={{
-          fontSize: 88, fontWeight: 900, color: data.color,
-          letterSpacing: "-0.05em", lineHeight: 1, textAlign: "center",
-          textShadow: `0 0 60px ${data.color}66, 0 0 120px ${data.color}33`,
-          marginBottom: 20,
+          fontSize:68, fontWeight:900, color:data.color, letterSpacing:"-0.05em",
+          lineHeight:1, textAlign:"center", marginBottom:12,
+          textShadow:`0 0 40px ${data.color}66`,
         }}>
         {data.stat}
       </motion.div>
       {/* Headline */}
       <motion.div
-        initial={{ opacity: 0, y: 22 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.32, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          fontSize: 23, fontWeight: 900, color: T.text, letterSpacing: "-0.025em",
-          textAlign: "center", marginBottom: 16, lineHeight: 1.2, maxWidth: 300,
-        }}>
+        initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:0.3, duration:0.38 }}
+        style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-0.02em", textAlign:"center", marginBottom:10, lineHeight:1.25, maxWidth:280 }}>
         {data.headline}
       </motion.div>
-      {/* Divider line */}
+      {/* Divider */}
+      <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+        transition={{ delay:0.44, duration:0.32 }}
+        style={{ width:32, height:2, background:data.color, borderRadius:2, marginBottom:10, alignSelf:"center" }}/>
+      {/* Body — short, 2 sentences max */}
       <motion.div
-        initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-        transition={{ delay: 0.5, duration: 0.4, ease: "easeOut" }}
-        style={{ width: 40, height: 2, background: data.color, borderRadius: 2, marginBottom: 16, transformOrigin: "left" }}
-      />
-      {/* Body */}
-      <motion.div
-        initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.55, duration: 0.45 }}
-        style={{
-          fontSize: 15, color: T.muted, textAlign: "center",
-          lineHeight: 1.7, maxWidth: 305,
-        }}>
+        initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:0.5, duration:0.38 }}
+        style={{ fontSize:13.5, color:T.muted, textAlign:"center", lineHeight:1.6, maxWidth:270 }}>
         {data.body}
       </motion.div>
       {/* Tap hint */}
-      <motion.div
-        initial={{ opacity: 0 }} animate={{ opacity: 0.35 }}
-        transition={{ delay: 1.8 }}
-        style={{ position: "absolute", bottom: 52, fontSize: 10, color: T.faint, letterSpacing: ".16em" }}>
+      <motion.div initial={{ opacity:0 }} animate={{ opacity:0.3 }} transition={{ delay:2 }}
+        style={{ position:"absolute", bottom:48, fontSize:9.5, color:T.faint, letterSpacing:".16em" }}>
         TAP TO CONTINUE
       </motion.div>
-      {/* Bottom progress bar */}
-      <motion.div
-        initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-        transition={{ duration: 4.0, ease: "linear" }}
-        style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: data.color, transformOrigin: "left" }}
-      />
+      {/* Progress bar */}
+      <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+        transition={{ duration:4.2, ease:"linear" }}
+        style={{ position:"absolute", bottom:0, left:0, right:0, height:3, background:data.color, transformOrigin:"left" }}/>
     </motion.div>
   );
 }

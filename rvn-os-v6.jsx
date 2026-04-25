@@ -6616,8 +6616,11 @@ function FactVisual({ type, color: C }) {
     const COLS = 24, ROWS = 7, S = 7, G = 2, PAD = 4;
     const W = PAD + COLS*(S+G);
     const H = PAD + ROWS*(S+G) + 16;
-    // Spread 10 gym dots across the first two rows so they look natural, not bunched
-    const GYM_SLOTS = new Set([2,5,8,11,14,17,20,26,30,35]);
+    // 10 dots evenly spaced in the middle row (row 3), symmetric around center
+    // Middle row base = 3 * 24 = 72. Cols: 2,4,6,8,10 | 13,15,17,19,21
+    const MID_ROW = 3;
+    const GYM_COLS = [2, 4, 6, 8, 10, 13, 15, 17, 19, 21];
+    const GYM_SLOTS = new Set(GYM_COLS.map(c => MID_ROW * COLS + c));
     return (
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ overflow:"visible" }}>
         {Array.from({length: COLS*ROWS}).map((_,i) => {

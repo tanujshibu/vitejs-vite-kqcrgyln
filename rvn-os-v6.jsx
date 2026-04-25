@@ -6616,11 +6616,8 @@ function FactVisual({ type, color: C }) {
     const COLS = 24, ROWS = 7, S = 7, G = 2, PAD = 4;
     const W = PAD + COLS*(S+G);
     const H = PAD + ROWS*(S+G) + 16;
-    // 10 dots evenly spaced in the middle row (row 3), symmetric around center
-    // Middle row base = 3 * 24 = 72. Cols: 2,4,6,8,10 | 13,15,17,19,21
-    const MID_ROW = 3;
-    const GYM_COLS = [2, 4, 6, 8, 10, 13, 15, 17, 19, 21];
-    const GYM_SLOTS = new Set(GYM_COLS.map(c => MID_ROW * COLS + c));
+    // 10 dots top-left going right — first 10 cells of row 0
+    const GYM_SLOTS = new Set([0,1,2,3,4,5,6,7,8,9]);
     return (
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ overflow:"visible" }}>
         {Array.from({length: COLS*ROWS}).map((_,i) => {
@@ -6885,6 +6882,99 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
+  // V-taper: wide shoulder bar tapering to narrow waist bar
+  if (type === "v_shape") return (
+    <svg viewBox="0 0 160 92" width="160" height="92" style={{ overflow:"visible" }}>
+      <text x="80" y="6" textAnchor="middle" fontSize="8" fill={C} opacity="0.45" fontFamily="inherit" fontWeight="800">SHOULDERS  +1.5"</text>
+      <motion.rect x="8" y="10" width="144" height="24" rx="8" fill={C} opacity={0.18}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 22px" }}
+        transition={{ delay:0.1, duration:0.5, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="8" y="10" width="144" height="24" rx="8" fill="none" stroke={C} strokeWidth="2"
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 22px" }}
+        transition={{ delay:0.1, duration:0.5, ease:[.22,1,.36,1] }}/>
+      <motion.line x1="8" y1="34" x2="52" y2="62" stroke={C} strokeWidth="1.5" opacity={0.25}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.45, duration:0.3 }}/>
+      <motion.line x1="152" y1="34" x2="108" y2="62" stroke={C} strokeWidth="1.5" opacity={0.25}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.45, duration:0.3 }}/>
+      <motion.rect x="52" y="62" width="56" height="20" rx="8" fill={C} opacity={0.18}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 72px" }}
+        transition={{ delay:0.35, duration:0.5, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="52" y="62" width="56" height="20" rx="8" fill="none" stroke={C} strokeWidth="2"
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 72px" }}
+        transition={{ delay:0.35, duration:0.5, ease:[.22,1,.36,1] }}/>
+      <motion.text x="80" y="92" textAnchor="middle" fontSize="8" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.45 }} transition={{ delay:0.85 }}>WAIST  –2"</motion.text>
+    </svg>
+  );
+
+  // Fat layer slides up, abs blocks revealed underneath
+  if (type === "layer_reveal") return (
+    <svg viewBox="0 0 168 68" width="168" height="68" style={{ overflow:"visible" }}>
+      {[[0,0],[28,0],[56,0],[0,28],[28,28],[56,28]].map(([x,y],i) => (
+        <motion.rect key={i} x={x+10} y={y+6} width="22" height="22" rx="6" fill={C} opacity={0.75}
+          initial={{ opacity:0, scale:0.4 }} animate={{ opacity:0.75, scale:1 }}
+          style={{ transformOrigin:`${x+10+11}px ${y+6+11}px` }}
+          transition={{ delay:0.7+i*0.07, type:"spring", stiffness:280 }}/>
+      ))}
+      <motion.rect x="4" y="2" width="84" height="62" rx="10" fill={C}
+        initial={{ opacity:0.4, y:0 }} animate={{ opacity:0, y:-58 }}
+        transition={{ delay:0.2, duration:0.85, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="4" y="2" width="84" height="62" rx="10" fill="none" stroke={C} strokeWidth="2"
+        initial={{ opacity:0.55, y:0 }} animate={{ opacity:0, y:-58 }}
+        transition={{ delay:0.2, duration:0.85, ease:[.22,1,.36,1] }}/>
+      <motion.text x="84" y="38" textAnchor="middle" fontSize="8" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.5 }} transition={{ delay:1.1 }}>← 1 LAYER OF FAT</motion.text>
+    </svg>
+  );
+
+  // Horizontal bar filled to N% — for legs (70%) etc.
+  if (type === "percent_fill") return (
+    <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
+      <rect x="8" y="18" width="144" height="32" rx="10" fill={C} opacity={0.08}/>
+      <rect x="8" y="18" width="144" height="32" rx="10" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
+      <motion.rect x="8" y="18" height="32" rx="10" fill={C} opacity={0.55}
+        initial={{ width:0 }} animate={{ width: 144*0.7 }}
+        transition={{ delay:0.2, duration:1.0, ease:[.22,1,.36,1] }}/>
+      <motion.text x="59" y="39" textAnchor="middle" fontSize="15" fill="#fff"
+        fontFamily="inherit" fontWeight="900"
+        initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.9 }}>70%</motion.text>
+      <motion.text x="122" y="39" textAnchor="middle" fontSize="9" fill={C}
+        fontFamily="inherit" fontWeight="700"
+        initial={{ opacity:0 }} animate={{ opacity:0.3 }} transition={{ delay:0.9 }}>REST</motion.text>
+      <motion.text x="80" y="64" textAnchor="middle" fontSize="8" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.45 }} transition={{ delay:1.15 }}>OF ALL YOUR MUSCLE MASS = LEGS</motion.text>
+    </svg>
+  );
+
+  // Two bars: actual age tall, bio age short (–14yrs)
+  if (type === "age_split") return (
+    <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
+      {[
+        {x:8,  h:78, l:"REAL AGE", tag:"real", d:0.15},
+        {x:76, h:44, l:"BIO AGE",  tag:"bio",  d:0.28},
+      ].map(b => (
+        <g key={b.l}>
+          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
+            opacity={b.tag==="bio" ? 0.35 : 0.1}
+            initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
+            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill="none" stroke={C} strokeWidth="1.5"
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+28}px 88px` }}
+            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          <text x={b.x+28} y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          {b.tag==="bio" && (
+            <motion.text x={b.x+28} y={88-b.h-10} textAnchor="middle" fontSize="9" fill={C}
+              fontFamily="inherit" fontWeight="900"
+              initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.75 }}>–14 YRS</motion.text>
+          )}
+        </g>
+      ))}
+    </svg>
+  );
+
   return null;
 }
 
@@ -6953,18 +7043,18 @@ const ONBOARDING_FACTS = {
     },
   },
   archetype: {
-    vtaper:           { stat: "12wks", color: "#2E5BFF",  visual: "bar_compare", headline: "People will ask what you changed", body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
-    mass_builder:     { stat: "0.5lbs", color: "#FF4B2B", visual: "bars_grow",   headline: "Per week. That's the biological ceiling.", body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
-    abs:              { stat: "1 layer", color: "#00FFAB", visual: "bar_compare", headline: "You already have a six-pack. It's just hidden.", body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
-    recomp:           { stat: "Both", color: "#D4AF37",   visual: "two_bars",    headline: "Losing fat and building muscle at the same time is real", body: "Sports science denied it for decades. New research proved otherwise. Your protocol is built around this." },
-    glute_builder:    { stat: "6wks", color: "#BF5AF2",   visual: "bars_grow",   headline: "Measurable change in 6 weeks. Visible in 12.", body: "Glutes respond to volume faster than almost any muscle. This isn't a long game — it starts fast." },
-    legs_back:        { stat: "70%", color: "#FF9F0A",    visual: "bar_compare", headline: "Legs are 70% of your total muscle", body: "Leg training floods your whole body with anabolic hormones. Heavy squats trigger more GH than any upper-body lift." },
-    lean_build:       { stat: "+20%", color: "#30D158",   visual: "two_bars",    headline: "Your cycle is a training superpower", body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
-    full_body_recomp: { stat: "24wks", color: "#5AC8FA",  visual: "bars_grow",   headline: "At 24 weeks you're unrecognizable", body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
-    athletic_performance: { stat: "8%", color: "#FF4B2B", visual: "bars_grow",   headline: "Structure unlocks 8% more of you", body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
-    longevity:        { stat: "14yrs", color: "#00FFAB",  visual: "two_bars",    headline: "Active adults are 14 years younger biologically", body: "Training keeps your biological age a decade and a half behind your real age. That's measurable." },
-    core_definition:  { stat: "1 thing", color: "#2E5BFF", visual: "bar_compare", headline: "Core visibility is a body fat problem, not a training problem", body: "8 weeks of protocol-level nutrition reveals the abs you already have." },
-    default:          { stat: "10×", color: "#2E5BFF",    visual: "two_bars",    headline: "Protocol beats motivation every time", body: "Structured protocols are 10× more likely to reach goals than training on instinct." },
+    vtaper:           { stat: "12wks",   color: "#2E5BFF",  visual: "v_shape",       headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
+    mass_builder:     { stat: "0.5lbs",  color: "#FF4B2B",  visual: "bars_grow",     headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
+    abs:              { stat: "1 layer", color: "#00FFAB",  visual: "layer_reveal",  headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
+    recomp:           { stat: "Both",    color: "#D4AF37",  visual: "two_bars",      headline: "Losing fat and building muscle at the same time is real",   body: "Sports science denied it for decades. New research proved otherwise. Your protocol is built around this." },
+    glute_builder:    { stat: "6wks",    color: "#BF5AF2",  visual: "bars_grow",     headline: "Measurable change in 6 weeks. Visible in 12.",              body: "Glutes respond to volume faster than almost any muscle. This isn't a long game — it starts fast." },
+    legs_back:        { stat: "70%",     color: "#FF9F0A",  visual: "percent_fill",  headline: "Legs are 70% of your total muscle",                        body: "Leg training floods your whole body with anabolic hormones. Heavy squats trigger more GH than any upper-body lift." },
+    lean_build:       { stat: "+20%",    color: "#30D158",  visual: "two_bars",      headline: "Your cycle is a training superpower",                      body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
+    full_body_recomp: { stat: "24wks",   color: "#5AC8FA",  visual: "bars_grow",     headline: "At 24 weeks you're unrecognizable",                        body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
+    athletic_performance: { stat: "8%",  color: "#FF4B2B",  visual: "bars_grow",     headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
+    longevity:        { stat: "14yrs",   color: "#00FFAB",  visual: "age_split",     headline: "Active adults are 14 years younger biologically",          body: "Training keeps your biological age a decade and a half behind your real age. That's measurable." },
+    core_definition:  { stat: "1 thing", color: "#2E5BFF",  visual: "layer_reveal",  headline: "Core visibility is a body fat problem, not a training problem", body: "8 weeks of protocol-level nutrition reveals the abs you already have." },
+    default:          { stat: "10×",     color: "#2E5BFF",  visual: "two_bars",      headline: "Protocol beats motivation every time",                     body: "Structured protocols are 10× more likely to reach goals than training on instinct." },
   },
 };
 
@@ -7255,12 +7345,16 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
   : STORE_ARCHETYPES;
   const [hovered, setHovered] = useState(null);
   const [factData, setFactData] = useState(null);
+  const afterFlash = useRef(null);
 
-  if (factData) return (
-    <AnimatePresence mode="wait">
-      <FactFlash key="target-fact" data={factData} onContinue={factData.onDone} theme={theme}/>
-    </AnimatePresence>
-  );
+  function flash(fact, next) { afterFlash.current = next; setFactData(fact); }
+  useEffect(() => {
+    if (!factData && afterFlash.current) {
+      const cb = afterFlash.current; afterFlash.current = null; cb();
+    }
+  }, [factData]);
+
+  if (factData) return <FactFlash key="target-fact" data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }}>
@@ -7287,7 +7381,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
               onHoverEnd={() => setHovered(null)}
               onClick={() => {
                 const fact = ONBOARDING_FACTS.archetype[arch.id] || ONBOARDING_FACTS.archetype.default;
-                setFactData({ ...fact, onDone: () => { setFactData(null); onSelect(arch.id); } });
+                flash(fact, () => onSelect(arch.id));
               }}
               style={{
                 background: hovered===arch.id

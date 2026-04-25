@@ -6343,8 +6343,266 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
             TAP AN RVN NFC POINT TO UNLOCK THE LOCAL EXPERIENCE
           </div>
         </motion.div>
+
+        {/* ── Social Proof ─────────────────────────────────────────────────── */}
+        <motion.div
+          initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:1.3, duration:0.5 }}
+          style={{ marginTop:28, width:"100%", maxWidth:340 }}>
+          {/* Stats row */}
+          <div style={{ display:"flex", gap:10, marginBottom:14 }}>
+            {[
+              { num:"14,200+", label:"PROTOCOLS BUILT" },
+              { num:"89%",     label:"HIT GOAL WK 4"  },
+              { num:"4.9★",    label:"APP RATING"     },
+            ].map(s => (
+              <div key={s.label} style={{
+                flex:1, textAlign:"center", padding:"12px 6px",
+                background:T.glass, border:`1px solid ${T.border}`,
+                backdropFilter:"blur(12px)", borderRadius:14,
+              }}>
+                <div style={{ fontSize:16, fontWeight:900, color:T.text, letterSpacing:"-.01em" }}>{s.num}</div>
+                <div style={{ fontSize:7.5, fontWeight:700, letterSpacing:".1em", color:T.faint, marginTop:3 }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
+          {/* Testimonials */}
+          {[
+            { q:"Lost 18lbs in 12 weeks. I didn't change my workout — just followed the protocol.", name:"@marcus_lifts" },
+            { q:"The bio-score made me realize I was doing way too much. Less sessions, more results.", name:"@sarabfit" },
+          ].map((t, i) => (
+            <motion.div key={i}
+              initial={{ opacity:0, x: i===0?-16:16 }} animate={{ opacity:1, x:0 }}
+              transition={{ delay:1.45+i*0.1 }}
+              style={{
+                padding:"14px 16px", marginBottom:10,
+                background:T.glass, border:`1px solid ${T.border}`,
+                backdropFilter:"blur(12px)", borderRadius:16,
+              }}>
+              <div style={{ fontSize:12, color:T.text, lineHeight:1.55, marginBottom:8, fontStyle:"italic" }}>
+                "{t.q}"
+              </div>
+              <div style={{ fontSize:10, fontWeight:700, color:ac, letterSpacing:".08em" }}>{t.name}</div>
+            </motion.div>
+          ))}
+        </motion.div>
+
       </div>
     </Screen>
+  );
+}
+
+// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  STREAK SYSTEM  ·  NOTIFICATIONS  ·  SHARE CARD                        ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+// ─── STREAK SYSTEM ────────────────────────────────────────────────────────────
+const STREAK_KEY = "rvn_streaks";
+function _loadStreaks() {
+  try { return JSON.parse(localStorage.getItem(STREAK_KEY) || "{}"); } catch { return {}; }
+}
+function _saveStreaks(s) {
+  try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); } catch {}
+}
+function _todayStr() { return new Date().toISOString().slice(0,10); }
+function _yestStr()  { const d=new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
+
+function getStreaks() {
+  const s = _loadStreaks();
+  const session = s.sessionStreak || 0;
+  const macro   = s.macroStreak   || 0;
+  const sleep   = s.sleepStreak   || 0;
+  return { session, macro, sleep, best: Math.max(session, macro, sleep), lastSession: s.lastSessionDate || null };
+}
+
+function bumpStreak(type) {
+  // type: "session" | "macro" | "sleep"
+  const s = _loadStreaks();
+  const today = _todayStr(), yest = _yestStr();
+  const lastKey   = `last${type[0].toUpperCase()+type.slice(1)}Date`;
+  const streakKey = `${type}Streak`;
+  const last   = s[lastKey];
+  let streak = s[streakKey] || 0;
+  if (last === today)  return streak;           // already logged today
+  if (last === yest)   streak += 1;             // consecutive — extend
+  else                 streak  = 1;             // broke streak
+  _saveStreaks({ ...s, [lastKey]: today, [streakKey]: streak });
+  return streak;
+}
+
+// ─── NOTIFICATIONS ────────────────────────────────────────────────────────────
+async function requestNotifPermission() {
+  if (!("Notification" in window))                    return false;
+  if (Notification.permission === "granted")          return true;
+  if (Notification.permission === "denied")           return false;
+  return (await Notification.requestPermission()) === "granted";
+}
+
+function _fireNotif(title, body, delayMs) {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  setTimeout(() => {
+    try { new Notification(title, { body, icon:"/favicon.ico", tag:title }); } catch {}
+  }, delayMs);
+}
+
+function scheduleDailyNotifs() {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const key = `rvn_notif_${_todayStr()}`;
+  if (localStorage.getItem(key)) return;
+  localStorage.setItem(key, "1");
+  const now = new Date();
+  const at = (h, m) => { const d=new Date(now); d.setHours(h,m,0,0); return d-now; };
+  // Pre-workout caffeine: 4:20 pm (40 min before 5 pm)
+  if (at(16,20) > 0) _fireNotif("⚡ Pre-Workout Window","Take your pre-workout now — peaks in 40 min.",at(16,20));
+  // Macro nudge: 6 pm
+  if (at(18,0)  > 0) _fireNotif("🥩 Protein Check","Have you hit your protein today? Log to keep your streak alive.",at(18,0));
+  // Sleep reminder: 10 pm
+  if (at(22,0)  > 0) _fireNotif("😴 Recovery Window","Wind down now. Sleep is when you grow.",at(22,0));
+}
+
+// ─── SHARE CARD ───────────────────────────────────────────────────────────────
+function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
+  const T  = D[theme] || D.dark;
+  const ac = arch?.color || arch?.glow || "#2E5BFF";
+  const archName = arch?.name || "ATHLETE";
+  const streak   = streaks?.best || streaks?.session || 0;
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${archName} · RVN OS`,
+          text:  `Bio-Score ${bioScore} | ${streak} day streak 🔥\nMy personalized training protocol.`,
+          url:   window.location.href,
+        });
+        return;
+      }
+    } catch {}
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(
+        `RVN OS · ${archName}\nBio-Score ${bioScore} · ${streak} day streak 🔥\n${window.location.href}`
+      );
+      alert("Link copied! Paste it anywhere to share.");
+    } catch {}
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+      style={{
+        position:"fixed", inset:0, zIndex:10000,
+        background: theme==="dark" ? "rgba(7,8,26,0.94)" : "rgba(241,241,248,0.96)",
+        backdropFilter:"blur(20px)",
+        display:"flex", flexDirection:"column",
+        alignItems:"center", justifyContent:"center",
+        padding:"24px",
+      }}>
+      {/* Close */}
+      <motion.button whileTap={{ scale:.88 }} onClick={onClose}
+        style={{
+          position:"absolute", top:20, right:20,
+          background:T.glass, border:`1px solid ${T.border}`,
+          borderRadius:"50%", width:36, height:36,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          cursor:"pointer", fontSize:16, color:T.muted,
+        }}>✕</motion.button>
+
+      {/* Card */}
+      <motion.div
+        initial={{ scale:0.88, y:20 }} animate={{ scale:1, y:0 }}
+        transition={{ delay:0.05, duration:0.4, ease:[.22,1,.36,1] }}
+        style={{
+          width:"100%", maxWidth:320, borderRadius:28,
+          background: theme==="dark" ? "#0E0F22" : "#ffffff",
+          border:`1.5px solid ${ac}30`,
+          padding:"32px 28px 28px",
+          boxShadow:`0 0 80px ${ac}25, inset 0 0 0 1px ${ac}10`,
+          position:"relative", overflow:"hidden",
+        }}>
+        {/* Glow layer */}
+        <div style={{
+          position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 90% 55% at 50% -10%, ${ac}18, transparent)`,
+        }}/>
+
+        {/* Logo row */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:22 }}>
+          <RVNLogo size={28} glow={ac}/>
+          <div style={{ fontSize:8, fontWeight:800, letterSpacing:".16em", color:ac, opacity:0.7 }}>RVN OS · PROTOCOL</div>
+        </div>
+
+        {/* Archetype */}
+        <div style={{ marginBottom:20 }}>
+          <div style={{ fontSize:10, fontWeight:700, letterSpacing:".14em", color:ac, opacity:0.8, marginBottom:5 }}>ARCHETYPE</div>
+          <div style={{ fontSize:34, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1 }}>
+            {archName.toUpperCase()}
+          </div>
+          {arch?.signature && (
+            <div style={{ fontSize:11, color:T.muted, marginTop:5, fontStyle:"italic" }}>{arch.signature}</div>
+          )}
+        </div>
+
+        {/* Score + Streak */}
+        <div style={{ display:"flex", gap:12, marginBottom:18 }}>
+          {[
+            { l:"BIO-SCORE", v: bioScore, suffix:"" },
+            { l:"STREAK",    v: streak,   suffix:" 🔥" },
+          ].map(item => (
+            <div key={item.l} style={{
+              flex:1, padding:"14px 14px", borderRadius:16,
+              background:`${ac}10`, border:`1px solid ${ac}25`,
+            }}>
+              <div style={{ fontSize:8.5, fontWeight:800, letterSpacing:".13em", color:ac, marginBottom:6, opacity:0.85 }}>{item.l}</div>
+              <div style={{ fontSize:38, fontWeight:900, color:ac, lineHeight:1 }}>
+                {item.v}<span style={{ fontSize:16 }}>{item.suffix}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Stats row */}
+        <div style={{ display:"flex", gap:8, marginBottom:22 }}>
+          {[
+            { l:"PROTEIN", v:`${profile?.macroGoals?.protein||180}g` },
+            { l:"SLEEP",   v:`${(profile?.sleepDays?.at?.(-1)||7.5).toFixed(1)}h` },
+            { l:"BENCH",   v:`${profile?.prs?.bench||185}` },
+          ].map(s => (
+            <div key={s.l} style={{
+              flex:1, textAlign:"center", padding:"10px 4px", borderRadius:12,
+              background:`${ac}08`, border:`1px solid ${ac}15`,
+            }}>
+              <div style={{ fontSize:7, fontWeight:800, letterSpacing:".1em", color:ac, opacity:0.65, marginBottom:4 }}>{s.l}</div>
+              <div style={{ fontSize:16, fontWeight:900, color:T.text }}>{s.v}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div style={{ textAlign:"center", fontSize:9.5, color:T.faint, letterSpacing:".1em" }}>
+          rvnos.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+        </div>
+      </motion.div>
+
+      {/* Share prompt */}
+      <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
+        style={{ marginTop:22, textAlign:"center", width:"100%", maxWidth:320 }}>
+        <div style={{ fontSize:12, color:T.faint, marginBottom:14, letterSpacing:".04em" }}>
+          Screenshot this or tap to share
+        </div>
+        <motion.button whileTap={{ scale:.96 }} onClick={handleShare}
+          style={{
+            width:"100%", padding:"16px 0",
+            background: ac, color:"#fff",
+            border:"none", borderRadius:16,
+            fontSize:15, fontWeight:900,
+            cursor:"pointer", letterSpacing:".06em",
+            boxShadow:`0 8px 32px ${ac}44`,
+          }}>
+          SHARE MY PROTOCOL →
+        </motion.button>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -8524,6 +8782,22 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // ── Streak + Share + Check-in ─────────────────────────────────────────────
+  const [streaks,     setStreaks]     = useState(() => getStreaks());
+  const [shareOpen,   setShareOpen]   = useState(false);
+  const [checkInDone, setCheckInDone] = useState(() => {
+    try { return localStorage.getItem("rvn_checkin") === _todayStr(); } catch { return false; }
+  });
+
+  // Request notification permission + schedule daily notifs on first load
+  useEffect(() => {
+    (async () => {
+      const granted = await requestNotifPermission();
+      if (granted) scheduleDailyNotifs();
+    })();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [editingSleep,  setEditingSleep]  = useState(false);
   const [editingMacros, setEditingMacros] = useState(false);
   const [editingPRs,    setEditingPRs]    = useState(false);
@@ -8640,6 +8914,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
         const prev = parseInt(localStorage.getItem("rvn_session_count") || "0", 10);
         localStorage.setItem("rvn_session_count", String(prev + 1));
       } catch (_) {}
+      // Update session streak
+      bumpStreak("session");
+      setStreaks(getStreaks());
       track("Workout Logged", {
         archetype:   archetypeId,
         sets_done:   Object.values(setsDone).filter(Boolean).length,
@@ -8668,8 +8945,36 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
   const doneSets  = Object.values(setsDone).filter(Boolean).length;
   const progress  = totalSets > 0 ? (doneSets/totalSets)*100 : 0;
 
+  const bioScore = calcBioScore(archetypeId, bioData);
+
+  // One-tap check-in handler
+  const handleCheckIn = () => {
+    if (checkInDone) return;
+    try { localStorage.setItem("rvn_checkin", _todayStr()); } catch {}
+    const newStreak = bumpStreak("session");
+    setStreaks(getStreaks());
+    setCheckInDone(true);
+    track("Quick Check-In", { archetype: archetypeId, streak: newStreak });
+  };
+
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }}>
+
+      {/* ── Share Card overlay ───────────────────────────────────────────── */}
+      <AnimatePresence>
+        {shareOpen && (
+          <ShareCard
+            key="share-card"
+            arch={arch}
+            bioScore={bioScore}
+            streaks={streaks}
+            profile={profile}
+            theme={theme}
+            onClose={() => setShareOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sticky header */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
@@ -8679,7 +8984,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
       }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
           <BackBtn onBack={onBack} theme={theme}/>
-          <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             {onMorningBrief && (
               <motion.button whileTap={{ scale:.9 }} onClick={onMorningBrief}
                 style={{
@@ -8698,6 +9003,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                 GYM MODE · ACTIVE
               </div>
             </div>
+            {/* Share button */}
+            <motion.button whileTap={{ scale:.85 }} onClick={() => setShareOpen(true)}
+              style={{ background:`${arch.glow}18`, border:`1px solid ${arch.glow}44`, borderRadius:8,
+                width:32, height:32, display:"flex", alignItems:"center", justifyContent:"center",
+                cursor:"pointer", fontSize:15, flexShrink:0 }}>
+              ↑
+            </motion.button>
             {/* Settings gear */}
             <motion.button whileTap={{ scale:.85 }} onClick={() => setSettingsOpen(true)}
               style={{ background:"transparent", border:`1px solid ${T.border}`, borderRadius:8,
@@ -8707,6 +9019,37 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
             </motion.button>
           </div>
         </div>
+
+        {/* Streak + Check-in bar */}
+        <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:7 }}>
+          {/* Streak pill */}
+          <div style={{
+            display:"flex", alignItems:"center", gap:6,
+            background:`${arch.glow}12`, border:`1px solid ${arch.glow}30`,
+            borderRadius:20, padding:"5px 12px",
+          }}>
+            <span style={{ fontSize:14 }}>🔥</span>
+            <span style={{ fontSize:12, fontWeight:900, color:arch.glow }}>{streaks.session}</span>
+            <span style={{ fontSize:9, fontWeight:700, color:arch.glow, opacity:0.7, letterSpacing:".08em" }}>DAY STREAK</span>
+          </div>
+          {/* One-tap check-in */}
+          <motion.button
+            whileTap={{ scale: checkInDone ? 1 : .94 }}
+            onClick={handleCheckIn}
+            style={{
+              flex:1, padding:"6px 14px",
+              background: checkInDone ? `${arch.glow}22` : arch.glow,
+              border: `1px solid ${arch.glow}55`,
+              borderRadius:20, cursor: checkInDone ? "default" : "pointer",
+              fontSize:11, fontWeight:900,
+              color: checkInDone ? arch.glow : "#fff",
+              letterSpacing:".08em",
+              transition:"all .2s",
+            }}>
+            {checkInDone ? "✓ CHECKED IN TODAY" : "CHECK IN  →"}
+          </motion.button>
+        </div>
+
         {/* Workout progress bar */}
         <div style={{ display:"flex", alignItems:"center", gap:8 }}>
           <div style={{ flex:1, height:3, background:T.glass, borderRadius:2, overflow:"hidden" }}>
@@ -9321,7 +9664,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                               </div>
                             </div>
                           ))}
-                          <button onClick={() => { saveProfile({ macroGoals:draftMacros.goals, macroToday:draftMacros.today }); setEditingMacros(false); }}
+                          <button onClick={() => { saveProfile({ macroGoals:draftMacros.goals, macroToday:draftMacros.today }); bumpStreak("macro"); setStreaks(getStreaks()); setEditingMacros(false); }}
                             style={{ padding:"9px", borderRadius:10, background:T.blue, color:"#fff", border:"none", fontSize:12, fontWeight:800, cursor:"pointer" }}>
                             SAVE MACROS
                           </button>

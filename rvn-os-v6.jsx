@@ -6351,179 +6351,270 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
 // ─── STORY ONBOARDING FACTS ───────────────────────────────────────────────────
 // ─── FACT VISUALS (animated SVG illustrations) ────────────────────────────────
 function FactVisual({ type, color: C }) {
-  if (type === "bar_compare") return (
-    <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
-      <motion.rect x="10" y="82" width="34" height="12" rx="4" fill={C}
-        initial={{ height:0, y:94 }} animate={{ height:12, y:82 }}
-        transition={{ delay:0.25, duration:0.4, ease:[.22,1,.36,1] }}/>
-      <motion.rect x="62" y="12" width="68" height="82" rx="5" fill={C} opacity={0.12}
-        initial={{ height:0, y:94 }} animate={{ height:82, y:12 }}
-        transition={{ delay:0.35, duration:0.6, ease:[.22,1,.36,1] }}/>
-      <motion.rect x="62" y="12" width="68" height="82" rx="5" fill="none" stroke={C} strokeWidth="1.5"
-        initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:"94px 94px" }}
-        transition={{ delay:0.35, duration:0.6, ease:[.22,1,.36,1] }}/>
-      <text x="27" y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.6" fontFamily="inherit" fontWeight="700">GYM</text>
-      <text x="96" y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.6" fontFamily="inherit" fontWeight="700">REST</text>
-    </svg>
-  );
+
+  // 168 tiny dots (24×7 = 1 week of hours). 1 glows bright — the gym hour.
+  if (type === "bar_compare") {
+    const COLS = 24, ROWS = 7, S = 6, G = 2; // size, gap
+    return (
+      <svg viewBox={`0 0 ${COLS*(S+G)} ${ROWS*(S+G)+14}`} width={COLS*(S+G)} height={ROWS*(S+G)+14} style={{ overflow:"visible" }}>
+        {Array.from({length: COLS*ROWS}).map((_,i) => {
+          const col = i % COLS, row = Math.floor(i / COLS);
+          const isGym = i === 0;
+          return (
+            <motion.rect key={i}
+              x={col*(S+G)} y={row*(S+G)} width={S} height={S} rx="1.5"
+              fill={C}
+              initial={{ opacity:0 }}
+              animate={{ opacity: isGym ? 1 : 0.11 }}
+              transition={{ delay: isGym ? 0.05 : 0.08 + i*0.004, duration:0.2 }}/>
+          );
+        })}
+        {/* Pulsing ring on the gym dot */}
+        <motion.rect x={-3} y={-3} width={S+6} height={S+6} rx="4" fill="none" stroke={C} strokeWidth="1.2"
+          animate={{ opacity:[0,0.8,0], scale:[0.7,1.4,0.7] }}
+          style={{ transformOrigin:`${S/2}px ${S/2}px` }}
+          transition={{ delay:0.6, duration:1.2, repeat:Infinity }}/>
+        <text x={0} y={ROWS*(S+G)+13} fontSize="8" fill={C} opacity="0.45" fontFamily="inherit" fontWeight="700">← GYM</text>
+        <text x={COLS*(S+G)-2} y={ROWS*(S+G)+13} textAnchor="end" fontSize="8" fill={C} opacity="0.3" fontFamily="inherit">REST →</text>
+      </svg>
+    );
+  }
+
+  // Dumbbell for "zero women got bulky"
   if (type === "dumbbell") return (
-    <svg viewBox="0 0 160 56" width="160" height="56" style={{ overflow:"visible" }}>
-      {[{x:6},{x:122}].map((p,i) => (
+    <svg viewBox="0 0 180 60" width="180" height="60">
+      {[{x:4},{x:140}].map((p,i) => (
         <g key={i}>
-          <motion.rect x={p.x} y="10" width="22" height="36" rx="6" fill={C} opacity={0.2}
-            initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:`${p.x+11}px 28px` }}
-            transition={{ delay:0.2, duration:0.4 }}/>
-          <motion.rect x={p.x} y="10" width="22" height="36" rx="6" fill="none" stroke={C} strokeWidth="1.5"
-            initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:`${p.x+11}px 28px` }}
-            transition={{ delay:0.2, duration:0.4 }}/>
+          <motion.rect x={p.x} y="8" width="28" height="44" rx="8" fill={C} opacity={0.18}
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${p.x+14}px 30px` }}
+            transition={{ delay:0.15, duration:0.4, ease:[.22,1,.36,1] }}/>
+          <motion.rect x={p.x} y="8" width="28" height="44" rx="8" fill="none" stroke={C} strokeWidth="2"
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${p.x+14}px 30px` }}
+            transition={{ delay:0.15, duration:0.4, ease:[.22,1,.36,1] }}/>
         </g>
       ))}
-      <motion.rect x="28" y="23" width="18" height="10" rx="3" fill={C}
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"28px 28px" }}
-        transition={{ delay:0.38, duration:0.3 }}/>
-      <motion.rect x="114" y="23" width="18" height="10" rx="3" fill={C}
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"132px 28px" }}
-        transition={{ delay:0.38, duration:0.3 }}/>
-      <motion.rect x="46" y="25" width="68" height="6" rx="3" fill={C} opacity={0.55}
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 28px" }}
-        transition={{ delay:0.5, duration:0.4 }}/>
-      <motion.text x="148" y="12" fontSize="16"
-        initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
-        transition={{ delay:0.85, duration:0.3, type:"spring" }}>✦</motion.text>
+      <motion.rect x="32" y="22" width="20" height="16" rx="5" fill={C}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"32px 30px" }}
+        transition={{ delay:0.32, duration:0.3 }}/>
+      <motion.rect x="128" y="22" width="20" height="16" rx="5" fill={C}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"148px 30px" }}
+        transition={{ delay:0.32, duration:0.3 }}/>
+      <motion.rect x="52" y="25" width="76" height="10" rx="5" fill={C} opacity={0.5}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"90px 30px" }}
+        transition={{ delay:0.48, duration:0.4 }}/>
+      <motion.circle cx="90" cy="-8" r="10" fill={C} opacity={0.15}
+        animate={{ scale:[1,1.3,1], opacity:[0.15,0.35,0.15] }}
+        transition={{ delay:0.9, duration:1.2, repeat:Infinity }}/>
+      <motion.text x="90" y="-3" textAnchor="middle" fontSize="13"
+        initial={{ opacity:0, y:-16, scale:0 }} animate={{ opacity:1, y:-3, scale:1 }}
+        transition={{ delay:0.85, type:"spring", stiffness:300 }}>✨</motion.text>
     </svg>
   );
+
+  // Three growing bars: muscle synthesis over 24 / 48 / 72hrs
   if (type === "bars_grow") return (
-    <svg viewBox="0 0 140 90" width="140" height="90">
-      {[{x:8,h:34,l:"24h",d:0.2},{x:54,h:60,l:"48h",d:0.35},{x:100,h:80,l:"72h",d:0.5}].map(b => (
+    <svg viewBox="0 0 160 100" width="160" height="100">
+      {[{x:6,h:28,l:"24h",d:0.15},{x:60,h:62,l:"48h",d:0.28},{x:114,h:90,l:"72h",d:0.42}].map(b => (
         <g key={b.l}>
-          <motion.rect x={b.x} y={82-b.h} width="32" height={b.h} rx="5" fill={C} opacity={0.18}
-            initial={{ height:0, y:82 }} animate={{ height:b.h, y:82-b.h }}
-            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
-          <motion.rect x={b.x} y={82-b.h} width="32" height={b.h} rx="5" fill="none" stroke={C} strokeWidth="1.5"
-            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+16}px 82px` }}
-            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
-          <text x={b.x+16} y="90" textAnchor="middle" fontSize="8" fill={C} opacity="0.55" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          <motion.rect x={b.x} y={88-b.h} width="40" height={b.h} rx="7" fill={C}
+            opacity={b.l==="48h"?0.5:0.2}
+            initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
+            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          <motion.rect x={b.x} y={88-b.h} width="40" height={b.h} rx="7" fill="none" stroke={C} strokeWidth="1.5"
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+20}px 88px` }}
+            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          <text x={b.x+20} y="98" textAnchor="middle" fontSize="9" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{b.l}</text>
         </g>
       ))}
+      {/* Arrow showing peak */}
+      <motion.path d="M134 0 L134 -4 L130 -2 M134 -4 L138 -2" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round"
+        initial={{ opacity:0 }} animate={{ opacity:0.7 }} transition={{ delay:0.8 }}/>
+      <motion.text x="134" y="8" textAnchor="middle" fontSize="7.5" fill={C} opacity="0.7" fontFamily="inherit" fontWeight="800"
+        initial={{ opacity:0 }} animate={{ opacity:0.7 }} transition={{ delay:0.85 }}>PEAK</motion.text>
     </svg>
   );
+
+  // Two bars: training day vs rest day — rest is taller
   if (type === "two_bars") return (
-    <svg viewBox="0 0 120 90" width="120" height="90">
-      {[{x:8,h:45,l:"TRAIN",d:0.2},{x:66,h:80,l:"REST",d:0.35}].map(b => (
+    <svg viewBox="0 0 140 100" width="140" height="100">
+      {[{x:8,h:36,l:"TRAIN",tag:"active",d:0.15},{x:76,h:84,l:"REST",tag:"grow",d:0.28}].map(b => (
         <g key={b.l}>
-          <motion.rect x={b.x} y={82-b.h} width="46" height={b.h} rx="6" fill={C}
-            opacity={b.l==="REST" ? 0.25 : 0.1}
-            initial={{ height:0, y:82 }} animate={{ height:b.h, y:82-b.h }}
-            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
-          <motion.rect x={b.x} y={82-b.h} width="46" height={b.h} rx="6" fill="none" stroke={C} strokeWidth="1.5"
-            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+23}px 82px` }}
-            transition={{ delay:b.d, duration:0.5, ease:[.22,1,.36,1] }}/>
-          <text x={b.x+23} y="90" textAnchor="middle" fontSize="8" fill={C} opacity="0.6" fontFamily="inherit" fontWeight="700">{b.l}</text>
-          {b.l==="REST" && <motion.text x={b.x+30} y={82-b.h-6} fontSize="14"
-            initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.8 }}>✦</motion.text>}
+          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
+            opacity={b.tag==="grow" ? 0.28 : 0.1}
+            initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
+            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill="none" stroke={C} strokeWidth="1.5"
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+28}px 88px` }}
+            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          <text x={b.x+28} y="98" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          {b.tag==="grow" && (
+            <motion.text x={b.x+28} y={88-b.h-8} textAnchor="middle" fontSize="14"
+              initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
+              transition={{ delay:0.75, type:"spring", stiffness:260 }}>⬆</motion.text>
+          )}
         </g>
       ))}
     </svg>
   );
+
+  // Clock face sweeping minute hand to :40
   if (type === "clock") return (
-    <svg viewBox="0 0 90 90" width="90" height="90">
-      <motion.circle cx="45" cy="45" r="38" fill="none" stroke={C} strokeWidth="1.5" opacity={0.35}
-        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.2, duration:0.6 }}/>
-      <circle cx="45" cy="45" r="3" fill={C}/>
-      {[0,3,6,9].map(i => {
-        const a=(i/12)*Math.PI*2-Math.PI/2;
-        return <line key={i} x1={45+30*Math.cos(a)} y1={45+30*Math.sin(a)} x2={45+36*Math.cos(a)} y2={45+36*Math.sin(a)} stroke={C} strokeWidth="1.5" opacity={0.4}/>;
+    <svg viewBox="0 0 100 100" width="100" height="100">
+      <circle cx="50" cy="50" r="42" fill={C} opacity={0.06}/>
+      <motion.circle cx="50" cy="50" r="42" fill="none" stroke={C} strokeWidth="2" opacity={0.3}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }}
+        transition={{ delay:0.1, duration:0.5 }}/>
+      {/* Tick marks at 12/3/6/9 */}
+      {[0,1,2,3].map(i => {
+        const a = (i/4)*Math.PI*2 - Math.PI/2;
+        return <line key={i}
+          x1={50+34*Math.cos(a)} y1={50+34*Math.sin(a)}
+          x2={50+40*Math.cos(a)} y2={50+40*Math.sin(a)}
+          stroke={C} strokeWidth="2.5" strokeLinecap="round" opacity={0.5}/>;
       })}
-      <motion.line x1="45" y1="45"
-        x2={45+26*Math.cos(-Math.PI/2+(40/60)*Math.PI*2)}
-        y2={45+26*Math.sin(-Math.PI/2+(40/60)*Math.PI*2)}
-        stroke={C} strokeWidth="2.5" strokeLinecap="round"
-        initial={{ rotate:-360, originX:"45px", originY:"45px" }}
-        animate={{ rotate: (40/60)*360-90 }}
-        transition={{ delay:0.45, duration:1, ease:[.22,1,.36,1] }}/>
-      <line x1="45" y1="45" x2="45" y2="20" stroke={C} strokeWidth="2" strokeLinecap="round" opacity={0.5}/>
-      <motion.text x="58" y="72" fontSize="8" fill={C} opacity="0.7" fontFamily="inherit" fontWeight="800"
-        initial={{ opacity:0 }} animate={{ opacity:0.7 }} transition={{ delay:1.1 }}>40min</motion.text>
-    </svg>
-  );
-  if (type === "battery") return (
-    <svg viewBox="0 0 140 60" width="140" height="60">
-      <motion.rect x="4" y="12" width="112" height="36" rx="8" fill="none" stroke={C} strokeWidth="1.5"
-        initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.2 }}/>
-      <rect x="116" y="22" width="16" height="16" rx="4" fill={C} opacity={0.4}/>
-      <rect x="10" y="18" width="100" height="24" rx="5" fill={C} opacity={0.07}/>
-      <motion.rect x="10" y="18" width="0" height="24" rx="5" fill={C} opacity={0.55}
-        animate={{ width:30 }} transition={{ delay:0.4, duration:0.8, ease:[.22,1,.36,1] }}/>
-      <motion.text x="70" y="34" textAnchor="middle" fontSize="9" fill={C} opacity="0.45"
+      {/* Hour hand pointing up (12) */}
+      <line x1="50" y1="50" x2="50" y2="22" stroke={C} strokeWidth="3" strokeLinecap="round" opacity={0.45}/>
+      {/* Minute hand sweeps from 0 → :40 (the 40min caffeine window) */}
+      <motion.line x1="50" y1="50"
+        x2={50+30*Math.cos(-Math.PI/2+(40/60)*2*Math.PI)}
+        y2={50+30*Math.sin(-Math.PI/2+(40/60)*2*Math.PI)}
+        stroke={C} strokeWidth="3" strokeLinecap="round"
+        initial={{ rotate:0 }} animate={{ rotate:(40/60)*360 }}
+        style={{ transformOrigin:"50px 50px" }}
+        transition={{ delay:0.35, duration:1.1, ease:[.22,1,.36,1] }}/>
+      {/* Center dot */}
+      <circle cx="50" cy="50" r="5" fill={C}/>
+      {/* :40 label */}
+      <motion.text x="50" y="72" textAnchor="middle" fontSize="9" fill={C} opacity="0"
         fontFamily="inherit" fontWeight="800"
-        initial={{ opacity:0 }} animate={{ opacity:0.45 }} transition={{ delay:1 }}>GAINS DRAINED</motion.text>
+        animate={{ opacity:0.75 }} transition={{ delay:1.3 }}>:40 MIN</motion.text>
     </svg>
   );
+
+  // Battery draining to 30% — sleep erases your gains
+  if (type === "battery") return (
+    <svg viewBox="0 0 160 68" width="160" height="68">
+      {/* Outer casing */}
+      <motion.rect x="4" y="14" width="128" height="40" rx="9" fill="none" stroke={C} strokeWidth="2"
+        initial={{ opacity:0 }} animate={{ opacity:0.6 }} transition={{ delay:0.1 }}/>
+      {/* Terminal nub */}
+      <rect x="132" y="26" width="18" height="16" rx="5" fill={C} opacity={0.35}/>
+      {/* Full bar (background) */}
+      <rect x="10" y="20" width="116" height="28" rx="6" fill={C} opacity={0.07}/>
+      {/* Fill: starts full, drains to 30% */}
+      <motion.rect x="10" y="20" width="116" height="28" rx="6" fill={C} opacity={0.7}
+        animate={{ width: 35, opacity:0.55 }}
+        transition={{ delay:0.35, duration:1.1, ease:[.22,1,.36,1] }}/>
+      {/* % label inside */}
+      <motion.text x="78" y="38" textAnchor="middle" fontSize="10" fill={C}
+        fontFamily="inherit" fontWeight="900"
+        initial={{ opacity:0 }} animate={{ opacity:0.5 }} transition={{ delay:1.3 }}>70% GONE</motion.text>
+    </svg>
+  );
+
+  // Dot timeline: soreness peaks at 72hrs
   if (type === "timeline_dots") return (
-    <svg viewBox="0 0 200 52" width="200" height="52">
-      <motion.line x1="20" y1="24" x2="180" y2="24" stroke={C} strokeWidth="1" opacity={0.25}
-        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.2, duration:0.5 }}/>
-      {[{x:20,l:"0h"},{x:60,l:"24h"},{x:100,l:"48h"},{x:140,l:"72h",bright:true},{x:180,l:"96h"}].map((d,i) => (
+    <svg viewBox="0 0 220 58" width="220" height="58">
+      <motion.line x1="18" y1="26" x2="202" y2="26" stroke={C} strokeWidth="1.5" opacity={0.2}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.1, duration:0.5 }}/>
+      {[{x:18,l:"0h"},{x:64,l:"24h"},{x:110,l:"48h"},{x:156,l:"72h",peak:true},{x:202,l:"96h"}].map((d,i) => (
         <g key={d.l}>
-          <motion.circle cx={d.x} cy="24" r={d.bright?9:6} fill={C}
-            opacity={d.bright?1:0.2+i*0.1}
+          <motion.circle cx={d.x} cy="26" r={d.peak?11:7} fill={C}
+            opacity={d.peak?1:0.15+i*0.08}
             initial={{ scale:0 }} animate={{ scale:1 }}
-            transition={{ delay:0.2+i*0.12, duration:0.3, type:"spring" }}/>
-          <text x={d.x} y="44" textAnchor="middle" fontSize="7.5" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{d.l}</text>
-          {d.bright && <motion.circle cx={d.x} cy="24" r="16" fill="none" stroke={C} strokeWidth="1"
-            animate={{ opacity:[0,0.5,0], scale:[0.8,1.2,0.8] }}
-            transition={{ delay:0.9, duration:1.4, repeat:Infinity }}/>}
+            transition={{ delay:0.18+i*0.13, duration:0.3, type:"spring", stiffness:280 }}/>
+          <text x={d.x} y="48" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{d.l}</text>
+          {d.peak && <>
+            <motion.circle cx={d.x} cy="26" r="20" fill="none" stroke={C} strokeWidth="1.2"
+              animate={{ opacity:[0,0.55,0], r:[12,22,12] }}
+              transition={{ delay:0.9, duration:1.3, repeat:Infinity }}/>
+            <text x={d.x} y="30" textAnchor="middle" fontSize="8" fill="#07081A" fontFamily="inherit" fontWeight="900">😬</text>
+          </>}
         </g>
       ))}
     </svg>
   );
+
+  // Brain with radiating pulse rings — CNS recovery
   if (type === "brain_pulse") return (
-    <svg viewBox="0 0 100 80" width="100" height="80">
-      <motion.path d="M50 16 C36 9,18 16,18 33 C18 43,24 49,22 57 C20 65,28 71,38 69 C42 75,48 77,50 77 C52 77,58 75,62 69 C72 71,80 65,78 57 C76 49,82 43,82 33 C82 16,64 9,50 16 Z"
-        fill={C} opacity={0.15} stroke={C} strokeWidth="1.5"
-        initial={{ opacity:0, scale:0.7 }} animate={{ opacity:0.15, scale:1 }}
-        transition={{ delay:0.2, duration:0.5 }}/>
+    <svg viewBox="0 0 120 96" width="120" height="96">
+      {/* Brain silhouette */}
+      <motion.path d="M60 18 C44 10,22 18,22 38 C22 50,29 57,27 66 C25 75,34 82,46 80 C50 87,56 90,60 90 C64 90,70 87,74 80 C86 82,95 75,93 66 C91 57,98 50,98 38 C98 18,76 10,60 18 Z"
+        fill={C} opacity={0.2} stroke={C} strokeWidth="2"
+        initial={{ opacity:0, scale:0.6 }} animate={{ opacity:0.2, scale:1 }}
+        style={{ transformOrigin:"60px 54px" }}
+        transition={{ delay:0.15, duration:0.5, ease:[.22,1,.36,1] }}/>
+      {/* Pulse rings */}
       {[0,1,2].map(i => (
-        <motion.circle key={i} cx="50" cy="47" r={16+i*13} fill="none" stroke={C} strokeWidth="1"
-          animate={{ opacity:[0,0.45,0] }}
-          transition={{ delay:0.5+i*0.28, duration:1.3, repeat:Infinity, repeatDelay:0.4 }}/>
+        <motion.circle key={i} cx="60" cy="54" r={18+i*14} fill="none" stroke={C} strokeWidth="1.5"
+          animate={{ opacity:[0,0.5,0], scale:[0.85,1.15,0.85] }}
+          style={{ transformOrigin:"60px 54px" }}
+          transition={{ delay:0.5+i*0.3, duration:1.4, repeat:Infinity, repeatDelay:0.1 }}/>
       ))}
+      {/* Smile */}
+      <motion.path d="M52 62 Q60 70 68 62" fill="none" stroke={C} strokeWidth="2.5" strokeLinecap="round"
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }}
+        transition={{ delay:0.8, duration:0.4 }}/>
+      {/* Eyes */}
+      <motion.circle cx="51" cy="52" r="3" fill={C}
+        initial={{ scale:0 }} animate={{ scale:1 }} transition={{ delay:0.7, type:"spring" }}/>
+      <motion.circle cx="69" cy="52" r="3" fill={C}
+        initial={{ scale:0 }} animate={{ scale:1 }} transition={{ delay:0.75, type:"spring" }}/>
     </svg>
   );
+
+  // 10 dots filling in — caffeine tolerance resets in 10 days
   if (type === "calendar_dots") return (
-    <svg viewBox="0 0 180 50" width="180" height="50">
+    <svg viewBox="0 0 198 56" width="198" height="56">
       {Array.from({length:10}).map((_,i) => (
-        <motion.circle key={i} cx={14+i*16} cy="24" r="7"
-          fill={C} opacity={i<3?0.15:0.85} stroke={C} strokeWidth="1"
-          initial={{ scale:0 }} animate={{ scale:1 }}
-          transition={{ delay:0.12+i*0.07, duration:0.25, type:"spring" }}>
-        </motion.circle>
+        <g key={i}>
+          <motion.circle cx={16+i*18} cy="26" r="8"
+            fill={C} opacity={i < 3 ? 0.12 : 0.85}
+            initial={{ scale:0 }} animate={{ scale:1 }}
+            transition={{ delay:0.1+i*0.09, duration:0.28, type:"spring", stiffness:260 }}/>
+          {/* Small day label */}
+          {i < 3 && <text x={16+i*18} y="30" textAnchor="middle" fontSize="6.5" fill={C} opacity="0.35" fontFamily="inherit" fontWeight="700">•</text>}
+          {i >= 3 && <motion.text x={16+i*18} y="30" textAnchor="middle" fontSize="7" fill="#07081A"
+            fontFamily="inherit" fontWeight="900"
+            initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.2+i*0.09 }}>✓</motion.text>}
+        </g>
       ))}
-      <motion.text x="90" y="46" textAnchor="middle" fontSize="8" fill={C} opacity="0.5"
+      <motion.text x="99" y="50" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.5"
         fontFamily="inherit" fontWeight="700"
-        initial={{ opacity:0 }} animate={{ opacity:0.5 }} transition={{ delay:1 }}>DAYS TO RESET TOLERANCE</motion.text>
+        initial={{ opacity:0 }} animate={{ opacity:0.5 }} transition={{ delay:1.1 }}>10 DAYS · FULL RESET</motion.text>
     </svg>
   );
+
+  // Half-gauge speedometer — caffeine sweet spot
   if (type === "gauge") return (
-    <svg viewBox="0 0 130 75" width="130" height="75">
-      <motion.path d="M15 68 A 50 50 0 0 1 115 68" fill="none" stroke={C} strokeWidth="4" opacity={0.15} strokeLinecap="round"/>
-      <motion.path d="M15 68 A 50 50 0 0 1 115 68" fill="none" stroke={C} strokeWidth="4"
+    <svg viewBox="0 0 140 80" width="140" height="80">
+      {/* Track */}
+      <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke={C} strokeWidth="6" opacity={0.12} strokeLinecap="round"/>
+      {/* Fill to ~50% (200mg sweet spot) */}
+      <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke={C} strokeWidth="6"
         strokeLinecap="round" pathLength="1"
         initial={{ pathLength:0 }} animate={{ pathLength:0.5 }}
-        transition={{ delay:0.4, duration:0.8, ease:[.22,1,.36,1] }}/>
-      <motion.line x1="65" y1="68" x2="65" y2="26"
-        stroke={C} strokeWidth="2.5" strokeLinecap="round"
-        style={{ transformOrigin:"65px 68px" }}
+        transition={{ delay:0.3, duration:0.9, ease:[.22,1,.36,1] }}/>
+      {/* Danger zone at end */}
+      <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke="#FF4B2B" strokeWidth="6"
+        strokeLinecap="round" pathLength="1" strokeDasharray="0.25 0.75" strokeDashoffset="-0.75" opacity={0.4}
+        initial={{ opacity:0 }} animate={{ opacity:0.35 }} transition={{ delay:0.9 }}/>
+      {/* Needle */}
+      <motion.line x1="70" y1="72" x2="70" y2="28"
+        stroke={C} strokeWidth="3" strokeLinecap="round"
+        style={{ transformOrigin:"70px 72px" }}
         initial={{ rotate:-90 }} animate={{ rotate:0 }}
-        transition={{ delay:0.5, duration:0.8, ease:[.22,1,.36,1] }}/>
-      <circle cx="65" cy="68" r="5" fill={C}/>
-      <text x="10" y="65" fontSize="8" fill={C} opacity="0.45" fontFamily="inherit">0</text>
-      <text x="109" y="65" fontSize="8" fill={C} opacity="0.45" fontFamily="inherit">∞</text>
-      <motion.text x="65" y="50" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.8"
-        fontFamily="inherit" fontWeight="800"
-        initial={{ opacity:0 }} animate={{ opacity:0.8 }} transition={{ delay:1 }}>SWEET SPOT</motion.text>
+        transition={{ delay:0.4, duration:0.9, ease:[.22,1,.36,1] }}/>
+      <circle cx="70" cy="72" r="6" fill={C}/>
+      {/* Labels */}
+      <text x="10" y="70" fontSize="8" fill={C} opacity="0.35" fontFamily="inherit">0</text>
+      <text x="118" y="70" fontSize="8" fill={C} opacity="0.35" fontFamily="inherit">∞</text>
+      <motion.text x="70" y="54" textAnchor="middle" fontSize="9" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="900"
+        animate={{ opacity:0.8 }} transition={{ delay:1.1 }}>SWEET SPOT</motion.text>
     </svg>
   );
+
   return null;
 }
 

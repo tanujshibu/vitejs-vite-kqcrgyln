@@ -7298,8 +7298,8 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
 
             {/* Password */}
             <GlassCard theme={theme}
-              style={{ padding:"14px 16px", marginBottom:10,
-                border:`1px solid ${ac}22`, marginBottom:14 }}>
+              style={{ padding:"14px 16px", marginBottom:14,
+                border:`1px solid ${ac}22` }}>
               <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
                 PASSWORD <span style={{ color:T.red }}>*</span>
                 <span style={{ color:T.faint, fontWeight:500, marginLeft:6 }}>min 8 chars</span>

@@ -6908,32 +6908,32 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Fat layer slides up, abs blocks revealed underneath
+  // Fat layer slides up, abs blocks (2 cols × 3 rows — vertical six-pack) revealed
   if (type === "layer_reveal") return (
-    <svg viewBox="0 0 160 78" width="160" height="78" style={{ overflow:"visible" }}>
-      {/* Abs: 6 blocks centered (3 cols × 2 rows) */}
+    <svg viewBox="0 0 160 106" width="160" height="106" style={{ overflow:"visible" }}>
+      {/* Abs: 2 cols × 3 rows, portrait blocks (vertical six-pack) */}
       {[0,1,2,3,4,5].map(i => {
-        const col = i%3, row = Math.floor(i/3);
-        const bx = 28 + col*36, by = 8 + row*34;
+        const col = i%2, row = Math.floor(i/2);
+        const bx = 54 + col*32, by = 4 + row*33;
         return (
-          <motion.rect key={i} x={bx} y={by} width="28" height="26" rx="7" fill={C}
-            opacity={0.75}
-            initial={{ opacity:0, scale:0.5 }} animate={{ opacity:0.75, scale:1 }}
-            style={{ transformOrigin:`${bx+14}px ${by+13}px` }}
-            transition={{ delay:0.65+i*0.07, type:"spring", stiffness:260 }}/>
+          <motion.rect key={i} x={bx} y={by} width="24" height="27" rx="7" fill={C}
+            opacity={0.8}
+            initial={{ opacity:0, scale:0.4 }} animate={{ opacity:0.8, scale:1 }}
+            style={{ transformOrigin:`${bx+12}px ${by+13}px` }}
+            transition={{ delay:0.65+i*0.08, type:"spring", stiffness:260 }}/>
         );
       })}
-      {/* Fat layer — covers all abs, slides up and fades */}
-      <motion.rect x="20" y="2" width="120" height="68" rx="12" fill={C}
-        initial={{ opacity:0.32, y:0 }} animate={{ opacity:0, y:-76 }}
-        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
-      <motion.rect x="20" y="2" width="120" height="68" rx="12" fill="none" stroke={C} strokeWidth="2"
-        initial={{ opacity:0.65, y:0 }} animate={{ opacity:0, y:-76 }}
-        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
-      <motion.text x="80" y="40" textAnchor="middle" fontSize="9" fill={C}
+      {/* Fat layer — covers all 6 abs, slides up and fades out */}
+      <motion.rect x="46" y="0" width="68" height="104" rx="12" fill={C}
+        initial={{ opacity:0.32, y:0 }} animate={{ opacity:0, y:-108 }}
+        transition={{ delay:0.15, duration:0.95, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="46" y="0" width="68" height="104" rx="12" fill="none" stroke={C} strokeWidth="2"
+        initial={{ opacity:0.65, y:0 }} animate={{ opacity:0, y:-108 }}
+        transition={{ delay:0.15, duration:0.95, ease:[.22,1,.36,1] }}/>
+      <motion.text x="80" y="54" textAnchor="middle" fontSize="8.5" fill={C}
         fontFamily="inherit" fontWeight="800"
-        initial={{ opacity:0.8, y:0 }} animate={{ opacity:0, y:-76 }}
-        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}>FAT LAYER</motion.text>
+        initial={{ opacity:0.8, y:0 }} animate={{ opacity:0, y:-108 }}
+        transition={{ delay:0.15, duration:0.95, ease:[.22,1,.36,1] }}>FAT LAYER</motion.text>
     </svg>
   );
 
@@ -12435,6 +12435,11 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
   const [armed, setArmed]   = useState(false);   // ready to capture set
   const [cameraReady, setCameraReady] = useState(false);
   const [cameraBlocked, setCameraBlocked] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [playbackUrl, setPlaybackUrl] = useState(null);
+  const [showPlayback, setShowPlayback] = useState(false);
+  const recorderRef = useRef(null);
+  const chunksRef = useRef([]);
   const [metrics, setMetrics] = useState({
     meanV: 0, peakV: 0, power: 0,
     reps: 0,
@@ -12937,7 +12942,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
 
       {/* ── CAMERA — full width, main focus ── */}
       <div style={{ flex: 1, position: "relative", background: T.bg, overflow: "hidden", minHeight: 0 }}>
-        <video ref={videoRef} playsInline muted autoPlay style={{ display: "none" }}/>
+        <video ref={videoRef} playsInline muted autoPlay style={{ position:"absolute", opacity:0, pointerEvents:"none", width:1, height:1 }}/>
         <canvas ref={canvasRef} style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
         }}/>
@@ -12990,7 +12995,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           </div>
         )}
 
-        {/* Velocity class — top-left corner, always readable pill */}
+        {/* Velocity class — top-left corner */}
         <div style={{
           position: "absolute", top: 14, left: 16, zIndex: 4, pointerEvents: "none",
           fontSize: 9, letterSpacing: ".22em", fontWeight: 800,
@@ -13000,6 +13005,75 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         }}>
           VEL CLASS · <span style={{ color: ac }}>{wClass}</span>
         </div>
+
+        {/* Record / Playback buttons — top right */}
+        <div style={{ position:"absolute", top:14, right:16, zIndex:5, display:"flex", gap:8 }}>
+          {playbackUrl && (
+            <button onClick={() => setShowPlayback(true)} style={{
+              padding:"6px 12px", borderRadius:8, border:`1px solid rgba(255,255,255,0.25)`,
+              background:"rgba(0,0,0,0.6)", color:"#fff", fontSize:10, fontWeight:800,
+              cursor:"pointer", letterSpacing:".1em",
+            }}>▶ PLAYBACK</button>
+          )}
+          <button
+            onClick={() => {
+              if (isRecording) {
+                recorderRef.current?.stop();
+                setIsRecording(false);
+              } else {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                chunksRef.current = [];
+                const stream = canvas.captureStream(30);
+                const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm" });
+                rec.ondataavailable = e => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+                rec.onstop = () => {
+                  const blob = new Blob(chunksRef.current, { type:"video/webm" });
+                  setPlaybackUrl(URL.createObjectURL(blob));
+                };
+                rec.start(100);
+                recorderRef.current = rec;
+                setIsRecording(true);
+              }
+            }}
+            style={{
+              padding:"6px 14px", borderRadius:8,
+              border:`1px solid ${isRecording ? "#FF453A" : "rgba(255,255,255,0.25)"}`,
+              background: isRecording ? "rgba(255,69,58,0.25)" : "rgba(0,0,0,0.6)",
+              color: isRecording ? "#FF453A" : "#fff", fontSize:10, fontWeight:800,
+              cursor:"pointer", letterSpacing:".1em",
+              boxShadow: isRecording ? "0 0 16px rgba(255,69,58,0.5)" : "none",
+            }}>
+            {isRecording ? "⏹ STOP" : "⏺ REC"}
+          </button>
+        </div>
+
+        {/* Playback modal */}
+        {showPlayback && playbackUrl && (
+          <div style={{
+            position:"absolute", inset:0, zIndex:20,
+            background:"rgba(0,0,0,0.92)", backdropFilter:"blur(12px)",
+            display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:16,
+          }}>
+            <div style={{ fontSize:10, letterSpacing:".2em", color:"rgba(255,255,255,0.5)", fontWeight:800 }}>SET PLAYBACK</div>
+            <video src={playbackUrl} controls playsInline loop
+              style={{ width:"100%", maxHeight:"70vh", borderRadius:12, border:"1px solid rgba(255,255,255,0.15)" }}/>
+            <div style={{ display:"flex", gap:12 }}>
+              <button onClick={() => {
+                const a = document.createElement("a"); a.href = playbackUrl;
+                a.download = `ghostbar-set-${Date.now()}.webm`; a.click();
+              }} style={{
+                padding:"10px 22px", borderRadius:10, background:ac, border:"none",
+                color:"#fff", fontSize:11, fontWeight:800, cursor:"pointer", letterSpacing:".08em",
+              }}>↓ SAVE</button>
+              <button onClick={() => setShowPlayback(false)} style={{
+                padding:"10px 22px", borderRadius:10, background:"transparent",
+                border:"1px solid rgba(255,255,255,0.2)", color:"rgba(255,255,255,0.6)",
+                fontSize:11, fontWeight:800, cursor:"pointer",
+              }}>CLOSE</button>
+            </div>
+          </div>
+        )}
 
         {/* Knee cave warning — top-right */}
         {metrics.kneeCave && (

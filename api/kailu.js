@@ -99,7 +99,7 @@ export default async function handler(req, res) {
         system: [
           {
             type: "text",
-            text: system || "You are Kailu, an elite performance AI inside RVN OS. Be concise, direct, and data-driven.",
+            text: system || "You are Kailu, a friendly and knowledgeable personal coach inside RVN OS. Be warm, conversational, and encouraging. Talk like a knowledgeable friend — not a textbook. Keep responses short and natural. Only get technical when the user asks for detail.",
             cache_control: { type: "ephemeral" },
           },
         ],

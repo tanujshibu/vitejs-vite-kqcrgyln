@@ -10143,7 +10143,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                         <>
                           <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                             {macros.map(m => {
-                              const pct = Math.min((m.current/m.goal)*100, 100);
+                              const pct = (m.goal > 0 && m.current >= 0) ? Math.min((m.current/m.goal)*100, 100) : 0;
                               return (
                                 <div key={m.label}>
                                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
@@ -12426,7 +12426,7 @@ async function lookupFoodViaClaude(foodText) {
   if (!base) return null;
   const system = `You are a precise nutrition database. The user describes a food item. Return ONLY valid JSON in this exact format, no other text:
 {"p":PROTEIN_GRAMS,"c":CARB_GRAMS,"f":FAT_GRAMS,"cal":CALORIES,"name":"CANONICAL_FOOD_NAME"}
-Use realistic values for standard serving sizes. If uncertain, give a conservative estimate. Never return null or refuse — always give your best estimate.`;
+Use the most accurate real-world values available. For restaurant items (fast food, chains), use the official published nutrition data — not generic estimates. For example: Chick-fil-A Spicy Deluxe Sandwich = {"p":39,"c":50,"f":19,"cal":520,"name":"CFA Spicy Deluxe Sandwich"}. Never underestimate fats or overestimate protein. Never return null or refuse — always give your best accurate estimate.`;
   try {
     const res = await fetch(base, {
       method:"POST", headers:{"Content-Type":"application/json"},
@@ -12813,7 +12813,7 @@ async function composeBioPalResponse(text, state) {
       }
     } else {
       // Unknown item — ask Claude for macros async, apply when ready
-      appliedDelta = { kind: "bioLogicLog", entry: { kind:"macros", protein:0, carbs:0, fats:0, name:text } };
+      appliedDelta = { kind: "bioLogicLog", entry: { kind:"macros", protein:0, carbs:0, fats:0, name:text, estimated:true } };
       lookupFoodViaClaude(text).then(ai => {
         if (ai) {
           const macros = { protein: ai.p, carbs: ai.c, fats: ai.f, calories: ai.cal, name: ai.name };
@@ -13455,7 +13455,10 @@ function WorkoutPlanCard({ plan, ac, T, theme }) {
 
 function deltaLabel(d) {
   if (!d) return "";
-  if (d.kind === "bioLogicLog"    && d.entry)  return `LOGGED ${d.entry.amount}${d.entry.unit} ${d.entry.kind}`;
+  if (d.kind === "bioLogicLog"    && d.entry) {
+    if (d.entry.amount != null && d.entry.unit) return `LOGGED ${d.entry.amount}${d.entry.unit} ${d.entry.name || d.entry.kind}`;
+    return `LOGGED ${d.entry.name || "FOOD"} · MACROS${d.entry.estimated ? " ~EST" : ""}`;
+  }
   if (d.kind === "bioLogicUpdate" && d.patch)  return `RECOVERY UI UPDATED`;
   if (d.kind === "navigate"       && d.screen) return `OPENING ${d.screen.toUpperCase()}`;
   if (d.kind === "scheduleLocked")               return `SCHEDULE LOCKED · ${d.count} BLOCKS`;
@@ -20679,8 +20682,8 @@ function RVNRoot() {
           name: "Tanuj", email: "tanujshibu@gmail.com",
           age: 21, gender: "male", activityLevel: "active",
           archetypeId: "vtaper", goal: "vtaper",
-          macroGoals: { protein: 180, carbs: 250, fat: 65, calories: 2300 },
-          macroToday: { protein: 0, carbs: 0, fat: 0, calories: 0 },
+          macroGoals: { protein: 180, carbs: 250, fats: 65, calories: 2300 },
+          macroToday: { protein: 0, carbs: 0, fats: 0, calories: 0 },
           sleepDays: [7, 6.5, 7.5, 8, 6, 7, 7.5],
           sleepTarget: 8,
           prs: { bench: 225, squat: 315, deadlift: 405, ohp: 135 },

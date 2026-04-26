@@ -6742,24 +6742,26 @@ function FactVisual({ type, color: C }) {
 
   // Three growing bars: muscle synthesis over 24 / 48 / 72hrs — 48h is PEAK
   if (type === "bars_grow") return (
-    <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
-      {[{x:6,h:40,l:"24h",d:0.15},{x:60,h:88,l:"48h",d:0.28},{x:114,h:52,l:"72h",d:0.42}].map(b => (
+    <svg viewBox="0 0 160 108" width="160" height="108" style={{ overflow:"visible" }}>
+      {/* PEAK label + arrow — lives at top of viewBox so it doesn't clip */}
+      <motion.text x="80" y="10" textAnchor="middle" fontSize="8" fill={C} fontFamily="inherit" fontWeight="900"
+        initial={{ opacity:0 }} animate={{ opacity:0.9 }} transition={{ delay:0.78 }}>▲ PEAK</motion.text>
+      {[{x:6,h:40,l:"24h",d:0.15},{x:60,h:82,l:"48h",d:0.28},{x:114,h:52,l:"72h",d:0.42}].map(b => (
         <g key={b.l}>
-          <motion.rect x={b.x} y={88-b.h} width="40" height={b.h} rx="7" fill={C}
-            opacity={b.l==="48h"?0.55:0.18}
-            initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
+          {/* Background track */}
+          <rect x={b.x} y={14} width="40" height={82} rx="7" fill={C} opacity={0.07}/>
+          {/* Filled bar */}
+          <motion.rect x={b.x} y={96-b.h} width="40" height={b.h} rx="7" fill={C}
+            opacity={b.l==="48h" ? 0.7 : 0.35}
+            initial={{ height:0, y:96 }} animate={{ height:b.h, y:96-b.h }}
             transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          <motion.rect x={b.x} y={88-b.h} width="40" height={b.h} rx="7" fill="none" stroke={C} strokeWidth="1.5"
-            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+20}px 88px` }}
+          {/* Stroke outline */}
+          <motion.rect x={b.x} y={96-b.h} width="40" height={b.h} rx="7" fill="none" stroke={C} strokeWidth="1.5"
+            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+20}px 96px` }}
             transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          <text x={b.x+20} y="98" textAnchor="middle" fontSize="9" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          <text x={b.x+20} y="106" textAnchor="middle" fontSize="9" fill={C} opacity="0.55" fontFamily="inherit" fontWeight="700">{b.l}</text>
         </g>
       ))}
-      {/* PEAK arrow above 48h bar (middle) */}
-      <motion.path d="M80 -4 L80 -9 L76 -7 M80 -9 L84 -7" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round"
-        initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.75 }}/>
-      <motion.text x="80" y="3" textAnchor="middle" fontSize="7.5" fill={C} fontFamily="inherit" fontWeight="900"
-        initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.8 }}>PEAK</motion.text>
     </svg>
   );
 
@@ -7114,41 +7116,51 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Hourglass: wide shoulders + narrow waist + wide hips
+  // Hourglass: dramatically wide shoulders → very narrow waist → wide hips
   if (type === "hourglass_form") return (
-    <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
-      <text x="80" y="8" textAnchor="middle" fontSize="7.5" fill={C} opacity="0.45" fontFamily="inherit" fontWeight="800">SHOULDERS  ↔</text>
-      {/* Top bar (shoulders) */}
-      <motion.rect x="10" y="12" width="140" height="22" rx="8" fill={C} opacity={0.18}
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 23px" }}
-        transition={{ delay:0.1, duration:0.45, ease:[.22,1,.36,1] }}/>
-      <motion.rect x="10" y="12" width="140" height="22" rx="8" fill="none" stroke={C} strokeWidth="2"
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 23px" }}
-        transition={{ delay:0.1, duration:0.45, ease:[.22,1,.36,1] }}/>
-      {/* Taper lines to waist */}
-      <motion.line x1="10" y1="34" x2="58" y2="52" stroke={C} strokeWidth="1.5" opacity={0.22}
-        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.42, duration:0.25 }}/>
-      <motion.line x1="150" y1="34" x2="102" y2="52" stroke={C} strokeWidth="1.5" opacity={0.22}
-        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.42, duration:0.25 }}/>
-      {/* Narrow waist bar */}
-      <motion.rect x="58" y="52" width="44" height="14" rx="6" fill={C} opacity={0.35}
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 59px" }}
-        transition={{ delay:0.32, duration:0.35 }}/>
-      {/* Flare lines to hips */}
-      <motion.line x1="58" y1="66" x2="18" y2="78" stroke={C} strokeWidth="1.5" opacity={0.22}
-        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.58, duration:0.25 }}/>
-      <motion.line x1="102" y1="66" x2="142" y2="78" stroke={C} strokeWidth="1.5" opacity={0.22}
-        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.58, duration:0.25 }}/>
-      {/* Bottom bar (hips) */}
-      <motion.rect x="18" y="78" width="124" height="18" rx="8" fill={C} opacity={0.18}
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 87px" }}
-        transition={{ delay:0.48, duration:0.45, ease:[.22,1,.36,1] }}/>
-      <motion.rect x="18" y="78" width="124" height="18" rx="8" fill="none" stroke={C} strokeWidth="2"
-        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 87px" }}
-        transition={{ delay:0.48, duration:0.45, ease:[.22,1,.36,1] }}/>
-      <motion.text x="80" y="100" textAnchor="middle" fontSize="7.5" fill={C} opacity="0"
+    <svg viewBox="0 0 160 106" width="160" height="106" style={{ overflow:"visible" }}>
+      {/* Sparkle decorations */}
+      {[{x:6,y:18,s:10,d:0.9},{x:154,y:20,s:9,d:1.0},{x:12,y:84,s:8,d:1.1},{x:148,y:82,s:9,d:1.2}].map((sp,i) => (
+        <motion.text key={i} x={sp.x} y={sp.y} textAnchor="middle" fontSize={sp.s}
+          initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
+          style={{ transformOrigin:`${sp.x}px ${sp.y}px` }}
+          transition={{ delay:sp.d, type:"spring", stiffness:300 }}>✦</motion.text>
+      ))}
+      {/* Shoulder label */}
+      <motion.text x="80" y="9" textAnchor="middle" fontSize="7.5" fill={C} opacity="0"
         fontFamily="inherit" fontWeight="800"
-        animate={{ opacity:0.45 }} transition={{ delay:0.9 }}>WAIST  –INCHES  ·  HIPS DEFINED</motion.text>
+        animate={{ opacity:0.5 }} transition={{ delay:0.5 }}>SHOULDERS ↔</motion.text>
+      {/* Top bar — wide shoulders */}
+      <motion.rect x="6" y="13" width="148" height="22" rx="9" fill={C} opacity={0.25}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 24px" }}
+        transition={{ delay:0.1, duration:0.5, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="6" y="13" width="148" height="22" rx="9" fill="none" stroke={C} strokeWidth="2.5"
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 24px" }}
+        transition={{ delay:0.1, duration:0.5, ease:[.22,1,.36,1] }}/>
+      {/* Taper lines — dramatic V toward waist */}
+      <motion.line x1="6" y1="35" x2="64" y2="54" stroke={C} strokeWidth="1.5" opacity={0.3}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.45, duration:0.3 }}/>
+      <motion.line x1="154" y1="35" x2="96" y2="54" stroke={C} strokeWidth="1.5" opacity={0.3}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.45, duration:0.3 }}/>
+      {/* Very narrow waist */}
+      <motion.rect x="64" y="54" width="32" height="13" rx="6" fill={C} opacity={0.55}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 60px" }}
+        transition={{ delay:0.35, duration:0.4 }}/>
+      {/* Flare lines out to hips */}
+      <motion.line x1="64" y1="67" x2="20" y2="82" stroke={C} strokeWidth="1.5" opacity={0.3}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.62, duration:0.3 }}/>
+      <motion.line x1="96" y1="67" x2="140" y2="82" stroke={C} strokeWidth="1.5" opacity={0.3}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.62, duration:0.3 }}/>
+      {/* Bottom bar — hips (slightly narrower than shoulders) */}
+      <motion.rect x="20" y="82" width="120" height="20" rx="9" fill={C} opacity={0.25}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 92px" }}
+        transition={{ delay:0.52, duration:0.5, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="20" y="82" width="120" height="20" rx="9" fill="none" stroke={C} strokeWidth="2.5"
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 92px" }}
+        transition={{ delay:0.52, duration:0.5, ease:[.22,1,.36,1] }}/>
+      <motion.text x="80" y="106" textAnchor="middle" fontSize="7.5" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.45 }} transition={{ delay:1.0 }}>WAIST –INCHES · HIPS DEFINED ✦</motion.text>
     </svg>
   );
 

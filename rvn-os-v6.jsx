@@ -7313,7 +7313,7 @@ function FactFlash({ data, onContinue, theme }) {
       onClick={onContinue}
       style={{
         position:"fixed", inset:0, zIndex:9999,
-        background: theme==="dark" ? "#07081A" : "#f1f1f8",
+        background: "#07081A",
         display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center",
         padding:"32px 28px 60px", cursor:"pointer", overflow:"hidden",
@@ -9444,9 +9444,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           </div>
         </div>
 
-        {/* Streak + Check-in bar */}
+        {/* Streak bar — NFC tap registers attendance, no manual button */}
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:7 }}>
-          {/* Streak pill */}
           <div style={{
             display:"flex", alignItems:"center", gap:6,
             background:`${arch.glow}12`, border:`1px solid ${arch.glow}30`,
@@ -9456,22 +9455,16 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
             <span style={{ fontSize:12, fontWeight:900, color:arch.glow }}>{streaks.session}</span>
             <span style={{ fontSize:9, fontWeight:700, color:arch.glow, opacity:0.7, letterSpacing:".08em" }}>DAY STREAK</span>
           </div>
-          {/* One-tap check-in */}
-          <motion.button
-            whileTap={{ scale: checkInDone ? 1 : .94 }}
-            onClick={handleCheckIn}
-            style={{
+          {checkInDone && (
+            <div style={{
               flex:1, padding:"6px 14px",
-              background: checkInDone ? `${arch.glow}22` : arch.glow,
-              border: `1px solid ${arch.glow}55`,
-              borderRadius:20, cursor: checkInDone ? "default" : "pointer",
-              fontSize:11, fontWeight:900,
-              color: checkInDone ? arch.glow : "#fff",
-              letterSpacing:".08em",
-              transition:"all .2s",
+              background:`${arch.glow}15`, border:`1px solid ${arch.glow}30`,
+              borderRadius:20, fontSize:11, fontWeight:900,
+              color:arch.glow, letterSpacing:".08em", textAlign:"center",
             }}>
-            {checkInDone ? "✓ CHECKED IN TODAY" : "CHECK IN  →"}
-          </motion.button>
+              ✓ NFC SESSION ACTIVE
+            </div>
+          )}
         </div>
 
         {/* Workout progress bar */}
@@ -9977,7 +9970,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                 return (
                   <div style={{ position:"fixed", inset:0, zIndex:200, background:"rgba(0,0,0,0.7)", display:"flex", alignItems:"flex-end", justifyContent:"center" }}
                     onClick={e => { if(e.target===e.currentTarget) setSleepLogOpen(false); }}>
-                    <motion.div initial={{ y:80, opacity:0 }} animate={{ y:0, opacity:1 }} exit={{ y:80, opacity:0 }}
+                    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
                       style={{ width:"100%", maxWidth:480, background:T.bg, borderRadius:"20px 20px 0 0", padding:"24px 20px 32px", boxShadow:"0 -8px 40px rgba(0,0,0,0.4)" }}>
                       <div style={{ width:36, height:4, background:T.border, borderRadius:2, margin:"0 auto 20px" }}/>
                       <div style={{ fontSize:16, fontWeight:800, color:T.text, marginBottom:4 }}>Log Last Night's Sleep</div>
@@ -10052,7 +10045,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                 return (
                   <div style={{ position:"fixed", inset:0, zIndex:200, background:"rgba(0,0,0,0.7)", display:"flex", alignItems:"flex-end", justifyContent:"center" }}
                     onClick={e => { if(e.target===e.currentTarget) setCycleCalcOpen(false); }}>
-                    <motion.div initial={{ y:80, opacity:0 }} animate={{ y:0, opacity:1 }} exit={{ y:80, opacity:0 }}
+                    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
                       style={{ width:"100%", maxWidth:480, background:T.bg, borderRadius:"20px 20px 0 0", padding:"24px 20px 36px", boxShadow:"0 -8px 40px rgba(0,0,0,0.4)" }}>
                       <div style={{ width:36, height:4, background:T.border, borderRadius:2, margin:"0 auto 20px" }}/>
                       <div style={{ fontSize:16, fontWeight:800, color:T.text, marginBottom:4 }}>⏰ Sleep Cycle Alarm</div>
@@ -10497,10 +10490,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                     <AnimatePresence>
                       {progressPhotoTab === "open" && (
                         <motion.div
-                          initial={{ opacity:0, x:"100%" }}
-                          animate={{ opacity:1, x:0 }}
-                          exit={{ opacity:0, x:"100%" }}
-                          transition={{ type:"spring", stiffness:320, damping:34 }}
+                          initial={{ opacity:0 }}
+                          animate={{ opacity:1 }}
+                          exit={{ opacity:0 }}
+                          transition={{ duration:0.22 }}
                           style={{
                             position:"fixed", inset:0, zIndex:8000,
                             background:T.bg, overflowY:"auto",

@@ -937,6 +937,64 @@ const EXERCISE_BANK = {
     { name:"Incline Rear Delt Fly",  sets:"3x15",   cue:"Neutral spine on incline — rear delt isolation",     ytq:"incline+rear+delt+fly",         rest:60  },
     { name:"Wall Sit",               sets:"3x45s",  cue:"90 degree knee angle — isometric quad and glute",    ytq:"wall+sit+technique",            rest:30  },
   ],
+  // ── Male archetype banks ───────────────────────────────────────────────────
+  chest_arms: [
+    { name:"Flat DB Fly",            sets:"3x15",   cue:"Wide arc — stretch at the bottom is the stimulus",   ytq:"dumbbell+fly+form",             rest:60  },
+    { name:"Cable Crossover Low",    sets:"3x15",   cue:"Angle upward — hits upper chest fibers",             ytq:"cable+crossover+upper+chest",   rest:60  },
+    { name:"Concentration Curl",     sets:"3x12ea", cue:"Elbow on knee — pure isolation, full supination",    ytq:"concentration+curl+form",       rest:60  },
+    { name:"Rope Pushdown",          sets:"3x15",   cue:"Spread rope at bottom — lateral head activation",    ytq:"rope+tricep+pushdown",          rest:45  },
+    { name:"Reverse Curl",           sets:"3x15",   cue:"Overhand grip — brachialis and brachioradialis",     ytq:"reverse+curl+brachialis",       rest:45  },
+  ],
+  powerlifter: [
+    { name:"Box Squat",              sets:"4x5",    cue:"Sit back to box, explode up — posterior chain drive", ytq:"box+squat+technique",           rest:240 },
+    { name:"Board Press",            sets:"4x5",    cue:"Partial ROM — builds lockout strength",              ytq:"board+press+technique",         rest:180 },
+    { name:"Good Morning",           sets:"3x10",   cue:"Hinge at hips, soft knee — erector stretch",         ytq:"good+morning+exercise",         rest:120 },
+    { name:"Leg Press (High Foot)",  sets:"4x12",   cue:"High foot placement — glute and hamstring dominant", ytq:"high+foot+leg+press",           rest:120 },
+    { name:"Tricep Dip (Weighted)",  sets:"3x10",   cue:"Upright torso — pure tricep lockout work",           ytq:"weighted+dips+lockout",         rest:120 },
+  ],
+  shred: [
+    { name:"Jump Rope",              sets:"5x60s",  cue:"Light on feet — rhythmic jump not heavy impact",     ytq:"jump+rope+workout",             rest:30  },
+    { name:"Goblet Squat",           sets:"4x15",   cue:"Elbows to thighs at depth — full hip flexion",       ytq:"goblet+squat+form",             rest:60  },
+    { name:"Burpee",                 sets:"4x12",   cue:"Plank tight at bottom — jump with full hip extension",ytq:"burpee+technique",              rest:45  },
+    { name:"Sled Push",              sets:"5x20m",  cue:"Low hips, drive with legs — pure power output",      ytq:"sled+push+exercise",            rest:60  },
+    { name:"Mountain Climber",       sets:"4x30s",  cue:"Hips level — core stabilization while driving",      ytq:"mountain+climbers+form",        rest:30  },
+  ],
+  calisthenics: [
+    { name:"Ring Push-Up",           sets:"4x12",   cue:"Rings turned out at top — chest and shoulder stretch", ytq:"ring+push+up+form",            rest:75  },
+    { name:"Tuck Planche",           sets:"4x20s",  cue:"Lean forward, tuck knees — scapula protracted fully", ytq:"tuck+planche+tutorial",         rest:90  },
+    { name:"Negative Pull-Up",       sets:"4x6",    cue:"5-second descent — maximum eccentric loading",        ytq:"negative+pull+up+form",         rest:120 },
+    { name:"Hollow Body Hold",       sets:"4x30s",  cue:"Lower back to floor — ribs down, feet 6 inches up",   ytq:"hollow+body+hold",              rest:60  },
+    { name:"Pike Push-Up",           sets:"3x12",   cue:"Hips high, head through — overhead press pattern",    ytq:"pike+push+up+form",             rest:75  },
+  ],
+  // ── Female archetype banks ─────────────────────────────────────────────────
+  lower_build: [
+    { name:"Smith Machine Squat",    sets:"4x12",   cue:"Feet forward — glute and ham dominant angle",         ytq:"smith+machine+squat+glutes",    rest:90  },
+    { name:"Leg Curl (Seated)",      sets:"4x15",   cue:"Full stretch at start — hamstring length matters",    ytq:"seated+leg+curl",               rest:75  },
+    { name:"Cable Kickback",         sets:"3x20ea", cue:"Hip extension not back extension — glutes only",      ytq:"cable+kickback+glutes",         rest:45  },
+    { name:"Sumo Deadlift",          sets:"4x8",    cue:"Wide stance toes out — inner thigh and glute focus",  ytq:"sumo+deadlift+form",            rest:120 },
+    { name:"Step-Up (Weighted)",     sets:"3x15ea", cue:"Drive through heel — glute max activation",           ytq:"weighted+step+up",              rest:60  },
+  ],
+  body_recomp: [
+    { name:"DB Row",                 sets:"4x12ea", cue:"Full retract at top — not just pulling with arms",    ytq:"dumbbell+row+form",             rest:90  },
+    { name:"Reverse Lunge",          sets:"3x12ea", cue:"Upright torso — front leg does the work",             ytq:"reverse+lunge+technique",       rest:60  },
+    { name:"Lateral Raise",          sets:"3x20",   cue:"Lead with pinky — lateral delt isolation",            ytq:"lateral+raise+form",            rest:45  },
+    { name:"Plank Hold",             sets:"4x40s",  cue:"Neutral spine — don't let hips rise or sag",          ytq:"plank+form+technique",          rest:30  },
+    { name:"Hip Thrust (Banded)",    sets:"4x15",   cue:"Band above knees — external rotation activates glutes", ytq:"banded+hip+thrust",           rest:60  },
+  ],
+  arms_back_f: [
+    { name:"Wide Grip Lat Pulldown", sets:"4x15",   cue:"Pull to upper chest — elbows drive down and back",    ytq:"lat+pulldown+wide+grip",        rest:75  },
+    { name:"DB Curl",                sets:"3x15",   cue:"Supinate at the top — full bicep contraction",        ytq:"dumbbell+curl+form",            rest:45  },
+    { name:"Cable Row (Rope)",       sets:"3x15",   cue:"Separate the rope at the end — rear delt activation", ytq:"cable+row+rope+attachment",     rest:60  },
+    { name:"Overhead Tricep (Cable)",sets:"3x15",   cue:"Elbows in, reach back — long head stretch",           ytq:"overhead+tricep+cable",         rest:45  },
+    { name:"Band Pull-Apart",        sets:"3x25",   cue:"Full extension, slow — rear delt and rhomboid",       ytq:"band+pull+apart+form",          rest:30  },
+  ],
+  full_body_f: [
+    { name:"Goblet Squat",           sets:"3x15",   cue:"Elbows to thighs at depth — full hip flexion",        ytq:"goblet+squat+form",             rest:75  },
+    { name:"Push-Up (Incline)",      sets:"3x15",   cue:"Control descent — 3 seconds down, explosive up",      ytq:"incline+push+up+form",          rest:60  },
+    { name:"Romanian Deadlift (DB)", sets:"3x12",   cue:"Push hips back, soft knee — hamstring stretch",       ytq:"rdl+dumbbell+form",             rest:90  },
+    { name:"Seated DB Press",        sets:"3x12",   cue:"Neutral grip — shoulder-safe overhead pressing",      ytq:"seated+dumbbell+press",         rest:90  },
+    { name:"Plank Row",              sets:"3x10ea", cue:"Hips square — row without rotating the torso",        ytq:"plank+row+exercise",            rest:60  },
+  ],
 };
 
 // ─── BIO-LOGIC MANIFEST ──────────────────────────────────────────────────────
@@ -6682,13 +6740,13 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Three growing bars: muscle synthesis over 24 / 48 / 72hrs
+  // Three growing bars: muscle synthesis over 24 / 48 / 72hrs — 48h is PEAK
   if (type === "bars_grow") return (
     <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
-      {[{x:6,h:28,l:"24h",d:0.15},{x:60,h:62,l:"48h",d:0.28},{x:114,h:90,l:"72h",d:0.42}].map(b => (
+      {[{x:6,h:40,l:"24h",d:0.15},{x:60,h:88,l:"48h",d:0.28},{x:114,h:52,l:"72h",d:0.42}].map(b => (
         <g key={b.l}>
           <motion.rect x={b.x} y={88-b.h} width="40" height={b.h} rx="7" fill={C}
-            opacity={b.l==="48h"?0.5:0.2}
+            opacity={b.l==="48h"?0.55:0.18}
             initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
             transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
           <motion.rect x={b.x} y={88-b.h} width="40" height={b.h} rx="7" fill="none" stroke={C} strokeWidth="1.5"
@@ -6697,11 +6755,11 @@ function FactVisual({ type, color: C }) {
           <text x={b.x+20} y="98" textAnchor="middle" fontSize="9" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{b.l}</text>
         </g>
       ))}
-      {/* Arrow showing peak */}
-      <motion.path d="M134 0 L134 -4 L130 -2 M134 -4 L138 -2" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round"
-        initial={{ opacity:0 }} animate={{ opacity:0.7 }} transition={{ delay:0.8 }}/>
-      <motion.text x="134" y="8" textAnchor="middle" fontSize="7.5" fill={C} opacity="0.7" fontFamily="inherit" fontWeight="800"
-        initial={{ opacity:0 }} animate={{ opacity:0.7 }} transition={{ delay:0.85 }}>PEAK</motion.text>
+      {/* PEAK arrow above 48h bar (middle) */}
+      <motion.path d="M80 -4 L80 -9 L76 -7 M80 -9 L84 -7" fill="none" stroke={C} strokeWidth="1.5" strokeLinecap="round"
+        initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.75 }}/>
+      <motion.text x="80" y="3" textAnchor="middle" fontSize="7.5" fill={C} fontFamily="inherit" fontWeight="900"
+        initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.8 }}>PEAK</motion.text>
     </svg>
   );
 
@@ -6983,6 +7041,117 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
+  // Fat arrow DOWN + Muscle arrow UP — for recomp facts
+  if (type === "split_arrows") return (
+    <svg viewBox="0 0 160 92" width="160" height="92" style={{ overflow:"visible" }}>
+      {/* FAT bar shrinking */}
+      <g>
+        <rect x="14" y="8" width="56" height="68" rx="9" fill={C} opacity={0.07}/>
+        <rect x="14" y="8" width="56" height="68" rx="9" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
+        <motion.rect x="14" y="44" width="56" height="32" rx="9" fill={C} opacity={0.55}
+          initial={{ height:0, y:76 }} animate={{ height:32, y:44 }}
+          transition={{ delay:0.2, duration:0.65, ease:[.22,1,.36,1] }}/>
+        <motion.path d="M42 80 L42 87 L37 83 M42 87 L47 83" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round"
+          initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.85 }}/>
+        <text x="42" y="7" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="800">FAT</text>
+      </g>
+      {/* MUSCLE bar growing */}
+      <g>
+        <rect x="90" y="8" width="56" height="68" rx="9" fill={C} opacity={0.07}/>
+        <rect x="90" y="8" width="56" height="68" rx="9" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
+        <motion.rect x="90" y="8" width="56" height="56" rx="9" fill={C} opacity={0.55}
+          initial={{ height:0, y:76 }} animate={{ height:56, y:8 }}
+          transition={{ delay:0.35, duration:0.65, ease:[.22,1,.36,1] }}/>
+        <motion.path d="M118 3 L118 -4 L113 -1 M118 -4 L123 -1" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round"
+          initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.9 }}/>
+        <text x="118" y="7" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="800">MUSCLE</text>
+      </g>
+      <motion.text x="80" y="91" textAnchor="middle" fontSize="7.5" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.5 }} transition={{ delay:1.1 }}>SIMULTANEOUSLY</motion.text>
+    </svg>
+  );
+
+  // Growing bar hits a biological ceiling cap — mass_builder/density
+  if (type === "muscle_cap") return (
+    <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
+      {/* Ceiling line */}
+      <motion.line x1="10" y1="10" x2="150" y2="10" stroke={C} strokeWidth="2" strokeDasharray="5 4" opacity={0.4}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.75, duration:0.5 }}/>
+      <motion.text x="155" y="14" fontSize="7" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.55 }} transition={{ delay:1.2 }}>MAX</motion.text>
+      {/* Bar growing up and stopping at ceiling */}
+      <rect x="50" y="10" width="60" height="78" rx="10" fill={C} opacity={0.07}/>
+      <rect x="50" y="10" width="60" height="78" rx="10" fill="none" stroke={C} strokeWidth="1.5" opacity={0.2}/>
+      <motion.rect x="50" width="60" rx="10" fill={C} opacity={0.6}
+        initial={{ height:0, y:88 }} animate={{ height:78, y:10 }}
+        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
+      {/* Bounce off indicator */}
+      <motion.line x1="80" y1="10" x2="80" y2="3" stroke={C} strokeWidth="2.5" strokeLinecap="round"
+        animate={{ opacity:[0,1,0] }} transition={{ delay:1.1, duration:0.4 }}/>
+      <text x="80" y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.45" fontFamily="inherit" fontWeight="700">0.5 LBS/WEEK · BIOLOGICAL MAX</text>
+    </svg>
+  );
+
+  // 40% fill bar — glute activation fact
+  if (type === "glute_fill") return (
+    <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
+      <rect x="8" y="16" width="144" height="32" rx="10" fill={C} opacity={0.08}/>
+      <rect x="8" y="16" width="144" height="32" rx="10" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
+      <motion.rect x="8" y="16" height="32" rx="10" fill={C} opacity={0.6}
+        initial={{ width:0 }} animate={{ width: 144*0.4 }}
+        transition={{ delay:0.2, duration:0.9, ease:[.22,1,.36,1] }}/>
+      <motion.text x="37" y="37" textAnchor="middle" fontSize="14" fill="#fff"
+        fontFamily="inherit" fontWeight="900"
+        initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.8 }}>+40%</motion.text>
+      <motion.text x="115" y="37" textAnchor="middle" fontSize="8" fill={C}
+        fontFamily="inherit" fontWeight="700"
+        initial={{ opacity:0 }} animate={{ opacity:0.3 }} transition={{ delay:0.9 }}>UNTAPPED</motion.text>
+      <motion.text x="80" y="64" textAnchor="middle" fontSize="7.5" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.45 }} transition={{ delay:1.15 }}>MORE GLUTE ACTIVATION WITH RIGHT CUES</motion.text>
+    </svg>
+  );
+
+  // Hourglass: wide shoulders + narrow waist + wide hips
+  if (type === "hourglass_form") return (
+    <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
+      <text x="80" y="8" textAnchor="middle" fontSize="7.5" fill={C} opacity="0.45" fontFamily="inherit" fontWeight="800">SHOULDERS  ↔</text>
+      {/* Top bar (shoulders) */}
+      <motion.rect x="10" y="12" width="140" height="22" rx="8" fill={C} opacity={0.18}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 23px" }}
+        transition={{ delay:0.1, duration:0.45, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="10" y="12" width="140" height="22" rx="8" fill="none" stroke={C} strokeWidth="2"
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 23px" }}
+        transition={{ delay:0.1, duration:0.45, ease:[.22,1,.36,1] }}/>
+      {/* Taper lines to waist */}
+      <motion.line x1="10" y1="34" x2="58" y2="52" stroke={C} strokeWidth="1.5" opacity={0.22}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.42, duration:0.25 }}/>
+      <motion.line x1="150" y1="34" x2="102" y2="52" stroke={C} strokeWidth="1.5" opacity={0.22}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.42, duration:0.25 }}/>
+      {/* Narrow waist bar */}
+      <motion.rect x="58" y="52" width="44" height="14" rx="6" fill={C} opacity={0.35}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 59px" }}
+        transition={{ delay:0.32, duration:0.35 }}/>
+      {/* Flare lines to hips */}
+      <motion.line x1="58" y1="66" x2="18" y2="78" stroke={C} strokeWidth="1.5" opacity={0.22}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.58, duration:0.25 }}/>
+      <motion.line x1="102" y1="66" x2="142" y2="78" stroke={C} strokeWidth="1.5" opacity={0.22}
+        initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.58, duration:0.25 }}/>
+      {/* Bottom bar (hips) */}
+      <motion.rect x="18" y="78" width="124" height="18" rx="8" fill={C} opacity={0.18}
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 87px" }}
+        transition={{ delay:0.48, duration:0.45, ease:[.22,1,.36,1] }}/>
+      <motion.rect x="18" y="78" width="124" height="18" rx="8" fill="none" stroke={C} strokeWidth="2"
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 87px" }}
+        transition={{ delay:0.48, duration:0.45, ease:[.22,1,.36,1] }}/>
+      <motion.text x="80" y="100" textAnchor="middle" fontSize="7.5" fill={C} opacity="0"
+        fontFamily="inherit" fontWeight="800"
+        animate={{ opacity:0.45 }} transition={{ delay:0.9 }}>WAIST  –INCHES  ·  HIPS DEFINED</motion.text>
+    </svg>
+  );
+
   return null;
 }
 
@@ -7051,18 +7220,27 @@ const ONBOARDING_FACTS = {
     },
   },
   archetype: {
-    vtaper:           { stat: "12wks",   color: "#2E5BFF",  visual: "v_shape",       headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
-    mass_builder:     { stat: "0.5lbs",  color: "#FF4B2B",  visual: "bars_grow",     headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
-    abs:              { stat: "1 layer", color: "#00FFAB",  visual: "layer_reveal",  headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
-    recomp:           { stat: "Both",    color: "#D4AF37",  visual: "two_bars",      headline: "Losing fat and building muscle at the same time is real",   body: "Sports science denied it for decades. New research proved otherwise. Your protocol is built around this." },
-    glute_builder:    { stat: "6wks",    color: "#BF5AF2",  visual: "bars_grow",     headline: "Measurable change in 6 weeks. Visible in 12.",              body: "Glutes respond to volume faster than almost any muscle. This isn't a long game — it starts fast." },
-    legs_back:        { stat: "70%",     color: "#FF9F0A",  visual: "percent_fill",  headline: "Legs are 70% of your total muscle",                        body: "Leg training floods your whole body with anabolic hormones. Heavy squats trigger more GH than any upper-body lift." },
-    lean_build:       { stat: "+20%",    color: "#30D158",  visual: "two_bars",      headline: "Your cycle is a training superpower",                      body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
-    full_body_recomp: { stat: "24wks",   color: "#5AC8FA",  visual: "bars_grow",     headline: "At 24 weeks you're unrecognizable",                        body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
-    athletic_performance: { stat: "8%",  color: "#FF4B2B",  visual: "bars_grow",     headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
-    longevity:        { stat: "14yrs",   color: "#00FFAB",  visual: "age_split",     headline: "Active adults are 14 years younger biologically",          body: "Training keeps your biological age a decade and a half behind your real age. That's measurable." },
-    core_definition:  { stat: "1 thing", color: "#2E5BFF",  visual: "layer_reveal",  headline: "Core visibility is a body fat problem, not a training problem", body: "8 weeks of protocol-level nutrition reveals the abs you already have." },
-    default:          { stat: "10×",     color: "#2E5BFF",  visual: "two_bars",      headline: "Protocol beats motivation every time",                     body: "Structured protocols are 10× more likely to reach goals than training on instinct." },
+    // ── Male archetypes (GYM_ARCHETYPES IDs) ─────────────────────────────────
+    vtaper:       { stat: "12wks",  color: "#2E5BFF",  visual: "v_shape",       headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
+    abs:          { stat: "1 layer",color: "#D4AF37",  visual: "layer_reveal",  headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
+    density:      { stat: "0.5lbs", color: "#FF4B2B",  visual: "muscle_cap",    headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
+    athletic:     { stat: "8%",     color: "#00FFAB",  visual: "bars_grow",     headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
+    chest_arms:   { stat: "8wks",   color: "#FF9F0A",  visual: "two_bars",      headline: "Your arms will look different in 8 weeks. Guaranteed.",   body: "Arms and chest respond faster than any other muscle. The gains are early, visible, and compound." },
+    powerlifter:  { stat: "5g",     color: "#BF5AF2",  visual: "gauge",         headline: "Creatine has 400+ studies. No supplement is more proven.", body: "5g daily is all it takes. Your 1RM goes up within 2 weeks — not months." },
+    shred:        { stat: "24hrs",  color: "#FF3B30",  visual: "battery",       headline: "Your metabolism stays elevated 24 hours after HIIT",      body: "This isn't about burning calories in the gym. HIIT reprograms your metabolic rate for the entire next day." },
+    calisthenics: { stat: "∞",      color: "#5AC8FA",  visual: "timeline_dots", headline: "Calisthenics is the only training with no ceiling",       body: "There's always a harder progression. Planche, one-arm pull-up, front lever — the skill chain never ends." },
+    // ── Female archetypes (FEMALE_GYM_ARCHETYPES IDs) ────────────────────────
+    glutes:       { stat: "+40%",   color: "#BF5AF2",  visual: "glute_fill",    headline: "More activation. More growth. Better shape.",              body: "The right exercises and cues change glute activation by 40%+. Most people never learn them." },
+    hourglass:    { stat: "12wks",  color: "#BF5AF2",  visual: "hourglass_form",headline: "Shoulder-waist-hip balance. Engineered.",                 body: "Shoulder width and hip shape are trainable. The hourglass is built — not found — in 12 weeks." },
+    lean_athlete: { stat: "+20%",   color: "#30D158",  visual: "bars_grow",     headline: "Your cycle is a training superpower",                     body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
+    tone_define:  { stat: "16wks",  color: "#30D158",  visual: "timeline_dots", headline: "Visible definition by week 16. Week 8 if you're dialed.", body: "Muscle definition is about protocol precision, not just lifting more. Your hormonal environment is the key." },
+    lower_build:  { stat: "70%",    color: "#FF9F0A",  visual: "percent_fill",  headline: "Lower body is 70% of your total muscle mass",             body: "Training legs doesn't just build legs — it floods your entire body with anabolic hormones. Nothing drives results faster." },
+    body_recomp:  { stat: "Both",   color: "#FF9F0A",  visual: "split_arrows",  headline: "Lose fat and build muscle at the same time",              body: "Sports science denied it for decades. Your protocol is built around doing both simultaneously." },
+    arms_back_f:  { stat: "8wks",   color: "#5AC8FA",  visual: "dumbbell",      headline: "Arms and back define the athletic feminine silhouette",   body: "Visible definition in arms and upper back reshapes how every outfit fits. 8 weeks to visible change." },
+    full_body_f:  { stat: "24wks",  color: "#30D158",  visual: "bars_grow",     headline: "At 24 weeks you're unrecognizable",                       body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
+    // ── Legacy / fallback keys ────────────────────────────────────────────────
+    longevity:    { stat: "14yrs",  color: "#00FFAB",  visual: "age_split",     headline: "Active adults are 14 years younger biologically",         body: "Training keeps your biological age a decade and a half behind your real age. That's measurable." },
+    default:      { stat: "10×",    color: "#2E5BFF",  visual: "two_bars",      headline: "Protocol beats motivation every time",                    body: "Structured protocols are 10× more likely to reach goals than training on instinct." },
   },
 };
 
@@ -7639,7 +7817,7 @@ function generateAIGoals({ age, heightIn, bw, activityLevel, trainingDays, goalF
   const bwKg     = (bw || 175) * 0.453592;
   const heightCm = (heightIn || 69) * 2.54;
   const a        = age || 25;
-  const isMale   = biology !== "female";
+  const isMale   = biology?.gender !== "female";
 
   // Mifflin-St Jeor BMR
   const bmr = isMale
@@ -8789,6 +8967,21 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
               </motion.div>
             )}
           </AnimatePresence>
+          {/* Kailu tip */}
+          <motion.div
+            initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
+            transition={{ delay:0.3, duration:0.35 }}
+            style={{ marginTop:14, padding:"11px 13px", borderRadius:12,
+              background: arch.glow+"0D", border:"1px solid "+arch.glow+"33",
+              display:"flex", alignItems:"flex-start", gap:10 }}>
+            <div style={{ fontSize:16, lineHeight:1, marginTop:1 }}>✦</div>
+            <div>
+              <div style={{ fontSize:11, fontWeight:800, color:arch.glow, marginBottom:3 }}>DON'T SEE WHAT YOU NEED?</div>
+              <div style={{ fontSize:10, color:T.muted, lineHeight:1.5 }}>
+                Tell Kailu: <span style={{ color:arch.glow, fontWeight:700 }}>"Add [exercise] to my protocol"</span> and it will appear in your workout bank automatically.
+              </div>
+            </div>
+          </motion.div>
         </div>
       </div>
 
@@ -8856,6 +9049,31 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
     });
   };
 
+  // ── Kailu macro logging bridge ────────────────────────────────────────────
+  // Exposes window.__rvnAddMacros so the Kailu chat overlay can write to the
+  // macro tracker without prop-drilling through the entire component tree.
+  // Uses a ref to always capture the latest saveProfile without stale closure.
+  const profileRef = useRef(profile);
+  useEffect(() => { profileRef.current = profile; }, [profile]);
+  useEffect(() => {
+    window.__rvnAddMacros = (macros) => {
+      if (!macros) return;
+      const mt = profileRef.current.macroToday || { protein:0, carbs:0, fats:0 };
+      const updated = {
+        protein:  Math.round((mt.protein  || 0) + (macros.protein  || 0)),
+        carbs:    Math.round((mt.carbs    || 0) + (macros.carbs    || 0)),
+        fats:     Math.round((mt.fats     || 0) + (macros.fats     || 0)),
+      };
+      const p = { ...profileRef.current, macroToday: updated };
+      setProfile({ ...p });
+      try { localStorage.setItem("rvn_profile", JSON.stringify(p)); } catch {}
+      supabase.auth.getUser().then(({ data: { user: u } }) => {
+        if (u?.id) saveRemoteProfile(u.id, p);
+      });
+    };
+    return () => { delete window.__rvnAddMacros; };
+  }, []); // eslint-disable-line
+
   // ── Auto midnight macro reset ─────────────────────────────────────────────
   // Runs on mount + every 60s check. If the calendar date has rolled over,
   // zero macroToday and shift yesterday's sleep into the sleepDays chart.
@@ -8904,9 +9122,27 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [editingSleep,  setEditingSleep]  = useState(false);
-  const [editingMacros, setEditingMacros] = useState(false);
-  const [editingPRs,    setEditingPRs]    = useState(false);
+  const [editingSleep,   setEditingSleep]   = useState(false);
+  const [editingMacros,  setEditingMacros]  = useState(false);
+  const [editingPRs,     setEditingPRs]     = useState(false);
+  // ── Custom meal library (Menu Fit) ────────────────────────────────────────
+  const [customMeals,    setCustomMeals]    = useState(() => {
+    try { return JSON.parse(localStorage.getItem("rvn_custom_meals") || "[]"); } catch { return []; }
+  });
+  const [showMealBuilder,setShowMealBuilder]= useState(false);
+  const [mealDraft,      setMealDraft]      = useState({ name:"", emoji:"🍽", p:"", c:"", f:"" });
+  const saveCustomMeals = (meals) => {
+    setCustomMeals(meals);
+    try { localStorage.setItem("rvn_custom_meals", JSON.stringify(meals)); } catch {}
+  };
+  const logCustomMeal = (meal) => {
+    const mt = profile.macroToday || { protein:0, carbs:0, fats:0 };
+    saveProfile({ macroToday: {
+      protein: (mt.protein||0) + (meal.p||0),
+      carbs:   (mt.carbs||0)   + (meal.c||0),
+      fats:    (mt.fats||0)    + (meal.f||0),
+    }});
+  };
   // Temp edit buffers
   const [draftSleep,  setDraftSleep]  = useState(null);
   const [draftMacros, setDraftMacros] = useState(null);
@@ -9830,9 +10066,118 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                               ))}
                             </div>
                             <div style={{ marginTop:8, fontSize:10, color:T.faint, fontStyle:"italic" }}>
-                              Or tell Kailu: "I had a chicken sandwich"
+                              Or tell Kailu: <span style={{ color:arch.glow }}>"I just ate a coconut Built bar"</span> — macros auto-log.
                             </div>
                           </div>
+
+                          {/* ── Custom Meal Library (Menu Fit) ─────────────── */}
+                          <div style={{ marginTop:14 }}>
+                            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+                              <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em" }}>MY MEALS</div>
+                              <motion.button whileTap={{ scale:.92 }}
+                                onClick={() => { setMealDraft({ name:"", emoji:"🍽", p:"", c:"", f:"" }); setShowMealBuilder(b=>!b); }}
+                                style={{ fontSize:9, fontWeight:800, color:arch.glow, background:arch.glow+"18",
+                                  border:"none", borderRadius:8, padding:"4px 9px", cursor:"pointer", letterSpacing:".06em" }}>
+                                {showMealBuilder ? "CANCEL" : "+ CREATE MEAL"}
+                              </motion.button>
+                            </div>
+
+                            <AnimatePresence>
+                              {showMealBuilder && (
+                                <motion.div initial={{ height:0, opacity:0 }} animate={{ height:"auto", opacity:1 }}
+                                  exit={{ height:0, opacity:0 }} transition={{ duration:.2 }}
+                                  style={{ overflow:"hidden", marginBottom:10 }}>
+                                  <GlassCard theme={theme} style={{ padding:"12px" }}>
+                                    <div style={{ fontSize:10, fontWeight:800, color:arch.glow, marginBottom:8, letterSpacing:".06em" }}>NEW CUSTOM MEAL</div>
+                                    <div style={{ display:"flex", gap:6, marginBottom:8 }}>
+                                      <input value={mealDraft.emoji}
+                                        onChange={e => setMealDraft(d=>({...d, emoji:e.target.value}))}
+                                        style={{ width:36, padding:"7px 6px", borderRadius:8, border:`1px solid ${T.border}`,
+                                          background:T.glass, color:T.text, fontSize:16, textAlign:"center", outline:"none" }}/>
+                                      <input placeholder="Meal name (e.g. Chipotle Bowl)"
+                                        value={mealDraft.name}
+                                        onChange={e => setMealDraft(d=>({...d, name:e.target.value}))}
+                                        style={{ flex:1, padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`,
+                                          background:T.glass, color:T.text, fontSize:12, outline:"none" }}/>
+                                    </div>
+                                    <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:6, marginBottom:10 }}>
+                                      {[
+                                        { key:"p", label:"PROTEIN (g)", color:arch.glow },
+                                        { key:"c", label:"CARBS (g)",   color:T.blue   },
+                                        { key:"f", label:"FATS (g)",    color:"#FF9F0A" },
+                                      ].map(({ key, label, color }) => (
+                                        <div key={key}>
+                                          <div style={{ fontSize:8, fontWeight:700, color:T.faint, marginBottom:3, letterSpacing:".06em" }}>{label}</div>
+                                          <input type="number" placeholder="0"
+                                            value={mealDraft[key]}
+                                            onChange={e => setMealDraft(d=>({...d, [key]:e.target.value}))}
+                                            style={{ width:"100%", padding:"7px 8px", borderRadius:8, border:`1.5px solid ${color}44`,
+                                              background:T.glass, color:T.text, fontSize:13, fontWeight:700,
+                                              textAlign:"center", outline:"none", boxSizing:"border-box" }}/>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <motion.button whileTap={{ scale:.96 }}
+                                      onClick={() => {
+                                        if (!mealDraft.name.trim()) return;
+                                        const meal = {
+                                          id: Date.now(),
+                                          name: mealDraft.name.trim(),
+                                          emoji: mealDraft.emoji || "🍽",
+                                          p: parseInt(mealDraft.p)||0,
+                                          c: parseInt(mealDraft.c)||0,
+                                          f: parseInt(mealDraft.f)||0,
+                                        };
+                                        saveCustomMeals([meal, ...customMeals]);
+                                        setShowMealBuilder(false);
+                                      }}
+                                      style={{ width:"100%", padding:"9px", background:`linear-gradient(90deg,${arch.glow}cc,${arch.glow})`,
+                                        border:"none", borderRadius:10, fontSize:12, fontWeight:900,
+                                        color:"#000", cursor:"pointer", letterSpacing:".06em" }}>
+                                      SAVE TO MY MEALS
+                                    </motion.button>
+                                  </GlassCard>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+
+                            {customMeals.length > 0 ? (
+                              <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                                {customMeals.map(meal => (
+                                  <div key={meal.id} style={{ display:"flex", alignItems:"center", gap:8,
+                                    padding:"9px 12px", borderRadius:10, background:T.glass,
+                                    border:`1px solid ${T.border}` }}>
+                                    <div style={{ fontSize:18 }}>{meal.emoji}</div>
+                                    <div style={{ flex:1, minWidth:0 }}>
+                                      <div style={{ fontSize:11, fontWeight:700, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{meal.name}</div>
+                                      <div style={{ fontSize:9, color:T.faint, marginTop:1 }}>
+                                        {meal.p}g P · {meal.c}g C · {meal.f}g F
+                                      </div>
+                                    </div>
+                                    <motion.button whileTap={{ scale:.88 }}
+                                      onClick={() => logCustomMeal(meal)}
+                                      style={{ padding:"5px 10px", borderRadius:8, background:arch.glow+"22",
+                                        border:`1px solid ${arch.glow}55`, color:arch.glow,
+                                        fontSize:10, fontWeight:800, cursor:"pointer" }}>
+                                      LOG
+                                    </motion.button>
+                                    <motion.button whileTap={{ scale:.88 }}
+                                      onClick={() => saveCustomMeals(customMeals.filter(m => m.id !== meal.id))}
+                                      style={{ padding:"5px 8px", borderRadius:8, background:T.red+"18",
+                                        border:`1px solid ${T.red}44`, color:T.red,
+                                        fontSize:10, cursor:"pointer" }}>
+                                      ✕
+                                    </motion.button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div style={{ fontSize:10, color:T.faint, fontStyle:"italic", textAlign:"center", padding:"8px 0" }}>
+                                No saved meals yet — create your first lean option above
+                              </div>
+                            )}
+                          </div>
+
                           <div style={{ marginTop:10, fontSize:10, color:T.faint, fontStyle:"italic" }}>
                             ◈ Hit protein goal to maximize {arch.name.toLowerCase()} gains today.
                           </div>
@@ -11529,31 +11874,115 @@ function classifyIntent(text) {
   return bestScore > 0 ? best : "chat";
 }
 
-// Pull macro-ish numbers out of free text: "had 40g of chicken" → { amount:40, unit:"g", kind:"protein" }
+// ─── FOOD PRODUCT DATABASE ───────────────────────────────────────────────────
+// Common packaged foods, protein bars, and restaurant items with macro data.
+// Kailu checks here first before asking Claude, so offline logging still works.
+const FOOD_PRODUCT_DB = [
+  // ── Protein bars ────────────────────────────────────────────────────────────
+  { match:/built\s*bar.*coconut|coconut.*built\s*bar/i,   name:"Built Bar Coconut",      p:17,  c:9,   f:6,   cal:130 },
+  { match:/built\s*bar/i,                                  name:"Built Bar",              p:17,  c:10,  f:6,   cal:130 },
+  { match:/quest\s*bar/i,                                  name:"Quest Bar",              p:21,  c:22,  f:8,   cal:190 },
+  { match:/rxbar/i,                                        name:"RXBAR",                  p:12,  c:23,  f:9,   cal:210 },
+  { match:/kind\s*bar/i,                                   name:"KIND Bar",               p:6,   c:16,  f:8,   cal:200 },
+  { match:/one\s*bar/i,                                    name:"ONE Bar",                p:20,  c:23,  f:8,   cal:220 },
+  { match:/clif\s*bar/i,                                   name:"CLIF Bar",               p:9,   c:43,  f:6,   cal:250 },
+  { match:/think.*thin|thinkThin/i,                        name:"thinkThin Bar",          p:20,  c:23,  f:8,   cal:230 },
+  { match:/barebells/i,                                    name:"Barebells Bar",          p:20,  c:20,  f:7,   cal:200 },
+  { match:/premier\s*protein\s*bar/i,                      name:"Premier Protein Bar",    p:30,  c:25,  f:10,  cal:280 },
+  // ── Protein shakes / drinks ──────────────────────────────────────────────────
+  { match:/premier\s*protein\s*shake/i,                    name:"Premier Protein Shake",  p:30,  c:5,   f:3,   cal:160 },
+  { match:/fairlife.*protein|protein.*fairlife/i,          name:"Fairlife Core Power",    p:42,  c:14,  f:2,   cal:230 },
+  { match:/muscle\s*milk/i,                                name:"Muscle Milk",            p:25,  c:9,   f:6,   cal:160 },
+  { match:/pure\s*protein\s*shake/i,                       name:"Pure Protein Shake",     p:35,  c:5,   f:4,   cal:170 },
+  { match:/orgain.*protein/i,                              name:"Orgain Protein Shake",   p:26,  c:15,  f:5,   cal:200 },
+  // ── Whole foods — single items ───────────────────────────────────────────────
+  { match:/chicken\s*breast/i,                             name:"Chicken Breast (6oz)",   p:42,  c:0,   f:4,   cal:200 },
+  { match:/chicken\s*thigh/i,                              name:"Chicken Thigh (4oz)",    p:26,  c:0,   f:10,  cal:190 },
+  { match:/\bsalmon\b/i,                                   name:"Salmon (6oz)",           p:34,  c:0,   f:12,  cal:240 },
+  { match:/\btuna\b.*can|can.*\btuna\b/i,                  name:"Canned Tuna",            p:25,  c:0,   f:1,   cal:110 },
+  { match:/\beggs?\b.*\b2\b|\b2\b.*\beggs?\b/i,           name:"2 Eggs",                 p:12,  c:1,   f:10,  cal:140 },
+  { match:/\begg\b/i,                                      name:"1 Egg",                  p:6,   c:0,   f:5,   cal:70  },
+  { match:/greek\s*yogurt/i,                               name:"Greek Yogurt (cup)",     p:17,  c:6,   f:0,   cal:100 },
+  { match:/cottage\s*cheese/i,                             name:"Cottage Cheese (½ cup)", p:14,  c:5,   f:2,   cal:90  },
+  { match:/\boatmeal\b|\boats\b/i,                         name:"Oatmeal (½ cup dry)",    p:5,   c:27,  f:3,   cal:150 },
+  { match:/\bbanana\b/i,                                   name:"Banana",                 p:1,   c:27,  f:0,   cal:105 },
+  { match:/\brice\b/i,                                     name:"White Rice (1 cup)",     p:4,   c:45,  f:0,   cal:200 },
+  { match:/\bavocado\b/i,                                  name:"Avocado (half)",         p:2,   c:6,   f:11,  cal:120 },
+  { match:/sweet\s*potato/i,                               name:"Sweet Potato (medium)",  p:2,   c:26,  f:0,   cal:103 },
+  { match:/\bshake\b.*\bprotein\b|\bprotein\b.*\bshake\b/i,name:"Protein Shake",         p:25,  c:5,   f:3,   cal:145 },
+  // ── Fast food / restaurant staples ──────────────────────────────────────────
+  { match:/chipotle.*bowl|bowl.*chipotle/i,                name:"Chipotle Bowl (est)",    p:35,  c:55,  f:15,  cal:490 },
+  { match:/chick.?fil.?a.*sandwich/i,                      name:"Chick-fil-A Sandwich",   p:28,  c:41,  f:14,  cal:410 },
+  { match:/mcchicken|mc\s*chicken/i,                       name:"McChicken",              p:14,  c:40,  f:10,  cal:410 },
+  { match:/big\s*mac/i,                                    name:"Big Mac",                p:25,  c:43,  f:30,  cal:540 },
+  { match:/subway.*6.*inch|6.*inch.*subway/i,              name:"Subway 6\" (est)",       p:22,  c:46,  f:5,   cal:330 },
+];
+
+// Find a product in the DB — partial fuzzy match
+function lookupFoodProduct(text) {
+  for (const item of FOOD_PRODUCT_DB) {
+    if (item.match.test(text)) return item;
+  }
+  return null;
+}
+
+// Ask Claude to parse a food description and return macro JSON.
+// Returns { p, c, f, cal, name } or null.
+async function lookupFoodViaClaude(foodText) {
+  if (typeof window === "undefined") return null;
+  const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
+  if (!base) return null;
+  const system = `You are a precise nutrition database. The user describes a food item. Return ONLY valid JSON in this exact format, no other text:
+{"p":PROTEIN_GRAMS,"c":CARB_GRAMS,"f":FAT_GRAMS,"cal":CALORIES,"name":"CANONICAL_FOOD_NAME"}
+Use realistic values for standard serving sizes. If uncertain, give a conservative estimate. Never return null or refuse — always give your best estimate.`;
+  try {
+    const res = await fetch(base, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ system, user: foodText, history:[], max_tokens:80 }),
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const raw = json?.text || json?.content?.[0]?.text || "";
+    const match = raw.match(/\{[\s\S]*?\}/);
+    if (!match) return null;
+    const parsed = JSON.parse(match[0]);
+    if (typeof parsed.p === "number") return parsed;
+    return null;
+  } catch { return null; }
+}
+
+// Parse a food entry from free text — DB first, Claude fallback.
+// Returns { protein, carbs, fats, calories, name } or null (sync for known, async for unknown).
 function extractMacroLog(text) {
+  // Legacy sync path — kept for offline/fallback compatibility
   const lower = (text || "").toLowerCase();
+  const product = lookupFoodProduct(text);
+  if (product) {
+    return { kind:"macros", protein: product.p, carbs: product.c, fats: product.f,
+             calories: product.cal, name: product.name, note: text.slice(0,80) };
+  }
+  // Fallback: raw gram parsing
   const grams = lower.match(/(\d+(?:\.\d+)?)\s*g(?:rams)?/);
   const oz    = lower.match(/(\d+(?:\.\d+)?)\s*oz/);
   let amount = grams ? parseFloat(grams[1]) : oz ? parseFloat(oz[1]) * 28.35 : null;
-
   let kind = null;
   if (/chicken|beef|steak|egg|salmon|tuna|whey|protein|yogurt|cottage/i.test(lower)) kind = "protein";
   else if (/rice|pasta|oat|bread|bagel|potato|banana|carb/i.test(lower))              kind = "carbs";
   else if (/avocado|nut|butter|oil|cheese|fat/i.test(lower))                          kind = "fat";
-  else if (/fiber|salad|broccoli|veggies|vegetable|greens/i.test(lower))              kind = "fiber";
-  else if (/water|\boz\b|hydrat/i.test(lower))                                        kind = "water";
-
   if (kind && !amount) {
-    // estimate defaults for common items
-    if (/chicken\s*breast/.test(lower))  amount = 30;
-    else if (/eggs?/.test(lower))        amount = 6;
+    if (/chicken\s*breast/.test(lower)) amount = 30;
+    else if (/eggs?/.test(lower))       amount = 6;
     else if (/shake|protein/.test(lower)) amount = 25;
-    else if (/banana/.test(lower))        amount = 27;
-    else if (/rice.*bowl|bowl.*rice/.test(lower)) amount = 45;
+    else if (/banana/.test(lower))       amount = 27;
+    else if (/rice/.test(lower))         amount = 45;
   }
-
   if (!kind || !amount) return null;
-  return { kind, amount, unit: kind === "water" ? "oz" : "g", note: text.slice(0, 80) };
+  const macros = { protein:0, carbs:0, fats:0 };
+  if (kind === "protein") macros.protein = amount;
+  else if (kind === "carbs") macros.carbs = amount;
+  else if (kind === "fat") macros.fats = amount;
+  return { kind:"macros", ...macros, calories: Math.round(macros.protein*4 + macros.carbs*4 + macros.fats*9),
+           name: text.slice(0,40), note: text.slice(0,80) };
 }
 
 // ─── PERSONA PROMPTS — mode-aware system context ────────────────────────────
@@ -11831,8 +12260,37 @@ async function composeBioPalResponse(text, state) {
     workoutPlan  = generateWorkoutPlan(text, state);
     appliedDelta = { kind: "workoutGenerated", plan: workoutPlan };
   } else if (intent === "food") {
-    const log = extractMacroLog(text);
-    if (log) appliedDelta = { kind: "bioLogicLog", entry: log };
+    // Try DB lookup first (sync), then Claude (async) for unknown items
+    const syncLog = extractMacroLog(text);
+    if (syncLog) {
+      appliedDelta = { kind: "bioLogicLog", entry: syncLog, macros: {
+        protein: syncLog.protein || 0, carbs: syncLog.carbs || 0,
+        fats: syncLog.fats || 0, calories: syncLog.calories || 0, name: syncLog.name,
+      }};
+      // Fire-and-forget Claude lookup to improve accuracy if DB gave raw grams
+      if (!lookupFoodProduct(text)) {
+        lookupFoodViaClaude(text).then(ai => {
+          if (ai) {
+            const macros = { protein: ai.p, carbs: ai.c, fats: ai.f, calories: ai.cal, name: ai.name };
+            window.__rvnAddMacros?.(macros);
+          }
+        }).catch(() => {});
+      } else {
+        // DB hit — log macros immediately via bridge
+        const macros = { protein: syncLog.protein||0, carbs: syncLog.carbs||0,
+                         fats: syncLog.fats||0, calories: syncLog.calories||0, name: syncLog.name };
+        window.__rvnAddMacros?.(macros);
+      }
+    } else {
+      // Unknown item — ask Claude for macros async, apply when ready
+      appliedDelta = { kind: "bioLogicLog", entry: { kind:"macros", protein:0, carbs:0, fats:0, name:text } };
+      lookupFoodViaClaude(text).then(ai => {
+        if (ai) {
+          const macros = { protein: ai.p, carbs: ai.c, fats: ai.f, calories: ai.cal, name: ai.name };
+          window.__rvnAddMacros?.(macros);
+        }
+      }).catch(() => {});
+    }
   } else if (intent === "injury") {
     const patch = { soreness: Math.min(100, (sv.soreness || 0) + 25), mood: "cautious" };
     appliedDelta = { kind: "bioLogicUpdate", patch };
@@ -11883,7 +12341,9 @@ async function composeBioPalResponse(text, state) {
   const actionCtx = [
     workoutPlan   ? `You just generated a ${workoutPlan.focus} workout plan called "${workoutPlan.name}" (${workoutPlan.duration}). Write a short motivating intro — do NOT list the exercises.` : "",
     scheduleItems ? `You just generated a 24-hour schedule with ${scheduleItems.length} blocks. Briefly introduce it and let the user know they can lock it in.` : "",
-    appliedDelta?.kind === "bioLogicLog"    ? "You just logged this food entry. Confirm it naturally and give one practical insight about timing or macros." : "",
+    appliedDelta?.kind === "bioLogicLog" && appliedDelta?.macros
+      ? `You just logged ${appliedDelta.macros.name || "this food"}: ~${appliedDelta.macros.protein}g protein, ${appliedDelta.macros.carbs}g carbs, ${appliedDelta.macros.fats}g fat (${appliedDelta.macros.calories} cal). Macros auto-added to today's tracker. Confirm briefly and give one timing/macro insight. Under 2 sentences.`
+      : appliedDelta?.kind === "bioLogicLog" ? "You just logged this food entry and are looking up the macros. Confirm it naturally and give one practical insight." : "",
     appliedDelta?.kind === "bioLogicUpdate" ? "You've flagged this injury and automatically reduced their load. Give brief, targeted recovery advice." : "",
     appliedDelta?.kind === "navigate"       ? "You are sending them to the Target Protocol screen to recalibrate their goal." : "",
   ].filter(Boolean).join(" ");

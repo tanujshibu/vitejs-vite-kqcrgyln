@@ -2252,6 +2252,36 @@ function RVNLogo({ size = 56, glow, style = {} }) {
   );
 }
 
+// ─── NFC AUTO-LEAVE TIMER ──────────────────────────────────────────────────────
+// Shows remaining time in venue mode. Auto-leaves after 3 hours.
+const NFC_SESSION_MS = 3 * 60 * 60 * 1000; // 3 hours
+function NfcAutoLeaveTimer({ ac, T, onLeave }) {
+  const [startTime] = useState(() => {
+    try { return parseInt(localStorage.getItem("rvn_nfc_start") || "0") || Date.now(); }
+    catch { return Date.now(); }
+  });
+  const [elapsed, setElapsed] = useState(Date.now() - startTime);
+
+  useEffect(() => {
+    try { if (!localStorage.getItem("rvn_nfc_start")) localStorage.setItem("rvn_nfc_start", String(Date.now())); } catch {}
+    const iv = setInterval(() => {
+      const e = Date.now() - startTime;
+      setElapsed(e);
+      if (e >= NFC_SESSION_MS) { clearInterval(iv); try { localStorage.removeItem("rvn_nfc_start"); } catch {} onLeave?.(); }
+    }, 30000);
+    return () => clearInterval(iv);
+  }, [startTime, onLeave]);
+
+  const remaining = Math.max(0, NFC_SESSION_MS - elapsed);
+  const hh = Math.floor(remaining / 3600000);
+  const mm = Math.floor((remaining % 3600000) / 60000);
+  return (
+    <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center", letterSpacing:".07em" }}>
+      SESSION ACTIVE · AUTO-LEAVE IN {hh}h {mm}m
+    </div>
+  );
+}
+
 // ─── GLASS CARD ────────────────────────────────────────────────────────────────
 function GlassCard({ children, theme, glow, style={}, onClick }) {
   const T = D[theme];
@@ -6390,16 +6420,30 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
               </div>
             </div>
             {modeLockedBy === "nfc" && (
-              <div style={{
-                fontSize:8, fontWeight:800, letterSpacing:".1em",
-                color:ac, padding:"4px 8px",
-                border:`1px solid ${ac}55`, borderRadius:8,
-              }}>LIVE</div>
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
+                <div style={{
+                  fontSize:8, fontWeight:800, letterSpacing:".1em",
+                  color:ac, padding:"4px 8px",
+                  border:`1px solid ${ac}55`, borderRadius:8,
+                }}>LIVE</div>
+                <button
+                  onClick={() => { if (typeof resetMode === "function") resetMode(); }}
+                  style={{
+                    fontSize:8, fontWeight:700, letterSpacing:".08em",
+                    color:T.faint, padding:"3px 7px",
+                    border:`1px solid ${T.border}`, borderRadius:6,
+                    background:"transparent", cursor:"pointer",
+                  }}>LEAVE</button>
+              </div>
             )}
           </div>
-          <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center", letterSpacing:".08em" }}>
-            TAP AN RVN NFC POINT TO UNLOCK THE LOCAL EXPERIENCE
-          </div>
+          {modeLockedBy === "nfc" ? (
+            <NfcAutoLeaveTimer ac={ac} T={T} onLeave={() => { if (typeof resetMode === "function") resetMode(); }} />
+          ) : (
+            <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center", letterSpacing:".08em" }}>
+              TAP AN RVN NFC POINT TO UNLOCK THE LOCAL EXPERIENCE
+            </div>
+          )}
         </motion.div>
 
         {/* ── Social Proof ─────────────────────────────────────────────────── */}
@@ -9046,6 +9090,18 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
     sleepDays:  [7.2, 6.5, 8.1, 7.8, 6.9, 7.4, 7.0],
     lastResetDate: "",
     lastSleepLog:  null,  // { hours, bedtime, wakeTime, date }
+    // Kailu token system — free: 15 tokens, refill 5 every 3 hrs; premium: unlimited
+    kailuTokens:     15,
+    kailuLastRefill: Date.now(),
+    isPremium:       false,
+    // Health data (manually synced or via future wearable integration)
+    healthData: { steps:0, sleepHrs:0, hrv:0, lastSync:null },
+    // Progress photos — array of { date, dataUrl, note }
+    progressPhotos: [],
+    // PR history — track when PRs were set for celebration
+    prHistory: [],
+    // Venue brand override when NFC-tapped into a gym
+    venueBrand: null,  // { logo, accentColor, welcomeMsg, bannerImg, gymName, checkIns, gymModeStart }
   };
   const [profile, setProfile] = useState(() => {
     try { const s = localStorage.getItem("rvn_profile"); return s ? JSON.parse(s) : defaultProfile; }
@@ -9137,6 +9193,17 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
   const [editingSleep,   setEditingSleep]   = useState(false);
   const [editingMacros,  setEditingMacros]  = useState(false);
   const [editingPRs,     setEditingPRs]     = useState(false);
+  const [prCelebration,  setPrCelebration]  = useState(null); // { exercises:[], weights:[] }
+  // Photo food logging
+  const [photoFoodLogging, setPhotoFoodLogging] = useState(false);
+  // Progress photos
+  const [progressPhotoTab, setProgressPhotoTab] = useState("log"); // "log" | "compare"
+  const [progressPhotoNote, setProgressPhotoNote] = useState("");
+  // Health data editing
+  const [editingHealth,  setEditingHealth]  = useState(false);
+  const [draftHealth,    setDraftHealth]    = useState(null);
+  // Grocery list
+  const [groceryList,    setGroceryList]    = useState(null); // null | string[]
   // ── Custom meal library (Menu Fit) ────────────────────────────────────────
   const [customMeals,    setCustomMeals]    = useState(() => {
     try { return JSON.parse(localStorage.getItem("rvn_custom_meals") || "[]"); } catch { return []; }
@@ -9849,6 +9916,59 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                 );
               })()}
 
+              {/* PR Celebration Modal */}
+              <AnimatePresence>
+                {prCelebration && (
+                  <motion.div
+                    initial={{ opacity:0, scale:.85, y:-20 }}
+                    animate={{ opacity:1, scale:1, y:0 }}
+                    exit={{ opacity:0, scale:.9 }}
+                    style={{
+                      position:"fixed", inset:0, zIndex:9999,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      background:"rgba(0,0,0,.65)", backdropFilter:"blur(12px)",
+                    }}
+                    onClick={() => setPrCelebration(null)}
+                  >
+                    <motion.div
+                      style={{
+                        background: T.card, borderRadius:24, padding:"32px 28px",
+                        maxWidth:320, width:"90%", textAlign:"center",
+                        border:`2px solid #FF9F0A`, boxShadow:`0 0 40px #FF9F0A44`,
+                      }}
+                      onClick={e => e.stopPropagation()}
+                    >
+                      {/* Confetti-style emoji burst */}
+                      <motion.div
+                        animate={{ rotate:[0,10,-10,10,-10,0], scale:[1,1.2,1] }}
+                        transition={{ duration:.8 }}
+                        style={{ fontSize:52, marginBottom:8 }}
+                      >🏆</motion.div>
+                      <div style={{ fontSize:22, fontWeight:900, color:"#FF9F0A", marginBottom:6, letterSpacing:".04em" }}>
+                        NEW PR{prCelebration.exercises.length > 1 ? "s" : ""}!
+                      </div>
+                      {prCelebration.exercises.map((ex, i) => (
+                        <div key={ex} style={{ fontSize:15, fontWeight:700, color:T.text, marginBottom:4 }}>
+                          {ex} — <span style={{ color:"#FF9F0A" }}>{prCelebration.weights[i]} lbs</span>
+                        </div>
+                      ))}
+                      <div style={{ fontSize:11, color:T.muted, marginTop:12, lineHeight:1.5 }}>
+                        Kailu logged your record. Keep the progressive overload going — next session aim for +2.5 lbs.
+                      </div>
+                      <motion.button
+                        whileTap={{ scale:.95 }}
+                        onClick={() => setPrCelebration(null)}
+                        style={{
+                          marginTop:18, width:"100%", padding:"11px",
+                          background:"#FF9F0A", border:"none", borderRadius:12,
+                          color:"#fff", fontWeight:900, fontSize:13, cursor:"pointer", letterSpacing:".05em",
+                        }}
+                      >LET'S GO ✦</motion.button>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Sleep Logger Modal */}
               {sleepLogOpen && (() => {
                 const computedHours = sleepLogMode === "times"
@@ -10080,6 +10200,65 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                             <div style={{ marginTop:8, fontSize:10, color:T.faint, fontStyle:"italic" }}>
                               Or tell Kailu: <span style={{ color:arch.glow }}>"I just ate a coconut Built bar"</span> — macros auto-log.
                             </div>
+                            {/* Photo food logging — Premium */}
+                            <div style={{ marginTop:10 }}>
+                              <label style={{
+                                display:"flex", alignItems:"center", justifyContent:"center", gap:7,
+                                padding:"9px 12px", borderRadius:12, cursor:"pointer",
+                                background: arch.glow+"15", border:`1px dashed ${arch.glow}66`,
+                                fontSize:11, fontWeight:700, color:arch.glow, letterSpacing:".04em",
+                              }}>
+                                📸 SNAP & LOG MEAL
+                                <input type="file" accept="image/*" capture="environment"
+                                  style={{ display:"none" }}
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+                                    setPhotoFoodLogging(true);
+                                    const reader = new FileReader();
+                                    reader.onload = async (ev) => {
+                                      const b64 = (ev.target.result || "").split(",")[1];
+                                      if (!b64) { setPhotoFoodLogging(false); return; }
+                                      try {
+                                        const base = window.__RVN_BIOPAL_ENDPOINT__ || "/api/kailu";
+                                        const res = await fetch(base, {
+                                          method:"POST",
+                                          headers:{"Content-Type":"application/json"},
+                                          body: JSON.stringify({
+                                            system: `You are a nutrition AI. Look at this food photo and return ONLY valid JSON: {"p":PROTEIN_GRAMS,"c":CARB_GRAMS,"f":FAT_GRAMS,"cal":CALORIES,"name":"FOOD_NAME"}. Estimate realistic portion sizes. No extra text.`,
+                                            user: "What are the macros in this meal?",
+                                            history: [],
+                                            max_tokens: 100,
+                                            model: "sonnet",
+                                            image_base64: b64,
+                                          }),
+                                        });
+                                        const json = await res.json();
+                                        const raw = json?.text || "";
+                                        const match = raw.match(/\{[\s\S]*?\}/);
+                                        if (match) {
+                                          const macros = JSON.parse(match[0]);
+                                          if (typeof macros.p === "number") {
+                                            const mt = profile.macroToday || { protein:0, carbs:0, fats:0 };
+                                            saveProfile({ macroToday: {
+                                              protein: Math.round((mt.protein||0) + macros.p),
+                                              carbs:   Math.round((mt.carbs||0)   + macros.c),
+                                              fats:    Math.round((mt.fats||0)    + macros.f),
+                                            }});
+                                          }
+                                        }
+                                      } catch {}
+                                      setPhotoFoodLogging(false);
+                                    };
+                                    reader.readAsDataURL(file);
+                                  }}
+                                />
+                                {photoFoodLogging && <span style={{ fontSize:10, opacity:.7 }}>Analyzing…</span>}
+                              </label>
+                              <div style={{ fontSize:9, color:T.faint, textAlign:"center", marginTop:4 }}>
+                                ✦ Premium — AI reads your plate and logs macros automatically
+                              </div>
+                            </div>
                           </div>
 
                           {/* ── Custom Meal Library (Menu Fit) ─────────────── */}
@@ -10231,7 +10410,22 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                               </div>
                             </div>
                           ))}
-                          <button onClick={() => { saveProfile({ prs: draftPRs }); setEditingPRs(false); }}
+                          <button onClick={() => {
+                            // Detect new PRs before saving
+                            const newPRs = Object.keys(draftPRs).filter(k => (draftPRs[k] || 0) > (profile.prs[k] || 0));
+                            if (newPRs.length > 0) {
+                              const prLabel = newPRs.map(k => ({ bench:"Bench Press", squat:"Squat", ohp:"Overhead Press", deadlift:"Deadlift" }[k] || k));
+                              const history = [...(profile.prHistory || []), ...newPRs.map(k => ({
+                                exercise: k, weight: draftPRs[k], prev: profile.prs[k], date: new Date().toLocaleDateString()
+                              }))];
+                              saveProfile({ prs: draftPRs, prHistory: history });
+                              setPrCelebration({ exercises: prLabel, weights: newPRs.map(k => draftPRs[k]) });
+                              setTimeout(() => setPrCelebration(null), 5000);
+                            } else {
+                              saveProfile({ prs: draftPRs });
+                            }
+                            setEditingPRs(false);
+                          }}
                             style={{ padding:"9px", borderRadius:10, background:"#FF9F0A", color:"#fff", border:"none", fontSize:12, fontWeight:800, cursor:"pointer" }}>
                             SAVE RECORDS
                           </button>
@@ -10244,6 +10438,200 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                               <div style={{ fontSize:13, fontWeight:900, color:T.text }}>{profile.prs[key]} lbs</div>
                             </div>
                           ))}
+                        </div>
+                      )}
+                    </GlassCard>
+                  </motion.div>
+                );
+              })()}
+
+              {/* ── Progress Photos ─────────────────────────────────────────── */}
+              {(() => {
+                const photos = profile.progressPhotos || [];
+                const lastPhoto = photos[photos.length - 1];
+                const daysSinceLast = lastPhoto
+                  ? Math.floor((Date.now() - new Date(lastPhoto.date).getTime()) / 86400000)
+                  : 999;
+                const showPrompt = daysSinceLast >= 7;
+                return (
+                  <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.4 }} style={{ marginBottom:18 }}>
+                    <GlassCard theme={theme} style={{ padding:"14px" }}>
+                      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                        <Pill label="PROGRESS PHOTOS" color="#BF5AF2" theme={theme}/>
+                        <div style={{ display:"flex", gap:6 }}>
+                          {["log","compare"].map(tab => (
+                            <button key={tab} onClick={() => setProgressPhotoTab(tab)}
+                              style={{
+                                padding:"4px 10px", borderRadius:8, fontSize:10, fontWeight:700,
+                                cursor:"pointer", border:`1px solid ${progressPhotoTab===tab ? "#BF5AF2" : T.border}`,
+                                background: progressPhotoTab===tab ? "#BF5AF215" : T.glass,
+                                color: progressPhotoTab===tab ? "#BF5AF2" : T.muted,
+                              }}>{tab.toUpperCase()}</button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {progressPhotoTab === "log" && (
+                        <div>
+                          {showPrompt && (
+                            <div style={{ padding:"10px 12px", borderRadius:10, background:"#BF5AF215", border:"1px solid #BF5AF233", marginBottom:10 }}>
+                              <div style={{ fontSize:11, fontWeight:800, color:"#BF5AF2", marginBottom:2 }}>
+                                📸 {daysSinceLast >= 999 ? "Take your first progress photo" : `${daysSinceLast} days since last check-in`}
+                              </div>
+                              <div style={{ fontSize:10, color:T.muted }}>Weekly photos let you see what the scale can't show.</div>
+                            </div>
+                          )}
+                          <label style={{
+                            display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+                            padding:"10px", borderRadius:12, cursor:"pointer",
+                            background:"#BF5AF210", border:"1px dashed #BF5AF266",
+                            fontSize:11, fontWeight:700, color:"#BF5AF2",
+                          }}>
+                            📷 ADD PHOTO CHECK-IN
+                            <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = (ev) => {
+                                  const dataUrl = ev.target.result;
+                                  const newPhotos = [...photos, { date: new Date().toISOString(), dataUrl, note: progressPhotoNote }];
+                                  saveProfile({ progressPhotos: newPhotos });
+                                  setProgressPhotoNote("");
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
+                          </label>
+                          <input
+                            value={progressPhotoNote}
+                            onChange={e => setProgressPhotoNote(e.target.value)}
+                            placeholder="Add a note (optional — bodyweight, how you feel…)"
+                            style={{ marginTop:8, width:"100%", padding:"8px 10px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:11, outline:"none", boxSizing:"border-box" }}
+                          />
+                          {photos.length > 0 && (
+                            <div style={{ marginTop:12, display:"flex", flexDirection:"column", gap:8 }}>
+                              {photos.slice(-3).reverse().map((p, i) => (
+                                <div key={i} style={{ display:"flex", gap:10, alignItems:"center", padding:"8px", borderRadius:10, background:T.glass }}>
+                                  <img src={p.dataUrl} alt="progress" style={{ width:52, height:52, objectFit:"cover", borderRadius:8 }}/>
+                                  <div>
+                                    <div style={{ fontSize:11, fontWeight:700, color:T.text }}>{new Date(p.date).toLocaleDateString()}</div>
+                                    {p.note && <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>{p.note}</div>}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center" }}>✦ Premium — photos stored locally on your device</div>
+                        </div>
+                      )}
+
+                      {progressPhotoTab === "compare" && (
+                        <div>
+                          {photos.length < 2 ? (
+                            <div style={{ textAlign:"center", padding:"20px 0", color:T.faint, fontSize:11 }}>
+                              Log at least 2 photos to see a side-by-side comparison.
+                            </div>
+                          ) : (
+                            <div>
+                              <div style={{ display:"flex", gap:8 }}>
+                                <div style={{ flex:1, textAlign:"center" }}>
+                                  <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:6 }}>FIRST</div>
+                                  <img src={photos[0].dataUrl} alt="first" style={{ width:"100%", borderRadius:10, objectFit:"cover", maxHeight:160 }}/>
+                                  <div style={{ fontSize:9, color:T.muted, marginTop:4 }}>{new Date(photos[0].date).toLocaleDateString()}</div>
+                                </div>
+                                <div style={{ flex:1, textAlign:"center" }}>
+                                  <div style={{ fontSize:9, fontWeight:800, color:"#BF5AF2", letterSpacing:".08em", marginBottom:6 }}>LATEST ✦</div>
+                                  <img src={photos[photos.length-1].dataUrl} alt="latest" style={{ width:"100%", borderRadius:10, objectFit:"cover", maxHeight:160 }}/>
+                                  <div style={{ fontSize:9, color:T.muted, marginTop:4 }}>{new Date(photos[photos.length-1].date).toLocaleDateString()}</div>
+                                </div>
+                              </div>
+                              <div style={{ textAlign:"center", marginTop:10, fontSize:10, color:"#BF5AF2", fontWeight:700 }}>
+                                {photos.length} check-ins · {Math.floor((new Date(photos[photos.length-1].date) - new Date(photos[0].date)) / 86400000)} days of progress
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </GlassCard>
+                  </motion.div>
+                );
+              })()}
+
+              {/* ── Health Data Sync ─────────────────────────────────────────── */}
+              {(() => {
+                const hd = profile.healthData || { steps:0, sleepHrs:0, hrv:0, lastSync:null };
+                const draft = draftHealth || hd;
+                return (
+                  <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.44 }} style={{ marginBottom:18 }}>
+                    <GlassCard theme={theme} style={{ padding:"14px" }}>
+                      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                        <Pill label="HEALTH DATA" color={T.teal} theme={theme}/>
+                        <button onClick={() => { setDraftHealth({...hd}); setEditingHealth(e=>!e); }}
+                          style={{ background:"transparent", border:`1px solid ${T.border}`, borderRadius:8, padding:"5px 10px", color:T.muted, fontSize:11, cursor:"pointer" }}>
+                          {editingHealth ? "✕" : "⌚ Sync"}
+                        </button>
+                      </div>
+                      {editingHealth ? (
+                        <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                          <div style={{ fontSize:10, color:T.muted, marginBottom:4 }}>
+                            Enter data from Apple Health, Garmin, Whoop, or any wearable. Kailu uses this to personalize every response.
+                          </div>
+                          {[
+                            { key:"steps",    label:"STEPS TODAY",     unit:"steps", icon:"👟", placeholder:"e.g. 8500"    },
+                            { key:"sleepHrs", label:"LAST NIGHT (hrs)", unit:"h",    icon:"😴", placeholder:"e.g. 7.5"     },
+                            { key:"hrv",      label:"HRV",              unit:"ms",   icon:"💗", placeholder:"e.g. 62"      },
+                          ].map(({ key, label, unit, icon, placeholder }) => (
+                            <div key={key} style={{ display:"flex", alignItems:"center", gap:10 }}>
+                              <div style={{ fontSize:18 }}>{icon}</div>
+                              <div style={{ flex:1 }}>
+                                <div style={{ fontSize:9, fontWeight:700, color:T.faint, letterSpacing:".07em", marginBottom:3 }}>{label}</div>
+                                <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                                  <input type="number" value={draft[key] || ""}
+                                    onChange={e => setDraftHealth(d => ({ ...d, [key]: parseFloat(e.target.value) || 0 }))}
+                                    placeholder={placeholder}
+                                    style={{ flex:1, padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:13, fontWeight:700, outline:"none" }}/>
+                                  <span style={{ fontSize:10, color:T.faint }}>{unit}</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          <button onClick={() => {
+                            saveProfile({ healthData: { ...draft, lastSync: new Date().toISOString() } });
+                            setEditingHealth(false); setDraftHealth(null);
+                          }} style={{ padding:"9px", borderRadius:10, background:T.teal, color:"#fff", border:"none", fontSize:12, fontWeight:800, cursor:"pointer" }}>
+                            SAVE HEALTH DATA
+                          </button>
+                          <div style={{ fontSize:9, color:T.faint, textAlign:"center" }}>
+                            ◈ Full wearable sync (Apple Health, Whoop, Garmin) coming in a future update.
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          {hd.lastSync ? (
+                            <div style={{ display:"flex", gap:8 }}>
+                              {[
+                                { icon:"👟", label:"STEPS",   val: hd.steps?.toLocaleString() || "—", color:T.blue  },
+                                { icon:"😴", label:"SLEEP",   val: hd.sleepHrs ? `${hd.sleepHrs}h` : "—", color:T.purple },
+                                { icon:"💗", label:"HRV",     val: hd.hrv ? `${hd.hrv}ms` : "—",    color:"#FF3B30" },
+                              ].map(({ icon, label, val, color }) => (
+                                <div key={label} style={{ flex:1, textAlign:"center", padding:"10px 6px", background:T.glass, borderRadius:10 }}>
+                                  <div style={{ fontSize:16 }}>{icon}</div>
+                                  <div style={{ fontSize:14, fontWeight:900, color }}>{val}</div>
+                                  <div style={{ fontSize:8, color:T.faint, letterSpacing:".07em" }}>{label}</div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div style={{ textAlign:"center", padding:"12px 0", fontSize:11, color:T.faint }}>
+                              No health data synced yet. Tap Sync to add your wearable stats.
+                            </div>
+                          )}
+                          {hd.lastSync && (
+                            <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center" }}>
+                              Last synced {new Date(hd.lastSync).toLocaleString()}
+                            </div>
+                          )}
                         </div>
                       )}
                     </GlassCard>
@@ -11873,6 +12261,7 @@ const INTENT_KEYWORDS = {
   stress:     ["stressed", "anxious", "anxiety", "overwhelmed", "burnt out", "burned out", "cortisol"],
   training:   ["workout", "training", "lift", "lifted", "session", "set", "rep", "1rm", "pr", "cardio", "run", "running", "bench", "squat", "deadlift"],
   workout_generate: ["create a workout", "generate a workout", "build me a workout", "make me a program", "give me a program", "write me a workout", "build a program", "what should i do today", "give me a workout", "build my workout", "design a workout", "plan my workout", "training program", "training plan"],
+  grocery:          ["grocery", "groceries", "shopping list", "what to buy", "food shop", "meal prep list", "what should i buy", "stock my fridge", "weekly food", "what to get", "store list", "pick up food"],
 };
 
 function classifyIntent(text) {
@@ -12039,6 +12428,44 @@ function readLifeContext(text) {
     squat405:    /\b405\b/.test(lower),
     powerlifter: /\b(powerlift|powerlifter|meet|usapl|usapa|spf)\b/.test(lower),
   };
+}
+
+// ─── GROCERY LIST GENERATOR ─────────────────────────────────────────────────
+// Builds a weekly shopping list from macro targets + saved custom meals.
+function generateGroceryList(macroGoals, customMeals = []) {
+  const p = macroGoals.protein || 180;
+  const c = macroGoals.carbs   || 250;
+  const f = macroGoals.fats    || 70;
+
+  // Protein sources — scaled by weekly protein target
+  const proteins = [];
+  if (p >= 150) proteins.push("✦ Chicken breast (3 lbs)", "✦ 93% lean ground beef (2 lbs)", "✦ Greek yogurt — plain (2 tubs)", "✦ Eggs (18 pack)", "✦ Cottage cheese (16 oz)");
+  else           proteins.push("✦ Chicken breast (2 lbs)", "✦ Greek yogurt — plain (1 tub)",   "✦ Eggs (12 pack)", "✦ Tuna cans (4x)");
+  if (p >= 200)  proteins.push("✦ Whey protein (if low)", "✦ Salmon fillets (1 lb)");
+
+  // Carb sources
+  const carbs = [];
+  if (c >= 200) carbs.push("◉ White rice (5 lb bag)", "◉ Oats (old fashioned, 42 oz)", "◉ Sweet potatoes (3 lbs)", "◉ Banana (bunch)", "◉ Rice cakes");
+  else          carbs.push("◉ Brown rice (2 lb)", "◉ Oats (42 oz)", "◉ Sweet potatoes (2)", "◉ Berries (frozen bag)");
+
+  // Fat sources
+  const fats = [];
+  if (f >= 60)  fats.push("◈ Avocados (4-5)", "◈ Almond butter (jar)", "◈ Olive oil (bottle)", "◈ Mixed nuts (bag)");
+  else          fats.push("◈ Avocados (2)", "◈ Almond butter (small jar)", "◈ Olive oil");
+
+  // Produce + staples
+  const staples = [
+    "● Broccoli (2 heads or frozen bag)",
+    "● Spinach (large bag)",
+    "● Garlic + onion",
+    "● Lemon (bag)",
+    "● Salt, pepper, hot sauce",
+  ];
+
+  // Inject custom meal ingredients if any
+  const customIngredients = customMeals.slice(0, 3).map(m => `→ ${m.name} ingredients`);
+
+  return [...proteins, ...carbs, ...fats, ...staples, ...(customIngredients.length ? ["", "FROM YOUR SAVED MEALS:", ...customIngredients] : [])];
 }
 
 // ─── GENERATIVE 24-HOUR SCHEDULE ENGINE ────────────────────────────────────
@@ -12311,6 +12738,15 @@ async function composeBioPalResponse(text, state) {
   } else if (intent === "schedule") {
     scheduleItems = generateDaySchedule(text, state);
     appliedDelta  = { kind: "schedulePending", items: scheduleItems };
+  } else if (intent === "grocery") {
+    // Generate grocery list from macro targets + saved custom meals
+    try {
+      const p = JSON.parse(localStorage.getItem("rvn_profile") || "{}");
+      const mg = p.macroGoals || { protein:180, carbs:250, fats:70 };
+      const meals = JSON.parse(localStorage.getItem("rvn_custom_meals") || "[]");
+      const groceryItems = generateGroceryList(mg, meals);
+      appliedDelta = { kind: "groceryList", items: groceryItems };
+    } catch {}
   }
 
   // ── STEP 2: Build rich system prompt from real user data ──────────────────────
@@ -12330,6 +12766,13 @@ async function composeBioPalResponse(text, state) {
     if (avgSleep)           parts.push(`Avg sleep: ${avgSleep}h`);
     if (p.sleepTarget)      parts.push(`Sleep target: ${p.sleepTarget}h`);
     if (p.calories)         parts.push(`TDEE: ~${p.calories} kcal`);
+    // Health data from wearable sync — inject when available so Kailu is pre-loaded
+    const hd = p.healthData || {};
+    if (hd.lastSync) {
+      if (hd.steps)    parts.push(`Today's steps: ${hd.steps.toLocaleString()}`);
+      if (hd.sleepHrs) parts.push(`Last night's sleep: ${hd.sleepHrs}h`);
+      if (hd.hrv)      parts.push(`HRV: ${hd.hrv}ms (${hd.hrv >= 70 ? "good recovery" : hd.hrv >= 50 ? "moderate recovery" : "low — prioritize rest"})`);
+    }
     profileCtx = parts.join(". ");
   } catch (_) {}
 
@@ -12377,9 +12820,10 @@ async function composeBioPalResponse(text, state) {
     .slice(-6)
     .map(m => ({ role: m.role === "pal" ? "assistant" : "user", content: m.text }));
 
-  // ── STEP 4: Always call Claude — no more scripted response branches ────────────
+  // ── STEP 4: Always call Claude — model selected by intent for cost efficiency ─
+  const chosenModel = classifyModel(intent, false);
   try {
-    const reply = await callClaudeAPI({ system: systemPrompt, history, user: text, maxTokens: 280 });
+    const reply = await callClaudeAPI({ system: systemPrompt, history, user: text, maxTokens: 280, model: chosenModel });
     if (reply) return { text: reply, intent, appliedDelta, workoutPlan, scheduleItems };
   } catch (_) { /* offline — fall through to local fallback */ }
 
@@ -12414,7 +12858,57 @@ async function composeBioPalResponse(text, state) {
 
 // ─── Claude API stub — pluggable. In a real deployment, wire this to a
 // kiosk-side proxy that holds the API key (do NOT ship a key in the bundle).
-async function callClaudeAPI({ system, user, history, maxTokens }) {
+// ─── Kailu Token System ────────────────────────────────────────────────────────
+const KAILU_MAX_TOKENS    = 15;
+const KAILU_REFILL_AMOUNT = 5;
+const KAILU_REFILL_MS     = 3 * 60 * 60 * 1000; // 3 hours
+
+function getKailuTokenState(profile) {
+  if (profile?.isPremium) return { tokens: 999, msUntilRefill: 0, canSend: true };
+  const tokens      = profile?.kailuTokens    ?? KAILU_MAX_TOKENS;
+  const lastRefill  = profile?.kailuLastRefill ?? Date.now();
+  const elapsed     = Date.now() - lastRefill;
+  const refillsEarned = Math.floor(elapsed / KAILU_REFILL_MS);
+  const refilled    = Math.min(KAILU_MAX_TOKENS, tokens + refillsEarned * KAILU_REFILL_AMOUNT);
+  const msUntilNext = KAILU_REFILL_MS - (elapsed % KAILU_REFILL_MS);
+  return { tokens: refilled, msUntilRefill: msUntilNext, canSend: refilled > 0 };
+}
+
+function applyKailuTokenRefill(profile, saveProfile) {
+  if (profile?.isPremium) return profile;
+  const { tokens } = getKailuTokenState(profile);
+  if (tokens !== profile.kailuTokens) {
+    const updated = { ...profile, kailuTokens: tokens, kailuLastRefill: Date.now() };
+    saveProfile({ kailuTokens: tokens, kailuLastRefill: Date.now() });
+    return updated;
+  }
+  return profile;
+}
+
+function deductKailuToken(profile, saveProfile) {
+  if (profile?.isPremium) return;
+  const current = getKailuTokenState(profile).tokens;
+  saveProfile({ kailuTokens: Math.max(0, current - 1), kailuLastRefill: profile.kailuLastRefill ?? Date.now() });
+}
+
+function formatRefillTime(ms) {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+// Model classification — determines whether to use Haiku (cheap) or Sonnet (smart)
+// Haiku: food logging, simple macro questions, greetings, quick lookups
+// Sonnet: workout generation, complex protocol, vision/image, schedule building
+function classifyModel(intent, hasImage) {
+  if (hasImage) return "sonnet";
+  const sonnetIntents = new Set(["workout_generate", "schedule", "goal", "injury", "supplement"]);
+  if (sonnetIntents.has(intent)) return "sonnet";
+  return "haiku";
+}
+
+async function callClaudeAPI({ system, user, history, maxTokens, model, imageBase64 }) {
   if (typeof window === "undefined") return null;
   // Auto-detect endpoint: explicit override → Vercel /api/kailu → null (offline)
   const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
@@ -12428,6 +12922,8 @@ async function callClaudeAPI({ system, user, history, maxTokens }) {
         user,
         history: history || [],
         max_tokens: maxTokens || 280,
+        model: model || "haiku",
+        ...(imageBase64 ? { image_base64: imageBase64 } : {}),
       }),
     });
     if (!res.ok) return null;
@@ -12451,6 +12947,26 @@ function RVNVisionOverlay() {
 
   const [draft, setDraft] = useState("");
   const scrollerRef = useRef(null);
+
+  // ── Token state — reads from shared localStorage profile ─────────────────────
+  const getProfileRaw = () => { try { return JSON.parse(localStorage.getItem("rvn_profile") || "{}"); } catch { return {}; } };
+  const [tokenState, setTokenState] = useState(() => getKailuTokenState(getProfileRaw()));
+
+  // Refresh token state whenever overlay opens
+  useEffect(() => {
+    if (biopal.open) setTokenState(getKailuTokenState(getProfileRaw()));
+  }, [biopal.open]);
+
+  const consumeToken = () => {
+    const p = getProfileRaw();
+    if (p.isPremium) return true;
+    const ts = getKailuTokenState(p);
+    if (!ts.canSend) return false;
+    const updated = { ...p, kailuTokens: ts.tokens - 1, kailuLastRefill: p.kailuLastRefill ?? Date.now() };
+    try { localStorage.setItem("rvn_profile", JSON.stringify(updated)); } catch {}
+    setTokenState(getKailuTokenState(updated));
+    return true;
+  };
 
   // Seed the greeting the first time RVN Vision opens in this session
   useEffect(() => {
@@ -12480,6 +12996,11 @@ function RVNVisionOverlay() {
   async function handleSend() {
     const text = draft.trim();
     if (!text || biopal.processing) return;
+    // Token gate — free users have limited messages per refill window
+    if (!consumeToken()) {
+      biopalSend({ role:"pal", text:`You've used all your messages for now. ${formatRefillTime(tokenState.msUntilRefill)} until your next 5 tokens — or go Premium for unlimited Kailu.`, intent:"greet" });
+      return;
+    }
     setDraft("");
     biopalSend({ role: "user", text });
 
@@ -12651,6 +13172,25 @@ function RVNVisionOverlay() {
               </div>
             )}
 
+            {/* Token counter — hidden for premium users */}
+            {!getProfileRaw().isPremium && (
+              <div style={{
+                display:"flex", alignItems:"center", justifyContent:"space-between",
+                padding:"5px 14px 3px",
+                fontSize:10, color: tokenState.tokens <= 3 ? T.red : T.faint,
+              }}>
+                <span style={{ fontWeight:700, letterSpacing:".07em" }}>
+                  {tokenState.tokens > 0
+                    ? `◉ ${tokenState.tokens} message${tokenState.tokens !== 1 ? "s" : ""} remaining`
+                    : `⊘ Refills in ${formatRefillTime(tokenState.msUntilRefill)}`}
+                </span>
+                <span style={{ opacity:.7, cursor:"pointer", textDecoration:"underline" }}
+                  onClick={() => biopalSend({ role:"pal", text:"Upgrade to RVN Premium for unlimited Kailu messages, photo food logging, progress photo comparisons, and more. Tap Settings → Upgrade.", intent:"greet" })}>
+                  Go Premium ✦
+                </span>
+              </div>
+            )}
+
             {/* Composer */}
             <div style={{
               display: "flex", gap: 8, padding: "10px 12px",
@@ -12670,13 +13210,13 @@ function RVNVisionOverlay() {
               <motion.button
                 whileTap={{ scale: .94 }}
                 onClick={handleSend}
-                disabled={!draft.trim() || biopal.processing}
+                disabled={!draft.trim() || biopal.processing || (!getProfileRaw().isPremium && tokenState.tokens <= 0)}
                 style={{
-                  background: draft.trim() ? ac : T.glass,
-                  border: `1px solid ${draft.trim() ? ac : T.border}`,
+                  background: draft.trim() && (getProfileRaw().isPremium || tokenState.tokens > 0) ? ac : T.glass,
+                  border: `1px solid ${draft.trim() && (getProfileRaw().isPremium || tokenState.tokens > 0) ? ac : T.border}`,
                   borderRadius: 12, padding: "0 14px",
-                  color: draft.trim() ? "#fff" : T.faint, fontWeight: 800,
-                  fontSize: 12, letterSpacing: ".06em", cursor: "pointer",
+                  color: draft.trim() && (getProfileRaw().isPremium || tokenState.tokens > 0) ? "#fff" : T.faint,
+                  fontWeight: 800, fontSize: 12, letterSpacing: ".06em", cursor: "pointer",
                 }}>SEND</motion.button>
             </div>
 
@@ -12759,6 +13299,21 @@ function RVNVisionBubble({ m, ac, T, theme, onLock }) {
         )}
         {m.workoutPlan && (
           <WorkoutPlanCard plan={m.workoutPlan} ac={ac} T={T} theme={theme}/>
+        )}
+        {/* Grocery list card */}
+        {m.appliedDelta?.kind === "groceryList" && m.appliedDelta.items?.length > 0 && (
+          <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:8 }}>
+            <div style={{ fontSize:10, fontWeight:800, color:ac, letterSpacing:".1em", marginBottom:8 }}>🛒 WEEKLY GROCERY LIST</div>
+            {m.appliedDelta.items.map((item, i) => (
+              item === "" ? <div key={i} style={{ height:6 }}/> :
+              item === item.toUpperCase() && !item.startsWith("✦") && !item.startsWith("◉") && !item.startsWith("◈") && !item.startsWith("●") && !item.startsWith("→")
+                ? <div key={i} style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginTop:4 }}>{item}</div>
+                : <div key={i} style={{ fontSize:11.5, color:T.text, padding:"2px 0", lineHeight:1.5 }}>{item}</div>
+            ))}
+            <div style={{ marginTop:8, fontSize:9.5, color:T.faint, fontStyle:"italic" }}>
+              Calibrated to your {JSON.parse(localStorage.getItem("rvn_profile")||"{}").macroGoals?.protein || 180}g protein target.
+            </div>
+          </div>
         )}
         {m.appliedDelta && m.appliedDelta.kind !== "schedulePending" && (
           <div style={{
@@ -19212,11 +19767,28 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
     { id:"inventory",  label:"INVENTORY",  icon:"◈" },
     { id:"brands",     label:"BRANDS",     icon:"◇" },
     { id:"stories",    label:"STORIES",    icon:"★" },
+    { id:"challenges", label:"CHALLENGES", icon:"🏆" },
     { id:"settings",   label:"SETTINGS",   icon:"⬡" },
   ];
   const [activeBrands, setActiveBrands] = useState({...DEFAULT_ACTIVE_BRANDS});
   const [pinnedStories, setPinnedStories] = useState([]);
   const [storyForm, setStoryForm] = useState({ name:"", handle:"", result:"", brand:"thorne", text:"", archetypes:["core_definition"] });
+  // Venue branding
+  const [venueBrand, setVenueBrand] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("rvn_venue_brand") || "null") || { gymName:"", accentColor:"#2E5BFF", welcomeMsg:"", logoDataUrl:"" }; }
+    catch { return { gymName:"", accentColor:"#2E5BFF", welcomeMsg:"", logoDataUrl:"" }; }
+  });
+  const saveVenueBrand = (updates) => {
+    const next = { ...venueBrand, ...updates };
+    setVenueBrand(next);
+    try { localStorage.setItem("rvn_venue_brand", JSON.stringify(next)); } catch {}
+  };
+  // Challenges
+  const [challenges, setChallenges] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("rvn_challenges") || "[]"); } catch { return []; }
+  });
+  const [challengeForm, setChallengeForm] = useState({ name:"", target:20, reward:"", deadline:"" });
+  const saveChallenges = (list) => { setChallenges(list); try { localStorage.setItem("rvn_challenges", JSON.stringify(list)); } catch {}; };
   const [storyAdded, setStoryAdded] = useState(false);
 
   return (
@@ -19489,6 +20061,88 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
         )}
 
         {/* SETTINGS TAB */}
+        {/* CHALLENGES TAB */}
+        {hubTab === "challenges" && (
+          <motion.div key="challenges" {...FX.up}>
+            <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
+              <Pill label="CREATE CHALLENGE" color="#FF9F0A" theme={theme}/>
+              <div style={{ display:"flex", flexDirection:"column", gap:10, marginTop:12 }}>
+                <input value={challengeForm.name} onChange={e => setChallengeForm(f=>({...f,name:e.target.value}))}
+                  placeholder="Challenge name e.g. '20 Check-In Club'"
+                  style={{ width:"100%", padding:"9px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:13, fontWeight:700, outline:"none", boxSizing:"border-box" }}/>
+                <div style={{ display:"flex", gap:8 }}>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:9, color:T.faint, marginBottom:3, letterSpacing:".08em" }}>TARGET CHECK-INS</div>
+                    <input type="number" value={challengeForm.target} onChange={e => setChallengeForm(f=>({...f,target:parseInt(e.target.value)||0}))}
+                      style={{ width:"100%", padding:"9px 10px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:14, fontWeight:700, outline:"none", textAlign:"center", boxSizing:"border-box" }}/>
+                  </div>
+                  <div style={{ flex:2 }}>
+                    <div style={{ fontSize:9, color:T.faint, marginBottom:3, letterSpacing:".08em" }}>DEADLINE</div>
+                    <input type="date" value={challengeForm.deadline} onChange={e => setChallengeForm(f=>({...f,deadline:e.target.value}))}
+                      style={{ width:"100%", padding:"9px 10px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:12, outline:"none", boxSizing:"border-box" }}/>
+                  </div>
+                </div>
+                <input value={challengeForm.reward} onChange={e => setChallengeForm(f=>({...f,reward:e.target.value}))}
+                  placeholder="Reward e.g. 'Free month of membership'"
+                  style={{ width:"100%", padding:"9px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:12, outline:"none", boxSizing:"border-box" }}/>
+                <motion.button whileTap={{ scale:.95 }}
+                  onClick={() => {
+                    if (!challengeForm.name) return;
+                    saveChallenges([...challenges, { ...challengeForm, id: Date.now(), createdAt: new Date().toISOString() }]);
+                    setChallengeForm({ name:"", target:20, reward:"", deadline:"" });
+                  }}
+                  style={{ padding:"10px", borderRadius:10, background:"#FF9F0A", color:"#fff", border:"none", fontSize:12, fontWeight:900, cursor:"pointer", letterSpacing:".06em" }}>
+                  LAUNCH CHALLENGE ✦
+                </motion.button>
+              </div>
+            </GlassCard>
+
+            {/* Active challenges */}
+            {challenges.length === 0 ? (
+              <div style={{ textAlign:"center", padding:"24px 0", fontSize:11, color:T.faint }}>No active challenges yet. Create one above.</div>
+            ) : (
+              challenges.map((ch, i) => (
+                <motion.div key={ch.id} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.07 }} style={{ marginBottom:10 }}>
+                  <GlassCard theme={theme} glow="#FF9F0A" style={{ padding:"14px 16px" }}>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
+                      <div style={{ fontSize:13, fontWeight:800, color:T.text }}>🏆 {ch.name}</div>
+                      <button onClick={() => saveChallenges(challenges.filter(c => c.id !== ch.id))}
+                        style={{ background:"transparent", border:"none", color:T.faint, fontSize:14, cursor:"pointer" }}>✕</button>
+                    </div>
+                    <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+                      <div style={{ flex:1, textAlign:"center", padding:"8px", background:T.glass, borderRadius:8 }}>
+                        <div style={{ fontSize:18, fontWeight:900, color:"#FF9F0A" }}>{ch.target}</div>
+                        <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>CHECK-INS</div>
+                      </div>
+                      {ch.deadline && (
+                        <div style={{ flex:1, textAlign:"center", padding:"8px", background:T.glass, borderRadius:8 }}>
+                          <div style={{ fontSize:11, fontWeight:700, color:T.text }}>{new Date(ch.deadline).toLocaleDateString()}</div>
+                          <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>DEADLINE</div>
+                        </div>
+                      )}
+                    </div>
+                    {ch.reward && (
+                      <div style={{ fontSize:10, color:"#FF9F0A", fontWeight:700, padding:"6px 10px", background:"#FF9F0A15", borderRadius:8 }}>
+                        🎁 {ch.reward}
+                      </div>
+                    )}
+                    {/* Mock leaderboard */}
+                    <div style={{ marginTop:10 }}>
+                      <div style={{ fontSize:9, fontWeight:700, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>LEADERBOARD</div>
+                      {[{name:"Alex M.", checkins:18},{name:"Jordan K.", checkins:15},{name:"Sam T.", checkins:12}].map((u, j) => (
+                        <div key={u.name} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"5px 8px", borderRadius:7, background: j===0 ? "#FF9F0A18" : T.glass, marginBottom:3 }}>
+                          <span style={{ fontSize:10, fontWeight:700, color: j===0 ? "#FF9F0A" : T.text }}>#{j+1} {u.name}</span>
+                          <span style={{ fontSize:10, color:T.muted }}>{u.checkins}/{ch.target}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))
+            )}
+          </motion.div>
+        )}
+
         {hubTab === "settings" && (
           <motion.div key="settings" {...FX.up}>
             {/* Store name */}
@@ -19507,6 +20161,69 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     padding:"7px 14px", fontSize:11, fontWeight:800,
                     color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".06em",
                   }}>SAVE</motion.button>
+              </div>
+            </GlassCard>
+
+            {/* Venue Branding */}
+            <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
+              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+                VENUE BRANDING
+              </div>
+              <div style={{ fontSize:10, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
+                When members NFC tap into your gym, they'll see your logo, colors, and welcome message.
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                <div>
+                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>GYM NAME</div>
+                  <input value={venueBrand.gymName} onChange={e => saveVenueBrand({ gymName: e.target.value })}
+                    placeholder="e.g. Iron Republic Fitness"
+                    style={{ width:"100%", padding:"9px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:13, fontWeight:700, outline:"none", boxSizing:"border-box" }}/>
+                </div>
+                <div>
+                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>ACCENT COLOR</div>
+                  <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                    <input type="color" value={venueBrand.accentColor} onChange={e => saveVenueBrand({ accentColor: e.target.value })}
+                      style={{ width:44, height:36, borderRadius:8, border:`1px solid ${T.border}`, padding:2, cursor:"pointer", background:T.glass }}/>
+                    <div style={{ fontSize:11, color:T.text, fontFamily:"monospace" }}>{venueBrand.accentColor}</div>
+                    {/* Color presets */}
+                    {["#2E5BFF","#FF4B2B","#00FFAB","#BF5AF2","#FF9F0A"].map(c => (
+                      <button key={c} onClick={() => saveVenueBrand({ accentColor: c })}
+                        style={{ width:22, height:22, borderRadius:"50%", background:c, border: venueBrand.accentColor===c ? `2px solid ${T.text}` : "none", cursor:"pointer" }}/>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>WELCOME MESSAGE</div>
+                  <input value={venueBrand.welcomeMsg} onChange={e => saveVenueBrand({ welcomeMsg: e.target.value })}
+                    placeholder="e.g. Welcome to Iron Republic. Let's build."
+                    style={{ width:"100%", padding:"9px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:12, outline:"none", boxSizing:"border-box" }}/>
+                </div>
+                <div>
+                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>LOGO</div>
+                  <label style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 12px", borderRadius:10, border:`1px dashed ${T.border}`, cursor:"pointer", background:T.glass }}>
+                    {venueBrand.logoDataUrl
+                      ? <img src={venueBrand.logoDataUrl} alt="logo" style={{ height:32, objectFit:"contain", borderRadius:4 }}/>
+                      : <span style={{ fontSize:11, color:T.faint }}>📁 Upload logo (PNG / SVG)</span>}
+                    <input type="file" accept="image/*" style={{ display:"none" }}
+                      onChange={e => {
+                        const f = e.target.files?.[0]; if (!f) return;
+                        const r = new FileReader(); r.onload = ev => saveVenueBrand({ logoDataUrl: ev.target.result }); r.readAsDataURL(f);
+                      }}/>
+                  </label>
+                </div>
+                {/* Preview */}
+                {(venueBrand.gymName || venueBrand.logoDataUrl) && (
+                  <div style={{ padding:"12px 14px", borderRadius:12, background:`${venueBrand.accentColor}15`, border:`1px solid ${venueBrand.accentColor}44` }}>
+                    <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em", marginBottom:6 }}>PREVIEW — MEMBER VIEW</div>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      {venueBrand.logoDataUrl && <img src={venueBrand.logoDataUrl} alt="logo" style={{ height:28, objectFit:"contain" }}/>}
+                      <div>
+                        <div style={{ fontSize:13, fontWeight:800, color:venueBrand.accentColor }}>{venueBrand.gymName || "Your Gym"}</div>
+                        {venueBrand.welcomeMsg && <div style={{ fontSize:10, color:T.muted }}>{venueBrand.welcomeMsg}</div>}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </GlassCard>
 
@@ -19741,7 +20458,7 @@ export default function RVNVision() {
   return (
     <RVNErrorBoundary>
       <EnvProvider initialOverrides={{
-        mode:         "gym",
+        mode:         "gym",   // Gym IS the personal experience — NFC tap overlays venue context
         modeLockedBy: "default",
         inventory:    INVENTORY,
       }}>

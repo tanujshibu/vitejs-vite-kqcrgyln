@@ -53,20 +53,35 @@ export default async function handler(req, res) {
     return res.status(429).json({ error: "Too many requests — slow down a bit." });
   }
 
-  const { system, user, history, max_tokens } = req.body || {};
+  const { system, user, history, max_tokens, model: requestedModel, image_base64 } = req.body || {};
   if (!user) return res.status(400).json({ error: "Missing user message" });
+
+  // Model routing: use requested model or default to haiku for cost efficiency
+  // Sonnet is reserved for: vision/image, complex protocol questions, workout generation
+  const HAIKU   = "claude-haiku-4-5-20251001";
+  const SONNET  = "claude-sonnet-4-5";
+  const model   = requestedModel === "sonnet" ? SONNET : HAIKU;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return res.status(500).json({ error: "ANTHROPIC_API_KEY not configured" });
 
   // Build messages: prior turns + current user message
   const priorTurns = Array.isArray(history) ? history : [];
+
+  // Build the user content — plain text or multimodal (text + image)
+  const userContent = image_base64
+    ? [
+        { type: "image", source: { type: "base64", media_type: "image/jpeg", data: image_base64 } },
+        { type: "text",  text: user },
+      ]
+    : user;
+
   const messages = [
     ...priorTurns.map(m => ({
       role:    m.role === "assistant" ? "assistant" : "user",
       content: String(m.content || ""),
     })),
-    { role: "user", content: user },
+    { role: "user", content: userContent },
   ];
 
   try {
@@ -79,7 +94,7 @@ export default async function handler(req, res) {
         "anthropic-beta":    "prompt-caching-2024-07-31",
       },
       body: JSON.stringify({
-        model:      "claude-haiku-4-5-20251001",
+        model,
         max_tokens: max_tokens || 280,
         system: [
           {

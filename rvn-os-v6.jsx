@@ -19934,10 +19934,14 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   const hubTabs = [
     { id:"overview",   label:"OVERVIEW",   icon:"◉" },
     { id:"inventory",  label:"INVENTORY",  icon:"◈" },
+    { id:"roster",     label:"ROSTER",     icon:"👥" },
+    { id:"nfc",        label:"NFC TAGS",   icon:"⬡" },
+    { id:"export",     label:"EXPORT",     icon:"↗" },
+    { id:"roles",      label:"ROLES",      icon:"🔑" },
     { id:"brands",     label:"BRANDS",     icon:"◇" },
     { id:"stories",    label:"STORIES",    icon:"★" },
     { id:"challenges", label:"CHALLENGES", icon:"🏆" },
-    { id:"settings",   label:"SETTINGS",   icon:"⬡" },
+    { id:"settings",   label:"SETTINGS",   icon:"⚙" },
   ];
   const [activeBrands, setActiveBrands] = useState({...DEFAULT_ACTIVE_BRANDS});
   const [pinnedStories, setPinnedStories] = useState([]);
@@ -19978,12 +19982,12 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
           <ThemeToggle theme={theme} onToggle={onThemeChange}/>
         </div>
         {/* Sub-tabs */}
-        <div style={{ display:"flex", gap:6 }}>
+        <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:2, WebkitOverflowScrolling:"touch" }}>
           {hubTabs.map(ht => (
             <motion.button key={ht.id} whileTap={{ scale:.97 }}
               onClick={() => setHubTab(ht.id)}
               style={{
-                flex:1, padding:"8px 4px",
+                flexShrink:0, padding:"8px 10px",
                 background: hubTab===ht.id ? T.blue : T.glass,
                 backdropFilter:"blur(8px)",
                 border:`1px solid ${hubTab===ht.id ? T.blue : T.border}`,
@@ -19991,6 +19995,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 fontSize:9, fontWeight:800, letterSpacing:".08em",
                 color: hubTab===ht.id ? (theme==="dark"?"#000":"#fff") : T.muted,
                 display:"flex", alignItems:"center", justifyContent:"center", gap:4,
+                whiteSpace:"nowrap",
               }}>
               {ht.icon} {ht.label}
             </motion.button>
@@ -20616,6 +20621,435 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
             )}
           </div>
         )}
+
+        {/* ── ROSTER TAB ─────────────────────────────────────────────────────── */}
+        {hubTab === "roster" && (() => {
+          const MEMBERS = [
+            { id:1, name:"Marcus Johnson",  initials:"MJ", lastVisit:0,  streak:14, adherence:91, volume:18400, flag:false },
+            { id:2, name:"Priya Sharma",    initials:"PS", lastVisit:2,  streak:7,  adherence:78, volume:14200, flag:false },
+            { id:3, name:"Tyler Brooks",    initials:"TB", lastVisit:11, streak:0,  adherence:42, volume:9800,  flag:true  },
+            { id:4, name:"Aaliyah Carter",  initials:"AC", lastVisit:1,  streak:22, adherence:95, volume:21600, flag:false },
+            { id:5, name:"Jake Montoya",    initials:"JM", lastVisit:14, streak:0,  adherence:31, volume:7100,  flag:true  },
+            { id:6, name:"Sofia Reyes",     initials:"SR", lastVisit:3,  streak:5,  adherence:67, volume:12300, flag:false },
+            { id:7, name:"Devon Walsh",     initials:"DW", lastVisit:0,  streak:9,  adherence:84, volume:16800, flag:false },
+            { id:8, name:"Mei Lin",         initials:"ML", lastVisit:18, streak:0,  adherence:22, volume:4200,  flag:true  },
+          ];
+          const [search, setSearch] = React.useState("");
+          const [filter, setFilter] = React.useState("all"); // all | at-risk | active
+          const filtered = MEMBERS.filter(m => {
+            const matchSearch = m.name.toLowerCase().includes(search.toLowerCase());
+            const matchFilter = filter === "all" ? true : filter === "at-risk" ? m.flag : !m.flag;
+            return matchSearch && matchFilter;
+          });
+          const atRiskCount = MEMBERS.filter(m => m.flag).length;
+          return (
+            <motion.div key="roster" {...FX.up}>
+              {/* Summary row */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:14 }}>
+                {[
+                  { label:"TOTAL MEMBERS", value:MEMBERS.length, color:T.blue },
+                  { label:"ACTIVE (7d)",   value:MEMBERS.filter(m=>m.lastVisit<=7).length, color:T.green },
+                  { label:"AT RISK",       value:atRiskCount, color:T.red },
+                ].map(s => (
+                  <GlassCard key={s.label} theme={theme} style={{ padding:"12px", textAlign:"center" }}>
+                    <div style={{ fontSize:22, fontWeight:900, color:s.color }}>{s.value}</div>
+                    <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em", marginTop:2 }}>{s.label}</div>
+                  </GlassCard>
+                ))}
+              </div>
+              {/* Search + filter */}
+              <div style={{ display:"flex", gap:8, marginBottom:12 }}>
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Search members…"
+                  style={{ flex:1, background:T.glass, border:`1px solid ${T.border}`, borderRadius:10,
+                    padding:"9px 12px", fontSize:12, color:T.text, outline:"none" }}/>
+                {["all","active","at-risk"].map(f => (
+                  <motion.button key={f} whileTap={{ scale:.97 }} onClick={() => setFilter(f)}
+                    style={{ padding:"8px 12px", borderRadius:10, border:`1px solid ${filter===f?T.blue:T.border}`,
+                      background:filter===f?T.blue:T.glass, cursor:"pointer",
+                      fontSize:9, fontWeight:800, color:filter===f?(theme==="dark"?"#000":"#fff"):T.muted,
+                      whiteSpace:"nowrap" }}>
+                    {f.toUpperCase()}
+                  </motion.button>
+                ))}
+              </div>
+              {/* Member list */}
+              {filtered.map((m, i) => (
+                <motion.div key={m.id} {...FX.stagger(i, 0)}>
+                  <GlassCard theme={theme} style={{
+                    padding:"12px 14px", marginBottom:8,
+                    border:`1.5px solid ${m.flag ? T.red+"55" : T.border}`,
+                  }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+                      {/* Avatar */}
+                      <div style={{ width:40, height:40, borderRadius:"50%", flexShrink:0,
+                        background:m.flag ? `${T.red}22` : `${T.blue}22`,
+                        border:`1.5px solid ${m.flag ? T.red+"66" : T.blue+"44"}`,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:12, fontWeight:800, color:m.flag ? T.red : T.blue }}>
+                        {m.initials}
+                      </div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
+                          <div style={{ fontSize:13, fontWeight:800, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.name}</div>
+                          {m.flag && <Pill label="⚠ AT RISK" color={T.red} theme={theme}/>}
+                        </div>
+                        <div style={{ fontSize:10, color:T.muted }}>
+                          {m.lastVisit === 0 ? "Last visit: Today" : `Last visit: ${m.lastVisit}d ago`}
+                          {" · "}🔥 {m.streak}-day streak
+                        </div>
+                        {/* Adherence bar */}
+                        <div style={{ marginTop:6, display:"flex", alignItems:"center", gap:8 }}>
+                          <div style={{ flex:1, height:4, borderRadius:2, background:T.glass, overflow:"hidden" }}>
+                            <div style={{ height:"100%", borderRadius:2,
+                              background: m.adherence >= 75 ? T.green : m.adherence >= 50 ? T.gold : T.red,
+                              width:`${m.adherence}%`, transition:"width .4s" }}/>
+                          </div>
+                          <div style={{ fontSize:9, fontWeight:800, color:T.muted, minWidth:28 }}>{m.adherence}%</div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign:"right", flexShrink:0 }}>
+                        <div style={{ fontSize:11, fontWeight:800, color:T.text }}>{(m.volume/1000).toFixed(1)}k</div>
+                        <div style={{ fontSize:8, color:T.faint }}>LB VOL</div>
+                      </div>
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))}
+              {filtered.length === 0 && (
+                <div style={{ textAlign:"center", padding:"40px 20px", color:T.faint, fontSize:13 }}>
+                  No members match this filter.
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
+
+        {/* ── NFC TAGS TAB ────────────────────────────────────────────────────── */}
+        {hubTab === "nfc" && (() => {
+          const [tags, setTags] = React.useState([
+            { id:"TAG-001", equipment:"Squat Rack A", location:"Floor 1", status:"active",  lastTap:"2h ago" },
+            { id:"TAG-002", equipment:"Bench Press B", location:"Floor 1", status:"active",  lastTap:"4h ago" },
+            { id:"TAG-003", equipment:"Deadlift Platform", location:"Floor 2", status:"broken",  lastTap:"3d ago" },
+            { id:"TAG-004", equipment:"Cable Machine", location:"Floor 1", status:"active",  lastTap:"1h ago" },
+            { id:"TAG-005", equipment:"Leg Press",    location:"Floor 2", status:"unassigned", lastTap:"never" },
+          ]);
+          const [newTag, setNewTag] = React.useState({ id:"", equipment:"", location:"Floor 1" });
+          const [adding, setAdding] = React.useState(false);
+          const statusColor = { active:T.green, broken:T.red, unassigned:T.muted };
+          const statusLabel = { active:"ACTIVE", broken:"BROKEN", unassigned:"UNASSIGNED" };
+          return (
+            <motion.div key="nfc" {...FX.up}>
+              {/* Summary */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:14 }}>
+                {[
+                  { label:"TOTAL TAGS",  value:tags.length, color:T.blue },
+                  { label:"ACTIVE",      value:tags.filter(t=>t.status==="active").length, color:T.green },
+                  { label:"NEEDS ATTENTION", value:tags.filter(t=>t.status!=="active").length, color:T.red },
+                ].map(s => (
+                  <GlassCard key={s.label} theme={theme} style={{ padding:"12px", textAlign:"center" }}>
+                    <div style={{ fontSize:22, fontWeight:900, color:s.color }}>{s.value}</div>
+                    <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em", marginTop:2 }}>{s.label}</div>
+                  </GlassCard>
+                ))}
+              </div>
+              {/* Tag list */}
+              {tags.map((tag, i) => (
+                <motion.div key={tag.id} {...FX.stagger(i, 0)}>
+                  <GlassCard theme={theme} style={{
+                    padding:"12px 14px", marginBottom:8,
+                    border:`1.5px solid ${statusColor[tag.status]}33`,
+                  }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:36, height:36, borderRadius:10, flexShrink:0,
+                        background:`${statusColor[tag.status]}18`,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:16, color:statusColor[tag.status] }}>⬡</div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
+                          <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{tag.id}</div>
+                          <Pill label={statusLabel[tag.status]} color={statusColor[tag.status]} theme={theme}/>
+                        </div>
+                        <div style={{ fontSize:11, color:T.muted }}>{tag.equipment || "Unassigned"} · {tag.location}</div>
+                        <div style={{ fontSize:9, color:T.faint, marginTop:2 }}>Last tap: {tag.lastTap}</div>
+                      </div>
+                      {tag.status === "broken" && (
+                        <motion.button whileTap={{ scale:.97 }}
+                          onClick={() => setTags(ts => ts.map(t => t.id===tag.id ? {...t,status:"unassigned"} : t))}
+                          style={{ padding:"6px 10px", borderRadius:8, border:`1px solid ${T.red}55`,
+                            background:`${T.red}18`, cursor:"pointer", fontSize:9, fontWeight:800, color:T.red }}>
+                          REPLACE
+                        </motion.button>
+                      )}
+                      {tag.status === "unassigned" && (
+                        <motion.button whileTap={{ scale:.97 }}
+                          onClick={() => setTags(ts => ts.map(t => t.id===tag.id ? {...t,status:"active",lastTap:"just now"} : t))}
+                          style={{ padding:"6px 10px", borderRadius:8, border:`1px solid ${T.blue}55`,
+                            background:`${T.blue}18`, cursor:"pointer", fontSize:9, fontWeight:800, color:T.blue }}>
+                          ACTIVATE
+                        </motion.button>
+                      )}
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))}
+              {/* Add new tag */}
+              <motion.button whileTap={{ scale:.97 }} onClick={() => setAdding(a=>!a)}
+                style={{ width:"100%", padding:"13px", borderRadius:12, border:`1px dashed ${T.border}`,
+                  background:"transparent", cursor:"pointer", fontSize:11, fontWeight:700,
+                  color:T.muted, marginTop:4, marginBottom: adding ? 10 : 0 }}>
+                {adding ? "✕ CANCEL" : "+ REGISTER NEW TAG"}
+              </motion.button>
+              {adding && (
+                <GlassCard theme={theme} style={{ padding:"14px 16px" }}>
+                  {[
+                    { label:"TAG ID",        key:"id",        ph:"e.g. TAG-006" },
+                    { label:"EQUIPMENT",     key:"equipment", ph:"e.g. Squat Rack C" },
+                    { label:"LOCATION",      key:"location",  ph:"e.g. Floor 1" },
+                  ].map(f => (
+                    <div key={f.key} style={{ marginBottom:10 }}>
+                      <div style={{ fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:4 }}>{f.label}</div>
+                      <input value={newTag[f.key]} onChange={e => setNewTag(n=>({...n,[f.key]:e.target.value}))}
+                        placeholder={f.ph}
+                        style={{ width:"100%", background:T.glass, border:`1px solid ${T.border}`,
+                          borderRadius:8, padding:"8px 10px", fontSize:12, color:T.text, outline:"none", boxSizing:"border-box" }}/>
+                    </div>
+                  ))}
+                  <motion.button whileTap={{ scale:.97 }}
+                    onClick={() => {
+                      if (!newTag.id || !newTag.equipment) return;
+                      setTags(ts => [...ts, { ...newTag, status:"active", lastTap:"just now" }]);
+                      setNewTag({ id:"", equipment:"", location:"Floor 1" });
+                      setAdding(false);
+                    }}
+                    style={{ width:"100%", padding:"12px", borderRadius:10, border:"none",
+                      background:T.blue, cursor:"pointer", fontSize:12, fontWeight:800,
+                      color:theme==="dark"?"#000":"#fff" }}>
+                    REGISTER TAG
+                  </motion.button>
+                </GlassCard>
+              )}
+            </motion.div>
+          );
+        })()}
+
+        {/* ── EXPORT TAB ──────────────────────────────────────────────────────── */}
+        {hubTab === "export" && (() => {
+          const [range, setRange] = React.useState("30d");
+          const [exported, setExported] = React.useState(null);
+          const ranges = [{ id:"7d",label:"7 DAYS" },{ id:"30d",label:"30 DAYS" },{ id:"90d",label:"90 DAYS" },{ id:"ytd",label:"YTD" }];
+          const reports = [
+            { id:"adherence", label:"Adherence Report", icon:"◉", desc:"Member attendance, streaks, at-risk flags", color:T.blue,
+              headers:"Member,Sessions,Adherence%,Streak,LastVisit,Status",
+              rows:[["Marcus Johnson","14","91%","14","Today","Active"],["Priya Sharma","9","78%","7","2d ago","Active"],["Tyler Brooks","5","42%","0","11d ago","At Risk"],["Aaliyah Carter","22","95%","22","Today","Active"],["Jake Montoya","3","31%","0","14d ago","At Risk"]] },
+            { id:"revenue",   label:"Supplement Revenue", icon:"◈", desc:"Sales by product, conversion rate, avg cart", color:T.gold,
+              headers:"Product,Units Sold,Revenue,Margin%,Trend",
+              rows:[["Whey Elite 2lb","38","$2068","42%","↑+12%"],["Creatine 500g","61","$1650","55%","↑+8%"],["L-Carnitine Elite","26","$1149","48%","→0%"],["Ashwagandha KSM","19","$684","61%","↑+22%"]] },
+            { id:"growth",    label:"Member Growth", icon:"⬡", desc:"New signups, retention rate, churn", color:T.green,
+              headers:"Week,NewMembers,Total,RetentionRate%,Churn",
+              rows:[["Week 1","4","81","92%","2"],["Week 2","6","85","94%","2"],["Week 3","3","87","96%","1"],["Week 4","5","91","95%","1"]] },
+          ];
+          const doExport = (report) => {
+            const csv = [report.headers, ...report.rows.map(r => r.join(","))].join("\n");
+            const blob = new Blob([csv], { type:"text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = `rvn_${report.id}_${range}_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+            setExported(report.id);
+            setTimeout(() => setExported(null), 3000);
+          };
+          return (
+            <motion.div key="export" {...FX.up}>
+              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:4 }}>↗ BUSINESS REPORTS</div>
+              <div style={{ fontSize:18, fontWeight:900, color:T.text, marginBottom:4 }}>Export for Review</div>
+              <div style={{ fontSize:11, color:T.muted, lineHeight:1.6, marginBottom:16 }}>Download CSV reports for your monthly business review, investor deck, or staff meeting.</div>
+              {/* Range selector */}
+              <GlassCard theme={theme} style={{ padding:"12px 14px", marginBottom:14 }}>
+                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>DATE RANGE</div>
+                <div style={{ display:"flex", gap:6 }}>
+                  {ranges.map(r => (
+                    <motion.button key={r.id} whileTap={{ scale:.97 }} onClick={() => setRange(r.id)}
+                      style={{ flex:1, padding:"8px 4px", borderRadius:8, border:`1px solid ${range===r.id?T.blue:T.border}`,
+                        background:range===r.id?T.blue:T.glass, cursor:"pointer",
+                        fontSize:9, fontWeight:800, color:range===r.id?(theme==="dark"?"#000":"#fff"):T.muted }}>
+                      {r.label}
+                    </motion.button>
+                  ))}
+                </div>
+              </GlassCard>
+              {/* Report cards */}
+              {reports.map((rep, i) => (
+                <motion.div key={rep.id} {...FX.stagger(i, 0)}>
+                  <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:10 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:40, height:40, borderRadius:12, flexShrink:0,
+                        background:`${rep.color}18`, display:"flex", alignItems:"center",
+                        justifyContent:"center", fontSize:18, color:rep.color }}>{rep.icon}</div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:800, color:T.text, marginBottom:2 }}>{rep.label}</div>
+                        <div style={{ fontSize:10, color:T.muted }}>{rep.desc}</div>
+                      </div>
+                      <motion.button whileTap={{ scale:.97 }} onClick={() => doExport(rep)}
+                        style={{ padding:"8px 14px", borderRadius:10, border:"none",
+                          background: exported===rep.id ? T.green : rep.color,
+                          cursor:"pointer", fontSize:10, fontWeight:800, flexShrink:0,
+                          color:theme==="dark"?"#000":"#fff", transition:"background .3s" }}>
+                        {exported===rep.id ? "✓ SAVED" : "EXPORT"}
+                      </motion.button>
+                    </div>
+                    {/* Preview table */}
+                    <div style={{ marginTop:12, overflowX:"auto" }}>
+                      <table style={{ width:"100%", borderCollapse:"collapse", fontSize:9 }}>
+                        <thead>
+                          <tr>{rep.headers.split(",").map(h => (
+                            <th key={h} style={{ padding:"4px 6px", color:T.faint, fontWeight:800,
+                              letterSpacing:".06em", textAlign:"left", borderBottom:`1px solid ${T.border}` }}>{h}</th>
+                          ))}</tr>
+                        </thead>
+                        <tbody>
+                          {rep.rows.slice(0,3).map((row,ri) => (
+                            <tr key={ri}>{row.map((cell,ci) => (
+                              <td key={ci} style={{ padding:"4px 6px", color:T.muted, borderBottom:`1px solid ${T.border}44` }}>{cell}</td>
+                            ))}</tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      {rep.rows.length > 3 && (
+                        <div style={{ fontSize:9, color:T.faint, textAlign:"center", paddingTop:4 }}>+ {rep.rows.length-3} more rows in export</div>
+                      )}
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))}
+            </motion.div>
+          );
+        })()}
+
+        {/* ── ROLES TAB ───────────────────────────────────────────────────────── */}
+        {hubTab === "roles" && (() => {
+          const [teamMembers, setTeamMembers] = React.useState([
+            { id:1, name:"Jordan Kim",    role:"owner",   email:"jordan@apexgym.com",  athletes:"All members" },
+            { id:2, name:"Sam Okafor",    role:"coach",   email:"sam@apexgym.com",     athletes:"Marcus J, Priya S, Devon W" },
+            { id:3, name:"Nia Thompson",  role:"coach",   email:"nia@apexgym.com",     athletes:"Aaliyah C, Sofia R, Mei L" },
+          ]);
+          const [addForm, setAddForm] = React.useState({ name:"", email:"", role:"coach" });
+          const [adding, setAdding] = React.useState(false);
+          const roleColor = { owner:T.gold, coach:T.blue };
+          const permissions = [
+            { label:"View all members",       owner:true,  coach:false },
+            { label:"View assigned athletes", owner:true,  coach:true  },
+            { label:"See revenue data",       owner:true,  coach:false },
+            { label:"Manage NFC tags",        owner:true,  coach:false },
+            { label:"Export reports",         owner:true,  coach:false },
+            { label:"Edit inventory",         owner:true,  coach:false },
+            { label:"Message athletes",       owner:true,  coach:true  },
+            { label:"View workout data",      owner:true,  coach:true  },
+          ];
+          return (
+            <motion.div key="roles" {...FX.up}>
+              {/* Permission matrix */}
+              <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:14 }}>
+                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>PERMISSION MATRIX</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 60px 60px", gap:0 }}>
+                  <div style={{ fontSize:8, color:T.faint, fontWeight:800, paddingBottom:8 }}></div>
+                  <div style={{ fontSize:8, color:T.gold, fontWeight:800, textAlign:"center", paddingBottom:8 }}>OWNER</div>
+                  <div style={{ fontSize:8, color:T.blue, fontWeight:800, textAlign:"center", paddingBottom:8 }}>COACH</div>
+                  {permissions.map((p,i) => (
+                    <React.Fragment key={i}>
+                      <div style={{ fontSize:10, color:T.muted, padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none" }}>{p.label}</div>
+                      <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
+                        fontSize:12, color:p.owner?T.green:T.faint }}>{ p.owner ? "✓" : "—" }</div>
+                      <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
+                        fontSize:12, color:p.coach?T.green:T.faint }}>{ p.coach ? "✓" : "—" }</div>
+                    </React.Fragment>
+                  ))}
+                </div>
+              </GlassCard>
+              {/* Team list */}
+              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>TEAM MEMBERS</div>
+              {teamMembers.map((m, i) => (
+                <motion.div key={m.id} {...FX.stagger(i, 0)}>
+                  <GlassCard theme={theme} style={{ padding:"12px 14px", marginBottom:8 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ width:38, height:38, borderRadius:"50%", flexShrink:0,
+                        background:`${roleColor[m.role]}22`,
+                        border:`1.5px solid ${roleColor[m.role]}55`,
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:14, color:roleColor[m.role] }}>
+                        {m.role === "owner" ? "◉" : "◈"}
+                      </div>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
+                          <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{m.name}</div>
+                          <Pill label={m.role.toUpperCase()} color={roleColor[m.role]} theme={theme}/>
+                        </div>
+                        <div style={{ fontSize:10, color:T.muted }}>{m.email}</div>
+                        <div style={{ fontSize:9, color:T.faint, marginTop:2 }}>Athletes: {m.athletes}</div>
+                      </div>
+                      {m.role !== "owner" && (
+                        <motion.button whileTap={{ scale:.97 }}
+                          onClick={() => setTeamMembers(ts => ts.filter(t=>t.id!==m.id))}
+                          style={{ padding:"5px 10px", borderRadius:8, border:`1px solid ${T.border}`,
+                            background:T.glass, cursor:"pointer", fontSize:9, fontWeight:700, color:T.muted }}>
+                          REMOVE
+                        </motion.button>
+                      )}
+                    </div>
+                  </GlassCard>
+                </motion.div>
+              ))}
+              {/* Add member */}
+              <motion.button whileTap={{ scale:.97 }} onClick={() => setAdding(a=>!a)}
+                style={{ width:"100%", padding:"13px", borderRadius:12, border:`1px dashed ${T.border}`,
+                  background:"transparent", cursor:"pointer", fontSize:11, fontWeight:700,
+                  color:T.muted, marginTop:4, marginBottom:adding?10:0 }}>
+                {adding ? "✕ CANCEL" : "+ ADD TEAM MEMBER"}
+              </motion.button>
+              {adding && (
+                <GlassCard theme={theme} style={{ padding:"14px 16px" }}>
+                  {[
+                    { label:"NAME",  key:"name",  ph:"Full name", type:"text" },
+                    { label:"EMAIL", key:"email", ph:"Work email", type:"email" },
+                  ].map(f => (
+                    <div key={f.key} style={{ marginBottom:10 }}>
+                      <div style={{ fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:4 }}>{f.label}</div>
+                      <input value={addForm[f.key]} onChange={e => setAddForm(n=>({...n,[f.key]:e.target.value}))}
+                        placeholder={f.ph} type={f.type}
+                        style={{ width:"100%", background:T.glass, border:`1px solid ${T.border}`,
+                          borderRadius:8, padding:"8px 10px", fontSize:12, color:T.text, outline:"none", boxSizing:"border-box" }}/>
+                    </div>
+                  ))}
+                  <div style={{ marginBottom:12 }}>
+                    <div style={{ fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:6 }}>ROLE</div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      {["coach","owner"].map(r => (
+                        <motion.button key={r} whileTap={{ scale:.97 }} onClick={() => setAddForm(f=>({...f,role:r}))}
+                          style={{ flex:1, padding:"10px", borderRadius:10, border:`1px solid ${addForm.role===r?roleColor[r]:T.border}`,
+                            background:addForm.role===r?`${roleColor[r]}22`:T.glass, cursor:"pointer",
+                            fontSize:10, fontWeight:800, color:addForm.role===r?roleColor[r]:T.muted }}>
+                          {r.toUpperCase()}
+                        </motion.button>
+                      ))}
+                    </div>
+                  </div>
+                  <motion.button whileTap={{ scale:.97 }}
+                    onClick={() => {
+                      if (!addForm.name || !addForm.email) return;
+                      setTeamMembers(ts => [...ts, { id:Date.now(), ...addForm, athletes:"None assigned yet" }]);
+                      setAddForm({ name:"", email:"", role:"coach" });
+                      setAdding(false);
+                    }}
+                    style={{ width:"100%", padding:"12px", borderRadius:10, border:"none",
+                      background:T.blue, cursor:"pointer", fontSize:12, fontWeight:800,
+                      color:theme==="dark"?"#000":"#fff" }}>
+                    ADD MEMBER
+                  </motion.button>
+                </GlassCard>
+              )}
+            </motion.div>
+          );
+        })()}
 
       </div>
     </Screen>

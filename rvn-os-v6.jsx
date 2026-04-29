@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, createContext, useContext, useReducer, Component } from "react";
+import React, { useState, useEffect, useRef, useMemo, createContext, useContext, useReducer, Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
 
@@ -9220,6 +9220,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
   // ── Streak + Share + Check-in ─────────────────────────────────────────────
   const [streaks,     setStreaks]     = useState(() => getStreaks());
   const [shareOpen,   setShareOpen]   = useState(false);
+  // Tab navigation
+  const [activeGymTab, setActiveGymTab] = useState("train"); // "train" | "stats" | "fuel" | "progress"
+
   const [checkInDone, setCheckInDone] = useState(() => {
     try { return localStorage.getItem("rvn_checkin") === _todayStr(); } catch { return false; }
   });
@@ -9805,35 +9808,26 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           </div>
         </div>
 
-        {/* Feature quick-access strip */}
-        <div style={{ display:"flex", gap:6, marginBottom:7, overflowX:"auto", paddingBottom:1 }}>
+        {/* ── Tab navigation ─────────────────────────────────────────────── */}
+        <div style={{ display:"flex", borderRadius:14, overflow:"hidden",
+          background:T.glass, border:`1px solid ${T.border}`, marginBottom:2 }}>
           {[
-            { icon:"📊", label:"History",  action: onWorkoutHistory },
-            { icon:"⚖️", label:"Weight",   action: onBodyWeight     },
-            { icon:"🍽️", label:"Meals",    action: onMealPlan       },
-            { icon:"👥", label:"Buddy",    action: onBuddy          },
-            { icon:"🏆", label:"Group",    action: onGroupWorkout   },
-            { icon:"📋", label:"Templates",action: () => setTemplatesOpen(true) },
-            { icon:"⚡", label:"Generate", action: () => {
-                const p = profile.prs || {};
-                const msg = `Generate my full workout for today. My PRs: bench ${p.bench||185}lb, squat ${p.squat||245}lb, deadlift ${p.deadlift||295}lb, OHP ${p.ohp||115}lb. Give me sets, reps, and working weights.`;
-                if (window.__rvnOpenKailu) window.__rvnOpenKailu(msg);
-              }
-            },
-          ].map(item => (
-            <motion.button key={item.label} whileTap={{ scale:.95 }}
-              onClick={() => item.action && item.action()}
+            { id:"train",    icon:"⚡", label:"TRAIN"    },
+            { id:"stats",    icon:"📊", label:"STATS"    },
+            { id:"fuel",     icon:"🍽️", label:"FUEL"     },
+            { id:"progress", icon:"📈", label:"PROGRESS" },
+          ].map((t, i) => (
+            <motion.button key={t.id} whileTap={{ scale:.97 }}
+              onClick={() => setActiveGymTab(t.id)}
               style={{
-                flexShrink:0, display:"flex", flexDirection:"column",
-                alignItems:"center", gap:2,
-                padding:"7px 10px", borderRadius:12,
-                background:`${arch.glow}12`, border:`1px solid ${arch.glow}25`,
-                cursor:"pointer",
+                flex:1, padding:"8px 2px", border:"none", cursor:"pointer",
+                background: activeGymTab === t.id ? arch.glow : "transparent",
+                color: activeGymTab === t.id ? "#fff" : T.muted,
+                fontSize:8, fontWeight:900, letterSpacing:".07em",
+                display:"flex", flexDirection:"column", alignItems:"center", gap:1.5,
               }}>
-              <span style={{ fontSize:15 }}>{item.icon}</span>
-              <span style={{ fontSize:7, fontWeight:800, color:arch.glow, letterSpacing:".06em", whiteSpace:"nowrap" }}>
-                {item.label.toUpperCase()}
-              </span>
+              <span style={{ fontSize:13, lineHeight:1 }}>{t.icon}</span>
+              {t.label}
             </motion.button>
           ))}
         </div>
@@ -9925,6 +9919,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           </motion.div>
         )}
 
+        {/* ══ TAB CONTENT ══════════════════════════════════════════════════ */}
+
+        {/* ── TRAIN TAB ─────────────────────────────────────────────────────── */}
+        {activeGymTab === "train" && <>
         {/* ── MONDAY WEEKLY RECAP ───────────────────────────────────────── */}
         {isMonday && !recapDismissed && (() => {
           const sessions = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
@@ -11507,6 +11505,381 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           </motion.div>
         </div>
       )}
+
+        </>}
+        {/* ── STATS TAB ──────────────────────────────────────────────────────── */}
+        {activeGymTab === "stats" && (() => {
+          const bwLog2 = loadBodyWeightLog();
+          const todayDate = new Date().toISOString().split("T")[0];
+          const todayWeight = bwLog2.find(e => e.date === todayDate);
+          const recent14 = bwLog2.slice(0, 14).reverse();
+          const w14 = recent14.map(e => e.weight);
+          const trend2 = w14.length >= 3 ? w14[w14.length-1] - w14[0] : 0;
+          const weightUnit = localStorage.getItem("rvn_bw_unit") || "lbs";
+
+          // Goal distance
+          const prf = (() => { try { return JSON.parse(localStorage.getItem("rvn_profile")||"{}"); } catch { return {}; } })();
+          const goalWeight = prf.goalWeight || null;
+          const distToGoal = goalWeight && todayWeight ? Math.abs(todayWeight.weight - goalWeight).toFixed(1) : null;
+          const closingIn = goalWeight && todayWeight && w14.length >= 3
+            ? (goalWeight < todayWeight.weight ? trend2 < 0 : trend2 > 0) : false;
+
+          const [bwInput2, setBwInput2] = React.useState("");
+          const [bwSaved2, setBwSaved2] = React.useState(false);
+
+          return (
+            <motion.div {...FX.page}>
+              {/* Body weight card */}
+              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
+                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>BODY WEIGHT</div>
+                {todayWeight ? (
+                  <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:10 }}>
+                    <div>
+                      <div style={{ fontSize:38, fontWeight:900, color:"#30D158", letterSpacing:"-.02em", lineHeight:1 }}>
+                        {todayWeight.weight}
+                      </div>
+                      <div style={{ fontSize:11, color:T.muted, fontWeight:700 }}>{weightUnit} today</div>
+                    </div>
+                    {w14.length >= 2 && (
+                      <div style={{ flex:1 }}>
+                        <Sparkline data={w14} color="#30D158" width={120} height={36} strokeWidth={2.5}/>
+                        <div style={{ fontSize:10, marginTop:4,
+                          color: trend2 < -0.3 ? "#30D158" : trend2 > 0.3 ? "#FF6B35" : T.muted, fontWeight:700 }}>
+                          {trend2 > 0 ? "+" : ""}{trend2.toFixed(1)}{weightUnit} / {recent14.length}d
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ marginBottom:10 }}>
+                    <div style={{ fontSize:13, color:T.muted, marginBottom:10 }}>No weight logged today.</div>
+                    <div style={{ display:"flex", gap:8 }}>
+                      <input type="number" value={bwInput2} onChange={e => setBwInput2(e.target.value)}
+                        onKeyDown={e => e.key==="Enter" && (() => {
+                          const v = parseFloat(bwInput2);
+                          if (v > 50) { saveBodyWeightEntry(v); setBwSaved2(true); setBwInput2(""); setTimeout(()=>setBwSaved2(false),2000); }
+                        })()}
+                        placeholder="Today's weight..."
+                        style={{ flex:1, padding:"11px 14px", borderRadius:12, background:T.glass,
+                          border:`1px solid ${T.border}`, color:T.text, fontSize:14, fontWeight:700, outline:"none" }}/>
+                      <motion.button whileTap={{ scale:.97 }} onClick={() => {
+                        const v = parseFloat(bwInput2);
+                        if (v > 50) { saveBodyWeightEntry(v); setBwSaved2(true); setBwInput2(""); setTimeout(()=>setBwSaved2(false),2000); }
+                      }} style={{ padding:"0 16px", borderRadius:12, background:"#30D158",
+                        border:"none", color:"#fff", fontSize:13, fontWeight:800, cursor:"pointer" }}>
+                        {bwSaved2 ? "✓" : "Log"}
+                      </motion.button>
+                    </div>
+                  </div>
+                )}
+                {/* Goal encouragement */}
+                {distToGoal && (
+                  <div style={{ padding:"10px 14px", borderRadius:12, marginTop:8,
+                    background: closingIn ? "#30D15815" : `${T.glass}`,
+                    border:`1px solid ${closingIn ? "#30D15840" : T.border}` }}>
+                    <div style={{ fontSize:12, color: closingIn ? "#30D158" : T.muted, fontWeight:700 }}>
+                      {closingIn ? `🎯 ${distToGoal}${weightUnit} away from your goal — you're closing in!` : `${distToGoal}${weightUnit} from goal weight`}
+                    </div>
+                    {closingIn && <div style={{ fontSize:10, color:T.muted, marginTop:3 }}>Stay consistent. You're trending in the right direction.</div>}
+                  </div>
+                )}
+                {/* Water weight note */}
+                <div style={{ fontSize:10, color:T.faint, marginTop:10, padding:"8px 12px",
+                  borderRadius:10, background:T.glass, lineHeight:1.5 }}>
+                  💧 Daily fluctuations of 1–4lbs are normal — mostly water, sodium, and digestion. Track weekly trends, not daily numbers.
+                </div>
+                <motion.button whileTap={{ scale:.97 }} onClick={() => onBodyWeight && onBodyWeight()}
+                  style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                  View Full Log & Trend →
+                </motion.button>
+              </div>
+
+              {/* Streak heatmap */}
+              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
+                <StreakHeatmap theme={theme} accentColor={arch.glow}/>
+              </div>
+
+              {/* Sleep quality */}
+              {(() => {
+                const sleepDays = profile.sleepDays || [7];
+                const avgSleep = (sleepDays.reduce((a,b)=>a+b,0)/sleepDays.length).toFixed(1);
+                const sleepColor = avgSleep >= 7.5 ? "#30D158" : avgSleep >= 6.5 ? "#FF9F0A" : "#FF3B30";
+                return (
+                  <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                    border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+                      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em" }}>SLEEP AVG</div>
+                      <div style={{ fontSize:22, fontWeight:900, color:sleepColor }}>{avgSleep}h</div>
+                    </div>
+                    <div style={{ display:"flex", gap:4 }}>
+                      {(profile.sleepDays||[]).map((h, i) => (
+                        <div key={i} style={{ flex:1, textAlign:"center" }}>
+                          <div style={{ height: Math.round((h/10)*40), borderRadius:4,
+                            background: h >= 7.5 ? "#30D158" : h >= 6 ? "#FF9F0A" : "#FF3B30",
+                            minHeight:4, marginBottom:4 }}/>
+                          <div style={{ fontSize:9, color:T.faint, fontWeight:700 }}>
+                            {["M","T","W","T","F","S","S"][i] || i}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <motion.button whileTap={{ scale:.97 }} onClick={() => setSleepLogOpen(true)}
+                      style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
+                        background:T.glass, border:`1px solid ${T.border}`,
+                        color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                      📝 Log Tonight's Sleep
+                    </motion.button>
+                  </div>
+                );
+              })()}
+
+              {/* Health data */}
+              {(() => {
+                const hd2 = profile.healthData || {};
+                return hd2.lastSync ? (
+                  <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                    border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
+                    <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>HEALTH DATA</div>
+                    <div style={{ display:"flex", justifyContent:"space-around" }}>
+                      {[
+                        { icon:"👟", label:"STEPS",  val:hd2.steps?.toLocaleString()||"—", color:T.blue   },
+                        { icon:"😴", label:"SLEEP",  val:hd2.sleepHrs ? `${hd2.sleepHrs}h`:"—", color:T.purple },
+                        { icon:"💗", label:"HRV",    val:hd2.hrv ? `${hd2.hrv}ms`:"—",    color:"#FF3B30" },
+                      ].map(item => (
+                        <div key={item.label} style={{ textAlign:"center" }}>
+                          <div style={{ fontSize:22, marginBottom:4 }}>{item.icon}</div>
+                          <div style={{ fontSize:16, fontWeight:900, color:item.color }}>{item.val}</div>
+                          <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>{item.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ background:T.card, borderRadius:20, padding:"18px",
+                    border:`1px solid ${T.border}`, textAlign:"center" }}>
+                    <div style={{ fontSize:24, marginBottom:8 }}>⌚</div>
+                    <div style={{ fontSize:13, color:T.muted }}>Connect a wearable in Settings to see steps, HRV, and sleep data here.</div>
+                  </div>
+                );
+              })()}
+            </motion.div>
+          );
+        })()}
+
+        {/* ── FUEL TAB ───────────────────────────────────────────────────────── */}
+        {activeGymTab === "fuel" && (() => {
+          const mg = profile.macroGoals || { protein:180, carbs:250, fats:70 };
+          const mt = profile.macroToday || { protein:0, carbs:0, fats:0 };
+          const macros = [
+            { label:"PROTEIN", current:mt.protein||0, goal:mg.protein||180, color:arch.glow, unit:"g" },
+            { label:"CARBS",   current:mt.carbs||0,   goal:mg.carbs||250,   color:T.blue,    unit:"g" },
+            { label:"FATS",    current:mt.fats||0,    goal:mg.fats||70,     color:"#FF9F0A", unit:"g" },
+          ];
+          return (
+            <motion.div {...FX.page}>
+              {/* Macro rings */}
+              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
+                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>
+                  TODAY'S MACROS
+                </div>
+                {macros.map((m, i) => {
+                  const pct = Math.min(1, m.current / m.goal);
+                  return (
+                    <div key={m.label} style={{ marginBottom:14 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                        <span style={{ fontSize:11, fontWeight:800, color:T.muted, letterSpacing:".08em" }}>{m.label}</span>
+                        <span style={{ fontSize:12, fontWeight:900, color:m.color }}>{m.current}{m.unit} <span style={{ color:T.faint, fontWeight:600 }}>/ {m.goal}{m.unit}</span></span>
+                      </div>
+                      <div style={{ height:8, borderRadius:4, background:T.glass, overflow:"hidden" }}>
+                        <motion.div
+                          initial={{ width:0 }}
+                          animate={{ width:`${pct*100}%` }}
+                          transition={{ duration:.8, ease:[.22,1,.36,1] }}
+                          style={{ height:"100%", borderRadius:4, background:m.color,
+                            boxShadow: pct >= 0.95 ? `0 0 8px ${m.color}88` : "none" }}/>
+                      </div>
+                    </div>
+                  );
+                })}
+                <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingMacros(e=>!e)}
+                  style={{ width:"100%", marginTop:4, padding:"10px", borderRadius:12,
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                  ✏️ Edit Goals & Today's Log
+                </motion.button>
+              </div>
+
+              {/* Meal plan link */}
+              <motion.button whileTap={{ scale:.97 }} onClick={() => onMealPlan && onMealPlan()}
+                style={{ width:"100%", marginBottom:14, padding:"16px 18px", borderRadius:20,
+                  background:`linear-gradient(135deg, #BF5AF218, #BF5AF208)`,
+                  border:`1px solid #BF5AF240`, cursor:"pointer",
+                  display:"flex", alignItems:"center", gap:14 }}>
+                <div style={{ fontSize:28 }}>🍽️</div>
+                <div style={{ textAlign:"left" }}>
+                  <div style={{ fontSize:14, fontWeight:900, color:T.text, marginBottom:2 }}>AI Meal Plan</div>
+                  <div style={{ fontSize:11, color:T.muted }}>Kailu builds today's meals around your targets</div>
+                </div>
+                <div style={{ marginLeft:"auto", fontSize:18, color:"#BF5AF2" }}>→</div>
+              </motion.button>
+
+              {/* Custom meals quick-log */}
+              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
+                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+                  SAVED MEALS
+                </div>
+                {customMeals.length === 0 ? (
+                  <div style={{ textAlign:"center", color:T.muted, fontSize:12, padding:"12px 0" }}>
+                    No saved meals. Tap below to build your meal library.
+                  </div>
+                ) : customMeals.slice(0, 4).map((meal, i) => (
+                  <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
+                    padding:"10px 0", borderBottom: i < Math.min(customMeals.length,4)-1 ? `1px solid ${T.border}` : "none" }}>
+                    <div>
+                      <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{meal.emoji} {meal.name}</div>
+                      <div style={{ fontSize:10, color:T.muted }}>{meal.p}g P · {meal.c}g C · {meal.f}g F</div>
+                    </div>
+                    <motion.button whileTap={{ scale:.96 }} onClick={() => logCustomMeal(meal)}
+                      style={{ padding:"7px 14px", borderRadius:10, background:`${arch.glow}18`,
+                        border:`1px solid ${arch.glow}40`, color:arch.glow,
+                        fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                      + Log
+                    </motion.button>
+                  </div>
+                ))}
+                <motion.button whileTap={{ scale:.97 }} onClick={() => setShowMealBuilder(true)}
+                  style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                  + Add New Meal
+                </motion.button>
+              </div>
+
+              {/* Grocery list */}
+              {groceryList && (
+                <div style={{ background:T.card, borderRadius:20, padding:"18px",
+                  border:`1px solid ${T.border}` }}>
+                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+                    GROCERY LIST
+                  </div>
+                  {groceryList.map((item, i) => (
+                    <div key={i} style={{ padding:"8px 0", borderBottom: i < groceryList.length-1 ? `1px solid ${T.border}` : "none",
+                      fontSize:12, color:T.text }}>
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
+
+        {/* ── PROGRESS TAB ───────────────────────────────────────────────────── */}
+        {activeGymTab === "progress" && (() => {
+          const ppPhotos2 = profile.progressPhotos || [];
+          const prs2 = profile.prs || {};
+          const sessions2 = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
+          return (
+            <motion.div {...FX.page}>
+              {/* PR summary */}
+              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
+                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>PERSONAL RECORDS</div>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
+                  {[
+                    { lift:"Bench",    val:prs2.bench,    color:"#FF6B35" },
+                    { lift:"Squat",    val:prs2.squat,    color:"#30D158" },
+                    { lift:"Deadlift", val:prs2.deadlift, color:"#FF3B30" },
+                    { lift:"OHP",      val:prs2.ohp,      color:"#BF5AF2" },
+                  ].map(pr => (
+                    <div key={pr.lift} style={{ textAlign:"center", padding:"14px",
+                      background:`${pr.color}12`, border:`1px solid ${pr.color}30`, borderRadius:16 }}>
+                      <div style={{ fontSize:22, fontWeight:900, color:pr.color }}>
+                        {pr.val || "—"}{pr.val ? "lb" : ""}
+                      </div>
+                      <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:".08em", marginTop:3 }}>
+                        {pr.lift.toUpperCase()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingPRs(true)}
+                  style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                  ✏️ Update PRs
+                </motion.button>
+              </div>
+
+              {/* Quick links */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
+                {[
+                  { icon:"📊", label:"Workout History", sub:"Sessions & PR charts", action: onWorkoutHistory, color:"#30D158" },
+                  { icon:"⚖️", label:"Body Weight",     sub:"Weight log & trend",   action: onBodyWeight,    color:"#2E5BFF" },
+                  { icon:"👥", label:"Buddy System",    sub:"Training partners",     action: onBuddy,         color:"#FF9F0A" },
+                  { icon:"🏆", label:"Group Workout",   sub:"Train with others",     action: onGroupWorkout,  color:"#BF5AF2" },
+                ].map(item => (
+                  <motion.button key={item.label} whileTap={{ scale:.97 }}
+                    onClick={() => item.action && item.action()}
+                    style={{ padding:"16px 12px", borderRadius:18, cursor:"pointer",
+                      background:`${item.color}12`, border:`1px solid ${item.color}30`,
+                      textAlign:"center" }}>
+                    <div style={{ fontSize:24, marginBottom:6 }}>{item.icon}</div>
+                    <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{item.label}</div>
+                    <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>{item.sub}</div>
+                  </motion.button>
+                ))}
+              </div>
+
+              {/* Progress photos */}
+              <div style={{ background:T.card, borderRadius:20, padding:"18px",
+                border:`1px solid ${T.border}` }}>
+                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+                  PROGRESS PHOTOS
+                </div>
+                {ppPhotos2.length === 0 ? (
+                  <div style={{ textAlign:"center", padding:"24px 0" }}>
+                    <div style={{ fontSize:32, marginBottom:8 }}>📸</div>
+                    <div style={{ fontSize:13, color:T.muted }}>No progress photos yet.</div>
+                    <motion.button whileTap={{ scale:.97 }} onClick={() => setProgressPhotoTab("open")}
+                      style={{ marginTop:12, padding:"10px 20px", borderRadius:12,
+                        background:arch.glow, border:"none", color:"#fff",
+                        fontSize:12, fontWeight:800, cursor:"pointer" }}>
+                      Take First Photo
+                    </motion.button>
+                  </div>
+                ) : (
+                  <div>
+                    {ppPhotos2.length >= 2 && (
+                      <div style={{ display:"flex", gap:10, marginBottom:14 }}>
+                        <div style={{ flex:1 }}>
+                          <img src={ppPhotos2[0].dataUrl} alt="before" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
+                          <div style={{ fontSize:9, color:T.faint, textAlign:"center", marginTop:4 }}>WEEK 1</div>
+                        </div>
+                        <div style={{ flex:1 }}>
+                          <img src={ppPhotos2[ppPhotos2.length-1].dataUrl} alt="latest" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
+                          <div style={{ fontSize:9, color:T.faint, textAlign:"center", marginTop:4 }}>LATEST</div>
+                        </div>
+                      </div>
+                    )}
+                    <motion.button whileTap={{ scale:.97 }} onClick={() => setProgressPhotoTab("open")}
+                      style={{ width:"100%", padding:"10px", borderRadius:12,
+                        background:T.glass, border:`1px solid ${T.border}`,
+                        color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                      + Add Photo Check-In
+                    </motion.button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          );
+        })()}
 
       {/* ── REST TIMER OVERLAY ─────────────────────────────────────────────── */}
       <AnimatePresence>

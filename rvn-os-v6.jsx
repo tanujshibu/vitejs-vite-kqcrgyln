@@ -22548,6 +22548,13 @@ function MealPlanScreen({ theme, onBack, user }) {
   const [plan, setPlan] = useState(() => getMealPlanCache());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Ingredient → recipe mode
+  const [ingredients, setIngredients] = useState("");
+  const [recipes, setRecipes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("rvn_recipes_" + new Date().toISOString().slice(0,10)) || "null"); } catch { return null; }
+  });
+  const [recipeLoading, setRecipeLoading] = useState(false);
+  const [recipeError, setRecipeError] = useState(null);
 
   async function generatePlan(force = false) {
     if (loading) return;
@@ -22581,6 +22588,32 @@ Include exactly 4 meals: breakfast, lunch, dinner, and a snack. Make the food pr
       setError("Couldn't generate plan right now. Try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generateRecipes() {
+    if (recipeLoading || !ingredients.trim()) return;
+    setRecipeLoading(true);
+    setRecipeError(null);
+    try {
+      const systemPrompt = `You are a sports nutrition chef. Given a list of ingredients the user has at home, suggest exactly 3 simple high-protein, low-calorie recipes they can make.
+Return ONLY valid JSON, no markdown:
+{"recipes":[{"name":"Recipe name","emoji":"🍳","protein":35,"carbs":20,"fats":8,"calories":300,"prepTime":"10 min","steps":["Step 1","Step 2","Step 3"],"macroNote":"High protein, low fat"},...]}
+Make the recipes practical, delicious, and easy to prepare. Each recipe should use primarily the listed ingredients.`;
+      const userMsg = \`I have these ingredients: \${ingredients.trim()}. Create 3 high-protein low-calorie recipes using them.\`;
+      const resp = await callClaudeAPI({ system: systemPrompt, history: [], user: userMsg, maxTokens: 700, model: "claude-haiku-4-5-20251001" });
+      if (!resp) throw new Error("No response");
+      const jsonMatch = resp.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("Invalid format");
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (!parsed.recipes?.length) throw new Error("No recipes");
+      const today = new Date().toISOString().slice(0,10);
+      localStorage.setItem("rvn_recipes_" + today, JSON.stringify(parsed.recipes));
+      setRecipes(parsed.recipes);
+    } catch (e) {
+      setRecipeError("Couldn't find recipes right now. Try again.");
+    } finally {
+      setRecipeLoading(false);
     }
   }
 
@@ -22716,6 +22749,156 @@ Include exactly 4 meals: breakfast, lunch, dinner, and a snack. Make the food pr
             </motion.button>
           </div>
         )}
+
+        {/* ── INGREDIENT → RECIPE GENERATOR ── */}
+        <div style={{ marginTop:24 }}>
+          <div style={{ fontSize:13, fontWeight:900, color:T.text, letterSpacing:"-.01em", marginBottom:4 }}>
+            🧑‍🍳 What's in Your Kitchen?
+          </div>
+          <div style={{ fontSize:11, color:T.muted, marginBottom:12 }}>
+            Type ingredients you have → get 3 high-protein recipes
+          </div>
+
+          <div style={{
+            background:T.card, borderRadius:18, border:`1px solid ${T.border}`,
+            boxShadow:T.shadow, overflow:"hidden", marginBottom:12,
+          }}>
+            <textarea
+              value={ingredients}
+              onChange={e => setIngredients(e.target.value)}
+              placeholder="e.g. chicken breast, eggs, rice, spinach, greek yogurt…"
+              rows={3}
+              style={{
+                width:"100%", boxSizing:"border-box",
+                padding:"14px 16px", background:"transparent",
+                border:"none", outline:"none",
+                fontSize:13, color:T.text, resize:"none",
+                fontFamily:"inherit", lineHeight:1.5,
+              }}
+            />
+            <div style={{
+              padding:"8px 12px", borderTop:`1px solid ${T.border}`,
+              display:"flex", justifyContent:"flex-end", alignItems:"center", gap:8,
+            }}>
+              {recipeError && (
+                <div style={{ fontSize:10, color:"#FF3B30", flex:1 }}>{recipeError}</div>
+              )}
+              <motion.button
+                whileTap={{ scale:.95 }}
+                disabled={recipeLoading || !ingredients.trim()}
+                onClick={generateRecipes}
+                style={{
+                  padding:"8px 18px", borderRadius:12,
+                  background: ingredients.trim() ? "#30D158" : T.glass,
+                  border: ingredients.trim() ? "none" : `1px solid ${T.border}`,
+                  color: ingredients.trim() ? "#fff" : T.muted,
+                  fontSize:11, fontWeight:800, cursor:"pointer",
+                  opacity: recipeLoading ? 0.6 : 1,
+                  letterSpacing:".05em",
+                }}>
+                {recipeLoading ? "🔄 Finding…" : "⚡ FIND RECIPES"}
+              </motion.button>
+            </div>
+          </div>
+
+          {recipeLoading && (
+            <div style={{ textAlign:"center", padding:"24px" }}>
+              <motion.div
+                animate={{ rotate:360 }}
+                transition={{ duration:1.2, repeat:Infinity, ease:"linear" }}
+                style={{ width:28, height:28, borderRadius:"50%", border:`3px solid #30D15840`,
+                  borderTopColor:"#30D158", margin:"0 auto 10px" }}/>
+              <div style={{ fontSize:12, color:T.muted }}>Building recipes from your ingredients…</div>
+            </div>
+          )}
+
+          {recipes && !recipeLoading && (
+            <div>
+              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+                RECIPES FOR YOU
+              </div>
+              {recipes.map((r, i) => (
+                <motion.div key={i} {...FX.stagger(i, 0.06)}
+                  style={{
+                    background:T.card, borderRadius:18, padding:"16px",
+                    marginBottom:10, border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
+                  }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+                    <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                      <div style={{ fontSize:26 }}>{r.emoji || "🍽️"}</div>
+                      <div>
+                        <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{r.name}</div>
+                        <div style={{ fontSize:10, color:T.muted }}>⏱ {r.prepTime || "15 min"}</div>
+                      </div>
+                    </div>
+                    <div style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:16, fontWeight:900, color:"#FF6B35" }}>{r.protein}g</div>
+                      <div style={{ fontSize:8, color:T.faint }}>protein</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display:"flex", gap:10, marginBottom:12 }}>
+                    {[
+                      { label:"CARBS", val:r.carbs, unit:"g", color:"#FF9F0A" },
+                      { label:"FAT",   val:r.fats,  unit:"g", color:"#BF5AF2" },
+                      { label:"KCAL",  val:r.calories, unit:"", color:"#30D158" },
+                    ].map(m => (
+                      <div key={m.label} style={{
+                        flex:1, textAlign:"center", padding:"6px 4px",
+                        background:`${m.color}15`, borderRadius:10,
+                        border:`1px solid ${m.color}30`,
+                      }}>
+                        <div style={{ fontSize:14, fontWeight:900, color:m.color }}>{m.val}{m.unit}</div>
+                        <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>{m.label}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {r.macroNote && (
+                    <div style={{
+                      fontSize:10, color:"#30D158", padding:"4px 10px",
+                      background:"#30D15815", borderRadius:8, marginBottom:10,
+                      display:"inline-block",
+                    }}>
+                      ✓ {r.macroNote}
+                    </div>
+                  )}
+
+                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:6 }}>
+                    HOW TO MAKE IT
+                  </div>
+                  {(r.steps || []).map((step, j) => (
+                    <div key={j} style={{
+                      display:"flex", gap:8, alignItems:"flex-start", marginBottom:5,
+                    }}>
+                      <div style={{
+                        width:18, height:18, borderRadius:"50%", flexShrink:0,
+                        background:"#30D15820", border:"1px solid #30D15840",
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:9, fontWeight:900, color:"#30D158",
+                      }}>
+                        {j+1}
+                      </div>
+                      <div style={{ fontSize:11, color:T.muted, lineHeight:1.4 }}>{step}</div>
+                    </div>
+                  ))}
+                </motion.div>
+              ))}
+
+              <div style={{ textAlign:"center", marginTop:4 }}>
+                <motion.button whileTap={{ scale:.96 }}
+                  onClick={() => { setRecipes(null); setIngredients(""); }}
+                  style={{
+                    padding:"6px 16px", borderRadius:10, cursor:"pointer",
+                    background:"transparent", border:`1px solid ${T.border}`,
+                    color:T.muted, fontSize:10, fontWeight:700,
+                  }}>
+                  ✕ Clear Recipes
+                </motion.button>
+              </div>
+            </div>
+          )}
+        </div>
       </motion.div>
     </Screen>
   );

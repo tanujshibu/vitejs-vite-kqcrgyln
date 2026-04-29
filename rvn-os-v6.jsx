@@ -9381,6 +9381,16 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
     if (granted) scheduleDailyNotifs();
   };
 
+  // Progress photo vars — lifted to component scope so the overlay can render
+  // at the Screen top level (outside any motion.div with y-transforms)
+  const ppPhotos = profile.progressPhotos || [];
+  const ppLastPhoto = ppPhotos[ppPhotos.length - 1];
+  const ppDaysSinceLast = ppLastPhoto
+    ? Math.floor((Date.now() - new Date(ppLastPhoto.date).getTime()) / 86400000)
+    : 999;
+  const ppLocked = ppDaysSinceLast < 7;
+  const ppDaysUntilUnlock = ppLocked ? (7 - ppDaysSinceLast) : 0;
+
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }}>
 
@@ -9396,6 +9406,160 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
             theme={theme}
             onClose={() => setShareOpen(false)}
           />
+        )}
+      </AnimatePresence>
+
+      {/* ── Progress Photo full-screen overlay — rendered at Screen top level
+           so position:fixed is relative to viewport, not a transformed ancestor ── */}
+      <AnimatePresence>
+        {progressPhotoTab === "open" && (
+          <motion.div
+            key="progress-photo-overlay"
+            initial={{ opacity:0 }}
+            animate={{ opacity:1 }}
+            exit={{ opacity:0 }}
+            transition={{ duration:0.22 }}
+            style={{
+              position:"fixed", inset:0, zIndex:8500,
+              background:T.bg, overflowY:"auto",
+              display:"flex", flexDirection:"column",
+            }}
+          >
+            {/* Header */}
+            <div style={{
+              position:"sticky", top:0, zIndex:10,
+              background:`${T.bg}f0`, backdropFilter:"blur(18px)",
+              borderBottom:`1px solid ${T.border}`,
+              padding:"16px 20px 12px",
+              display:"flex", alignItems:"center", gap:14,
+            }}>
+              <button onClick={() => setProgressPhotoTab("closed")}
+                style={{ background:"transparent", border:"none", color:T.text, fontSize:20, cursor:"pointer", lineHeight:1 }}>‹</button>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:14, fontWeight:900, color:T.text, letterSpacing:".04em" }}>PROGRESS</div>
+                <div style={{ fontSize:10, color:T.faint }}>Weekly visual check-in</div>
+              </div>
+              <div style={{ fontSize:10, fontWeight:700, color:"#BF5AF2" }}>
+                {ppPhotos.length > 0 ? `${ppPhotos.length} check-in${ppPhotos.length !== 1 ? "s" : ""}` : ""}
+              </div>
+            </div>
+
+            <div style={{ padding:"20px 18px 80px", display:"flex", flexDirection:"column", gap:18 }}>
+
+              {/* Science fact card */}
+              <div style={{
+                padding:"16px 18px", borderRadius:16,
+                background:"#BF5AF215", border:"1px solid #BF5AF233",
+              }}>
+                <div style={{ fontSize:11, fontWeight:900, color:"#BF5AF2", letterSpacing:".08em", marginBottom:8 }}>
+                  WHY ONCE A WEEK?
+                </div>
+                <div style={{ fontSize:13, fontWeight:700, color:T.text, lineHeight:1.55, marginBottom:8 }}>
+                  Daily mirror checks slow your progress — not measure it.
+                </div>
+                <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>
+                  Your body changes on a 7–14 day cycle. Checking daily creates noise — lighting, hydration, bloat, and pump all skew perception. Weekly photos taken under the same conditions give you the actual signal. Studies show people who track weekly stay consistent 3× longer than those who check daily.
+                </div>
+                <div style={{ marginTop:10, fontSize:10, color:"#BF5AF2", fontWeight:700, letterSpacing:".06em" }}>
+                  ✦ SAME DAY · SAME LIGHTING · SAME TIME
+                </div>
+              </div>
+
+              {/* Upload section */}
+              {ppLocked ? (
+                <div style={{
+                  padding:"20px", borderRadius:16, textAlign:"center",
+                  background:T.glass, border:`1px solid ${T.border}`,
+                }}>
+                  <div style={{ fontSize:32, marginBottom:10 }}>🔒</div>
+                  <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:6 }}>
+                    Locked for {ppDaysUntilUnlock} more day{ppDaysUntilUnlock !== 1 ? "s" : ""}
+                  </div>
+                  <div style={{ fontSize:11, color:T.muted, lineHeight:1.55 }}>
+                    Your last check-in was {ppDaysSinceLast} day{ppDaysSinceLast !== 1 ? "s" : ""} ago. Weekly cadence protects you from obsessing over noise.
+                    Come back {ppDaysUntilUnlock === 1 ? "tomorrow" : `in ${ppDaysUntilUnlock} days`}.
+                  </div>
+                  {ppLastPhoto && (
+                    <img src={ppLastPhoto.dataUrl} alt="last" style={{ marginTop:14, width:"100%", maxHeight:200, objectFit:"cover", borderRadius:12, opacity:.6 }}/>
+                  )}
+                </div>
+              ) : (
+                <div>
+                  <label style={{
+                    display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:10,
+                    padding:"28px 18px", borderRadius:16, cursor:"pointer",
+                    background:"#BF5AF210", border:"2px dashed #BF5AF255",
+                    fontSize:13, fontWeight:800, color:"#BF5AF2",
+                  }}>
+                    <span style={{ fontSize:36 }}>📷</span>
+                    {ppDaysSinceLast >= 999 ? "TAKE YOUR FIRST PHOTO" : `WEEK ${ppPhotos.length + 1} CHECK-IN`}
+                    <span style={{ fontSize:10, fontWeight:400, color:T.muted }}>Same pose, same lighting as last time</span>
+                    <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          const newPhotos = [...ppPhotos, {
+                            date: new Date().toISOString(),
+                            dataUrl: ev.target.result,
+                            note: progressPhotoNote,
+                            week: ppPhotos.length + 1,
+                          }];
+                          saveProfile({ progressPhotos: newPhotos });
+                          setProgressPhotoNote("");
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                  </label>
+                  <input
+                    value={progressPhotoNote}
+                    onChange={e => setProgressPhotoNote(e.target.value)}
+                    placeholder="Note: bodyweight, energy level, how you feel…"
+                    style={{ marginTop:10, width:"100%", padding:"10px 12px", borderRadius:12, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:12, outline:"none", boxSizing:"border-box" }}
+                  />
+                </div>
+              )}
+
+              {/* Side-by-side comparison */}
+              {ppPhotos.length >= 2 && (
+                <div>
+                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>TRANSFORMATION</div>
+                  <div style={{ display:"flex", gap:10 }}>
+                    <div style={{ flex:1, textAlign:"center" }}>
+                      <img src={ppPhotos[0].dataUrl} alt="before" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
+                      <div style={{ fontSize:9, color:T.faint, marginTop:4 }}>WEEK 1</div>
+                    </div>
+                    <div style={{ flex:1, textAlign:"center" }}>
+                      <img src={ppPhotos[ppPhotos.length-1].dataUrl} alt="latest" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
+                      <div style={{ fontSize:9, color:T.faint, marginTop:4 }}>WEEK {ppPhotos.length}</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign:"center", marginTop:12, padding:"10px", borderRadius:12, background:"#BF5AF210", border:"1px solid #BF5AF233" }}>
+                    <span style={{ fontSize:13, fontWeight:900, color:"#BF5AF2" }}>
+                      {Math.floor((new Date(ppPhotos[ppPhotos.length-1].date) - new Date(ppPhotos[0].date)) / 86400000)} days of documented progress
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Full timeline */}
+              {ppPhotos.length > 0 && (
+                <div>
+                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>ALL CHECK-INS</div>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
+                    {[...ppPhotos].reverse().map((p, i) => (
+                      <div key={i} style={{ width:"calc(33% - 6px)", textAlign:"center" }}>
+                        <img src={p.dataUrl} alt="" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:10 }}/>
+                        <div style={{ fontSize:8, color:T.faint, marginTop:3 }}>Wk {ppPhotos.length - i}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -10486,165 +10650,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                       </GlassCard>
                     </motion.div>
 
-                    {/* Full-screen progress photo page */}
-                    <AnimatePresence>
-                      {progressPhotoTab === "open" && (
-                        <motion.div
-                          initial={{ opacity:0 }}
-                          animate={{ opacity:1 }}
-                          exit={{ opacity:0 }}
-                          transition={{ duration:0.22 }}
-                          style={{
-                            position:"fixed", inset:0, zIndex:8000,
-                            background:T.bg, overflowY:"auto",
-                            display:"flex", flexDirection:"column",
-                          }}
-                        >
-                          {/* Header */}
-                          <div style={{
-                            position:"sticky", top:0, zIndex:10,
-                            background:`${T.bg}f0`, backdropFilter:"blur(18px)",
-                            borderBottom:`1px solid ${T.border}`,
-                            padding:"16px 20px 12px",
-                            display:"flex", alignItems:"center", gap:14,
-                          }}>
-                            <button onClick={() => setProgressPhotoTab("closed")}
-                              style={{ background:"transparent", border:"none", color:T.text, fontSize:20, cursor:"pointer", lineHeight:1 }}>‹</button>
-                            <div style={{ flex:1 }}>
-                              <div style={{ fontSize:14, fontWeight:900, color:T.text, letterSpacing:".04em" }}>PROGRESS</div>
-                              <div style={{ fontSize:10, color:T.faint }}>Weekly visual check-in</div>
-                            </div>
-                            <div style={{ fontSize:10, fontWeight:700, color:"#BF5AF2" }}>
-                              {photos.length > 0 ? `${photos.length} check-in${photos.length !== 1 ? "s" : ""}` : ""}
-                            </div>
-                          </div>
+                    {/* Full-screen overlay rendered at Screen top level — see above the sticky header */}
 
-                          <div style={{ padding:"20px 18px 80px", display:"flex", flexDirection:"column", gap:18 }}>
-
-                            {/* Science fact card */}
-                            <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}>
-                              <div style={{
-                                padding:"16px 18px", borderRadius:16,
-                                background:"#BF5AF215", border:"1px solid #BF5AF233",
-                              }}>
-                                <div style={{ fontSize:11, fontWeight:900, color:"#BF5AF2", letterSpacing:".08em", marginBottom:8 }}>
-                                  WHY ONCE A WEEK?
-                                </div>
-                                <div style={{ fontSize:13, fontWeight:700, color:T.text, lineHeight:1.55, marginBottom:8 }}>
-                                  Daily mirror checks slow your progress — not measure it.
-                                </div>
-                                <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>
-                                  Your body changes on a 7–14 day cycle. Checking daily creates noise — lighting, hydration, bloat, and pump all skew perception. Weekly photos taken under the same conditions give you the actual signal. Studies show people who track weekly stay consistent 3× longer than those who check daily.
-                                </div>
-                                <div style={{ marginTop:10, fontSize:10, color:"#BF5AF2", fontWeight:700, letterSpacing:".06em" }}>
-                                  ✦ SAME DAY · SAME LIGHTING · SAME TIME
-                                </div>
-                              </div>
-                            </motion.div>
-
-                            {/* Upload section */}
-                            <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.18 }}>
-                              {locked ? (
-                                <div style={{
-                                  padding:"20px", borderRadius:16, textAlign:"center",
-                                  background:T.glass, border:`1px solid ${T.border}`,
-                                }}>
-                                  <div style={{ fontSize:32, marginBottom:10 }}>🔒</div>
-                                  <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:6 }}>
-                                    Locked for {daysUntilUnlock} more day{daysUntilUnlock !== 1 ? "s" : ""}
-                                  </div>
-                                  <div style={{ fontSize:11, color:T.muted, lineHeight:1.55 }}>
-                                    Your last check-in was {daysSinceLast} day{daysSinceLast !== 1 ? "s" : ""} ago. Weekly cadence protects you from obsessing over noise.
-                                    Come back {daysUntilUnlock === 1 ? "tomorrow" : `in ${daysUntilUnlock} days`}.
-                                  </div>
-                                  {lastPhoto && (
-                                    <img src={lastPhoto.dataUrl} alt="last" style={{ marginTop:14, width:"100%", maxHeight:200, objectFit:"cover", borderRadius:12, opacity:.6 }}/>
-                                  )}
-                                </div>
-                              ) : (
-                                <div>
-                                  <label style={{
-                                    display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:10,
-                                    padding:"28px 18px", borderRadius:16, cursor:"pointer",
-                                    background:"#BF5AF210", border:"2px dashed #BF5AF255",
-                                    fontSize:13, fontWeight:800, color:"#BF5AF2",
-                                  }}>
-                                    <span style={{ fontSize:36 }}>📷</span>
-                                    {daysSinceLast >= 999 ? "TAKE YOUR FIRST PHOTO" : `WEEK ${photos.length + 1} CHECK-IN`}
-                                    <span style={{ fontSize:10, fontWeight:400, color:T.muted }}>Same pose, same lighting as last time</span>
-                                    <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
-                                      onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (!file) return;
-                                        const reader = new FileReader();
-                                        reader.onload = (ev) => {
-                                          const newPhotos = [...photos, {
-                                            date: new Date().toISOString(),
-                                            dataUrl: ev.target.result,
-                                            note: progressPhotoNote,
-                                            week: photos.length + 1,
-                                          }];
-                                          saveProfile({ progressPhotos: newPhotos });
-                                          setProgressPhotoNote("");
-                                        };
-                                        reader.readAsDataURL(file);
-                                      }}
-                                    />
-                                  </label>
-                                  <input
-                                    value={progressPhotoNote}
-                                    onChange={e => setProgressPhotoNote(e.target.value)}
-                                    placeholder="Note: bodyweight, energy level, how you feel…"
-                                    style={{ marginTop:10, width:"100%", padding:"10px 12px", borderRadius:12, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:12, outline:"none", boxSizing:"border-box" }}
-                                  />
-                                </div>
-                              )}
-                            </motion.div>
-
-                            {/* Side-by-side comparison */}
-                            {photos.length >= 2 && (
-                              <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.26 }}>
-                                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>TRANSFORMATION</div>
-                                <div style={{ display:"flex", gap:10 }}>
-                                  <div style={{ flex:1, textAlign:"center" }}>
-                                    <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:6 }}>WEEK 1</div>
-                                    <img src={photos[0].dataUrl} alt="first" style={{ width:"100%", borderRadius:14, objectFit:"cover", aspectRatio:"3/4" }}/>
-                                    <div style={{ fontSize:9, color:T.muted, marginTop:5 }}>{new Date(photos[0].date).toLocaleDateString()}</div>
-                                    {photos[0].note && <div style={{ fontSize:9, color:T.faint, marginTop:2 }}>{photos[0].note}</div>}
-                                  </div>
-                                  <div style={{ flex:1, textAlign:"center" }}>
-                                    <div style={{ fontSize:9, fontWeight:800, color:"#BF5AF2", letterSpacing:".08em", marginBottom:6 }}>WEEK {photos.length} ✦</div>
-                                    <img src={photos[photos.length-1].dataUrl} alt="latest" style={{ width:"100%", borderRadius:14, objectFit:"cover", aspectRatio:"3/4", boxShadow:`0 0 20px #BF5AF244` }}/>
-                                    <div style={{ fontSize:9, color:T.muted, marginTop:5 }}>{new Date(photos[photos.length-1].date).toLocaleDateString()}</div>
-                                    {photos[photos.length-1].note && <div style={{ fontSize:9, color:T.faint, marginTop:2 }}>{photos[photos.length-1].note}</div>}
-                                  </div>
-                                </div>
-                                <div style={{ textAlign:"center", marginTop:12, padding:"10px", borderRadius:12, background:"#BF5AF210", border:"1px solid #BF5AF233" }}>
-                                  <span style={{ fontSize:13, fontWeight:900, color:"#BF5AF2" }}>
-                                    {Math.floor((new Date(photos[photos.length-1].date) - new Date(photos[0].date)) / 86400000)} days of documented progress
-                                  </span>
-                                </div>
-                              </motion.div>
-                            )}
-
-                            {/* Full timeline */}
-                            {photos.length > 0 && (
-                              <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.34 }}>
-                                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>ALL CHECK-INS</div>
-                                <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
-                                  {[...photos].reverse().map((p, i) => (
-                                    <div key={i} style={{ width:"calc(33% - 6px)", textAlign:"center" }}>
-                                      <img src={p.dataUrl} alt="" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:10 }}/>
-                                      <div style={{ fontSize:8, color:T.faint, marginTop:3 }}>Wk {photos.length - i}</div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </motion.div>
-                            )}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
                   </>
                 );
               })()}

@@ -9099,7 +9099,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
   );
 }
 
-function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSupplements, onMorningBrief, theme, biology }) {
+function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSupplements, onMorningBrief, onWorkoutHistory, onBodyWeight, onMealPlan, onBuddy, onGroupWorkout, theme, biology }) {
   const T = D[theme];
   const _allArch = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
   const arch = _allArch.find(a=>a.id===archetypeId) || GYM_ARCHETYPES[0];
@@ -9307,6 +9307,161 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
     setConfirmReset(false);
     setSettingsOpen(false);
   }
+
+  // ── NEW FEATURES STATE ───────────────────────────────────────────────────
+  // Rest timer
+  const [restSecs,     setRestSecs]     = useState(0);
+  const [restActive,   setRestActive]   = useState(false);
+  const [restTarget,   setRestTarget]   = useState(120); // 2 min default
+  const restRef = useRef(null);
+  function startRestTimer(secs) {
+    setRestTarget(secs);
+    setRestSecs(secs);
+    setRestActive(true);
+    clearInterval(restRef.current);
+    restRef.current = setInterval(() => {
+      setRestSecs(prev => {
+        if (prev <= 1) { clearInterval(restRef.current); setRestActive(false); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  }
+  function stopRestTimer() {
+    clearInterval(restRef.current);
+    setRestActive(false);
+    setRestSecs(0);
+  }
+  useEffect(() => () => clearInterval(restRef.current), []);
+
+  // Quick-log bottom sheet
+  const [quickLogOpen, setQuickLogOpen] = useState(false);
+  const [qlExercise,   setQlExercise]   = useState("");
+  const [qlSets,       setQlSets]       = useState("3");
+  const [qlReps,       setQlReps]       = useState("8");
+  const [qlWeight,     setQlWeight]     = useState("");
+  const [qlSaved,      setQlSaved]      = useState(false);
+
+  function saveQuickLog() {
+    if (!qlExercise.trim()) return;
+    const entry = {
+      name:   qlExercise.trim(),
+      sets:   parseInt(qlSets) || 3,
+      reps:   parseInt(qlReps) || 8,
+      weight: parseFloat(qlWeight) || 0,
+    };
+    // Add to velocity log for the session
+    setVelocityLog(prev => [...prev, { ...entry, loggedAt: new Date().toISOString() }]);
+    setQlSaved(true);
+    startRestTimer(restTarget);
+    setTimeout(() => {
+      setQlSaved(false);
+      setQlExercise("");
+      setQlWeight("");
+      setQuickLogOpen(false);
+    }, 1200);
+  }
+
+  // Template drawer
+  const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [activeTemplate, setActiveTemplate] = useState(null);
+
+  const WORKOUT_TEMPLATES = [
+    {
+      id:"ppl-push", name:"Push Day", tag:"PPL", emoji:"🔺",
+      color:"#FF6B35", duration:"55 min",
+      exercises:[
+        { name:"Bench Press",        sets:4, reps:"6-8",  load:"80% 1RM" },
+        { name:"Incline Dumbbell",   sets:3, reps:"10-12", load:"70% 1RM" },
+        { name:"Overhead Press",     sets:3, reps:"8-10",  load:"75% 1RM" },
+        { name:"Lateral Raises",     sets:3, reps:"15-20", load:"light"   },
+        { name:"Tricep Pushdown",    sets:3, reps:"12-15", load:"moderate"},
+      ],
+    },
+    {
+      id:"ppl-pull", name:"Pull Day", tag:"PPL", emoji:"🔻",
+      color:"#30D158", duration:"55 min",
+      exercises:[
+        { name:"Deadlift",           sets:3, reps:"3-5",   load:"85% 1RM" },
+        { name:"Barbell Row",        sets:4, reps:"6-8",   load:"75% 1RM" },
+        { name:"Pull-Up",            sets:3, reps:"6-10",  load:"bodyweight" },
+        { name:"Face Pulls",         sets:3, reps:"15-20", load:"light"   },
+        { name:"Hammer Curl",        sets:3, reps:"12-15", load:"moderate"},
+      ],
+    },
+    {
+      id:"ppl-legs", name:"Leg Day", tag:"PPL", emoji:"⚡",
+      color:"#BF5AF2", duration:"60 min",
+      exercises:[
+        { name:"Squat",              sets:4, reps:"5-6",   load:"82% 1RM" },
+        { name:"Romanian Deadlift",  sets:3, reps:"8-10",  load:"70% 1RM" },
+        { name:"Leg Press",          sets:3, reps:"12-15", load:"moderate"},
+        { name:"Leg Curl",           sets:3, reps:"12-15", load:"moderate"},
+        { name:"Calf Raise",         sets:4, reps:"15-20", load:"moderate"},
+      ],
+    },
+    {
+      id:"531-squat", name:"5/3/1 Squat", tag:"5/3/1", emoji:"◈",
+      color:"#FF9F0A", duration:"45 min",
+      exercises:[
+        { name:"Squat",              sets:3, reps:"5/3/1", load:"65/75/85% 1RM" },
+        { name:"Squat (FSL)",        sets:5, reps:"5",     load:"65% 1RM" },
+        { name:"Leg Press",          sets:3, reps:"10-15", load:"moderate"},
+        { name:"Leg Curl",           sets:3, reps:"10-15", load:"moderate"},
+      ],
+    },
+    {
+      id:"531-bench", name:"5/3/1 Bench", tag:"5/3/1", emoji:"◈",
+      color:"#FF9F0A", duration:"45 min",
+      exercises:[
+        { name:"Bench Press",        sets:3, reps:"5/3/1", load:"65/75/85% 1RM" },
+        { name:"Bench Press (FSL)",  sets:5, reps:"5",     load:"65% 1RM" },
+        { name:"Incline Dumbbell",   sets:3, reps:"10-15", load:"moderate"},
+        { name:"Tricep Extension",   sets:3, reps:"10-15", load:"moderate"},
+      ],
+    },
+    {
+      id:"stronglifts-a", name:"Stronglifts A", tag:"SL5×5", emoji:"◉",
+      color:"#2E5BFF", duration:"40 min",
+      exercises:[
+        { name:"Squat",              sets:5, reps:"5",  load:"5lb increase/session" },
+        { name:"Bench Press",        sets:5, reps:"5",  load:"5lb increase/session" },
+        { name:"Barbell Row",        sets:5, reps:"5",  load:"5lb increase/session" },
+      ],
+    },
+  ];
+
+  // Body weight strip state
+  const [bwLog,    setBwLog]    = useState(() => loadBodyWeightLog());
+  const [bwInput,  setBwInput]  = useState("");
+  const [bwSaved,  setBwSaved]  = useState(false);
+  const todayBW = bwLog.find(e => e.date === new Date().toISOString().split("T")[0]);
+
+  function handleBWLog() {
+    const val = parseFloat(bwInput);
+    if (!val || val < 50) return;
+    const newLog = saveBodyWeightEntry(val);
+    setBwLog(newLog);
+    setBwInput("");
+    setBwSaved(true);
+    setTimeout(() => setBwSaved(false), 2000);
+  }
+
+  // Weekly recap
+  const isMonday = new Date().getDay() === 1;
+  const [recapDismissed, setRecapDismissed] = useState(() => {
+    try {
+      const key = `rvn_recap_${new Date().toISOString().split("T")[0]}`;
+      return localStorage.getItem(key) === "1";
+    } catch { return false; }
+  });
+  function dismissRecap() {
+    const key = `rvn_recap_${new Date().toISOString().split("T")[0]}`;
+    try { localStorage.setItem(key, "1"); } catch {}
+    setRecapDismissed(true);
+  }
+
+  // Supplement upsell (shown after workout logged)
+  const [suppUpsellShown, setSuppUpsellShown] = useState(false);
 
   // Derive hours from bedtime→waketime string inputs
   function hoursFromTimes(bed, wake) {
@@ -9650,7 +9805,40 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           </div>
         </div>
 
-        {/* Streak bar — NFC tap registers attendance, no manual button */}
+        {/* Feature quick-access strip */}
+        <div style={{ display:"flex", gap:6, marginBottom:7, overflowX:"auto", paddingBottom:1 }}>
+          {[
+            { icon:"📊", label:"History",  action: onWorkoutHistory },
+            { icon:"⚖️", label:"Weight",   action: onBodyWeight     },
+            { icon:"🍽️", label:"Meals",    action: onMealPlan       },
+            { icon:"👥", label:"Buddy",    action: onBuddy          },
+            { icon:"🏆", label:"Group",    action: onGroupWorkout   },
+            { icon:"📋", label:"Templates",action: () => setTemplatesOpen(true) },
+            { icon:"⚡", label:"Generate", action: () => {
+                const p = profile.prs || {};
+                const msg = `Generate my full workout for today. My PRs: bench ${p.bench||185}lb, squat ${p.squat||245}lb, deadlift ${p.deadlift||295}lb, OHP ${p.ohp||115}lb. Give me sets, reps, and working weights.`;
+                if (window.__rvnOpenKailu) window.__rvnOpenKailu(msg);
+              }
+            },
+          ].map(item => (
+            <motion.button key={item.label} whileTap={{ scale:.95 }}
+              onClick={() => item.action && item.action()}
+              style={{
+                flexShrink:0, display:"flex", flexDirection:"column",
+                alignItems:"center", gap:2,
+                padding:"7px 10px", borderRadius:12,
+                background:`${arch.glow}12`, border:`1px solid ${arch.glow}25`,
+                cursor:"pointer",
+              }}>
+              <span style={{ fontSize:15 }}>{item.icon}</span>
+              <span style={{ fontSize:7, fontWeight:800, color:arch.glow, letterSpacing:".06em", whiteSpace:"nowrap" }}>
+                {item.label.toUpperCase()}
+              </span>
+            </motion.button>
+          ))}
+        </div>
+
+      {/* Streak bar — NFC tap registers attendance, no manual button */}
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:7 }}>
           <div style={{
             display:"flex", alignItems:"center", gap:6,
@@ -9737,6 +9925,113 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           </motion.div>
         )}
 
+        {/* ── MONDAY WEEKLY RECAP ───────────────────────────────────────── */}
+        {isMonday && !recapDismissed && (() => {
+          const sessions = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
+          const lastWeek = sessions.filter(s => {
+            try { return (Date.now() - new Date(s.logged_at).getTime()) < 7 * 86400000; } catch { return false; }
+          });
+          const avgScore = lastWeek.length
+            ? Math.round(lastWeek.reduce((a,s) => a + (s.bio_score||0), 0) / lastWeek.length)
+            : 0;
+          return (
+            <motion.div {...FX.up} style={{ marginBottom:12 }}>
+              <div style={{
+                background:`linear-gradient(135deg, ${arch.glow}18 0%, ${arch.glow}08 100%)`,
+                border:`1px solid ${arch.glow}40`, borderRadius:18,
+                padding:"16px", display:"flex", alignItems:"flex-start", gap:12,
+              }}>
+                <div style={{ fontSize:28 }}>📈</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:10, fontWeight:800, color:arch.glow, letterSpacing:".1em", marginBottom:4 }}>
+                    WEEKLY RECAP
+                  </div>
+                  <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:3 }}>
+                    {lastWeek.length} workout{lastWeek.length !== 1 ? "s" : ""} last week
+                    {avgScore > 0 ? ` · avg score ${avgScore}` : ""}
+                  </div>
+                  <div style={{ fontSize:11, color:T.muted }}>
+                    {lastWeek.length >= 4 ? "Elite consistency — you're in the top tier. Keep it up." 
+                     : lastWeek.length >= 2 ? "Solid week. One more session and you hit your target."
+                     : "New week, fresh start. Lock in today."}
+                  </div>
+                </div>
+                <motion.button whileTap={{ scale:.96 }} onClick={dismissRecap}
+                  style={{ background:"transparent", border:"none", color:T.faint,
+                    fontSize:18, cursor:"pointer", padding:"4px" }}>
+                  ✕
+                </motion.button>
+              </div>
+            </motion.div>
+          );
+        })()}
+
+        {/* ── BODY WEIGHT STRIP ─────────────────────────────────────────────── */}
+        <motion.div {...FX.stagger(0, .07)} style={{ marginBottom:12 }}>
+          <div style={{
+            background:T.card, borderRadius:18, padding:"14px 16px",
+            border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
+            display:"flex", alignItems:"center", gap:14,
+          }}>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:4 }}>
+                BODY WEIGHT
+              </div>
+              {todayBW ? (
+                <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
+                  <span style={{ fontSize:22, fontWeight:900, color:"#30D158" }}>{todayBW.weight}</span>
+                  <span style={{ fontSize:11, color:T.muted, fontWeight:700 }}>
+                    {localStorage.getItem("rvn_bw_unit") || "lbs"}
+                  </span>
+                </div>
+              ) : (
+                <div style={{ fontSize:13, color:T.muted, fontWeight:600 }}>Not logged today</div>
+              )}
+              {bwLog.length >= 3 && (
+                <Sparkline
+                  data={bwLog.slice(0,7).reverse().map(e=>e.weight)}
+                  color="#30D158" width={80} height={20}/>
+              )}
+            </div>
+            {!todayBW ? (
+              <div style={{ display:"flex", gap:6, alignItems:"center" }}>
+                <input type="number" value={bwInput} onChange={e => setBwInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleBWLog()}
+                  placeholder="lbs"
+                  style={{
+                    width:64, padding:"9px 8px", borderRadius:10,
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    color:T.text, fontSize:13, fontWeight:700, outline:"none",
+                    textAlign:"center",
+                  }}/>
+                <motion.button whileTap={{ scale:.96 }} onClick={handleBWLog}
+                  style={{
+                    padding:"9px 14px", borderRadius:10, background:"#30D158",
+                    border:"none", color:"#fff", fontSize:11, fontWeight:800, cursor:"pointer",
+                  }}>
+                  {bwSaved ? "✓" : "Log"}
+                </motion.button>
+              </div>
+            ) : (
+              <motion.button whileTap={{ scale:.96 }} onClick={() => onBodyWeight && onBodyWeight()}
+                style={{
+                  padding:"8px 14px", borderRadius:10,
+                  background:`#30D15815`, border:`1px solid #30D15830`,
+                  color:"#30D158", fontSize:10, fontWeight:800, cursor:"pointer",
+                }}>
+                History →
+              </motion.button>
+            )}
+          </div>
+        </motion.div>
+
+        {/* ── STREAK HEATMAP ──────────────────────────────────────────────────── */}
+        <motion.div {...FX.stagger(0, .09)} style={{ marginBottom:12 }}>
+          <GlassCard theme={theme} style={{ padding:"16px" }}>
+            <StreakHeatmap theme={theme} accentColor={arch.glow}/>
+          </GlassCard>
+        </motion.div>
+
         {/* Cardio */}
         <motion.div {...FX.stagger(0,.1)} style={{ marginBottom:10 }}>
           <GlassCard theme={theme} style={{ padding:"12px 14px" }}>
@@ -9751,6 +10046,49 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
             </div>
           </GlassCard>
         </motion.div>
+
+        {/* Day-1 onboarding bridge — shown only if no workouts logged yet */}
+        {(() => {
+          const workouts = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
+          if (workouts.length > 0) return null;
+          return (
+            <motion.div {...FX.stagger(0, .12)} style={{ marginBottom:16 }}>
+              <div style={{
+                background:`linear-gradient(135deg, ${arch.glow}20 0%, ${arch.glow}08 100%)`,
+                borderRadius:20, padding:"20px",
+                border:`1px solid ${arch.glow}50`,
+              }}>
+                <div style={{ fontSize:10, fontWeight:800, color:arch.glow, letterSpacing:".12em", marginBottom:8 }}>
+                  ◉ WELCOME TO YOUR PROTOCOL
+                </div>
+                <div style={{ fontSize:18, fontWeight:900, color:T.text, marginBottom:6, lineHeight:1.2 }}>
+                  Your first workout is<br/>ready to go.
+                </div>
+                <div style={{ fontSize:13, color:T.muted, marginBottom:16, lineHeight:1.5 }}>
+                  Follow the program below, log each set with the <strong style={{ color:T.text }}>+</strong> button, and hit LOG WORKOUT when done. Kailu will track your progress automatically.
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <motion.button whileTap={{ scale:.97 }} onClick={() => setQuickLogOpen(true)}
+                    style={{
+                      flex:1, padding:"12px", borderRadius:13,
+                      background:arch.glow, border:"none", color:"#fff",
+                      fontSize:12, fontWeight:800, cursor:"pointer",
+                    }}>
+                    + Log My First Set
+                  </motion.button>
+                  <motion.button whileTap={{ scale:.97 }} onClick={() => setTemplatesOpen(true)}
+                    style={{
+                      flex:1, padding:"12px", borderRadius:13,
+                      background:`${arch.glow}18`, border:`1px solid ${arch.glow}40`,
+                      color:arch.glow, fontSize:12, fontWeight:800, cursor:"pointer",
+                    }}>
+                    📋 Use Template
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })()}
 
         {/* Exercises */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8, marginTop:14 }}>
@@ -9894,10 +10232,68 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
         {logged && !saving && (
           <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
             style={{ textAlign:"center", fontSize:11, color:saveErr ? T.red : T.green,
-              fontWeight:700, marginBottom:20, letterSpacing:".06em" }}>
+              fontWeight:700, marginBottom:12, letterSpacing:".06em" }}>
             {saveErr ? `⚠ ${saveErr}` : "SESSION LOGGED  ·  BIO-REQUIREMENTS UNLOCKED"}
           </motion.div>
         )}
+
+        {/* ── POST-WORKOUT SUPPLEMENT UPSELL ───────────────────────────────── */}
+        {logged && !saving && !suppUpsellShown && (() => {
+          const suppSuggestions = [
+            { name:"Creatine Monohydrate", timing:"Take now — post-workout window", emoji:"⚡", tag:"RECOVERY", color:"#2E5BFF" },
+            { name:"Whey Protein Isolate", timing:`${profile.macroGoals?.protein||180}g daily target — log via Kailu`, emoji:"💪", tag:"PROTEIN", color:"#FF6B35" },
+            { name:"Magnesium Glycinate", timing:"Tonight before bed — sleep quality", emoji:"🌙", tag:"SLEEP", color:"#BF5AF2" },
+          ];
+          return (
+            <motion.div initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
+              transition={{ delay:.6, type:"spring", stiffness:380, damping:34 }}
+              style={{ marginBottom:20 }}>
+              <div style={{
+                background:T.card, borderRadius:20, padding:"16px",
+                border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
+              }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em" }}>
+                    POST-WORKOUT PROTOCOL
+                  </div>
+                  <motion.button whileTap={{ scale:.96 }} onClick={() => setSuppUpsellShown(true)}
+                    style={{ background:"transparent", border:"none", color:T.faint, fontSize:16, cursor:"pointer" }}>
+                    ✕
+                  </motion.button>
+                </div>
+                {suppSuggestions.map((s, i) => (
+                  <div key={i} style={{
+                    display:"flex", alignItems:"center", gap:12, padding:"10px 0",
+                    borderBottom: i < suppSuggestions.length-1 ? `1px solid ${T.border}` : "none",
+                  }}>
+                    <div style={{ fontSize:22, width:32, textAlign:"center" }}>{s.emoji}</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{s.name}</div>
+                      <div style={{ fontSize:10, color:T.muted }}>{s.timing}</div>
+                    </div>
+                    <div style={{
+                      padding:"4px 10px", borderRadius:20,
+                      background:`${s.color}18`, border:`1px solid ${s.color}40`,
+                      fontSize:9, fontWeight:800, color:s.color,
+                    }}>
+                      {s.tag}
+                    </div>
+                  </div>
+                ))}
+                <motion.button whileTap={{ scale:.97 }}
+                  onClick={() => { setSuppUpsellShown(true); onSupplements && onSupplements(); }}
+                  style={{
+                    width:"100%", marginTop:14, padding:"12px", borderRadius:13,
+                    background:`${arch.glow}18`, border:`1px solid ${arch.glow}40`,
+                    color:arch.glow, fontSize:12, fontWeight:800, cursor:"pointer",
+                    letterSpacing:".06em",
+                  }}>
+                  VIEW FULL SUPPLEMENT PROTOCOL →
+                </motion.button>
+              </div>
+            </motion.div>
+          );
+        })()}
 
         {/* BIO-REQUIREMENTS (price-gated) */}
         <AnimatePresence>
@@ -11111,6 +11507,272 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           </motion.div>
         </div>
       )}
+
+      {/* ── REST TIMER OVERLAY ─────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {restActive && (
+          <motion.div
+            initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:40 }}
+            transition={{ type:"spring", stiffness:420, damping:34 }}
+            style={{
+              position:"fixed", bottom:100, left:"50%", transform:"translateX(-50%)",
+              zIndex:200,
+              background: theme === "dark" ? "rgba(20,20,28,0.96)" : "rgba(255,255,255,0.97)",
+              backdropFilter:"blur(24px)",
+              borderRadius:24, padding:"18px 28px",
+              border:`1px solid ${T.border}`,
+              boxShadow: T.shadowLg,
+              display:"flex", alignItems:"center", gap:16,
+              minWidth:200,
+            }}>
+            {/* Circular progress */}
+            <div style={{ position:"relative", width:52, height:52, flexShrink:0 }}>
+              <svg width={52} height={52} style={{ transform:"rotate(-90deg)" }}>
+                <circle cx={26} cy={26} r={22} fill="none" stroke={`${arch.glow}22`} strokeWidth={4}/>
+                <circle cx={26} cy={26} r={22} fill="none" stroke={arch.glow} strokeWidth={4}
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 22}`}
+                  strokeDashoffset={`${2 * Math.PI * 22 * (1 - restSecs / restTarget)}`}
+                  style={{ transition:"stroke-dashoffset 1s linear" }}/>
+              </svg>
+              <div style={{
+                position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center",
+                fontSize:13, fontWeight:900, color:T.text,
+              }}>
+                {restSecs}
+              </div>
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:11, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:2 }}>
+                REST TIMER
+              </div>
+              <div style={{ fontSize:16, fontWeight:900, color:T.text }}>
+                {Math.floor(restSecs / 60)}:{String(restSecs % 60).padStart(2,"0")}
+              </div>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+              {[60,90,120,180].map(s => (
+                <motion.button key={s} whileTap={{ scale:.96 }} onClick={() => startRestTimer(s)}
+                  style={{
+                    padding:"3px 10px", borderRadius:6,
+                    background: restTarget === s ? arch.glow : T.glass,
+                    border: `1px solid ${restTarget === s ? arch.glow : T.border}`,
+                    color: restTarget === s ? "#fff" : T.muted,
+                    fontSize:9, fontWeight:800, cursor:"pointer", whiteSpace:"nowrap",
+                  }}>
+                  {s < 60 ? `${s}s` : `${s/60}m`}
+                </motion.button>
+              ))}
+            </div>
+            <motion.button whileTap={{ scale:.96 }} onClick={stopRestTimer}
+              style={{
+                background:T.glass, border:`1px solid ${T.border}`,
+                borderRadius:10, padding:"8px", cursor:"pointer",
+                color:T.muted, fontSize:16, display:"flex",
+              }}>
+              ✕
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── QUICK-LOG BOTTOM SHEET ─────────────────────────────────────────── */}
+      {/* FAB trigger */}
+      {!quickLogOpen && !settingsOpen && (
+        <motion.button
+          whileTap={{ scale:.95 }}
+          onClick={() => setQuickLogOpen(true)}
+          style={{
+            position:"fixed", bottom:90, right:20, zIndex:150,
+            width:52, height:52, borderRadius:26,
+            background: arch.glow,
+            border:"none", color:"#fff",
+            fontSize:24, fontWeight:300,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            cursor:"pointer",
+            boxShadow:`0 4px 20px ${arch.glow}60, 0 2px 8px rgba(0,0,0,0.3)`,
+          }}>
+          +
+        </motion.button>
+      )}
+
+      <AnimatePresence>
+        {quickLogOpen && (
+          <>
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+              onClick={() => setQuickLogOpen(false)}
+              style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", zIndex:170 }}/>
+            <motion.div
+              initial={{ y:"100%" }} animate={{ y:0 }} exit={{ y:"100%" }}
+              transition={{ type:"spring", stiffness:380, damping:36 }}
+              style={{
+                position:"fixed", bottom:0, left:0, right:0, zIndex:180,
+                background: theme === "dark" ? "#1C1C1E" : "#F2F2F7",
+                borderRadius:"24px 24px 0 0",
+                padding:"16px 20px 40px",
+                boxShadow:"0 -4px 40px rgba(0,0,0,0.3)",
+              }}>
+              {/* Drag handle */}
+              <div style={{ width:36, height:4, borderRadius:2, background:T.border, margin:"0 auto 20px" }}/>
+              <div style={{ fontSize:16, fontWeight:900, color:T.text, marginBottom:16 }}>
+                Quick Log Set
+              </div>
+
+              {/* Exercise name */}
+              <input value={qlExercise} onChange={e => setQlExercise(e.target.value)}
+                placeholder="Exercise (e.g. Bench Press)"
+                style={{
+                  width:"100%", padding:"13px 16px", borderRadius:14,
+                  background:T.glass, border:`1px solid ${T.border}`,
+                  color:T.text, fontSize:14, outline:"none", marginBottom:10,
+                  boxSizing:"border-box",
+                }}/>
+
+              {/* Sets / Reps / Weight row */}
+              <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+                {[
+                  { label:"Sets", val:qlSets, set:setQlSets, ph:"3" },
+                  { label:"Reps", val:qlReps, set:setQlReps, ph:"8" },
+                  { label:"lbs",  val:qlWeight, set:setQlWeight, ph:"135" },
+                ].map(({ label, val, set, ph }) => (
+                  <div key={label} style={{ flex:1 }}>
+                    <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:5 }}>
+                      {label.toUpperCase()}
+                    </div>
+                    <input type="number" value={val} onChange={e => set(e.target.value)}
+                      placeholder={ph}
+                      style={{
+                        width:"100%", padding:"12px 10px", borderRadius:12,
+                        background:T.glass, border:`1px solid ${T.border}`,
+                        color:T.text, fontSize:15, fontWeight:800,
+                        outline:"none", textAlign:"center", boxSizing:"border-box",
+                      }}/>
+                  </div>
+                ))}
+              </div>
+
+              {/* Rest timer presets */}
+              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
+                START REST AFTER LOGGING
+              </div>
+              <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+                {[60,90,120,180].map(s => (
+                  <motion.button key={s} whileTap={{ scale:.96 }}
+                    onClick={() => setRestTarget(s)}
+                    style={{
+                      flex:1, padding:"9px 4px", borderRadius:10,
+                      background: restTarget === s ? arch.glow : T.glass,
+                      border: `1px solid ${restTarget === s ? arch.glow : T.border}`,
+                      color: restTarget === s ? "#fff" : T.muted,
+                      fontSize:10, fontWeight:800, cursor:"pointer",
+                    }}>
+                    {s < 60 ? `${s}s` : `${s/60}m`}
+                  </motion.button>
+                ))}
+              </div>
+
+              <motion.button whileTap={{ scale:.97 }} onClick={saveQuickLog}
+                style={{
+                  width:"100%", padding:"16px", borderRadius:16,
+                  background: qlSaved ? "#30D158" : arch.glow,
+                  border:"none", color:"#fff",
+                  fontSize:15, fontWeight:900, cursor:"pointer",
+                  boxShadow:`0 4px 20px ${arch.glow}50`,
+                }}>
+                {qlSaved ? "✓ Logged! Rest timer started" : "Log Set + Start Rest Timer"}
+              </motion.button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ── WORKOUT TEMPLATES DRAWER ───────────────────────────────────────── */}
+      <AnimatePresence>
+        {templatesOpen && (
+          <>
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+              onClick={() => setTemplatesOpen(false)}
+              style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.4)", zIndex:170 }}/>
+            <motion.div
+              initial={{ y:"100%" }} animate={{ y:0 }} exit={{ y:"100%" }}
+              transition={{ type:"spring", stiffness:360, damping:36 }}
+              style={{
+                position:"fixed", bottom:0, left:0, right:0, zIndex:180,
+                background: theme === "dark" ? "#1C1C1E" : "#F2F2F7",
+                borderRadius:"24px 24px 0 0",
+                padding:"16px 20px 40px",
+                maxHeight:"80vh", overflowY:"auto",
+                boxShadow:"0 -4px 40px rgba(0,0,0,0.3)",
+              }}>
+              <div style={{ width:36, height:4, borderRadius:2, background:T.border, margin:"0 auto 20px" }}/>
+              <div style={{ fontSize:16, fontWeight:900, color:T.text, marginBottom:6 }}>
+                Workout Templates
+              </div>
+              <div style={{ fontSize:12, color:T.muted, marginBottom:20 }}>
+                Tap a program to preview it below your current workout.
+              </div>
+              <div style={{ display:"flex", gap:8, marginBottom:16, overflowX:"auto" }}>
+                {["All","PPL","5/3/1","SL5×5"].map(tag => (
+                  <motion.button key={tag} whileTap={{ scale:.96 }}
+                    onClick={() => setActiveTemplate(tag === "All" ? null : tag)}
+                    style={{
+                      flexShrink:0, padding:"7px 14px", borderRadius:10,
+                      background: (activeTemplate === tag || (tag==="All" && !activeTemplate)) ? arch.glow : T.glass,
+                      border:`1px solid ${(activeTemplate === tag || (tag==="All" && !activeTemplate)) ? arch.glow : T.border}`,
+                      color: (activeTemplate === tag || (tag==="All" && !activeTemplate)) ? "#fff" : T.muted,
+                      fontSize:10, fontWeight:800, cursor:"pointer",
+                    }}>
+                    {tag}
+                  </motion.button>
+                ))}
+              </div>
+              {WORKOUT_TEMPLATES
+                .filter(t => !activeTemplate || t.tag === activeTemplate)
+                .map((tmpl, i) => (
+                  <motion.div key={tmpl.id} {...FX.stagger(i, 0.03)}
+                    style={{
+                      background:T.card, borderRadius:18, padding:"16px",
+                      marginBottom:10, border:`1px solid ${T.border}`,
+                    }}>
+                    <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
+                      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                        <div style={{ fontSize:22 }}>{tmpl.emoji}</div>
+                        <div>
+                          <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{tmpl.name}</div>
+                          <div style={{ fontSize:10, color:T.muted }}>
+                            <span style={{
+                              padding:"2px 7px", borderRadius:6,
+                              background:`${tmpl.color}20`, color:tmpl.color,
+                              fontWeight:700, marginRight:6
+                            }}>
+                              {tmpl.tag}
+                            </span>
+                            {tmpl.duration}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    {tmpl.exercises.map((ex, j) => (
+                      <div key={j} style={{
+                        display:"flex", justifyContent:"space-between",
+                        padding:"7px 0",
+                        borderBottom: j < tmpl.exercises.length-1 ? `1px solid ${T.border}` : "none",
+                        fontSize:12,
+                      }}>
+                        <span style={{ color:T.text, fontWeight:600 }}>{ex.name}</span>
+                        <span style={{ color:T.muted }}>
+                          {ex.sets}×{ex.reps} — {ex.load}
+                        </span>
+                      </div>
+                    ))}
+                  </motion.div>
+                ))
+              }
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
     </Screen>
   );
 }
@@ -12962,6 +13624,8 @@ async function composeBioPalResponse(text, state) {
     `You are Kailu — an elite performance AI built into RVN OS. Mode: ${state.mode}. ${persona.framing}`,
     "Keep every response under 3 sentences. Be direct, precise, data-driven. No bullet lists. No filler phrases like 'great question', 'absolutely', or 'your system looks primed'. Sound like a coach who actually knows this person.",
     "Always reference the user's real numbers when available. Never invent stats.",
+    "When referencing scientific claims, optionally cite the source in brackets e.g. [Schoenfeld 2010] or [NSCA guidelines]. Only cite real studies — never fabricate citations.",
+    "For injury questions, apply PEACE & LOVE evidence-based protocol (Protection, Elevation, Avoid anti-inflammatories, Compression, Education / Load, Optimism, Vascularisation, Exercise).",
     timeCtx,
     svContext,
     profileCtx,
@@ -12988,6 +13652,12 @@ async function composeBioPalResponse(text, state) {
       ? `Readiness at ${sv.readiness}% — volume scaled back. Here's your ${workoutPlan.focus} day:`
       : `Readiness at ${sv.readiness || 75}% — go time. Here's your ${workoutPlan.focus} day:`;
     return { text: intro, intent, appliedDelta, workoutPlan, scheduleItems };
+  }
+  if (intent === "injury") {
+    const areaMatch = text.match(/(knee|shoulder|back|elbow|wrist|ankle|hip|neck)/i);
+    const area = areaMatch ? areaMatch[1] : "affected area";
+    const peaceText = `PEACE protocol for ${area}: Protect from aggravation 1-3 days, Elevate above heart, Avoid anti-inflammatories (they slow healing), Compress with wrap, Educate yourself — pain ≠ damage. After 72hrs: Load progressively, Optimism, Cardiovascular exercise, Expert help if >2 weeks.`;
+    return { text: peaceText, intent, appliedDelta, workoutPlan, scheduleItems };
   }
   if (manifest) {
     const gymLine = getGymSupplementLine(manifest.category, state);
@@ -13129,6 +13799,20 @@ function RVNVisionOverlay() {
       biopalSend({ role: "pal", text: persona.greeting(state), intent: "greet" });
     }
   }, [biopal.open]); // eslint-disable-line
+
+  // ── Global bridge — allows GymProtocol to pre-fill and open Kailu ────────
+  useEffect(() => {
+    window.__rvnOpenKailu = (prefill) => {
+      biopalToggle(true);
+      if (prefill) {
+        // Slight delay so the overlay opens first, then auto-sends
+        setTimeout(() => {
+          setDraft(prefill);
+        }, 150);
+      }
+    };
+    return () => { delete window.__rvnOpenKailu; };
+  }); // no dep array — re-register each render so closures are fresh
 
   // Auto-scroll on new message
   useEffect(() => {
@@ -21056,6 +21740,1280 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// FEATURE LAYER — WORKOUT HISTORY · BODY WEIGHT · MEAL PLAN · BUDDY · GROUP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// ─── BODY WEIGHT UTILITIES ────────────────────────────────────────────────────
+const BW_KEY = "rvn_bodyweight"; // [{ date:"YYYY-MM-DD", weight:185 }]
+function loadBodyWeightLog() {
+  try { return JSON.parse(localStorage.getItem(BW_KEY) || "[]"); } catch { return []; }
+}
+function saveBodyWeightEntry(weight) {
+  const log = loadBodyWeightLog();
+  const today = new Date().toISOString().split("T")[0];
+  const filtered = log.filter(e => e.date !== today);
+  filtered.unshift({ date: today, weight: parseFloat(weight) });
+  const trimmed = filtered.slice(0, 90); // keep 90 days
+  try { localStorage.setItem(BW_KEY, JSON.stringify(trimmed)); } catch {}
+  return trimmed;
+}
+
+// ─── MEAL PLAN CACHE ──────────────────────────────────────────────────────────
+function getMealPlanCache() {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    const raw = JSON.parse(localStorage.getItem(`rvn_meal_plan_${today}`) || "null");
+    return raw; // null if not cached for today
+  } catch { return null; }
+}
+function setMealPlanCache(plan) {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+    // Clear old cache keys
+    Object.keys(localStorage).filter(k => k.startsWith("rvn_meal_plan_") && !k.endsWith(today))
+      .forEach(k => localStorage.removeItem(k));
+    localStorage.setItem(`rvn_meal_plan_${today}`, JSON.stringify(plan));
+  } catch {}
+}
+
+// ─── MINI SPARKLINE SVG ───────────────────────────────────────────────────────
+function Sparkline({ data, color = "#30D158", width = 80, height = 28, strokeWidth = 2 }) {
+  if (!data || data.length < 2) return null;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((v - min) / range) * (height - 4) - 2;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  return (
+    <svg width={width} height={height} style={{ overflow:"visible" }}>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth={strokeWidth}
+        strokeLinecap="round" strokeLinejoin="round"/>
+      {/* dot at latest */}
+      {(() => {
+        const last = data[data.length - 1];
+        const x = width;
+        const y = height - ((last - min) / range) * (height - 4) - 2;
+        return <circle cx={x.toFixed(1)} cy={y.toFixed(1)} r={3} fill={color}/>;
+      })()}
+    </svg>
+  );
+}
+
+// ─── PR TREND SPARKLINE ───────────────────────────────────────────────────────
+function PRSparkline({ sessions, lift, color, theme }) {
+  const T = D[theme];
+  // Extract lift weights from session exercises
+  const points = sessions.slice().reverse().map(s => {
+    const exs = s.exercises || [];
+    const match = exs.find(e => e.name?.toLowerCase().includes(lift.toLowerCase()));
+    return match?.weight || null;
+  }).filter(Boolean).slice(-10);
+  if (points.length < 2) return (
+    <div style={{ fontSize:10, color:T.faint, textAlign:"center", padding:"8px 0" }}>No data yet</div>
+  );
+  const max = Math.max(...points);
+  return (
+    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+      <Sparkline data={points} color={color} width={70} height={24}/>
+      <div style={{ textAlign:"right" }}>
+        <div style={{ fontSize:13, fontWeight:900, color }}>{max}lb</div>
+        <div style={{ fontSize:8, color:T.faint, letterSpacing:".06em" }}>BEST</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── STREAK HEATMAP ───────────────────────────────────────────────────────────
+function StreakHeatmap({ theme, accentColor }) {
+  const T = D[theme];
+  // Load workout dates from localStorage
+  const workoutDates = (() => {
+    try {
+      const sessions = JSON.parse(localStorage.getItem("rvn_workouts") || "[]");
+      return new Set(sessions.map(s => (s.logged_at || s.date || "").split("T")[0]));
+    } catch { return new Set(); }
+  })();
+
+  // Build 28-day grid (4 weeks)
+  const today = new Date();
+  const days = Array.from({ length: 28 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() - (27 - i));
+    const dateStr = d.toISOString().split("T")[0];
+    const hasWorkout = workoutDates.has(dateStr);
+    const isToday = i === 27;
+    return { dateStr, hasWorkout, isToday, dayLabel: ["S","M","T","W","T","F","S"][d.getDay()] };
+  });
+
+  const weekLabels = ["S","M","T","W","T","F","S"];
+
+  return (
+    <div>
+      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
+        28-DAY CONSISTENCY
+      </div>
+      {/* Day-of-week labels */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:3, marginBottom:3 }}>
+        {weekLabels.map((l, i) => (
+          <div key={i} style={{ fontSize:7, color:T.faint, textAlign:"center", letterSpacing:".06em" }}>{l}</div>
+        ))}
+      </div>
+      {/* 4-week grid: 4 rows of 7 */}
+      {[0, 1, 2, 3].map(week => (
+        <div key={week} style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:3, marginBottom:3 }}>
+          {days.slice(week * 7, week * 7 + 7).map((d, i) => (
+            <div key={i} style={{
+              aspectRatio:"1", borderRadius:3,
+              background: d.hasWorkout
+                ? accentColor
+                : d.isToday
+                  ? `${accentColor}30`
+                  : T.glass,
+              border: d.isToday ? `1px solid ${accentColor}60` : `1px solid ${T.border}`,
+              opacity: d.hasWorkout ? 1 : 0.7,
+            }}/>
+          ))}
+        </div>
+      ))}
+      <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:6 }}>
+        <div style={{ width:10, height:10, borderRadius:2, background:accentColor }}/>
+        <span style={{ fontSize:9, color:T.faint }}>Workout logged</span>
+        <div style={{ width:10, height:10, borderRadius:2, background:T.glass, border:`1px solid ${T.border}` }}/>
+        <span style={{ fontSize:9, color:T.faint }}>Rest day</span>
+      </div>
+    </div>
+  );
+}
+
+// ─── WORKOUT HISTORY SCREEN ───────────────────────────────────────────────────
+function WorkoutHistoryScreen({ theme, onBack, user }) {
+  const T = D[theme];
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("sessions"); // "sessions" | "prs"
+  const email = user?.email || "";
+
+  useEffect(() => {
+    setLoading(true);
+    fetchWorkoutHistory(email, 20)
+      .then(data => setSessions(data))
+      .finally(() => setLoading(false));
+  }, [email]);
+
+  const prLifts = [
+    { key:"bench",    label:"Bench",    color:"#FF6B35" },
+    { key:"squat",    label:"Squat",    color:"#30D158" },
+    { key:"deadlift", label:"Deadlift", color:"#FF3B30" },
+    { key:"ohp",      label:"OHP",      color:"#BF5AF2" },
+  ];
+
+  const formatDate = (iso) => {
+    try {
+      const d = new Date(iso);
+      return d.toLocaleDateString("en-US", { month:"short", day:"numeric" });
+    } catch { return "—"; }
+  };
+
+  return (
+    <Screen theme={theme}>
+      <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+        {/* Header */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:24 }}>
+          <BackBtn onBack={onBack} theme={theme}/>
+          <div>
+            <div style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>Workout History</div>
+            <div style={{ fontSize:11, color:T.muted }}>{sessions.length} sessions logged</div>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display:"flex", gap:8, marginBottom:20 }}>
+          {["sessions", "prs"].map(t => (
+            <motion.button key={t} whileTap={{ scale:.97 }} onClick={() => setActiveTab(t)}
+              style={{
+                flex:1, padding:"10px", borderRadius:12,
+                background: activeTab === t ? "#30D158" : T.glass,
+                border: activeTab === t ? "none" : `1px solid ${T.border}`,
+                color: activeTab === t ? "#fff" : T.muted,
+                fontSize:11, fontWeight:800, letterSpacing:".08em", cursor:"pointer",
+              }}>
+              {t === "sessions" ? "SESSIONS" : "PR TRACKER"}
+            </motion.button>
+          ))}
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign:"center", padding:"40px 0", color:T.muted, fontSize:13 }}>
+            Loading history…
+          </div>
+        ) : activeTab === "sessions" ? (
+          <div>
+            {sessions.length === 0 ? (
+              <div style={{ textAlign:"center", padding:"60px 20px", color:T.muted }}>
+                <div style={{ fontSize:32, marginBottom:12 }}>🏋️</div>
+                <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No sessions yet</div>
+                <div style={{ fontSize:13 }}>Log your first workout to start tracking progress.</div>
+              </div>
+            ) : sessions.map((s, i) => (
+              <motion.div key={i} {...FX.stagger(i, 0.02)}
+                style={{
+                  background:T.card, borderRadius:16, padding:"16px",
+                  marginBottom:12, border:`1px solid ${T.border}`,
+                  boxShadow: T.shadowSm,
+                }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+                  <div>
+                    <div style={{ fontSize:14, fontWeight:800, color:T.text, marginBottom:2 }}>
+                      {(s.archetype_id || "Workout").replace(/-/g," ").replace(/\b\w/g, c=>c.toUpperCase())}
+                    </div>
+                    <div style={{ fontSize:11, color:T.muted }}>{formatDate(s.logged_at)}</div>
+                  </div>
+                  {s.bio_score > 0 && (
+                    <div style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:18, fontWeight:900, color:"#30D158" }}>{s.bio_score}</div>
+                      <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>SCORE</div>
+                    </div>
+                  )}
+                </div>
+                {s.exercises && s.exercises.length > 0 && (
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+                    {s.exercises.slice(0, 4).map((ex, j) => (
+                      <div key={j} style={{
+                        padding:"4px 10px", borderRadius:20,
+                        background:`#30D15815`, border:`1px solid #30D15830`,
+                        fontSize:10, fontWeight:700, color:"#30D158",
+                      }}>
+                        {ex.name} {ex.weight ? `${ex.weight}lb` : ""}
+                      </div>
+                    ))}
+                    {s.exercises.length > 4 && (
+                      <div style={{ padding:"4px 10px", borderRadius:20, background:T.glass,
+                        border:`1px solid ${T.border}`, fontSize:10, color:T.muted }}>
+                        +{s.exercises.length - 4} more
+                      </div>
+                    )}
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div>
+            <div style={{ fontSize:11, color:T.muted, marginBottom:20 }}>
+              Tracking your personal records over the last 20 sessions.
+            </div>
+            {prLifts.map((lift, i) => (
+              <motion.div key={lift.key} {...FX.stagger(i, 0.04)}
+                style={{
+                  background:T.card, borderRadius:16, padding:"16px",
+                  marginBottom:12, border:`1px solid ${T.border}`,
+                  boxShadow: T.shadowSm,
+                }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:T.text, letterSpacing:".04em" }}>
+                    {lift.label.toUpperCase()}
+                  </div>
+                </div>
+                <PRSparkline sessions={sessions} lift={lift.label} color={lift.color} theme={theme}/>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+    </Screen>
+  );
+}
+
+// ─── BODY WEIGHT SCREEN ───────────────────────────────────────────────────────
+function BodyWeightScreen({ theme, onBack }) {
+  const T = D[theme];
+  const [log, setLog] = useState(() => loadBodyWeightLog());
+  const [input, setInput] = useState("");
+  const [unit, setUnit] = useState(() => localStorage.getItem("rvn_bw_unit") || "lbs");
+  const [saved, setSaved] = useState(false);
+
+  const today = new Date().toISOString().split("T")[0];
+  const todayEntry = log.find(e => e.date === today);
+
+  function handleSave() {
+    const val = parseFloat(input);
+    if (!val || val < 50 || val > 700) return;
+    const newLog = saveBodyWeightEntry(val);
+    setLog(newLog);
+    setInput("");
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  }
+
+  const recent = log.slice(0, 30).reverse(); // oldest first for chart
+  const weights = recent.map(e => e.weight);
+  const trend = weights.length >= 3
+    ? weights[weights.length - 1] - weights[0]
+    : 0;
+
+  return (
+    <Screen theme={theme}>
+      <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+        {/* Header */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:24 }}>
+          <BackBtn onBack={onBack} theme={theme}/>
+          <div>
+            <div style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>Body Weight</div>
+            <div style={{ fontSize:11, color:T.muted }}>Daily check-in</div>
+          </div>
+        </div>
+
+        {/* Today's entry */}
+        <div style={{
+          background:T.card, borderRadius:20, padding:"20px",
+          marginBottom:16, border:`1px solid ${T.border}`, boxShadow:T.shadow,
+        }}>
+          <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+            TODAY'S WEIGHT
+          </div>
+          {todayEntry ? (
+            <div style={{ textAlign:"center", padding:"8px 0 4px" }}>
+              <div style={{ fontSize:42, fontWeight:900, color:"#30D158", letterSpacing:"-.02em" }}>
+                {todayEntry.weight}
+              </div>
+              <div style={{ fontSize:13, color:T.muted, fontWeight:700 }}>{unit}</div>
+              <div style={{ fontSize:11, color:T.faint, marginTop:4 }}>Logged today ✓</div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ display:"flex", gap:10, marginBottom:12 }}>
+                <input
+                  type="number" value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSave()}
+                  placeholder={unit === "lbs" ? "e.g. 185" : "e.g. 84"}
+                  style={{
+                    flex:1, padding:"14px 16px", borderRadius:14,
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    color:T.text, fontSize:16, fontWeight:700, outline:"none",
+                    boxSizing:"border-box",
+                  }}
+                />
+                <button onClick={() => {
+                  const next = unit === "lbs" ? "kg" : "lbs";
+                  setUnit(next);
+                  localStorage.setItem("rvn_bw_unit", next);
+                }} style={{
+                  padding:"0 16px", borderRadius:14, background:T.glass,
+                  border:`1px solid ${T.border}`, color:T.muted,
+                  fontSize:12, fontWeight:700, cursor:"pointer",
+                }}>
+                  {unit}
+                </button>
+              </div>
+              <motion.button whileTap={{ scale:.97 }} onClick={handleSave}
+                style={{
+                  width:"100%", padding:"14px", borderRadius:14,
+                  background: saved ? "#30D158" : "#30D158",
+                  border:"none", color:"#fff",
+                  fontSize:14, fontWeight:800, cursor:"pointer",
+                  boxShadow:`0 4px 18px #30D15840`,
+                }}>
+                {saved ? "✓ Logged!" : "Log Weight"}
+              </motion.button>
+            </div>
+          )}
+        </div>
+
+        {/* Trend chart */}
+        {weights.length >= 2 && (
+          <div style={{
+            background:T.card, borderRadius:20, padding:"20px",
+            marginBottom:16, border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
+          }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em" }}>TREND</div>
+              <div style={{ fontSize:12, fontWeight:700,
+                color: trend < -0.5 ? "#30D158" : trend > 0.5 ? "#FF3B30" : T.muted }}>
+                {trend > 0 ? "+" : ""}{trend.toFixed(1)} {unit} / {recent.length} days
+              </div>
+            </div>
+            <Sparkline data={weights} color="#30D158" width={window.innerWidth - 80} height={48} strokeWidth={2.5}/>
+            <div style={{ display:"flex", justifyContent:"space-between", marginTop:8 }}>
+              <div style={{ fontSize:9, color:T.faint }}>{recent[0]?.date?.slice(5)}</div>
+              <div style={{ fontSize:9, color:T.faint }}>{recent[recent.length-1]?.date?.slice(5)}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Log history */}
+        {log.length > 0 && (
+          <div style={{ background:T.card, borderRadius:20, padding:"20px", border:`1px solid ${T.border}` }}>
+            <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>LOG</div>
+            {log.slice(0, 14).map((entry, i) => (
+              <div key={i} style={{
+                display:"flex", justifyContent:"space-between", alignItems:"center",
+                padding:"10px 0",
+                borderBottom: i < log.slice(0,14).length - 1 ? `1px solid ${T.border}` : "none",
+              }}>
+                <div style={{ fontSize:12, color:T.muted }}>{entry.date}</div>
+                <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{entry.weight} {unit}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+    </Screen>
+  );
+}
+
+// ─── MEAL PLAN SCREEN ─────────────────────────────────────────────────────────
+// Cost-efficient: generates once per day, caches in localStorage.
+// Only costs 1 Kailu token when user explicitly regenerates.
+function MealPlanScreen({ theme, onBack, user }) {
+  const T = D[theme];
+  const [plan, setPlan] = useState(() => getMealPlanCache());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  async function generatePlan(force = false) {
+    if (loading) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const p = JSON.parse(localStorage.getItem("rvn_profile") || "{}");
+      const mg = p.macroGoals || { protein:180, carbs:250, fats:70, calories:2300 };
+      const gender = p.biology?.gender || "male";
+      const goal = p.goalFocus || "muscle gain";
+
+      const systemPrompt = `You are a sports nutrition AI. Generate a practical one-day meal plan.
+Return ONLY valid JSON in this exact format (no markdown, no explanation):
+{"meals":[{"name":"Meal name","time":"7:00 AM","emoji":"🍳","protein":35,"carbs":45,"fats":12,"calories":420,"items":["item1","item2","item3"]},...],"totalProtein":180,"totalCarbs":250,"totalFats":70,"totalCalories":2300}
+Include exactly 4 meals: breakfast, lunch, dinner, and a snack. Make the food practical and delicious.`;
+
+      const userMsg = `Create a meal plan for a ${gender} focused on ${goal}. Daily targets: ${mg.protein}g protein, ${mg.carbs}g carbs, ${mg.fats}g fat, ~${mg.calories||2300} calories.`;
+
+      const resp = await callClaudeAPI({ system: systemPrompt, history: [], user: userMsg, maxTokens: 600, model: "claude-haiku-4-5-20251001" });
+      if (!resp) throw new Error("No response");
+
+      // Parse JSON from response
+      const jsonMatch = resp.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("Invalid format");
+      const parsed = JSON.parse(jsonMatch[0]);
+      if (!parsed.meals?.length) throw new Error("Empty plan");
+
+      setMealPlanCache(parsed);
+      setPlan(parsed);
+    } catch (e) {
+      setError("Couldn't generate plan right now. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!plan) generatePlan();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const macroColor = (pct) => pct >= 0.9 ? "#30D158" : pct >= 0.7 ? "#FF9F0A" : T.muted;
+
+  return (
+    <Screen theme={theme}>
+      <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+        {/* Header */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
+          <BackBtn onBack={onBack} theme={theme}/>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>AI Meal Plan</div>
+            <div style={{ fontSize:11, color:T.muted }}>Generated for today · cached until midnight</div>
+          </div>
+          <motion.button whileTap={{ scale:.96 }} onClick={() => generatePlan(true)}
+            disabled={loading}
+            style={{
+              padding:"8px 14px", borderRadius:12, cursor:"pointer",
+              background:`#BF5AF215`, border:`1px solid #BF5AF240`,
+              color:"#BF5AF2", fontSize:10, fontWeight:800, letterSpacing:".08em",
+              opacity: loading ? 0.5 : 1,
+            }}>
+            {loading ? "..." : "↻ NEW"}
+          </motion.button>
+        </div>
+
+        {loading && (
+          <div style={{ textAlign:"center", padding:"60px 20px" }}>
+            <motion.div
+              animate={{ rotate:360 }}
+              transition={{ duration:1.2, repeat:Infinity, ease:"linear" }}
+              style={{ width:36, height:36, borderRadius:"50%", border:`3px solid #BF5AF240`,
+                borderTopColor:"#BF5AF2", margin:"0 auto 16px" }}/>
+            <div style={{ fontSize:13, color:T.muted }}>Kailu is building your meal plan…</div>
+            <div style={{ fontSize:11, color:T.faint, marginTop:4 }}>This costs 1 daily token</div>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ padding:"16px", borderRadius:14, background:"#FF3B3015", border:"1px solid #FF3B3030",
+            color:"#FF3B30", fontSize:13, marginBottom:16, textAlign:"center" }}>
+            {error}
+          </div>
+        )}
+
+        {plan && !loading && (
+          <>
+            {/* Macro summary */}
+            <div style={{
+              background:T.card, borderRadius:20, padding:"16px",
+              marginBottom:16, border:`1px solid ${T.border}`, boxShadow:T.shadow,
+            }}>
+              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+                DAILY TOTALS
+              </div>
+              <div style={{ display:"flex", justifyContent:"space-between" }}>
+                {[
+                  { label:"PROTEIN", val:plan.totalProtein, unit:"g", color:"#FF6B35" },
+                  { label:"CARBS",   val:plan.totalCarbs,   unit:"g", color:"#FF9F0A" },
+                  { label:"FATS",    val:plan.totalFats,    unit:"g", color:"#BF5AF2" },
+                  { label:"CALS",    val:plan.totalCalories, unit:"", color:"#30D158" },
+                ].map(m => (
+                  <div key={m.label} style={{ textAlign:"center" }}>
+                    <div style={{ fontSize:18, fontWeight:900, color:m.color }}>{m.val}{m.unit}</div>
+                    <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>{m.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Meals */}
+            {plan.meals.map((meal, i) => (
+              <motion.div key={i} {...FX.stagger(i, 0.05)}
+                style={{
+                  background:T.card, borderRadius:20, padding:"18px",
+                  marginBottom:12, border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
+                }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+                    <div style={{ fontSize:28 }}>{meal.emoji}</div>
+                    <div>
+                      <div style={{ fontSize:15, fontWeight:800, color:T.text }}>{meal.name}</div>
+                      <div style={{ fontSize:11, color:T.muted }}>{meal.time}</div>
+                    </div>
+                  </div>
+                  <div style={{ textAlign:"right" }}>
+                    <div style={{ fontSize:14, fontWeight:900, color:"#FF6B35" }}>{meal.protein}g</div>
+                    <div style={{ fontSize:9, color:T.faint }}>protein</div>
+                  </div>
+                </div>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:10 }}>
+                  {(meal.items || []).map((item, j) => (
+                    <div key={j} style={{
+                      padding:"5px 10px", borderRadius:20,
+                      background:T.glass, border:`1px solid ${T.border}`,
+                      fontSize:11, color:T.text,
+                    }}>
+                      {item}
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display:"flex", gap:12, fontSize:10, color:T.muted }}>
+                  <span><b style={{ color:T.text }}>{meal.carbs}g</b> carbs</span>
+                  <span><b style={{ color:T.text }}>{meal.fats}g</b> fat</span>
+                  <span><b style={{ color:T.text }}>{meal.calories}</b> kcal</span>
+                </div>
+              </motion.div>
+            ))}
+
+            <div style={{ textAlign:"center", fontSize:10, color:T.faint, marginTop:8 }}>
+              ↑ Tap a meal in Kailu to log it to today's macros
+            </div>
+          </>
+        )}
+
+        {!plan && !loading && !error && (
+          <div style={{ textAlign:"center", padding:"60px 20px" }}>
+            <div style={{ fontSize:32, marginBottom:12 }}>🍽️</div>
+            <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No plan yet</div>
+            <motion.button whileTap={{ scale:.97 }} onClick={() => generatePlan()}
+              style={{
+                padding:"14px 28px", borderRadius:16,
+                background:"#BF5AF2", border:"none", color:"#fff",
+                fontSize:14, fontWeight:800, cursor:"pointer",
+              }}>
+              Generate Today's Plan
+            </motion.button>
+          </div>
+        )}
+      </motion.div>
+    </Screen>
+  );
+}
+
+// ─── BUDDY SYSTEM SCREEN ──────────────────────────────────────────────────────
+function BuddySystemScreen({ theme, onBack, user }) {
+  const T = D[theme];
+  const [tab, setTab] = useState("buddies"); // "buddies" | "find" | "requests"
+  const [buddies, setBuddies] = useState([]);
+  const [pending, setPending] = useState([]);
+  const [searchEmail, setSearchEmail] = useState("");
+  const [searchResult, setSearchResult] = useState(null); // null | { found:bool, email, name }
+  const [searching, setSearching] = useState(false);
+  const [sendStatus, setSendStatus] = useState(null); // null | "sent" | "error"
+  const [loading, setLoading] = useState(true);
+
+  const myEmail = user?.email || "";
+
+  useEffect(() => {
+    if (!myEmail) { setLoading(false); return; }
+    loadBuddyData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myEmail]);
+
+  async function loadBuddyData() {
+    setLoading(true);
+    try {
+      const { data: accepted } = await supabase
+        .from("buddies")
+        .select("*")
+        .or(`user_email.eq.${myEmail},buddy_email.eq.${myEmail}`)
+        .eq("status", "accepted");
+      setBuddies(accepted || []);
+
+      const { data: pend } = await supabase
+        .from("buddies")
+        .select("*")
+        .eq("buddy_email", myEmail)
+        .eq("status", "pending");
+      setPending(pend || []);
+    } catch (_) {
+      // Offline: show empty state
+    } finally { setLoading(false); }
+  }
+
+  async function searchForBuddy() {
+    if (!searchEmail.trim()) return;
+    setSearching(true);
+    setSearchResult(null);
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("email, name")
+        .eq("email", searchEmail.trim().toLowerCase())
+        .single();
+      setSearchResult(data ? { found:true, ...data } : { found:false });
+    } catch {
+      setSearchResult({ found:false });
+    } finally { setSearching(false); }
+  }
+
+  async function sendRequest(toEmail) {
+    setSendStatus(null);
+    try {
+      const { error } = await supabase.from("buddies").insert({
+        user_email: myEmail,
+        buddy_email: toEmail,
+        status: "pending",
+        created_at: new Date().toISOString(),
+      });
+      setSendStatus(error ? "error" : "sent");
+    } catch { setSendStatus("error"); }
+  }
+
+  async function acceptRequest(id) {
+    await supabase.from("buddies").update({ status:"accepted" }).eq("id", id);
+    loadBuddyData();
+  }
+
+  const myBuddyList = buddies.map(b => b.user_email === myEmail ? b.buddy_email : b.user_email);
+
+  return (
+    <Screen theme={theme}>
+      <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+        {/* Header */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+          <BackBtn onBack={onBack} theme={theme}/>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>Buddy System</div>
+            <div style={{ fontSize:11, color:T.muted }}>Train together, push harder</div>
+          </div>
+          {pending.length > 0 && (
+            <div style={{
+              width:20, height:20, borderRadius:"50%",
+              background:"#FF3B30", display:"flex", alignItems:"center", justifyContent:"center",
+              fontSize:10, fontWeight:900, color:"#fff",
+            }}>
+              {pending.length}
+            </div>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display:"flex", gap:6, marginBottom:20, overflowX:"auto" }}>
+          {[
+            { id:"buddies", label:`BUDDIES (${myBuddyList.length})` },
+            { id:"find",    label:"FIND" },
+            { id:"requests", label:`REQUESTS${pending.length ? ` (${pending.length})` : ""}` },
+          ].map(t => (
+            <motion.button key={t.id} whileTap={{ scale:.97 }} onClick={() => setTab(t.id)}
+              style={{
+                flexShrink:0, padding:"9px 14px", borderRadius:10,
+                background: tab === t.id ? "#2E5BFF" : T.glass,
+                border: tab === t.id ? "none" : `1px solid ${T.border}`,
+                color: tab === t.id ? "#fff" : T.muted,
+                fontSize:10, fontWeight:800, letterSpacing:".06em", cursor:"pointer",
+              }}>
+              {t.label}
+            </motion.button>
+          ))}
+        </div>
+
+        {/* BUDDIES TAB */}
+        {tab === "buddies" && (
+          <div>
+            {loading ? (
+              <div style={{ textAlign:"center", padding:"40px", color:T.muted }}>Loading…</div>
+            ) : myBuddyList.length === 0 ? (
+              <div style={{ textAlign:"center", padding:"60px 20px" }}>
+                <div style={{ fontSize:36, marginBottom:12 }}>👥</div>
+                <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No buddies yet</div>
+                <div style={{ fontSize:13, color:T.muted, marginBottom:20 }}>
+                  Add a training partner to stay accountable and compete.
+                </div>
+                <motion.button whileTap={{ scale:.97 }} onClick={() => setTab("find")}
+                  style={{
+                    padding:"12px 24px", borderRadius:14, background:"#2E5BFF",
+                    border:"none", color:"#fff", fontSize:13, fontWeight:800, cursor:"pointer",
+                  }}>
+                  Find a Buddy
+                </motion.button>
+              </div>
+            ) : myBuddyList.map((email, i) => (
+              <motion.div key={i} {...FX.stagger(i, 0.04)}
+                style={{
+                  display:"flex", alignItems:"center", gap:14,
+                  background:T.card, borderRadius:16, padding:"16px",
+                  marginBottom:10, border:`1px solid ${T.border}`,
+                  boxShadow:T.shadowSm,
+                }}>
+                <div style={{
+                  width:44, height:44, borderRadius:"50%",
+                  background:`#2E5BFF20`, border:`2px solid #2E5BFF44`,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:18, fontWeight:900, color:"#2E5BFF",
+                }}>
+                  {email[0].toUpperCase()}
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{email}</div>
+                  <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>Training partner</div>
+                </div>
+                <div style={{
+                  padding:"6px 12px", borderRadius:20,
+                  background:`#2E5BFF15`, border:`1px solid #2E5BFF30`,
+                  fontSize:10, fontWeight:700, color:"#2E5BFF",
+                }}>
+                  BUDDY
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+
+        {/* FIND TAB */}
+        {tab === "find" && (
+          <div>
+            <div style={{ fontSize:13, color:T.muted, marginBottom:16 }}>
+              Search by email address to find a training partner.
+            </div>
+            <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+              <input
+                value={searchEmail}
+                onChange={e => { setSearchEmail(e.target.value); setSearchResult(null); setSendStatus(null); }}
+                onKeyDown={e => e.key === "Enter" && searchForBuddy()}
+                placeholder="friend@example.com"
+                style={{
+                  flex:1, padding:"13px 16px", borderRadius:14,
+                  background:T.glass, border:`1px solid ${T.border}`,
+                  color:T.text, fontSize:13, outline:"none",
+                }}
+              />
+              <motion.button whileTap={{ scale:.96 }} onClick={searchForBuddy}
+                disabled={searching}
+                style={{
+                  padding:"0 18px", borderRadius:14, background:"#2E5BFF",
+                  border:"none", color:"#fff", fontSize:13, fontWeight:800,
+                  cursor:"pointer", opacity: searching ? 0.6 : 1,
+                }}>
+                {searching ? "…" : "Search"}
+              </motion.button>
+            </div>
+
+            {searchResult && (
+              <motion.div {...FX.up}
+                style={{
+                  background:T.card, borderRadius:16, padding:"18px",
+                  border:`1px solid ${T.border}`, boxShadow:T.shadow,
+                }}>
+                {searchResult.found ? (
+                  <div>
+                    <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
+                      <div style={{
+                        width:40, height:40, borderRadius:"50%",
+                        background:"#2E5BFF20", border:"2px solid #2E5BFF44",
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        fontSize:16, fontWeight:900, color:"#2E5BFF",
+                      }}>
+                        {searchResult.email[0].toUpperCase()}
+                      </div>
+                      <div>
+                        <div style={{ fontSize:14, fontWeight:800, color:T.text }}>
+                          {searchResult.name || searchResult.email}
+                        </div>
+                        <div style={{ fontSize:11, color:T.muted }}>{searchResult.email}</div>
+                      </div>
+                    </div>
+                    {sendStatus === "sent" ? (
+                      <div style={{ padding:"12px", borderRadius:12, background:"#30D15815",
+                        border:"1px solid #30D15840", color:"#30D158", fontSize:13,
+                        fontWeight:700, textAlign:"center" }}>
+                        ✓ Request sent!
+                      </div>
+                    ) : (
+                      <motion.button whileTap={{ scale:.97 }} onClick={() => sendRequest(searchResult.email)}
+                        style={{
+                          width:"100%", padding:"13px", borderRadius:13,
+                          background:"#2E5BFF", border:"none", color:"#fff",
+                          fontSize:14, fontWeight:800, cursor:"pointer",
+                        }}>
+                        Send Buddy Request
+                      </motion.button>
+                    )}
+                  </div>
+                ) : (
+                  <div style={{ textAlign:"center", color:T.muted, padding:"8px 0" }}>
+                    No user found with that email.
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </div>
+        )}
+
+        {/* REQUESTS TAB */}
+        {tab === "requests" && (
+          <div>
+            {pending.length === 0 ? (
+              <div style={{ textAlign:"center", padding:"60px 20px", color:T.muted }}>
+                <div style={{ fontSize:32, marginBottom:12 }}>📬</div>
+                <div style={{ fontSize:14, fontWeight:700, color:T.text, marginBottom:8 }}>No pending requests</div>
+                <div style={{ fontSize:12 }}>When someone sends you a buddy request, it'll show here.</div>
+              </div>
+            ) : pending.map((req, i) => (
+              <motion.div key={i} {...FX.stagger(i, 0.04)}
+                style={{
+                  background:T.card, borderRadius:16, padding:"16px",
+                  marginBottom:10, border:`1px solid ${T.border}`,
+                }}>
+                <div style={{ fontSize:13, fontWeight:800, color:T.text, marginBottom:6 }}>
+                  {req.user_email}
+                </div>
+                <div style={{ fontSize:11, color:T.muted, marginBottom:12 }}>
+                  wants to be your training buddy
+                </div>
+                <div style={{ display:"flex", gap:8 }}>
+                  <motion.button whileTap={{ scale:.97 }} onClick={() => acceptRequest(req.id)}
+                    style={{
+                      flex:1, padding:"11px", borderRadius:12,
+                      background:"#30D158", border:"none", color:"#fff",
+                      fontSize:12, fontWeight:800, cursor:"pointer",
+                    }}>
+                    Accept
+                  </motion.button>
+                  <motion.button whileTap={{ scale:.97 }} onClick={async () => {
+                    await supabase.from("buddies").delete().eq("id", req.id);
+                    loadBuddyData();
+                  }}
+                    style={{
+                      flex:1, padding:"11px", borderRadius:12,
+                      background:T.glass, border:`1px solid ${T.border}`,
+                      color:T.muted, fontSize:12, fontWeight:800, cursor:"pointer",
+                    }}>
+                    Decline
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+    </Screen>
+  );
+}
+
+// ─── GROUP WORKOUT SCREEN ─────────────────────────────────────────────────────
+function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
+  const T = D[theme];
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState("lobby"); // "lobby" | "room" | "create"
+  const [activeRoom, setActiveRoom] = useState(null);
+  const [participants, setParticipants] = useState([]);
+  const [creating, setCreating] = useState(false);
+  const [newRoomName, setNewRoomName] = useState("");
+  const [newRoomType, setNewRoomType] = useState("strength");
+  const [polling, setPolling] = useState(null);
+
+  const myEmail = user?.email || "guest";
+  const myName = user?.name || myEmail.split("@")[0] || "You";
+
+  useEffect(() => {
+    loadRooms();
+    const interval = setInterval(loadRooms, 8000); // poll every 8s
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (activeRoom) {
+      const interval = setInterval(() => loadRoomParticipants(activeRoom.id), 5000);
+      setPolling(interval);
+      return () => clearInterval(interval);
+    } else {
+      if (polling) clearInterval(polling);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeRoom?.id]);
+
+  async function loadRooms() {
+    try {
+      const { data } = await supabase
+        .from("group_sessions")
+        .select("*")
+        .eq("status", "active")
+        .order("created_at", { ascending:false })
+        .limit(10);
+      setRooms(data || []);
+    } catch { setRooms([]); } finally { setLoading(false); }
+  }
+
+  async function loadRoomParticipants(roomId) {
+    try {
+      const { data } = await supabase
+        .from("group_participants")
+        .select("*")
+        .eq("session_id", roomId)
+        .order("sets_logged", { ascending:false });
+      setParticipants(data || []);
+    } catch {}
+  }
+
+  async function createRoom() {
+    if (!newRoomName.trim()) return;
+    setCreating(true);
+    try {
+      const { data, error } = await supabase.from("group_sessions").insert({
+        name: newRoomName.trim(),
+        type: newRoomType,
+        host_email: myEmail,
+        status: "active",
+        created_at: new Date().toISOString(),
+      }).select().single();
+      if (!error && data) {
+        // Auto-join as host
+        await supabase.from("group_participants").insert({
+          session_id: data.id,
+          email: myEmail,
+          name: myName,
+          sets_logged: 0,
+          joined_at: new Date().toISOString(),
+        });
+        setActiveRoom(data);
+        await loadRoomParticipants(data.id);
+        setView("room");
+      }
+    } catch {} finally { setCreating(false); }
+  }
+
+  async function joinRoom(room) {
+    try {
+      // Upsert participant
+      await supabase.from("group_participants").upsert({
+        session_id: room.id,
+        email: myEmail,
+        name: myName,
+        sets_logged: 0,
+        joined_at: new Date().toISOString(),
+      }, { onConflict:"session_id,email" });
+      setActiveRoom(room);
+      await loadRoomParticipants(room.id);
+      setView("room");
+    } catch {}
+  }
+
+  async function logSet() {
+    try {
+      const me = participants.find(p => p.email === myEmail);
+      const newCount = (me?.sets_logged || 0) + 1;
+      await supabase.from("group_participants")
+        .update({ sets_logged: newCount })
+        .eq("session_id", activeRoom.id)
+        .eq("email", myEmail);
+      await loadRoomParticipants(activeRoom.id);
+    } catch {}
+  }
+
+  async function leaveRoom() {
+    if (activeRoom) {
+      await supabase.from("group_participants")
+        .delete()
+        .eq("session_id", activeRoom.id)
+        .eq("email", myEmail);
+    }
+    setActiveRoom(null);
+    setParticipants([]);
+    setView("lobby");
+    loadRooms();
+  }
+
+  const roomTypeEmojis = { strength:"🏋️", cardio:"🏃", hiit:"⚡", yoga:"🧘", custom:"◉" };
+
+  if (view === "room" && activeRoom) {
+    const myParticipant = participants.find(p => p.email === myEmail);
+    const mySets = myParticipant?.sets_logged || 0;
+    return (
+      <Screen theme={theme}>
+        <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+          {/* Room header */}
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+            <motion.button whileTap={{ scale:.96 }} onClick={leaveRoom}
+              style={{ background:T.glass, border:`1px solid ${T.border}`, borderRadius:10,
+                padding:"8px 12px", cursor:"pointer", color:T.muted, fontSize:12, fontWeight:700 }}>
+              ← Leave
+            </motion.button>
+            <div style={{ flex:1 }}>
+              <div style={{ fontSize:18, fontWeight:900, color:T.text }}>
+                {roomTypeEmojis[activeRoom.type] || "◉"} {activeRoom.name}
+              </div>
+              <div style={{ fontSize:11, color:T.muted }}>
+                {participants.length} participant{participants.length !== 1 ? "s" : ""} · Live
+              </div>
+            </div>
+            {/* Live indicator */}
+            <div style={{ display:"flex", alignItems:"center", gap:6, padding:"6px 12px",
+              borderRadius:20, background:"#FF3B3015", border:"1px solid #FF3B3030" }}>
+              <div style={{
+                width:6, height:6, borderRadius:"50%", background:"#FF3B30",
+              }}/>
+              <span style={{ fontSize:9, fontWeight:800, color:"#FF3B30", letterSpacing:".1em" }}>LIVE</span>
+            </div>
+          </div>
+
+          {/* My stats */}
+          <div style={{
+            background:`linear-gradient(135deg, #2E5BFF18 0%, #BF5AF218 100%)`,
+            borderRadius:20, padding:"20px",
+            border:`1px solid #2E5BFF30`, marginBottom:16,
+            boxShadow:T.shadow,
+          }}>
+            <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
+              MY SETS THIS SESSION
+            </div>
+            <div style={{ fontSize:52, fontWeight:900, color:"#2E5BFF", letterSpacing:"-.03em", marginBottom:12 }}>
+              {mySets}
+            </div>
+            <motion.button whileTap={{ scale:.95 }} onClick={logSet}
+              style={{
+                width:"100%", padding:"16px", borderRadius:16,
+                background:"#2E5BFF", border:"none", color:"#fff",
+                fontSize:16, fontWeight:900, cursor:"pointer",
+                boxShadow:`0 6px 24px #2E5BFF44`,
+              }}>
+              + LOG SET
+            </motion.button>
+          </div>
+
+          {/* Leaderboard */}
+          <div style={{ background:T.card, borderRadius:20, padding:"18px", border:`1px solid ${T.border}` }}>
+            <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>
+              LEADERBOARD
+            </div>
+            {participants.length === 0 ? (
+              <div style={{ textAlign:"center", color:T.muted, fontSize:12, padding:"16px 0" }}>
+                No participants yet
+              </div>
+            ) : participants.map((p, i) => (
+              <div key={p.email} style={{
+                display:"flex", alignItems:"center", gap:12,
+                padding:"10px 0",
+                borderBottom: i < participants.length - 1 ? `1px solid ${T.border}` : "none",
+              }}>
+                <div style={{
+                  width:24, height:24, borderRadius:"50%", flexShrink:0,
+                  background: i === 0 ? "#FF9F0A20" : T.glass,
+                  border: `1px solid ${i === 0 ? "#FF9F0A" : T.border}`,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:11, fontWeight:900, color: i === 0 ? "#FF9F0A" : T.muted,
+                }}>
+                  {i + 1}
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color: p.email === myEmail ? "#2E5BFF" : T.text }}>
+                    {p.name || p.email.split("@")[0]} {p.email === myEmail ? "(You)" : ""}
+                  </div>
+                </div>
+                <div style={{ textAlign:"right" }}>
+                  <div style={{ fontSize:16, fontWeight:900, color: i === 0 ? "#FF9F0A" : T.text }}>
+                    {p.sets_logged}
+                  </div>
+                  <div style={{ fontSize:8, color:T.faint, letterSpacing:".06em" }}>SETS</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </Screen>
+    );
+  }
+
+  if (view === "create") {
+    return (
+      <Screen theme={theme}>
+        <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:24 }}>
+            <motion.button whileTap={{ scale:.96 }} onClick={() => setView("lobby")}
+              style={{ background:T.glass, border:`1px solid ${T.border}`, borderRadius:10,
+                padding:"8px 12px", cursor:"pointer", color:T.muted, fontSize:12, fontWeight:700 }}>
+              ← Back
+            </motion.button>
+            <div style={{ fontSize:20, fontWeight:900, color:T.text }}>Create Room</div>
+          </div>
+
+          <input
+            value={newRoomName}
+            onChange={e => setNewRoomName(e.target.value)}
+            placeholder="Room name (e.g. Morning Push Day)"
+            style={{
+              width:"100%", padding:"14px 16px", borderRadius:14,
+              background:T.glass, border:`1px solid ${T.border}`,
+              color:T.text, fontSize:14, outline:"none", marginBottom:16, boxSizing:"border-box",
+            }}
+          />
+
+          <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+            WORKOUT TYPE
+          </div>
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:24 }}>
+            {Object.entries(roomTypeEmojis).map(([type, emoji]) => (
+              <motion.button key={type} whileTap={{ scale:.96 }} onClick={() => setNewRoomType(type)}
+                style={{
+                  padding:"14px 8px", borderRadius:14, cursor:"pointer",
+                  background: newRoomType === type ? "#2E5BFF" : T.glass,
+                  border: newRoomType === type ? "none" : `1px solid ${T.border}`,
+                  color: newRoomType === type ? "#fff" : T.text,
+                }}>
+                <div style={{ fontSize:20, marginBottom:4 }}>{emoji}</div>
+                <div style={{ fontSize:9, fontWeight:800, letterSpacing:".06em" }}>
+                  {type.toUpperCase()}
+                </div>
+              </motion.button>
+            ))}
+          </div>
+
+          <motion.button whileTap={{ scale:.97 }} onClick={createRoom} disabled={creating || !newRoomName.trim()}
+            style={{
+              width:"100%", padding:"16px", borderRadius:16,
+              background: creating || !newRoomName.trim() ? T.glass : "#2E5BFF",
+              border: creating || !newRoomName.trim() ? `1px solid ${T.border}` : "none",
+              color: creating || !newRoomName.trim() ? T.muted : "#fff",
+              fontSize:15, fontWeight:900, cursor:"pointer",
+              boxShadow: !creating && newRoomName.trim() ? "0 4px 20px #2E5BFF44" : "none",
+            }}>
+            {creating ? "Creating…" : "Start Room →"}
+          </motion.button>
+        </motion.div>
+      </Screen>
+    );
+  }
+
+  // LOBBY VIEW
+  return (
+    <Screen theme={theme}>
+      <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+        {/* Header */}
+        <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:20 }}>
+          <BackBtn onBack={onBack} theme={theme}/>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>Group Workout</div>
+            <div style={{ fontSize:11, color:T.muted }}>Train live with others</div>
+          </div>
+          <motion.button whileTap={{ scale:.96 }} onClick={() => setView("create")}
+            style={{
+              padding:"9px 16px", borderRadius:12, cursor:"pointer",
+              background:"#2E5BFF", border:"none",
+              color:"#fff", fontSize:11, fontWeight:800, letterSpacing:".06em",
+            }}>
+            + CREATE
+          </motion.button>
+        </div>
+
+        {loading ? (
+          <div style={{ textAlign:"center", padding:"40px", color:T.muted }}>Finding rooms…</div>
+        ) : rooms.length === 0 ? (
+          <div style={{ textAlign:"center", padding:"60px 20px" }}>
+            <div style={{ fontSize:36, marginBottom:12 }}>🏋️</div>
+            <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No active rooms</div>
+            <div style={{ fontSize:13, color:T.muted, marginBottom:20 }}>
+              Be the first to start a group workout session.
+            </div>
+            <motion.button whileTap={{ scale:.97 }} onClick={() => setView("create")}
+              style={{
+                padding:"12px 24px", borderRadius:14, background:"#2E5BFF",
+                border:"none", color:"#fff", fontSize:13, fontWeight:800, cursor:"pointer",
+              }}>
+              Create Room
+            </motion.button>
+          </div>
+        ) : (
+          <div>
+            <div style={{ fontSize:11, color:T.muted, marginBottom:12 }}>
+              {rooms.length} active session{rooms.length !== 1 ? "s" : ""}
+            </div>
+            {rooms.map((room, i) => (
+              <motion.div key={room.id} {...FX.stagger(i, 0.04)}
+                style={{
+                  background:T.card, borderRadius:20, padding:"18px",
+                  marginBottom:12, border:`1px solid ${T.border}`,
+                  boxShadow:T.shadowSm,
+                }}>
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:12 }}>
+                  <div>
+                    <div style={{ fontSize:15, fontWeight:800, color:T.text, marginBottom:3 }}>
+                      {roomTypeEmojis[room.type] || "◉"} {room.name}
+                    </div>
+                    <div style={{ fontSize:11, color:T.muted }}>Hosted by {room.host_email?.split("@")[0] || "??"}</div>
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:4 }}>
+                    <div style={{ width:6, height:6, borderRadius:"50%", background:"#30D158" }}/>
+                    <span style={{ fontSize:10, color:"#30D158", fontWeight:800 }}>LIVE</span>
+                  </div>
+                </div>
+                <motion.button whileTap={{ scale:.97 }} onClick={() => joinRoom(room)}
+                  style={{
+                    width:"100%", padding:"12px", borderRadius:13,
+                    background:"#2E5BFF", border:"none", color:"#fff",
+                    fontSize:13, fontWeight:800, cursor:"pointer",
+                  }}>
+                  Join Room →
+                </motion.button>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </motion.div>
+    </Screen>
+  );
+}
+
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ROOT APP — RVN OS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -21183,27 +23141,75 @@ function RVNRoot() {
     }
   }, []);
 
-  // ── DEV bypass — set localStorage.rvn_dev_bypass="true" in console to skip onboarding ──
+  // ── DEV bypass + ?demo=1 mode ────────────────────────────────────────────
   useEffect(() => {
     try {
-      if (localStorage.getItem("rvn_dev_bypass") === "true" && screen === "splash") {
-        const devProfile = {
-          name: "Tanuj", email: "tanujshibu@gmail.com",
-          age: 21, gender: "male", activityLevel: "active",
-          archetypeId: "vtaper", goal: "vtaper",
-          macroGoals: { protein: 180, carbs: 250, fats: 65, calories: 2300 },
-          macroToday: { protein: 0, carbs: 0, fats: 0, calories: 0 },
-          sleepDays: [7, 6.5, 7.5, 8, 6, 7, 7.5],
+      const isDemoURL = new URLSearchParams(window.location.search).get("demo") === "1";
+      const isDevBypass = localStorage.getItem("rvn_dev_bypass") === "true";
+      if ((isDemoURL || isDevBypass) && screen === "splash") {
+        // Seed a rich demo profile — looks like a real power user
+        const demoProfile = {
+          name: "Alex", email: "demo@rvnos.com",
+          age: 24, gender: "male", activityLevel: "active",
+          archetypeId: "vtaper", goal: "vtaper", goalFocus: "muscle gain",
+          macroGoals: { protein:185, carbs:265, fats:68, calories:2450 },
+          macroToday: { protein:127, carbs:198, fats:42, calories:1680 },
+          sleepDays: [7.1, 6.8, 7.9, 8.2, 6.5, 7.4, 7.8],
           sleepTarget: 8,
-          prs: { bench: 225, squat: 315, deadlift: 405, ohp: 135 },
-          bioScore: 82, readiness: 82,
-          streaks: { session: 7, nutrition: 5 },
+          prs: { bench:245, squat:335, deadlift:415, ohp:155 },
+          bioScore: 84, readiness: 84,
+          streaks: { session:12, nutrition:8 },
           kailuTokens: 15, kailuLastRefill: Date.now(), isPremium: false,
-          healthData: { steps: 8500, sleepHrs: 7.5, hrv: 62, lastSync: null },
-          progressPhotos: [], prHistory: [], venueBrand: null,
-          customMeals: [], schedule: [],
+          healthData: { steps:9200, sleepHrs:7.8, hrv:68, lastSync: Date.now() },
+          biology: { gender:"male", caffeine:"med", bottleneck:"soreness", frequency:4 },
+          progressPhotos: [], prHistory: [
+            { lift:"bench", weight:245, date: new Date(Date.now()-7*86400000).toISOString() },
+            { lift:"squat", weight:335, date: new Date(Date.now()-14*86400000).toISOString() },
+          ],
+          venueBrand: null, customMeals: [], schedule: [],
+          calories: 2450, tdee: 2800,
         };
-        localStorage.setItem("rvn_profile", JSON.stringify(devProfile));
+        localStorage.setItem("rvn_profile", JSON.stringify(demoProfile));
+
+        // Seed workout history (last 8 sessions)
+        const workoutSeed = Array.from({ length:8 }, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (i * 2 + Math.floor(Math.random() * 2)));
+          const archs = ["vtaper","raw-power","vtaper","raw-power","vtaper","recomp","vtaper","raw-power"];
+          return {
+            profile_email: "demo@rvnos.com",
+            archetype_id: archs[i],
+            mode: "gym",
+            bio_score: 76 + Math.floor(Math.random() * 16),
+            exercises: [
+              { name:"Bench Press",  sets:4, reps:6, weight:225 + (8-i)*5 },
+              { name:"Squat",        sets:4, reps:5, weight:295 + (8-i)*5 },
+              { name:"OHP",          sets:3, reps:8, weight:135 },
+              { name:"Deadlift",     sets:3, reps:3, weight:385 + (8-i)*5 },
+            ],
+            sets_done: { "Bench Press":4, "Squat":4, "OHP":3, "Deadlift":3 },
+            velocity_data: null,
+            notes: "",
+            logged_at: d.toISOString(),
+          };
+        });
+        localStorage.setItem("rvn_workouts", JSON.stringify(workoutSeed));
+
+        // Seed body weight (last 14 days, realistic cut)
+        const bwSeed = Array.from({ length:14 }, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (13 - i));
+          return {
+            date: d.toISOString().split("T")[0],
+            weight: parseFloat((189.4 - i * 0.18 + (Math.random() * 0.8 - 0.4)).toFixed(1)),
+          };
+        });
+        localStorage.setItem("rvn_bodyweight", JSON.stringify(bwSeed));
+
+        if (isDemoURL) {
+          // Clean URL so refresh doesn't re-seed
+          window.history.replaceState({}, "", window.location.pathname);
+        }
         setTimeout(() => go("protocol"), 800);
       }
     } catch (_) {}
@@ -21326,7 +23332,12 @@ function RVNRoot() {
             user={user} bioData={perfData} archetypeId={archetypeId} biology={biology} inventory={inventory}
             onBack={() => go("narrative")}
             onSupplements={() => go("supplements")}
-            onMorningBrief={() => go("morning-brief")}/>
+            onMorningBrief={() => go("morning-brief")}
+            onWorkoutHistory={() => go("workout-history")}
+            onBodyWeight={() => go("body-weight")}
+            onMealPlan={() => go("meal-plan")}
+            onBuddy={() => go("buddy")}
+            onGroupWorkout={() => go("group-workout")}/>
         )}
 
         {screen==="morning-brief" && (
@@ -21434,6 +23445,31 @@ function RVNRoot() {
             onBack={() => go("landing")}/>
         )}
 
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
         {screen==="community-hub" && (
           <CommunityHub key="community-hub" theme={theme}
             profile={user || {}}
@@ -21477,6 +23513,31 @@ function RVNRoot() {
         )}
 
 
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
 
         {screen==="community-hub" && (
           <CommunityHub key="community-hub" theme={theme}
@@ -21522,6 +23583,31 @@ function RVNRoot() {
         )}
 
 
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
 
         {screen==="community-hub" && (
           <CommunityHub key="community-hub" theme={theme}

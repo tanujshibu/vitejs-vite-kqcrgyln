@@ -11524,8 +11524,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           const closingIn = goalWeight && todayWeight && w14.length >= 3
             ? (goalWeight < todayWeight.weight ? trend2 < 0 : trend2 > 0) : false;
 
-          const [bwInput2, setBwInput2] = React.useState("");
-          const [bwSaved2, setBwSaved2] = React.useState(false);
+          // Use top-level bwInput/bwSaved state (hooks can't live inside IIFEs)
+          const bwInput2 = bwInput;
+          const setBwInput2 = setBwInput;
+          const bwSaved2 = bwSaved;
+          const setBwSaved2 = setBwSaved;
 
           return (
             <motion.div {...FX.page}>
@@ -23774,13 +23777,20 @@ function RVNRoot() {
 
   // ── Auth check — if user already has a session, skip straight to protocol ────
   useEffect(() => {
-    if (authChecked && authSession && screen === "splash") {
-      const savedProfile = (() => {
-        try { return JSON.parse(localStorage.getItem("rvn_profile") || "{}"); } catch { return {}; }
-      })();
-      if (savedProfile?.macroGoals?.protein) {
-        setTimeout(() => go("protocol"), 1200);
-      }
+    if (screen !== "splash") return;
+    const savedProfile = (() => {
+      try { return JSON.parse(localStorage.getItem("rvn_profile") || "{}"); } catch { return {}; }
+    })();
+    const profileComplete = !!(savedProfile?.macroGoals?.protein && savedProfile?.archetypeId);
+    // Case 1: logged-in user with saved profile → skip survey
+    if (authChecked && authSession && profileComplete) {
+      setTimeout(() => go("protocol"), 1200);
+      return;
+    }
+    // Case 2: guest user who completed the survey previously → skip straight back in
+    if (authChecked && !authSession && profileComplete) {
+      setTimeout(() => go("protocol"), 800);
+      return;
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authChecked, authSession]);

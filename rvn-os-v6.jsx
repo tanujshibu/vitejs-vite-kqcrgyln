@@ -5803,7 +5803,7 @@ function BugReportButton({ email, screen, stateSnapshot, theme }) {
             key="bugreport"
             initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:8 }}
             style={{
-              position:   "fixed", bottom:80, left:"50%", transform:"translateX(-50%)",
+              position:   "fixed", bottom:152, left:"50%", transform:"translateX(-50%)",
               width:      "min(360px, 90vw)", zIndex:9999,
               background: T.bgMid, border:`1px solid ${T.borderHi}`,
               borderRadius:14, padding:"16px 18px",
@@ -6017,7 +6017,17 @@ function AuthScreen({ theme, onAuth }) {
         email,
         options: { emailRedirectTo: window.location.origin },
       });
-      if (error) { setErrMsg(error.message); setStatus("error"); return; }
+      if (error) {
+        const msg = error.message?.toLowerCase() || "";
+        if (msg.includes("rate") || msg.includes("too many") || msg.includes("security purposes") || msg.includes("seconds")) {
+          setErrMsg("Too many attempts — please wait a few minutes and try again.");
+        } else if (msg.includes("invalid") || msg.includes("not found")) {
+          setErrMsg("Couldn't send the link. Double-check your email address.");
+        } else {
+          setErrMsg("Something went wrong. Please try again.");
+        }
+        setStatus("error"); return;
+      }
       setStatus("sent");
     } catch (e) {
       setErrMsg("Something went wrong. Try again.");
@@ -6298,7 +6308,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
               animate={{ opacity:1, y:0,  filter:"blur(0px)"  }}
               transition={{ delay:.18+i*.13, duration:.65, ease:[.22,1,.36,1] }}
               style={{
-                fontSize:62, fontWeight:900, lineHeight:.98, letterSpacing:"-.03em",
+                fontSize:"clamp(42px, 14.5vw, 62px)", fontWeight:900, lineHeight:.98, letterSpacing:"-.03em",
                 color: i===1 ? ac : T.text,
                 textShadow: i===1 && theme==="dark" ? `0 0 48px ${ac}55` : "none",
               }}>
@@ -7345,7 +7355,7 @@ function FactFlash({ data, onContinue, theme }) {
       onClick={onContinue}
       style={{
         position:"fixed", inset:0, zIndex:9999,
-        background: "#07081A",
+        background: T.bg,
         display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center",
         padding:"32px 28px 60px", cursor:"pointer", overflow:"hidden",
@@ -7518,8 +7528,8 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
           </motion.div>
           <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
             {[
-              { id:"male",   label:"Man",   sub:"Testosterone-optimized protocol", color:"#2E5BFF", sym:"M" },
-              { id:"female", label:"Woman", sub:"Hormonal precision protocol",      color:"#BF5AF2", sym:"F" },
+              { id:"male",   label:"Man",   sub:"Testosterone-optimized protocol", color:"#2E5BFF", sym:"♂" },
+              { id:"female", label:"Woman", sub:"Hormonal precision protocol",      color:"#BF5AF2", sym:"♀" },
             ].map((c, i) => (
               <motion.button key={c.id}
                 initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
@@ -8030,7 +8040,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
         <RVNLogo size={30}/>
       </div>
       <div style={{ flex:1, overflowY:"auto", padding:"16px 24px 36px" }}>
-        <StepProgress step={4} total={6} label="KAILU PERSONALIZATION" accent={ac} theme={theme}/>
+        <StepProgress step={4} total={5} label="KAILU PERSONALIZATION" accent={ac} theme={theme}/>
 
         <motion.div {...FX.up} style={{ marginTop:16, marginBottom:20 }}>
           <div style={{ fontSize:28, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
@@ -8368,7 +8378,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
         <RVNLogo size={30}/>
       </div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", padding:"16px 24px 36px" }}>
-        <StepProgress step={4} total={5} label="MY VAULT" accent={ac} theme={theme}/>
+        <StepProgress step={5} total={5} label="MY VAULT" accent={ac} theme={theme}/>
         <motion.div {...FX.up} style={{ marginTop:24, textAlign:"center", marginBottom:28 }}>
           <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
             Secure Your<br/>Bio-Identity
@@ -12896,6 +12906,21 @@ async function composeBioPalResponse(text, state) {
     if (avgSleep)           parts.push(`Avg sleep: ${avgSleep}h`);
     if (p.sleepTarget)      parts.push(`Sleep target: ${p.sleepTarget}h`);
     if (p.calories)         parts.push(`TDEE: ~${p.calories} kcal`);
+    // Onboarding biology data — caffeine tolerance, bottleneck, training frequency, gender, goal
+    const bio = p.biology || {};
+    if (bio.gender)     parts.push(`User is ${bio.gender === "female" ? "a woman" : "a man"}`);
+    if (bio.caffeine) {
+      const cafMap = { low:"low caffeine tolerance (sensitive — avoid high doses)", med:"normal caffeine tolerance", high:"high caffeine tolerance (caffeine-adapted)" };
+      parts.push(`Caffeine sensitivity: ${cafMap[bio.caffeine] || bio.caffeine}`);
+    }
+    if (bio.bottleneck) {
+      const bottMap = { sleep:"their main bottleneck is sleep recovery", soreness:"their main bottleneck is muscle soreness", fog:"their main bottleneck is mental fog/focus" };
+      parts.push(`Primary bottleneck: ${bottMap[bio.bottleneck] || bio.bottleneck}`);
+    }
+    if (bio.frequency)  parts.push(`Training frequency: ${bio.frequency} days/week`);
+    if (p.goalFocus)    parts.push(`Goal: ${p.goalFocus}`);
+    if (p.age)          parts.push(`Age: ${p.age}`);
+    if (p.activityLevel) parts.push(`Activity level: ${p.activityLevel}`);
     // Health data from wearable sync — inject when available so Kailu is pre-loaded
     const hd = p.healthData || {};
     if (hd.lastSync) {
@@ -18681,6 +18706,11 @@ function useWearableData() {
   }, []);
 
   const connectWhoop = () => {
+    // If no real clientId configured, stub as coming soon
+    if (!WHOOP_CONFIG.clientId || WHOOP_CONFIG.clientId === "YOUR_WHOOP_CLIENT_ID") {
+      setError("Whoop integration is coming soon — check back in the next update.");
+      return;
+    }
     setConnecting("whoop");
     setError(null);
     const state = Math.random().toString(36).slice(2);
@@ -18700,13 +18730,19 @@ function useWearableData() {
       "width=520,height=680,left=200,top=80"
     );
 
-    // Poll for popup close (fallback)
+    // Poll for popup close — also add a 15s timeout so we never hang on CONNECTING
     const poll = setInterval(() => {
       if (popup?.closed) {
         clearInterval(poll);
         setConnecting(null);
       }
     }, 800);
+    setTimeout(() => {
+      clearInterval(poll);
+      if (popup && !popup.closed) popup.close();
+      setConnecting(null);
+      setError("Couldn't connect to Whoop — please try again.");
+    }, 15000);
   };
 
   const handleWhoopToken = async (code) => {
@@ -21109,7 +21145,7 @@ function RVNRoot() {
 
       {/* Global Bug Report Button — always visible at bottom-right */}
       <div style={{
-        position: "fixed", bottom: 18, left: 18, zIndex: 8888,
+        position: "fixed", bottom: 90, left: 16, zIndex: 8888,
         display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6,
       }}>
         <BugReportButton

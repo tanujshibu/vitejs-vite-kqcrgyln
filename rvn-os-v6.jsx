@@ -221,6 +221,10 @@ const D = {
     card:      "#13131C",          // Elevated card surface — above bg
     ghost:     "rgba(150,160,210,0.10)",
     scanline:  "rgba(255,255,255,0.014)",
+    // iOS-grade shadow system — real depth, not neon glow
+    shadow:    "0 4px 24px rgba(0,0,0,0.52), 0 1px 4px rgba(0,0,0,0.32)",
+    shadowSm:  "0 2px 10px rgba(0,0,0,0.40)",
+    shadowLg:  "0 8px 40px rgba(0,0,0,0.64), 0 2px 8px rgba(0,0,0,0.44)",
     // Navy depth gradient overlays
     navyBlur:  "radial-gradient(ellipse 90% 60% at 50% 50%, #0D1A3A22 0%, transparent 70%)",
   },
@@ -252,25 +256,33 @@ const D = {
     card:      "#FFFFFF",          // Pure white card surface
     ghost:     "rgba(13,15,26,0.05)",
     scanline:  "rgba(0,0,0,0.0)",
+    // iOS-grade shadow system — diffused real-world depth (Apple doesn't use neon glow)
+    shadow:    "0 2px 12px rgba(0,0,0,0.09), 0 0 0 0.5px rgba(0,0,0,0.05)",
+    shadowSm:  "0 1px 5px rgba(0,0,0,0.07), 0 0 0 0.5px rgba(0,0,0,0.04)",
+    shadowLg:  "0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)",
     navyBlur:  "radial-gradient(ellipse 90% 60% at 50% 50%, #1A45E01A 0%, transparent 70%)",
   },
 };
 
 // ─── MOTION PRESETS ───────────────────────────────────────────────────────────
+// iOS-grade spring physics: fast initiation, natural elastic settle (no linear easing)
+const IOS_SPRING        = { type:"spring", stiffness:420, damping:34, mass:0.75 };
+const IOS_SPRING_SLOW   = { type:"spring", stiffness:320, damping:30, mass:1.0  };
+const IOS_EXIT          = { duration:0.16, ease:[0.4,0,1,1] };
 const FX = {
   page: {
-    initial: { opacity:0 },
-    animate: { opacity:1, transition:{ duration:0.3, ease:[0.22,1,0.36,1] } },
-    exit:    { opacity:0, transition:{ duration:0.18, ease:[0.22,1,0.36,1] } },
+    initial: { opacity:0, y:8 },
+    animate: { opacity:1, y:0,  transition: IOS_SPRING },
+    exit:    { opacity:0, y:-4, transition: IOS_EXIT   },
   },
   up: {
-    initial: { opacity:0, y:24 },
-    animate: { opacity:1, y:0,  transition:{ duration:0.38, ease:[0.22,1,0.36,1] } },
-    exit:    { opacity:0, y:-16, transition:{ duration:0.2,  ease:[0.22,1,0.36,1] } },
+    initial: { opacity:0, y:22 },
+    animate: { opacity:1, y:0,  transition: IOS_SPRING },
+    exit:    { opacity:0, y:-12, transition: IOS_EXIT  },
   },
   stagger: (i, base=0) => ({
-    initial: { opacity:0, y:16 },
-    animate: { opacity:1, y:0,  transition:{ duration:0.32, delay:base + i*0.05, ease:[0.22,1,0.36,1] } },
+    initial: { opacity:0, y:14 },
+    animate: { opacity:1, y:0,  transition:{ ...IOS_SPRING, delay: base + i*0.04 } },
   }),
 };
 
@@ -453,7 +465,7 @@ const OS_MODES = {
     icon:         "⬡",
     accentKey:    "gold",
     heroWords:    ["ENGINEER", "YOUR", "PHYSIQUE"],
-    heroBio:      "CNS primed. Protocol generating from your biological blueprint.",
+    heroBio:      "Systems ready. Protocol generating from your biological blueprint.",
     ctaLabel:     "Begin Neural Scan",
     bgGradient:   (T) => `radial-gradient(ellipse 80% 55% at 50% 0%, ${T.gold}1A 0%, transparent 65%)`,
     pulse:        "#D4AF37",
@@ -1990,6 +2002,18 @@ function GlobalStyles({ theme }) {
       .os-dark { --depth-glow: #0D1A3A; }
       /* Obsidian base + deep navy radial depth for dark mode */
       body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif; -webkit-font-smoothing:antialiased; }
+      /* iOS-grade touch feel: no flash highlight, instant touch response, smooth color transitions */
+      button, [role="button"], a {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        user-select: none;
+        -webkit-user-select: none;
+        outline: none;
+      }
+      /* Smooth property transitions — feels like iOS, not Android */
+      * { transition-property: background-color, border-color, color, opacity, box-shadow; transition-duration: 0.18s; transition-timing-function: cubic-bezier(0.22,1,0.36,1); }
+      /* Override transitions for transform — let Framer Motion own that */
+      motion\\.div, motion\\.button { transition: none !important; }
       input, textarea, select {
         color:${T.text} !important; -webkit-text-fill-color:${T.text} !important;
         background:transparent; caret-color:${T.text}; border:none; outline:none; font-family:inherit;
@@ -2328,7 +2352,7 @@ function Screen({ children, theme, style={} }) {
 function BackBtn({ onBack, theme }) {
   const T = D[theme];
   return (
-    <motion.button whileHover={{ x:-3 }} whileTap={{ scale:.92 }}
+    <motion.button whileHover={{ x:-3 }} whileTap={{ scale:.96 }}
       onClick={onBack}
       style={{
         background:"none", border:"none", cursor:"pointer",
@@ -2383,22 +2407,27 @@ function StepProgress({ step, total, label, accent, theme }) {
 function ShimmerCTA({ label, onClick, theme, color, disabled, icon }) {
   const T = D[theme];
   const ac = color || T.blue;
+  const isLight = theme === "light";
   return (
     <motion.button
-      whileHover={disabled ? {} : { scale:1.025, y:-1 }}
-      whileTap={disabled ? {} : { scale:.975 }}
+      whileHover={disabled ? {} : { scale:1.02, y:-1 }}
+      whileTap={disabled ? {} : { scale:.97 }}
+      transition={{ type:"spring", stiffness:500, damping:28 }}
       onClick={disabled ? undefined : onClick}
       style={{
         width:"100%", padding:"17px 24px",
-        background: disabled ? T.glass : `linear-gradient(90deg,${ac}dd,${ac},${ac}dd)`,
+        background: disabled ? T.glass : `linear-gradient(160deg,${ac}ee,${ac},${ac}cc)`,
         backgroundSize:"200% auto",
-        animation: disabled ? "none" : "os_shimmer 2.5s linear infinite",
-        border: disabled ? `1px solid ${T.border}` : "none",
-        borderRadius:14,
-        fontSize:15, fontWeight:800, letterSpacing:".05em",
-        color: disabled ? T.muted : (theme==="dark" ? "#000" : "#fff"),
+        animation: disabled ? "none" : "os_shimmer 2.8s linear infinite",
+        border: disabled ? `1px solid ${T.border}` : isLight ? `1px solid ${ac}33` : "none",
+        borderRadius:16,
+        fontSize:15, fontWeight:700, letterSpacing:".04em",
+        color: disabled ? T.muted : (isLight ? "#fff" : "#000"),
         cursor: disabled ? "not-allowed" : "pointer",
-        boxShadow: disabled ? "none" : `0 0 32px ${ac}55, 0 4px 16px ${ac}33`,
+        // Light mode: real depth shadow. Dark mode: subtle color glow + depth
+        boxShadow: disabled ? "none" : isLight
+          ? `0 4px 18px ${ac}44, 0 1px 4px ${ac}22`
+          : `0 0 24px ${ac}44, 0 4px 16px rgba(0,0,0,0.3)`,
         display:"flex", alignItems:"center", justifyContent:"center", gap:8,
         backdropFilter:"blur(16px) saturate(180%)",
       }}>
@@ -2429,7 +2458,10 @@ function HapticLog({ logged, onLog, theme, label = "LOG SESSION" }) {
             animationDelay:`${i*.15}s`,
           }}/>
         ))}
-        <motion.button whileHover={logged ? {} : { scale:1.08 }} whileTap={logged ? {} : { scale:.9 }}
+        <motion.button
+          whileHover={logged ? {} : { scale:1.06 }}
+          whileTap={logged ? {} : { scale:.93 }}
+          transition={{ type:"spring", stiffness:500, damping:26 }}
           onClick={tap}
           style={{
             width:72, height:72, borderRadius:"50%", border:"none",
@@ -2437,7 +2469,7 @@ function HapticLog({ logged, onLog, theme, label = "LOG SESSION" }) {
               ? `linear-gradient(135deg,${T.green},${T.green}aa)`
               : `linear-gradient(135deg,${T.blue},${T.purple})`,
             color:"#fff", fontSize:26, cursor: logged ? "default":"pointer",
-            boxShadow: logged ? `0 0 28px ${T.green}66` : `0 0 28px ${T.blue}66`,
+            boxShadow: logged ? `0 0 24px ${T.green}55` : `0 0 24px ${T.blue}55`,
             display:"flex", alignItems:"center", justifyContent:"center",
           }}>
           {logged ? "✓" : "◉"}
@@ -3616,7 +3648,7 @@ function ThemeToggle({ theme, onToggle }) {
   const T = D[theme]||D.dark;
   const isDark = theme === "dark";
   return (
-    <motion.button whileTap={{ scale:.88 }} onClick={onToggle}
+    <motion.button whileTap={{ scale:.95 }} onClick={onToggle}
       style={{
         width:48, height:26, borderRadius:13, border:"none", cursor:"pointer",
         background: isDark ? "#2E5BFF" : "#C9A84C",
@@ -3827,7 +3859,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
         alignItems:"center", justifyContent:"center",
       }}>
       {/* Close */}
-      <motion.button whileTap={{ scale:.9 }} onClick={onClose}
+      <motion.button whileTap={{ scale:.96 }} onClick={onClose}
         style={{ position:"absolute", top:20, right:20, background:"none", border:"none",
           fontSize:22, color:"#fff", cursor:"pointer" }}>✕</motion.button>
 
@@ -3892,7 +3924,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
 
         {/* Play button */}
         {!playing && (
-          <motion.button whileTap={{ scale:.9 }}
+          <motion.button whileTap={{ scale:.96 }}
             onClick={() => { if (progress >= 1) setProgress(0); setPlaying(true); }}
             style={{ position:"absolute", inset:0, background:"none", border:"none",
               cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
@@ -4020,7 +4052,7 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
         marginTop:10 }}>
         <BrandCertBadge cert={brand.badge} color={color} theme={theme}/>
         {review.hasVideo && (
-          <motion.button whileTap={{ scale:.9 }}
+          <motion.button whileTap={{ scale:.96 }}
             onClick={e => { e.stopPropagation(); onVideoPlay(review); }}
             style={{ display:"flex", alignItems:"center", gap:5,
               background:`${color}22`, border:`1px solid ${color}55`,
@@ -4984,13 +5016,13 @@ function ABBioComparison({ archetypeId, theme, color }) {
               <div style={{ fontSize:9.5, color:T.muted }}>Stack any combination — chart updates live</div>
             </div>
             <div style={{ display:"flex", gap:6 }}>
-              <motion.button whileTap={{ scale:.93 }}
+              <motion.button whileTap={{ scale:.97 }}
                 onClick={() => setSelectedSupps(new Set(catalog.map(s=>s.id)))}
                 style={{ fontSize:8.5, padding:"4px 10px", borderRadius:10, cursor:"pointer",
                   border:`1px solid ${ac}55`, background:`${ac}18`, color:ac, fontWeight:700 }}>
                 Full Stack
               </motion.button>
-              <motion.button whileTap={{ scale:.93 }}
+              <motion.button whileTap={{ scale:.97 }}
                 onClick={() => setSelectedSupps(new Set())}
                 style={{ fontSize:8.5, padding:"4px 10px", borderRadius:10, cursor:"pointer",
                   border:`1px solid ${T.border}`, background:T.glass, color:T.faint, fontWeight:700 }}>
@@ -5002,7 +5034,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
             {catalog.map(s => {
               const on = selectedSupps.has(s.id);
               return (
-                <motion.button key={s.id} whileTap={{ scale:.91 }}
+                <motion.button key={s.id} whileTap={{ scale:.95 }}
                   onClick={() => setSelectedSupps(prev => {
                     const n = new Set(prev); on ? n.delete(s.id) : n.add(s.id); return n;
                   })}
@@ -5703,7 +5735,7 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
       <div style={{ position:"sticky", top:0, zIndex:10,
         background: T.bg, borderBottom:`1px solid ${T.border}`,
         padding:"14px 18px 12px", display:"flex", alignItems:"center", gap:12 }}>
-        <motion.button whileTap={{ scale:.93 }} onClick={onBack}
+        <motion.button whileTap={{ scale:.97 }} onClick={onBack}
           style={{ background:"none", border:`1px solid ${T.border}`, borderRadius:8,
             padding:"6px 12px", color:T.muted, fontSize:10, fontWeight:800,
             letterSpacing:".1em", cursor:"pointer" }}>
@@ -5753,7 +5785,7 @@ function BugReportButton({ email, screen, stateSnapshot, theme }) {
 
   return (
     <>
-      <motion.button whileTap={{ scale:.92 }} onClick={() => setOpen(o => !o)}
+      <motion.button whileTap={{ scale:.96 }} onClick={() => setOpen(o => !o)}
         style={{
           display:        "flex", alignItems:"center", gap:5,
           fontSize:       9, fontWeight:800, letterSpacing:".1em",
@@ -5792,7 +5824,7 @@ function BugReportButton({ email, screen, stateSnapshot, theme }) {
               }}
             />
             <div style={{ display:"flex", gap:8, marginTop:10 }}>
-              <motion.button whileTap={{ scale:.94 }} onClick={handleSend} disabled={busy}
+              <motion.button whileTap={{ scale:.97 }} onClick={handleSend} disabled={busy}
                 style={{
                   flex:1, padding:"10px", background:T.blue, border:"none",
                   borderRadius:8, fontSize:10, fontWeight:800, color:"#fff",
@@ -5800,7 +5832,7 @@ function BugReportButton({ email, screen, stateSnapshot, theme }) {
                 }}>
                 {busy ? "SENDING…" : "SEND REPORT"}
               </motion.button>
-              <motion.button whileTap={{ scale:.94 }} onClick={() => setOpen(false)}
+              <motion.button whileTap={{ scale:.97 }} onClick={() => setOpen(false)}
                 style={{
                   padding:"10px 14px", background:T.glass, border:`1px solid ${T.border}`,
                   borderRadius:8, fontSize:10, color:T.muted, cursor:"pointer",
@@ -5913,7 +5945,7 @@ function TosScreen({ onBack, theme, initialTab = "tos" }) {
         {/* Tab switcher */}
         <div style={{ display:"flex", gap:6 }}>
           {["tos","privacy"].map(t => (
-            <motion.button key={t} whileTap={{ scale:.94 }} onClick={() => setTab(t)}
+            <motion.button key={t} whileTap={{ scale:.97 }} onClick={() => setTab(t)}
               style={{
                 fontSize:9, fontWeight:800, letterSpacing:".1em",
                 padding:"6px 14px", borderRadius:8, cursor:"pointer",
@@ -6237,7 +6269,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
         </div>
         <div style={{ display:"flex", gap:8, alignItems:"center" }}>
           <ThemeToggle theme={theme} onToggle={onThemeToggle || (() => {})}/>
-          <motion.button whileTap={{ scale:.92 }} onClick={onManager}
+          <motion.button whileTap={{ scale:.96 }} onClick={onManager}
             style={{
               background:T.glass, border:`1px solid ${T.border}`,
               backdropFilter:"blur(8px)", borderRadius:22,
@@ -6328,7 +6360,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
             }}/>
             Ghost Bar · Live VBT
           </span>
-          <span style={{ color:T.muted, fontSize:10 }}>F1 TELEMETRY →</span>
+          <span style={{ color:T.muted, fontSize:10 }}>PERFORMANCE DATA →</span>
         </motion.button>
 
         {/* Surgical Vision — Agentic macro scanner + calorie monitor */}
@@ -6601,7 +6633,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
         padding:"24px",
       }}>
       {/* Close */}
-      <motion.button whileTap={{ scale:.88 }} onClick={onClose}
+      <motion.button whileTap={{ scale:.95 }} onClick={onClose}
         style={{
           position:"absolute", top:20, right:20,
           background:T.glass, border:`1px solid ${T.border}`,
@@ -7752,7 +7784,7 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
         {/* Metric tabs */}
         <div style={{ display:"flex", gap:8, marginBottom:20 }}>
           {metrics.map(m => (
-            <motion.button key={m.id} whileTap={{ scale:.94 }}
+            <motion.button key={m.id} whileTap={{ scale:.97 }}
               onClick={() => setSel(m.id)}
               style={{
                 flex:1, padding:"9px 6px",
@@ -7970,7 +8002,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   const TileRow = ({ options, value, onChange, cols = 2 }) => (
     <div style={{ display:"grid", gridTemplateColumns:`repeat(${cols}, 1fr)`, gap:8 }}>
       {options.map(opt => (
-        <motion.button key={opt.value} whileTap={{ scale:.94 }}
+        <motion.button key={opt.value} whileTap={{ scale:.97 }}
           onClick={() => onChange(opt.value)}
           style={{
             padding:"10px 8px", borderRadius:12, cursor:"pointer",
@@ -8064,7 +8096,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
         <SectionLabel text="GYM SESSIONS PER WEEK"/>
         <div style={{ display:"flex", gap:8 }}>
           {[2,3,4,5,6].map(d => (
-            <motion.button key={d} whileTap={{ scale:.92 }}
+            <motion.button key={d} whileTap={{ scale:.96 }}
               onClick={() => setTrainingDays(d)}
               style={{
                 flex:1, padding:"12px 0", borderRadius:10, cursor:"pointer",
@@ -8336,7 +8368,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
         <RVNLogo size={30}/>
       </div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", padding:"16px 24px 36px" }}>
-        <StepProgress step={4} total={5} label="BIO-IDENTITY VAULT" accent={ac} theme={theme}/>
+        <StepProgress step={4} total={5} label="MY VAULT" accent={ac} theme={theme}/>
         <motion.div {...FX.up} style={{ marginTop:24, textAlign:"center", marginBottom:28 }}>
           <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
             Secure Your<br/>Bio-Identity
@@ -8508,7 +8540,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             style={{ width:"100%", maxWidth:340, marginTop:16 }}>
 
             {/* Back to vault */}
-            <motion.button whileTap={{ scale:.92 }} onClick={() => setPhase(2)}
+            <motion.button whileTap={{ scale:.96 }} onClick={() => setPhase(2)}
               style={{ background:"none", border:"none", cursor:"pointer",
                 display:"flex", alignItems:"center", gap:6,
                 fontSize:11, color:T.faint, marginBottom:18, padding:0 }}>
@@ -8629,7 +8661,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
         <motion.div initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }}
           transition={{ duration:.5 }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
-            <motion.button whileTap={{ scale:.9 }} onClick={onBack}
+            <motion.button whileTap={{ scale:.96 }} onClick={onBack}
               style={{ background:"none", border:"none", cursor:"pointer",
                 fontSize:11, color:T.faint, padding:0, letterSpacing:".06em" }}>
               ← BACK
@@ -8760,7 +8792,7 @@ function RestTimer({ seconds, theme }) {
         <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center",
           fontSize:10, fontWeight:800, color:active?T.green:T.blue }}>{remaining}</div>
       </div>
-      <motion.button whileTap={{ scale:.92 }}
+      <motion.button whileTap={{ scale:.96 }}
         onClick={() => { if (active) { setActive(false); setRemaining(seconds); } else setActive(true); }}
         style={{
           background: active ? `${T.red}22` : `${T.blue}22`,
@@ -9574,7 +9606,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           <BackBtn onBack={onBack} theme={theme}/>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             {onMorningBrief && (
-              <motion.button whileTap={{ scale:.9 }} onClick={onMorningBrief}
+              <motion.button whileTap={{ scale:.96 }} onClick={onMorningBrief}
                 style={{
                   background:`${arch.glow}18`, border:`1px solid ${arch.glow}44`,
                   borderRadius:8, padding:"5px 11px", cursor:"pointer",
@@ -9773,7 +9805,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                         {setsArr.map((_,si) => {
                           const k = `${exIdx}_${si}`;
                           return (
-                            <motion.button key={si} whileTap={{ scale:.88 }}
+                            <motion.button key={si} whileTap={{ scale:.95 }}
                               onClick={() => toggleSet(exIdx,si)}
                               style={{
                                 width:40, height:40, borderRadius:10,
@@ -10422,7 +10454,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                           <div style={{ marginTop:14 }}>
                             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
                               <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em" }}>MY MEALS</div>
-                              <motion.button whileTap={{ scale:.92 }}
+                              <motion.button whileTap={{ scale:.96 }}
                                 onClick={() => { setMealDraft({ name:"", emoji:"🍽", p:"", c:"", f:"" }); setShowMealBuilder(b=>!b); }}
                                 style={{ fontSize:9, fontWeight:800, color:arch.glow, background:arch.glow+"18",
                                   border:"none", borderRadius:8, padding:"4px 9px", cursor:"pointer", letterSpacing:".06em" }}>
@@ -10502,14 +10534,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                                         {meal.p}g P · {meal.c}g C · {meal.f}g F
                                       </div>
                                     </div>
-                                    <motion.button whileTap={{ scale:.88 }}
+                                    <motion.button whileTap={{ scale:.95 }}
                                       onClick={() => logCustomMeal(meal)}
                                       style={{ padding:"5px 10px", borderRadius:8, background:arch.glow+"22",
                                         border:`1px solid ${arch.glow}55`, color:arch.glow,
                                         fontSize:10, fontWeight:800, cursor:"pointer" }}>
                                       LOG
                                     </motion.button>
-                                    <motion.button whileTap={{ scale:.88 }}
+                                    <motion.button whileTap={{ scale:.95 }}
                                       onClick={() => saveCustomMeals(customMeals.filter(m => m.id !== meal.id))}
                                       style={{ padding:"5px 8px", borderRadius:8, background:T.red+"18",
                                         border:`1px solid ${T.red}44`, color:T.red,
@@ -11820,7 +11852,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                 <div style={{ fontSize:9, fontWeight:700, color:T.faint,
                   letterSpacing:".13em", marginBottom:8 }}>PREMIUM BRAND SELECTION</div>
                 <div style={{ display:"flex", gap:7, overflowX:"auto", paddingBottom:4 }}>
-                  <motion.button whileTap={{ scale:.92 }} onClick={() => setBrandFilter(null)}
+                  <motion.button whileTap={{ scale:.96 }} onClick={() => setBrandFilter(null)}
                     style={{ padding:"8px 12px", borderRadius:20, whiteSpace:"nowrap", flexShrink:0,
                       background:brandFilter===null ? T.gold+"22" : T.glass,
                       border:`1.5px solid ${brandFilter===null ? T.gold : T.border}`,
@@ -11829,7 +11861,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                     ALL BRANDS
                   </motion.button>
                   {BRANDS.map(br => (
-                    <motion.button key={br.id} whileTap={{ scale:.92 }}
+                    <motion.button key={br.id} whileTap={{ scale:.96 }}
                       onClick={() => setBrandFilter(brandFilter===br.id ? null : br.id)}
                       style={{ padding:"7px 11px", borderRadius:20, whiteSpace:"nowrap", flexShrink:0,
                         background:brandFilter===br.id ? `${br.color}22` : T.glass,
@@ -12958,8 +12990,8 @@ async function composeBioPalResponse(text, state) {
 // kiosk-side proxy that holds the API key (do NOT ship a key in the bundle).
 // ─── Kailu Token System ────────────────────────────────────────────────────────
 const KAILU_MAX_TOKENS    = 15;
-const KAILU_REFILL_AMOUNT = 5;
-const KAILU_REFILL_MS     = 3 * 60 * 60 * 1000; // 3 hours
+const KAILU_REFILL_AMOUNT = 15;
+const KAILU_REFILL_MS     = 24 * 60 * 60 * 1000; // 24 hours — 15 messages per day
 
 function getKailuTokenState(profile) {
   if (profile?.isPremium) return { tokens: 999, msUntilRefill: 0, canSend: true };
@@ -13440,7 +13472,7 @@ function WorkoutPlanCard({ plan, ac, T, theme }) {
           <div style={{ fontSize:12, fontWeight:800, color:ac, letterSpacing:".1em" }}>{plan.name.toUpperCase()}</div>
           <div style={{ fontSize:10, color:T.faint }}>{plan.duration} · Readiness {plan.readiness}%</div>
         </div>
-        <motion.button whileTap={{ scale:.94 }} onClick={handleAdd} disabled={added}
+        <motion.button whileTap={{ scale:.97 }} onClick={handleAdd} disabled={added}
           style={{ padding:"6px 12px", background:added?T.glass:ac, color:added?T.faint:"#000", border:`1px solid ${added?T.border:ac}`, borderRadius:8, fontSize:10, fontWeight:800, cursor:added?"default":"pointer" }}>
           {added ? "✓ ADDED" : "+ PROTOCOL"}
         </motion.button>
@@ -14522,7 +14554,7 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
                 borderRadius:20, padding:"8px 16px", cursor:"pointer",
                 fontSize:11, fontWeight:800, color:T.text, letterSpacing:".1em",
               }}>
-              CREATE BIO-IDENTITY →
+              CREATE MY VAULT →
             </motion.button>
           </div>
         </motion.div>
@@ -14710,7 +14742,7 @@ function TGSegmented({ value, onChange, options, theme, accent }) {
         const active = o.value === value;
         return (
           <motion.button key={o.value}
-            whileTap={{ scale:.94 }}
+            whileTap={{ scale:.97 }}
             onClick={() => onChange(o.value)}
             style={{
               padding:"6px 12px", borderRadius:8,
@@ -15542,7 +15574,7 @@ function CalorieMonitor({
               fontSize:10, fontWeight:900,
               color: beyond ? T.red : COBALT, letterSpacing:".16em", marginBottom:4,
             }}>
-              {beyond ? "GOAL EXCEEDED · HALT FUEL" : "ENTROPY BUFFER · HOLD HERE"}
+              {beyond ? "GOAL EXCEEDED · HALT FUEL" : "CAL BUFFER · HOLD HERE"}
             </div>
             <div style={{ fontSize:12, color:T.text, lineHeight:1.5 }}>
               {haltCopy}
@@ -16675,7 +16707,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
                     borderRadius:20, padding:"8px 16px", cursor:"pointer",
                     fontSize:11, fontWeight:800, color:T.text, letterSpacing:".1em",
                   }}>
-                  CREATE BIO-IDENTITY →
+                  CREATE MY VAULT →
                 </motion.button>
               </div>
             </motion.div>
@@ -18432,7 +18464,7 @@ function GymContentManager({ gymContent, onAddContent, onRemoveContent, theme })
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  WEARABLE SYNC + CALORIE ENTROPY ENGINE  v1.0               ║
+// ║  RVN OS  —  WEARABLE SYNC + CALORIE TRACKING ENGINE  v1.0               ║
 // ║  Whoop OAuth · Apple Health Bridge · Calorie Entropy Visualization     ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -18446,7 +18478,7 @@ const WHOOP_CONFIG = {
   apiBase:     "https://api.prod.whoop.com/developer/v1",
 };
 
-// ─── CALORIE ENTROPY ENGINE ───────────────────────────────────────────────────
+// ─── CALORIE TRACKING ENGINE ───────────────────────────────────────────────────
 // Calculates the "true" metabolic cost of a food beyond the label
 function calcEntropyMetrics(food = {}) {
   const {
@@ -18494,12 +18526,12 @@ function calcEntropyMetrics(food = {}) {
     microDebt,
     strainPenalty,
     hiddenPct:       effectiveCalories > 0 ? Math.round((hiddenCalories / effectiveCalories) * 100) : 0,
-    grade:           hiddenCalories < 30 ? "CLEAN" : hiddenCalories < 80 ? "MODERATE" : "HIGH ENTROPY",
+    grade:           hiddenCalories < 30 ? "CLEAN" : hiddenCalories < 80 ? "MODERATE" : "HIGH VARIANCE",
     gradeColor:      hiddenCalories < 30 ? "#30D158" : hiddenCalories < 80 ? "#FF9F0A" : "#FF453A",
   };
 }
 
-// ─── CALORIE ENTROPY BAR ──────────────────────────────────────────────────────
+// ─── CALORIE TRACKING BAR ──────────────────────────────────────────────────────
 function CalorieEntropyBar({ food, theme, whoopStrain }) {
   const T = D[theme];
   const COBALT = "#0A84FF";
@@ -18521,7 +18553,7 @@ function CalorieEntropyBar({ food, theme, whoopStrain }) {
       {/* Header row */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
         <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em" }}>
-          CALORIE ENTROPY
+          CALORIE TRACKING
         </div>
         <div style={{
           fontSize:9, fontWeight:800, color:metrics.gradeColor,
@@ -18892,7 +18924,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
                     ✓ LIVE
                   </div>
                 ) : (
-                  <motion.button whileTap={{ scale:.94 }}
+                  <motion.button whileTap={{ scale:.97 }}
                     onClick={w.onConnect}
                     disabled={!!connecting}
                     style={{
@@ -18943,7 +18975,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
         {anyConnected && (
           <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.3 }}>
             <GlassCard theme={theme} glow={ac} style={{ padding:"16px" }}>
-              <Pill label="CALORIE ENTROPY · ACTIVE" color={ac} theme={theme}/>
+              <Pill label="CALORIE TRACKING · ACTIVE" color={ac} theme={theme}/>
               <div style={{ fontSize:12, color:T.muted, lineHeight:1.65, margin:"8px 0 14px" }}>
                 Surgical Vision is now reading your metabolic state. Here's a live entropy example — log any meal to see your true calorie cost.
               </div>
@@ -18969,7 +19001,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
         <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:.5 }}
           style={{ marginTop:18 }}>
           <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", marginBottom:10 }}>
-            HOW CALORIE ENTROPY WORKS
+            HOW CALORIE TRACKING WORKS
           </div>
           {[
             { icon:"🔵", label:"Label Calories",           desc:"What the nutrition label shows — the starting point." },
@@ -19398,7 +19430,7 @@ function VBTCameraModule({ stationCfg, exerciseIdx, onClose, theme }) {
       {/* Record button */}
       <div style={{ background:"#000", padding:"12px 20px 28px", display:"flex", alignItems:"center", justifyContent:"center", gap:16 }}>
         <motion.button
-          whileTap={{ scale:.9 }}
+          whileTap={{ scale:.96 }}
           onClick={() => setIsRecording(r => !r)}
           style={{
             width:64, height:64, borderRadius:"50%", border:"none", cursor:"pointer",
@@ -19580,7 +19612,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
             paddingBottom:16,
           }}>
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-            <motion.button whileTap={{ scale:.9 }} onClick={onBack}
+            <motion.button whileTap={{ scale:.96 }} onClick={onBack}
               style={{ background:"none", border:"none", cursor:"pointer",
                 fontSize:11, color:T.faint, padding:0, letterSpacing:".06em" }}>
               ← BACK
@@ -19609,7 +19641,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
           <div style={{ display:"flex", gap:8, overflowX:"auto", marginTop:14, paddingBottom:2,
             scrollbarWidth:"none" }}>
             {cfg.exercises.map((ex, i) => (
-              <motion.button key={ex} whileTap={{ scale:.94 }}
+              <motion.button key={ex} whileTap={{ scale:.97 }}
                 onClick={() => setSelectedEx(i)}
                 style={{
                   flexShrink:0, padding:"6px 14px", borderRadius:20, border:"none", cursor:"pointer",
@@ -19686,7 +19718,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
                   </div>
                 </div>
                 {/* Launch camera */}
-                <motion.button whileTap={{ scale:.88 }} onClick={() => setShowCamera(true)}
+                <motion.button whileTap={{ scale:.95 }} onClick={() => setShowCamera(true)}
                   style={{ background:ac, border:"none", borderRadius:12, padding:"10px 14px",
                     cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
                   <span style={{ fontSize:18 }}>📷</span>
@@ -19912,7 +19944,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
         {/* Sub-tabs */}
         <div style={{ display:"flex", gap:6 }}>
           {hubTabs.map(ht => (
-            <motion.button key={ht.id} whileTap={{ scale:.93 }}
+            <motion.button key={ht.id} whileTap={{ scale:.97 }}
               onClick={() => setHubTab(ht.id)}
               style={{
                 flex:1, padding:"8px 4px",
@@ -19983,7 +20015,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
             {/* Mode selector for inventory */}
             <div style={{ display:"flex", gap:8, marginBottom:14 }}>
               {Object.entries(OS_MODES).map(([mId, m]) => (
-                <motion.button key={mId} whileTap={{ scale:.93 }}
+                <motion.button key={mId} whileTap={{ scale:.97 }}
                   onClick={() => onModeChange(mId)}
                   style={{
                     flex:1, padding:"10px 6px",
@@ -20004,7 +20036,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               <>
                 <div style={{ display:"flex", gap:6, overflowX:"auto", marginBottom:12, paddingBottom:4 }}>
                   {archetypes.map(a => (
-                    <motion.button key={a.id} whileTap={{ scale:.93 }}
+                    <motion.button key={a.id} whileTap={{ scale:.97 }}
                       onClick={() => setTab(a.id)}
                       style={{
                         padding:"6px 12px", borderRadius:20, whiteSpace:"nowrap",
@@ -20036,7 +20068,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         </div>
                         <Pill label={prod.tag} color={prod.tagColor} theme={theme}/>
                         {/* Toggle */}
-                        <motion.div whileTap={{ scale:.88 }}
+                        <motion.div whileTap={{ scale:.95 }}
                           onClick={() => onToggle(mode, tab, prod.id)}
                           style={{
                             width:46, height:26, borderRadius:13,
@@ -20126,7 +20158,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       </div>
                     </div>
                     {/* Toggle */}
-                    <motion.div whileTap={{ scale:.88 }}
+                    <motion.div whileTap={{ scale:.95 }}
                       onClick={() => setActiveBrands(prev => ({ ...prev, [br.id]:!prev[br.id] }))}
                       style={{
                         width:50, height:28, borderRadius:14, flexShrink:0,
@@ -20267,7 +20299,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 <input value={nameEdit} onChange={e => setNameEdit(e.target.value)}
                   placeholder="Your Store Name"
                   style={{ flex:1, fontSize:16, fontWeight:700 }}/>
-                <motion.button whileTap={{ scale:.92 }}
+                <motion.button whileTap={{ scale:.96 }}
                   onClick={() => onStoreName(nameEdit)}
                   style={{
                     background:T.blue, border:"none", borderRadius:9,
@@ -20377,7 +20409,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               </div>
               <div style={{ display:"flex", gap:8 }}>
                 {["dark","light"].map(th => (
-                  <motion.button key={th} whileTap={{ scale:.93 }}
+                  <motion.button key={th} whileTap={{ scale:.97 }}
                     onClick={() => onThemeChange(th)}
                     style={{
                       flex:1, padding:"12px",
@@ -20445,7 +20477,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   letterSpacing:".12em", marginBottom:6 }}>BRAND</div>
                 <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                   {BRANDS.map(br => (
-                    <motion.button key={br.id} whileTap={{ scale:.92 }}
+                    <motion.button key={br.id} whileTap={{ scale:.96 }}
                       onClick={() => setStoryForm(p=>({...p,brand:br.id}))}
                       style={{ padding:"5px 10px", borderRadius:16, cursor:"pointer",
                         background:storyForm.brand===br.id?`${br.color}22`:T.glass,
@@ -20520,7 +20552,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                           <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{s.name}</div>
                           <div style={{ fontSize:9, color:T.muted }}>{s.handle}</div>
                         </div>
-                        <motion.button whileTap={{ scale:.9 }}
+                        <motion.button whileTap={{ scale:.96 }}
                           onClick={() => setPinnedStories(p => p.filter((_,j)=>j!==i))}
                           style={{ background:"none", border:`1px solid ${T.border}`,
                             borderRadius:8, padding:"3px 8px", cursor:"pointer",

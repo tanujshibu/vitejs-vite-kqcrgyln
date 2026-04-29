@@ -11429,6 +11429,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
             </motion.div>
           )}
         </AnimatePresence>
+        </>}
       </div>
       <AnimatePresence>
         {editMode && (
@@ -11506,7 +11507,6 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
         </div>
       )}
 
-        </>}
         {/* ── STATS TAB ──────────────────────────────────────────────────────── */}
         {activeGymTab === "stats" && (() => {
           const bwLog2 = loadBodyWeightLog();
@@ -22600,7 +22600,7 @@ Include exactly 4 meals: breakfast, lunch, dinner, and a snack. Make the food pr
 Return ONLY valid JSON, no markdown:
 {"recipes":[{"name":"Recipe name","emoji":"🍳","protein":35,"carbs":20,"fats":8,"calories":300,"prepTime":"10 min","steps":["Step 1","Step 2","Step 3"],"macroNote":"High protein, low fat"},...]}
 Make the recipes practical, delicious, and easy to prepare. Each recipe should use primarily the listed ingredients.`;
-      const userMsg = \`I have these ingredients: \${ingredients.trim()}. Create 3 high-protein low-calorie recipes using them.\`;
+      const userMsg = `I have these ingredients: ${ingredients.trim()}. Create 3 high-protein low-calorie recipes using them.`;
       const resp = await callClaudeAPI({ system: systemPrompt, history: [], user: userMsg, maxTokens: 700, model: "claude-haiku-4-5-20251001" });
       if (!resp) throw new Error("No response");
       const jsonMatch = resp.match(/\{[\s\S]*\}/);

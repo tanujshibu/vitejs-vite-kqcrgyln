@@ -7843,7 +7843,7 @@ function FactVisual({ type, color: C }) {
       {/* Terminal nub */}
       <rect x="132" y="26" width="18" height="16" rx="5" fill={C} opacity={0.35}/>
       {/* Full bar (background) */}
-      <rect x="10" y="20" width="116" height="28" rx="6" fill={C} opacity={0.07}/>
+      <rect x="10" y="20" width="116" height="28" rx="6" fill={C} opacity={0.18}/>
       {/* Fill: starts full, drains to 30% */}
       <motion.rect x="10" y="20" width="116" height="28" rx="6" fill={C} opacity={0.7}
         animate={{ width: 35, opacity:0.55 }}
@@ -7863,7 +7863,7 @@ function FactVisual({ type, color: C }) {
       {[{x:18,l:"0h"},{x:64,l:"24h"},{x:110,l:"48h"},{x:156,l:"72h",peak:true},{x:202,l:"96h"}].map((d,i) => (
         <g key={d.l}>
           <motion.circle cx={d.x} cy="26" r={d.peak?11:7} fill={C}
-            opacity={d.peak?1:0.15+i*0.08}
+            opacity={d.peak?1:0.35+i*0.08}
             initial={{ scale:0 }} animate={{ scale:1 }}
             transition={{ delay:0.18+i*0.13, duration:0.3, type:"spring", stiffness:280 }}/>
           <text x={d.x} y="48" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{d.l}</text>
@@ -7912,7 +7912,7 @@ function FactVisual({ type, color: C }) {
       {Array.from({length:10}).map((_,i) => (
         <g key={i}>
           <motion.circle cx={16+i*18} cy="26" r="8"
-            fill={C} opacity={i < 3 ? 0.12 : 0.85}
+            fill={C} opacity={i < 3 ? 0.35 : 0.85}
             initial={{ scale:0 }} animate={{ scale:1 }}
             transition={{ delay:0.1+i*0.09, duration:0.28, type:"spring", stiffness:260 }}/>
           {/* Small day label */}
@@ -7932,7 +7932,7 @@ function FactVisual({ type, color: C }) {
   if (type === "gauge") return (
     <svg viewBox="0 0 140 80" width="140" height="80">
       {/* Track */}
-      <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke={C} strokeWidth="6" opacity={0.12} strokeLinecap="round"/>
+      <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke={C} strokeWidth="6" opacity={0.25} strokeLinecap="round"/>
       {/* Fill to ~50% (200mg sweet spot) */}
       <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke={C} strokeWidth="6"
         strokeLinecap="round" pathLength="1"
@@ -8015,9 +8015,8 @@ function FactVisual({ type, color: C }) {
   // Horizontal bar filled to N% — for legs (70%) etc.
   if (type === "percent_fill") return (
     <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
-      <rect x="8" y="18" width="144" height="32" rx="10" fill={C} opacity={0.08}/>
-      <rect x="8" y="18" width="144" height="32" rx="10" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
-      <motion.rect x="8" y="18" height="32" rx="10" fill={C} opacity={0.55}
+      <rect x="8" y="18" width="144" height="32" rx="10" fill={C} opacity={0.18}/>
+      <motion.rect x="8" y="18" height="32" rx="10" fill={C} opacity={0.75}
         initial={{ width:0 }} animate={{ width: 144*0.7 }}
         transition={{ delay:0.2, duration:1.0, ease:[.22,1,.36,1] }}/>
       <motion.text x="59" y="39" textAnchor="middle" fontSize="15" fill="#fff"
@@ -8040,14 +8039,14 @@ function FactVisual({ type, color: C }) {
         {x:76, h:44, l:"BIO AGE",  tag:"bio",  d:0.28},
       ].map(b => (
         <g key={b.l}>
+          {/* Track */}
+          <rect x={b.x} y={10} width="56" height={78} rx="8" fill={C} opacity={0.12}/>
+          {/* Filled bar — solid enough for light mode */}
           <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
-            opacity={b.tag==="bio" ? 0.35 : 0.1}
+            opacity={b.tag==="bio" ? 0.85 : 0.5}
             initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
             transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill="none" stroke={C} strokeWidth="1.5"
-            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+28}px 88px` }}
-            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          <text x={b.x+28} y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          <text x={b.x+28} y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
           {b.tag==="bio" && (
             <motion.text x={b.x+28} y={88-b.h-10} textAnchor="middle" fontSize="9" fill={C}
               fontFamily="inherit" fontWeight="900"
@@ -8063,9 +8062,8 @@ function FactVisual({ type, color: C }) {
     <svg viewBox="0 0 160 92" width="160" height="92" style={{ overflow:"visible" }}>
       {/* FAT bar shrinking */}
       <g>
-        <rect x="14" y="8" width="56" height="68" rx="9" fill={C} opacity={0.07}/>
-        <rect x="14" y="8" width="56" height="68" rx="9" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
-        <motion.rect x="14" y="44" width="56" height="32" rx="9" fill={C} opacity={0.55}
+        <rect x="14" y="8" width="56" height="68" rx="9" fill={C} opacity={0.15}/>
+        <motion.rect x="14" y="44" width="56" height="32" rx="9" fill={C} opacity={0.75}
           initial={{ height:0, y:76 }} animate={{ height:32, y:44 }}
           transition={{ delay:0.2, duration:0.65, ease:[.22,1,.36,1] }}/>
         <motion.path d="M42 80 L42 87 L37 83 M42 87 L47 83" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round"
@@ -8074,9 +8072,8 @@ function FactVisual({ type, color: C }) {
       </g>
       {/* MUSCLE bar growing */}
       <g>
-        <rect x="90" y="8" width="56" height="68" rx="9" fill={C} opacity={0.07}/>
-        <rect x="90" y="8" width="56" height="68" rx="9" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
-        <motion.rect x="90" y="8" width="56" height="56" rx="9" fill={C} opacity={0.55}
+        <rect x="90" y="8" width="56" height="68" rx="9" fill={C} opacity={0.15}/>
+        <motion.rect x="90" y="8" width="56" height="56" rx="9" fill={C} opacity={0.75}
           initial={{ height:0, y:76 }} animate={{ height:56, y:8 }}
           transition={{ delay:0.35, duration:0.65, ease:[.22,1,.36,1] }}/>
         <motion.path d="M118 3 L118 -4 L113 -1 M118 -4 L123 -1" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round"
@@ -8099,9 +8096,8 @@ function FactVisual({ type, color: C }) {
         fontFamily="inherit" fontWeight="800"
         animate={{ opacity:0.55 }} transition={{ delay:1.2 }}>MAX</motion.text>
       {/* Bar growing up and stopping at ceiling */}
-      <rect x="50" y="10" width="60" height="78" rx="10" fill={C} opacity={0.07}/>
-      <rect x="50" y="10" width="60" height="78" rx="10" fill="none" stroke={C} strokeWidth="1.5" opacity={0.2}/>
-      <motion.rect x="50" width="60" rx="10" fill={C} opacity={0.6}
+      <rect x="50" y="10" width="60" height="78" rx="10" fill={C} opacity={0.15}/>
+      <motion.rect x="50" width="60" rx="10" fill={C} opacity={0.8}
         initial={{ height:0, y:88 }} animate={{ height:78, y:10 }}
         transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
       {/* Bounce off indicator */}
@@ -8114,9 +8110,8 @@ function FactVisual({ type, color: C }) {
   // 40% fill bar — glute activation fact
   if (type === "glute_fill") return (
     <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
-      <rect x="8" y="16" width="144" height="32" rx="10" fill={C} opacity={0.08}/>
-      <rect x="8" y="16" width="144" height="32" rx="10" fill="none" stroke={C} strokeWidth="1.5" opacity={0.25}/>
-      <motion.rect x="8" y="16" height="32" rx="10" fill={C} opacity={0.6}
+      <rect x="8" y="16" width="144" height="32" rx="10" fill={C} opacity={0.18}/>
+      <motion.rect x="8" y="16" height="32" rx="10" fill={C} opacity={0.8}
         initial={{ width:0 }} animate={{ width: 144*0.4 }}
         transition={{ delay:0.2, duration:0.9, ease:[.22,1,.36,1] }}/>
       <motion.text x="37" y="37" textAnchor="middle" fontSize="14" fill="#fff"
@@ -18263,16 +18258,17 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
   const ac = T[M.accentKey];
 
   // phases: lookup → password
-  const [email,     setEmail]     = useState("");
+  const [email,     setEmail]     = useState(() => { try { return localStorage.getItem("rvn_saved_email")||""; } catch { return ""; } });
   const [password,  setPassword]  = useState("");
   const [showPass,  setShowPass]  = useState(false);
-  const [phase,     setPhase]     = useState("lookup");
+  const [phase,     setPhase]     = useState(() => { try { return localStorage.getItem("rvn_saved_email") ? "password" : "lookup"; } catch { return "lookup"; } });
   const [msg,       setMsg]       = useState("");
   const [busy,      setBusy]      = useState(false);
   const [profiles,  setProfiles]  = useState([]);
   const [loadingList, setLoadingList] = useState(true);
   const [resetSent, setResetSent] = useState(false);
   const [resetBusy, setResetBusy] = useState(false);
+  const [keepSignedIn, setKeepSignedIn] = useState(true);
 
   useEffect(() => {
     setLoadingList(true);
@@ -18301,20 +18297,31 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
     if (!password.trim()) { setMsg("Please enter your password."); return; }
     setBusy(true); setMsg("");
     try {
-      const client = await getSupaClient();
-      const { error } = await client.auth.signInWithPassword({
+      // Use the top-level supabase client (avoids dual-client session confusion)
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password: password.trim(),
       });
       if (error) throw error;
+      // Keep me signed in — save email so we pre-fill next time
+      if (keepSignedIn) {
+        try { localStorage.setItem("rvn_saved_email", email.trim()); } catch {}
+      } else {
+        try { localStorage.removeItem("rvn_saved_email"); } catch {}
+      }
       const profile = await rvnFindProfile(email.trim());
       setBusy(false);
-      onSignIn && onSignIn(profile || { user: { email: email.trim() } });
+      onSignIn && onSignIn(profile || { user: { email: email.trim(), id: data?.user?.id } });
     } catch (e) {
       setBusy(false);
-      setMsg(e.message === "Invalid login credentials"
-        ? "Wrong password. Try again."
-        : (e.message || "Sign-in failed."));
+      const raw = e.message || "";
+      if (raw.includes("Invalid login credentials")) {
+        setMsg("Password incorrect — or email not confirmed yet. Check your inbox for a confirmation link from Supabase, then try again.");
+      } else if (raw.includes("Email not confirmed")) {
+        setMsg("Please confirm your email first. Check your inbox for a link from Supabase.");
+      } else {
+        setMsg(raw || "Sign-in failed. Try again.");
+      }
     }
   };
 
@@ -18497,7 +18504,35 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
                   {resetBusy ? "Sending…" : "Forgot password?"}
                 </button>
               )}
-              <button onClick={() => { setPhase("lookup"); setPassword(""); setMsg(""); setResetSent(false); }}
+              {/* Keep me signed in toggle */}
+              <button
+                onClick={() => setKeepSignedIn(k => !k)}
+                style={{
+                  display:"flex", alignItems:"center", gap:7,
+                  background:"transparent", border:"none", cursor:"pointer", padding:0,
+                  alignSelf:"center",
+                }}>
+                <div style={{
+                  width:32, height:18, borderRadius:9,
+                  background: keepSignedIn ? ac : T.glass,
+                  border:`1px solid ${keepSignedIn ? ac : T.border}`,
+                  position:"relative", transition:"background .2s",
+                  flexShrink:0,
+                }}>
+                  <div style={{
+                    width:12, height:12, borderRadius:"50%", background:"#fff",
+                    position:"absolute", top:2,
+                    left: keepSignedIn ? 16 : 2,
+                    transition:"left .2s",
+                    boxShadow:"0 1px 3px rgba(0,0,0,.3)",
+                  }}/>
+                </div>
+                <span style={{ fontSize:11, color:T.muted, letterSpacing:".08em", fontWeight:700 }}>
+                  KEEP ME SIGNED IN
+                </span>
+              </button>
+
+              <button onClick={() => { setPhase("lookup"); setPassword(""); setMsg(""); setResetSent(false); try { localStorage.removeItem("rvn_saved_email"); } catch {} }}
                 style={{
                   background:"transparent", border:"none",
                   color:T.muted, fontSize:11, cursor:"pointer", letterSpacing:".08em",

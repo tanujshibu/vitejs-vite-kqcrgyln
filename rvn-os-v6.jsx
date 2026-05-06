@@ -25,11 +25,14 @@ async function loadRemoteProfile(userId) {
       sleepTarget:   data.sleep_target  || 8,
       lastResetDate: data.last_reset_date || "",
       lastSleepLog:  data.last_sleep_log  || null,
-      calories:      data.kailu_goals?.calories || null,
-      tdee:          data.kailu_goals?.tdee || null,
       ...(data.kailu_goals || {}),
+      calories:      data.kailu_goals?.calories ?? null,
+      tdee:          data.kailu_goals?.tdee ?? null,
     };
-  } catch { return null; }
+  } catch (e) {
+    if (typeof window !== "undefined") console.warn("[RVN] loadRemoteProfile failed:", e?.message);
+    return null;
+  }
 }
 
 async function saveRemoteProfile(userId, profile) {
@@ -52,7 +55,9 @@ async function saveRemoteProfile(userId, profile) {
         reasoning:  profile.reasoning,
       },
     }, { onConflict: "id" });
-  } catch (_) {}
+  } catch (e) {
+    if (typeof window !== "undefined") console.warn("[RVN] saveRemoteProfile failed:", e?.message);
+  }
 }
 
 
@@ -73,7 +78,7 @@ const RVN_PROD = {
   // HTTPS enforcement: set to true in production to hard-redirect http→https
   enforceHTTPS:    true,
   // Mixpanel project token (replace with real token at deploy)
-  mixpanelToken:   (typeof import_meta_env !== "undefined" && import_meta_env.VITE_MIXPANEL_TOKEN) || "YOUR_MIXPANEL_TOKEN",
+  mixpanelToken:   (typeof import.meta !== "undefined" && import.meta.env?.VITE_MIXPANEL_TOKEN) || "YOUR_MIXPANEL_TOKEN",
   // Resend API — called from an Edge Function, never client-side
   resendFromEmail: "notifications@rvnos.com",
   // Apex milestone threshold
@@ -165,7 +170,7 @@ function track(event, properties = {}) {
     _mpQueue.push([event, payload]);
   }
   // Also log to console in dev
-  if (typeof import_meta_env !== "undefined" && import_meta_env.DEV) {
+  if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
     console.log("[RVN Analytics]", event, payload);
   }
 }
@@ -2377,6 +2382,136 @@ function Pill({ label, color, theme }) {
       fontSize:10, fontWeight:700, letterSpacing:".08em",
       color:c, border:`1px solid ${c}44`, background:`${c}18`,
     }}>{label}</span>
+  );
+}
+
+// ─── RVN LEARNING SUMMARY ─────────────────────────────────────────────────────
+function RVNLearningSummary({ archetypeId, theme }) {
+  const T = D[theme];
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const weekNum = Math.floor(Date.now() / (7 * 24 * 60 * 60 * 1000));
+    const cached = localStorage.getItem("rvn_learning_week");
+    const cacheMsg = localStorage.getItem("rvn_learning_cache");
+
+    if (cached === String(weekNum) && cacheMsg) {
+      try {
+        setSummary(JSON.parse(cacheMsg));
+        setLoading(false);
+        return;
+      } catch {}
+    }
+
+    // Fetch new summary
+    (async () => {
+      try {
+        const profile = JSON.parse(localStorage.getItem("rvn_profile") || "{}");
+        const response = await callClaudeAPI({
+          system: "You are a fitness AI coach analyzing weekly progress. Be concise and insightful.",
+          user: `Archetype: ${archetypeId}. Recent stats: weight ${profile.bodyweight || "unknown"} lbs, macros tracking. Give one sentence insight about this week's progress.`,
+          history: [],
+          maxTokens: 120,
+          model: "claude-haiku-4-5-20251001",
+        });
+        const text = response?.content?.[0]?.text || "Great week of consistent effort!";
+        setSummary({ text });
+        localStorage.setItem("rvn_learning_week", String(weekNum));
+        localStorage.setItem("rvn_learning_cache", JSON.stringify({ text }));
+      } catch (e) {
+        setSummary({ text: "Keep up the momentum this week!" });
+      }
+      setLoading(false);
+    })();
+  }, [archetypeId]);
+
+  if (!summary || loading) return null;
+
+  return (
+    <motion.div {...FX.up} style={{ marginBottom: 14 }}>
+      <GlassCard theme={theme} style={{ borderLeft: `3px solid ${T.gold}`, padding: "12px 14px" }}>
+        <div style={{ fontSize: 9, fontWeight: 700, color: T.gold, letterSpacing: ".1em", marginBottom: 8 }}>
+          THIS WEEK · RVN LEARNED
+        </div>
+        <div style={{ fontSize: 12, color: T.text, lineHeight: 1.5, marginBottom: 8 }}>
+          {summary.text}
+        </div>
+        <motion.button whileTap={{ scale: .97 }}
+          onClick={() => {
+            localStorage.removeItem("rvn_learning_week");
+            localStorage.removeItem("rvn_learning_cache");
+            setSummary(null);
+          }}
+          style={{ fontSize: 9, color: T.muted, background: "transparent", border: "none", cursor: "pointer", fontWeight: 700 }}>
+          Dismiss
+        </motion.button>
+      </GlassCard>
+    </motion.div>
+  );
+}
+
+// ─── CYCLE SYNC CARD ──────────────────────────────────────────────────────────
+function CycleSyncCard({ theme }) {
+  const T = D[theme];
+  const [enabled, setEnabled] = useState(() => {
+    try {
+      return localStorage.getItem("rvn_cycle_sync_enabled") === "true";
+    } catch { return false; }
+  });
+  const [phase, setPhase] = useState("follicular");
+
+  const phases = {
+    follicular: "Estrogen rising — great time for high intensity and PR attempts",
+    ovulatory: "Peak strength window — push compound lifts today",
+    luteal: "Reduce intensity, increase protein, prioritize sleep",
+    menstrual: "Active recovery preferred — gentle movement supports hormonal reset",
+  };
+
+  return (
+    <motion.div {...FX.up} style={{ marginTop: 16 }}>
+      <GlassCard theme={theme} style={{ padding: "14px 16px" }}>
+        <div style={{ fontSize: 10, fontWeight: 800, color: T.faint, letterSpacing: ".12em", marginBottom: 10 }}>
+          CYCLE SYNC
+        </div>
+        {!enabled ? (
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div style={{ fontSize: 11, color: T.muted }}>Personalize workouts to your cycle</div>
+            <motion.button whileTap={{ scale: .96 }}
+              onClick={() => {
+                setEnabled(true);
+                try { localStorage.setItem("rvn_cycle_sync_enabled", "true"); } catch {}
+              }}
+              style={{ padding: "6px 12px", borderRadius: 8, background: T.gold, color: theme === "dark" ? "#000" : "#fff",
+                border: "none", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+              ENABLE
+            </motion.button>
+          </div>
+        ) : (
+          <>
+            <div style={{ fontSize: 10, color: T.muted, marginBottom: 10 }}>Current phase:</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
+              {Object.keys(phases).map(p => (
+                <motion.button key={p} whileTap={{ scale: .97 }}
+                  onClick={() => setPhase(p)}
+                  style={{
+                    padding: "8px 10px", borderRadius: 10,
+                    border: `1px solid ${phase === p ? T.gold : T.border}`,
+                    background: phase === p ? `${T.gold}22` : T.glass,
+                    color: phase === p ? T.gold : T.muted, fontSize: 9, fontWeight: 700,
+                    cursor: "pointer", textTransform: "capitalize"
+                  }}>
+                  {p}
+                </motion.button>
+              ))}
+            </div>
+            <div style={{ fontSize: 10.5, color: T.text, lineHeight: 1.6, padding: "8px 10px", background: T.glass, borderRadius: 8 }}>
+              {phases[phase]}
+            </div>
+          </>
+        )}
+      </GlassCard>
+    </motion.div>
   );
 }
 
@@ -4674,6 +4809,24 @@ function ABBioComparison({ archetypeId, theme, color }) {
   const [activeMilestone, setActiveMilestone] = useState(null);
   const scrollLock = useRef(null);
 
+  // Variables used by embedded tracking widgets (safe defaults for standalone use)
+  const _allArchAB = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
+  const arch = _allArchAB.find(a => a.id === archetypeId) || GYM_ARCHETYPES[0];
+  const [cycleCalcOpen, setCycleCalcOpen] = useState(false);
+  const sessionCount = (() => { try { return parseInt(localStorage.getItem("rvn_session_count")||"0",10); } catch { return 0; } })();
+  const bioData = {};
+  const profile = (() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("rvn_profile") || "{}");
+      return {
+        sleepDays: saved.sleepDays || [7,7,7,7,7,7,7],
+        lastSleepLog: saved.lastSleepLog || null,
+        healthData: saved.healthData || null,
+        ...saved,
+      };
+    } catch { return { sleepDays:[7,7,7,7,7,7,7], lastSleepLog:null, healthData:null }; }
+  })();
+
   // After every render triggered by the slider, restore the scroll position
   // so AnimatePresence mounts don't jump the page
   useEffect(() => {
@@ -5486,7 +5639,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                            : { label:"LOW", color:T.red, note:"Poor sleep is cutting your strength output. Prioritize tonight." };
               const days = ["M","T","W","T","F","S","S"];
               const lastLog = profile.lastSleepLog;
-              const loggedToday = lastLog?.date === new Date().toDateString();
+              const loggedToday = lastLog?.date?.slice(0,10) === new Date().toISOString().slice(0,10);
               return (
                 <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.18 }} style={{ marginBottom:10 }}>
                   <GlassCard theme={theme} style={{ padding:"14px" }}>
@@ -5678,7 +5831,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
 
                     <button onClick={() => {
                       const hours = computedHours;
-                      const today = new Date().toDateString();
+                      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
                       const newDays = [...profile.sleepDays.slice(1), hours];
                       saveProfile({
                         sleepDays: newDays,
@@ -6795,6 +6948,12 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
           <ThemeToggle theme={theme} onToggle={onThemeToggle || (() => {})}/>
           <motion.button whileTap={{ scale:.96 }} onClick={onManager}
             style={{
+              background:"transparent", border:`1px solid ${T.blue}`,
+              borderRadius:22, padding:"6px 14px", cursor:"pointer",
+              fontSize:11, fontWeight:700, color:T.blue, letterSpacing:".06em",
+            }}>For Gym Owners →</motion.button>
+          <motion.button whileTap={{ scale:.96 }} onClick={onManager}
+            style={{
               background:T.glass, border:`1px solid ${T.border}`,
               backdropFilter:"blur(8px)", borderRadius:22,
               padding:"6px 14px", cursor:"pointer",
@@ -7264,6 +7423,267 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
   );
 }
 
+// ─── WORKOUT SHARE CARD (IG-Story Ready) ─────────────────────────────────────
+function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, velocityLog, profile, theme, onClose }) {
+  const T  = D[theme] || D.dark;
+  const ac = arch?.glow || arch?.color || "#2E5BFF";
+  const archName   = arch?.name || "ATHLETE";
+  const doneSets   = Object.values(setsDone || {}).filter(Boolean).length;
+  const totalSets  = (exercises || []).reduce((s, ex) => s + parseInt(ex.sets || 0), 0);
+  const totalVol   = (velocityLog || []).reduce((s, e) => s + (e.weight || 0) * (e.sets || 1) * (e.reps || 1), 0);
+  const streak     = streaks?.session || streaks?.best || 0;
+  const canvasRef  = useRef(null);
+  const [exporting, setExporting] = useState(false);
+  const [exported,  setExported]  = useState(false);
+
+  // Draw to canvas and export/share
+  async function exportToImage() {
+    setExporting(true);
+    try {
+      const canvas  = canvasRef.current;
+      if (!canvas) { setExporting(false); return; }
+      const ctx     = canvas.getContext("2d");
+      const W = 1080, H = 1920;
+      canvas.width  = W;
+      canvas.height = H;
+
+      // Background
+      ctx.fillStyle = "#07081a";
+      ctx.fillRect(0, 0, W, H);
+
+      // Glow
+      const grad = ctx.createRadialGradient(W/2, H*0.22, 0, W/2, H*0.22, 520);
+      grad.addColorStop(0, ac + "44");
+      grad.addColorStop(1, "transparent");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Logo
+      ctx.font = "900 72px -apple-system, sans-serif";
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "left";
+      ctx.fillText("RVN", 80, 160);
+      ctx.fillStyle = ac;
+      ctx.fillText("OS", 80 + ctx.measureText("RVN").width, 160);
+
+      ctx.font = "700 26px -apple-system, sans-serif";
+      ctx.fillStyle = "#ffffff55";
+      ctx.letterSpacing = "0.18em";
+      ctx.fillText("PERFORMANCE PROTOCOL", 80, 200);
+
+      // Archetype
+      ctx.font = "900 120px -apple-system, sans-serif";
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "center";
+      ctx.fillText(archName.toUpperCase(), W/2, 460);
+
+      // Stats row
+      const stats = [
+        { label: "SETS", value: `${doneSets}/${totalSets}` },
+        { label: "BIO-SCORE", value: String(bioScore || 0) },
+        { label: "STREAK", value: `${streak}🔥` },
+      ];
+      const boxW = 280, boxH = 200, boxY = 560, gap = 30;
+      const totalBoxW = stats.length * boxW + (stats.length - 1) * gap;
+      const startX = (W - totalBoxW) / 2;
+      stats.forEach((s, i) => {
+        const bx = startX + i * (boxW + gap);
+        // Box
+        ctx.fillStyle = ac + "18";
+        ctx.strokeStyle = ac + "55";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(bx, boxY, boxW, boxH, 24);
+        ctx.fill(); ctx.stroke();
+        // Value
+        ctx.font = "900 64px -apple-system, sans-serif";
+        ctx.fillStyle = ac;
+        ctx.textAlign = "center";
+        ctx.fillText(s.value, bx + boxW/2, boxY + 108);
+        // Label
+        ctx.font = "700 20px -apple-system, sans-serif";
+        ctx.fillStyle = "#ffffff44";
+        ctx.fillText(s.label, bx + boxW/2, boxY + 152);
+      });
+
+      // Volume
+      if (totalVol > 0) {
+        ctx.font = "700 36px -apple-system, sans-serif";
+        ctx.fillStyle = "#ffffff55";
+        ctx.textAlign = "center";
+        ctx.fillText(`${(totalVol/1000).toFixed(1)}k lbs total volume`, W/2, 820);
+      }
+
+      // Exercises list
+      ctx.textAlign = "left";
+      const topEx = (exercises || []).slice(0, 6);
+      topEx.forEach((ex, i) => {
+        const y = 920 + i * 80;
+        const done = setsDone?.[`${i}`] || setsDone?.[ex.name] || false;
+        ctx.font = "700 32px -apple-system, sans-serif";
+        ctx.fillStyle = done ? ac : "#ffffff66";
+        ctx.fillText(`${done ? "✓" : "○"}  ${ex.name}`, 80, y);
+        ctx.font = "600 24px -apple-system, sans-serif";
+        ctx.fillStyle = "#ffffff33";
+        ctx.fillText(`${ex.sets}×${ex.reps}`, 80 + ctx.measureText(`${done ? "✓" : "○"}  ${ex.name}`).width + 20, y);
+      });
+
+      // Footer
+      ctx.font = "600 26px -apple-system, sans-serif";
+      ctx.fillStyle = "#ffffff22";
+      ctx.textAlign = "center";
+      ctx.fillText(`rvnvision.com · ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`, W/2, H - 80);
+
+      // Export
+      canvas.toBlob(async (blob) => {
+        if (!blob) { setExporting(false); return; }
+        const file = new File([blob], "rvn-workout.png", { type: "image/png" });
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: `RVN OS · ${archName}`, text: "Workout complete 🔥" });
+        } else {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = "rvn-workout.png"; a.click();
+          URL.revokeObjectURL(url);
+        }
+        setExported(true);
+        setExporting(false);
+      }, "image/png");
+    } catch (e) {
+      console.warn("[RVN] Share export failed:", e);
+      setExporting(false);
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+      style={{
+        position:"fixed", inset:0, zIndex:10001,
+        background: theme==="dark" ? "rgba(7,8,26,0.96)" : "rgba(241,241,248,0.97)",
+        backdropFilter:"blur(24px)",
+        display:"flex", flexDirection:"column",
+        alignItems:"center", justifyContent:"center",
+        padding:"28px 20px",
+      }}>
+      {/* Hidden canvas for export */}
+      <canvas ref={canvasRef} style={{ display:"none" }}/>
+
+      {/* Close */}
+      <motion.button whileTap={{ scale:.95 }} onClick={onClose}
+        style={{
+          position:"absolute", top:20, right:20,
+          background:T.glass, border:`1px solid ${T.border}`,
+          borderRadius:"50%", width:36, height:36,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          cursor:"pointer", fontSize:16, color:T.muted,
+        }}>✕</motion.button>
+
+      {/* Preview card */}
+      <motion.div
+        initial={{ scale:0.88, y:20 }} animate={{ scale:1, y:0 }}
+        transition={{ delay:0.05, duration:.4, ease:[.22,1,.36,1] }}
+        style={{
+          width:"100%", maxWidth:320, borderRadius:28,
+          background: theme==="dark" ? "#0e0f22" : "#ffffff",
+          border:`1.5px solid ${ac}33`,
+          padding:"28px 22px 22px",
+          boxShadow:`0 0 80px ${ac}25`,
+          position:"relative", overflow:"hidden",
+        }}>
+        <div style={{ position:"absolute", inset:0,
+          background:`radial-gradient(ellipse 85% 50% at 50% -5%, ${ac}18, transparent)`,
+          pointerEvents:"none" }}/>
+
+        {/* Logo row */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
+          <div style={{ fontSize:20, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
+            RVN<span style={{ color:ac }}>OS</span>
+          </div>
+          <div style={{ fontSize:8, fontWeight:800, letterSpacing:".14em", color:ac, opacity:.7 }}>WORKOUT COMPLETE</div>
+        </div>
+
+        {/* Archetype */}
+        <div style={{ fontSize:30, fontWeight:900, color:T.text, letterSpacing:"-.02em", marginBottom:16 }}>
+          {archName.toUpperCase()}
+        </div>
+
+        {/* Stats */}
+        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:16 }}>
+          {[
+            { label:"SETS", value:`${doneSets}/${totalSets}` },
+            { label:"BIO-SCORE", value: bioScore || "—" },
+            { label:"STREAK", value:`${streak} 🔥` },
+          ].map(s => (
+            <div key={s.label} style={{
+              padding:"10px 8px", borderRadius:14,
+              background:`${ac}10`, border:`1px solid ${ac}22`,
+              textAlign:"center",
+            }}>
+              <div style={{ fontSize:7.5, fontWeight:800, letterSpacing:".1em", color:ac, opacity:.8, marginBottom:4 }}>{s.label}</div>
+              <div style={{ fontSize:18, fontWeight:900, color:ac, lineHeight:1 }}>{s.value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Volume */}
+        {totalVol > 0 && (
+          <div style={{ fontSize:11, color:T.muted, textAlign:"center", marginBottom:14 }}>
+            {(totalVol/1000).toFixed(1)}k lbs total volume
+          </div>
+        )}
+
+        {/* Top exercises */}
+        <div style={{ marginBottom:14 }}>
+          {(exercises || []).slice(0,4).map((ex, i) => (
+            <div key={i} style={{
+              display:"flex", alignItems:"center", gap:8,
+              padding:"6px 0", borderBottom:`1px solid ${T.border}`,
+            }}>
+              <div style={{ fontSize:11, color: (setsDone?.[`${i}`]||setsDone?.[ex.name]) ? ac : T.faint, flexShrink:0 }}>
+                {(setsDone?.[`${i}`]||setsDone?.[ex.name]) ? "✓" : "○"}
+              </div>
+              <div style={{ fontSize:11, color:T.text, flex:1, fontWeight:700 }}>{ex.name}</div>
+              <div style={{ fontSize:10, color:T.faint }}>{ex.sets}×{ex.reps}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer */}
+        <div style={{ textAlign:"center", fontSize:9, color:T.faint, letterSpacing:".1em" }}>
+          rvnvision.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+        </div>
+      </motion.div>
+
+      {/* Export button */}
+      <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.2 }}
+        style={{ marginTop:20, width:"100%", maxWidth:320 }}>
+        {exported ? (
+          <div style={{ textAlign:"center", padding:"14px", fontSize:14, fontWeight:800, color:ac }}>
+            ✓ Exported — paste it to your story!
+          </div>
+        ) : (
+          <motion.button whileTap={{ scale:.96 }} onClick={exportToImage} disabled={exporting}
+            style={{
+              width:"100%", padding:"16px 0",
+              background: exporting ? `${ac}55` : ac,
+              color:"#fff", border:"none", borderRadius:16,
+              fontSize:14, fontWeight:900,
+              cursor: exporting ? "not-allowed" : "pointer",
+              letterSpacing:".06em",
+              boxShadow:`0 8px 32px ${ac}44`,
+            }}>
+            {exporting ? "Generating…" : "📲 EXPORT FOR STORIES →"}
+          </motion.button>
+        )}
+        <div style={{ textAlign:"center", marginTop:8, fontSize:10, color:T.faint }}>
+          Saves as 1080×1920 PNG · perfect for Instagram Stories
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ─── STORY ONBOARDING FACTS ───────────────────────────────────────────────────
 // ─── FACT VISUALS (animated SVG illustrations) ────────────────────────────────
 function FactVisual({ type, color: C }) {
@@ -7288,7 +7708,7 @@ function FactVisual({ type, color: C }) {
               cx={cx} cy={cy} r={isGym ? S/2 + 1 : S/2}
               fill={C}
               initial={{ opacity:0 }}
-              animate={{ opacity: isGym ? 1 : 0.1 }}
+              animate={{ opacity: isGym ? 1 : 0.2 }}
               transition={{ delay: 0.04 + i*0.003, duration: isGym ? 0.3 : 0.15 }}/>
           );
         })}
@@ -7343,23 +7763,18 @@ function FactVisual({ type, color: C }) {
   // Three growing bars: muscle synthesis over 24 / 48 / 72hrs — 48h is PEAK
   if (type === "bars_grow") return (
     <svg viewBox="0 0 160 108" width="160" height="108" style={{ overflow:"visible" }}>
-      {/* PEAK label + arrow — lives at top of viewBox so it doesn't clip */}
       <motion.text x="80" y="10" textAnchor="middle" fontSize="8" fill={C} fontFamily="inherit" fontWeight="900"
-        initial={{ opacity:0 }} animate={{ opacity:0.9 }} transition={{ delay:0.78 }}>▲ PEAK</motion.text>
+        initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.78 }}>▲ PEAK</motion.text>
       {[{x:6,h:40,l:"24h",d:0.15},{x:60,h:82,l:"48h",d:0.28},{x:114,h:52,l:"72h",d:0.42}].map(b => (
         <g key={b.l}>
           {/* Background track */}
-          <rect x={b.x} y={14} width="40" height={82} rx="7" fill={C} opacity={0.07}/>
-          {/* Filled bar */}
+          <rect x={b.x} y={14} width="40" height={82} rx="7" fill={C} opacity={0.15}/>
+          {/* Filled bar — solid enough for both light + dark backgrounds */}
           <motion.rect x={b.x} y={96-b.h} width="40" height={b.h} rx="7" fill={C}
-            opacity={b.l==="48h" ? 0.7 : 0.35}
+            opacity={b.l==="48h" ? 1 : 0.65}
             initial={{ height:0, y:96 }} animate={{ height:b.h, y:96-b.h }}
             transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          {/* Stroke outline */}
-          <motion.rect x={b.x} y={96-b.h} width="40" height={b.h} rx="7" fill="none" stroke={C} strokeWidth="1.5"
-            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+20}px 96px` }}
-            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          <text x={b.x+20} y="106" textAnchor="middle" fontSize="9" fill={C} opacity="0.55" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          <text x={b.x+20} y="106" textAnchor="middle" fontSize="9" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
         </g>
       ))}
     </svg>
@@ -7370,14 +7785,14 @@ function FactVisual({ type, color: C }) {
     <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
       {[{x:8,h:36,l:"TRAIN",tag:"active",d:0.15},{x:76,h:84,l:"REST",tag:"grow",d:0.28}].map(b => (
         <g key={b.l}>
+          {/* Track */}
+          <rect x={b.x} y={6} width="56" height={82} rx="8" fill={C} opacity={0.12}/>
+          {/* Filled bar — solid opacity so it shows on light backgrounds */}
           <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
-            opacity={b.tag==="grow" ? 0.28 : 0.1}
+            opacity={b.tag==="grow" ? 0.85 : 0.5}
             initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
             transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill="none" stroke={C} strokeWidth="1.5"
-            initial={{ scaleY:0 }} animate={{ scaleY:1 }} style={{ transformOrigin:`${b.x+28}px 88px` }}
-            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          <text x={b.x+28} y="98" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="700">{b.l}</text>
+          <text x={b.x+28} y="98" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
           {b.tag==="grow" && (
             <motion.text x={b.x+28} y={88-b.h-8} textAnchor="middle" fontSize="14"
               initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
@@ -9613,7 +10028,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
   );
 }
 
-function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSupplements, onMorningBrief, onWorkoutHistory, onBodyWeight, onMealPlan, onBuddy, onGroupWorkout, theme, biology }) {
+function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelog, onSupplements, onMorningBrief, onWorkoutHistory, onBodyWeight, onMealPlan, onBuddy, onGroupWorkout, theme, biology }) {
   const T = D[theme];
   const _allArch = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
   const arch = _allArch.find(a=>a.id===archetypeId) || GYM_ARCHETYPES[0];
@@ -9701,17 +10116,20 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
   // ── Auto midnight macro reset ─────────────────────────────────────────────
   // Runs on mount + every 60s check. If the calendar date has rolled over,
   // zero macroToday and shift yesterday's sleep into the sleepDays chart.
+  // Uses YYYY-MM-DD format consistently to avoid toDateString() locale mismatches.
   useEffect(() => {
-    const todayStr = new Date().toDateString();
+    let lastFired = "";   // debounce: only fire once per calendar date
     const doCheck = () => {
       try {
+        const checkDate = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        if (lastFired === checkDate) return;                      // already ran today
         const raw   = localStorage.getItem("rvn_profile");
         const saved = raw ? JSON.parse(raw) : {};
-        const checkDate = new Date().toDateString();
         if (saved.lastResetDate !== checkDate) {
+          lastFired = checkDate;
           // Shift sleep log into the weekly chart if user logged sleep last night
           let newSleepDays = saved.sleepDays || defaultProfile.sleepDays;
-          if (saved.lastSleepLog?.date === saved.lastResetDate && saved.lastSleepLog?.hours) {
+          if (saved.lastSleepLog?.date && saved.lastSleepLog.date.slice(0,10) === saved.lastResetDate?.slice(0,10) && saved.lastSleepLog?.hours) {
             newSleepDays = [...newSleepDays.slice(1), saved.lastSleepLog.hours];
           }
           const next = {
@@ -9723,7 +10141,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
           setProfile(next);
           localStorage.setItem("rvn_profile", JSON.stringify(next));
         }
-      } catch (_) {}
+      } catch (e) {
+        console.warn("[RVN] macro reset check failed:", e?.message);
+      }
     };
     doCheck();
     const timer = setInterval(doCheck, 60_000);
@@ -9733,7 +10153,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
 
   // ── Streak + Share + Check-in ─────────────────────────────────────────────
   const [streaks,     setStreaks]     = useState(() => getStreaks());
-  const [shareOpen,   setShareOpen]   = useState(false);
+  const [shareOpen,        setShareOpen]        = useState(false);
+  const [workoutShareOpen, setWorkoutShareOpen] = useState(false);
   // Tab navigation
   const [activeGymTab, setActiveGymTab] = useState("train"); // "train" | "stats" | "fuel" | "progress"
 
@@ -10123,6 +10544,24 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
         )}
       </AnimatePresence>
 
+      {/* ── Workout Share Card overlay (IG Story) ────────────────────────── */}
+      <AnimatePresence>
+        {workoutShareOpen && (
+          <WorkoutShareCard
+            key="workout-share"
+            arch={arch}
+            bioScore={bioScore}
+            exercises={customExercises || arch.exercises}
+            setsDone={setsDone}
+            streaks={streaks}
+            velocityLog={velocityLog}
+            profile={profile}
+            theme={theme}
+            onClose={() => setWorkoutShareOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* ── Progress Photo full-screen overlay — rendered at Screen top level
            so position:fixed is relative to viewport, not a transformed ancestor ── */}
       <AnimatePresence>
@@ -10436,7 +10875,22 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
         {/* ══ TAB CONTENT ══════════════════════════════════════════════════ */}
 
         {/* ── TRAIN TAB ─────────────────────────────────────────────────────── */}
-        {activeGymTab === "train" && <>
+        {activeGymTab === "train" && (() => {
+          const todayBio = (() => { try { return JSON.parse(localStorage.getItem("rvn_biometrics_" + new Date().toISOString().slice(0,10)) || "null"); } catch { return null; } })();
+          const bioAlert = todayBio ? (
+            todayBio.hrv && todayBio.hrv < 40 ? { msg: "Low HRV detected — reduce today's intensity by 20%", color: "gold" } :
+            todayBio.sleep && todayBio.sleep < 6 ? { msg: "Sleep debt detected — deload recommended today", color: "red" } :
+            todayBio.stress && todayBio.stress >= 4 ? { msg: "High stress logged — Kailu adjusted macros: +20g protein", color: "orange" } :
+            null
+          ) : null;
+          return <>
+        {/* ── BIOMETRIC ALERT BANNER ────────────────────────────────────── */}
+        {bioAlert && (
+          <motion.div {...FX.up} style={{ background:`${T[bioAlert.color]}18`, border:`1px solid ${T[bioAlert.color]}44`, borderRadius:12, padding:"10px 14px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
+            <span style={{ fontSize:12, color:T[bioAlert.color] }}>◉</span>
+            <span style={{ fontSize:11, color:T[bioAlert.color], fontWeight:700 }}>{bioAlert.msg}</span>
+          </motion.div>
+        )}
         {/* ── MONDAY WEEKLY RECAP ───────────────────────────────────────── */}
         {isMonday && !recapDismissed && (() => {
           const sessions = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
@@ -10744,8 +11198,26 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
         {logged && !saving && (
           <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
             style={{ textAlign:"center", fontSize:11, color:saveErr ? T.red : T.green,
-              fontWeight:700, marginBottom:12, letterSpacing:".06em" }}>
+              fontWeight:700, marginBottom:8, letterSpacing:".06em" }}>
             {saveErr ? `⚠ ${saveErr}` : "SESSION LOGGED  ·  BIO-REQUIREMENTS UNLOCKED"}
+          </motion.div>
+        )}
+
+        {/* Share Workout card — appears after logging */}
+        {logged && !saving && (
+          <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.3 }}
+            style={{ marginBottom:12, display:"flex", justifyContent:"center" }}>
+            <motion.button whileTap={{ scale:.96 }}
+              onClick={() => setWorkoutShareOpen(true)}
+              style={{
+                display:"flex", alignItems:"center", gap:8,
+                background:`${arch.glow}14`, border:`1px solid ${arch.glow}44`,
+                borderRadius:14, padding:"10px 20px",
+                color:arch.glow, fontSize:12, fontWeight:800,
+                cursor:"pointer", letterSpacing:".06em",
+              }}>
+              📲 Share Workout Story
+            </motion.button>
           </motion.div>
         )}
 
@@ -10889,7 +11361,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
             </motion.div>
           )}
         </AnimatePresence>
-        </>}
+        </>; })()}
       </div>
       <AnimatePresence>
         {editMode && (
@@ -10950,6 +11422,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
               </div>
             )}
 
+            {/* What's New */}
+            <button onClick={() => { setSettingsOpen(false); onChangelog && onChangelog(); }}
+              style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
+                border:`1px solid ${T.border}`, color:T.text, fontSize:13, fontWeight:700,
+                cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              🚀 What's New &nbsp;<span style={{ fontSize:9, background:"#e85d04", color:"#fff", borderRadius:20, padding:"1px 7px", fontWeight:800 }}>v6.1</span>
+            </button>
+
             {/* Sign out */}
             <button onClick={handleSignOut}
               style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
@@ -10992,6 +11472,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
 
           return (
             <motion.div {...FX.page}>
+              <RVNLearningSummary archetypeId={archetypeId} theme={theme}/>
               {/* Body weight card */}
               <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
@@ -11142,8 +11623,35 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
             { label:"CARBS",   current:mt.carbs||0,   goal:mg.carbs||250,   color:T.blue,    unit:"g" },
             { label:"FATS",    current:mt.fats||0,    goal:mg.fats||70,     color:"#FF9F0A", unit:"g" },
           ];
+
+          // Macro auto-tuning check
+          const bwData = (() => { try { return JSON.parse(localStorage.getItem("rvn_bodyweight") || "[]"); } catch { return []; } })();
+          const recentBw = bwData.slice(-10);
+          const bwStalled = recentBw.length >= 10 && Math.abs(recentBw[0].weight - recentBw[recentBw.length-1].weight) < 0.5;
+
           return (
             <motion.div {...FX.page}>
+              {/* Macro auto-tuning notice */}
+              {bwStalled && (
+                <motion.div {...FX.up} style={{ background:`${T.orange}18`, border:`1px solid ${T.orange}44`, borderRadius:14, padding:"12px 14px", marginBottom:14 }}>
+                  <div style={{ fontSize:11, color:T.orange, fontWeight:700, marginBottom:8 }}>
+                    Your weight hasn't moved in 10 days. Kailu suggests adding 150 cal/day.
+                  </div>
+                  <motion.button whileTap={{ scale:.96 }}
+                    onClick={() => {
+                      try {
+                        const prf = JSON.parse(localStorage.getItem("rvn_profile") || "{}");
+                        const updated = { ...prf, macroGoals: { ...prf.macroGoals, calories: (prf.macroGoals?.calories || 0) + 150 } };
+                        localStorage.setItem("rvn_profile", JSON.stringify(updated));
+                        setProfile(updated);
+                      } catch {}
+                    }}
+                    style={{ padding:"6px 14px", borderRadius:10, background:T.orange, color:theme==="dark"?"#000":"#fff",
+                      border:"none", fontSize:10, fontWeight:700, cursor:"pointer" }}>
+                    APPLY
+                  </motion.button>
+                </motion.div>
+              )}
               {/* Macro rings */}
               <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
@@ -11190,6 +11698,118 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
                 </div>
                 <div style={{ marginLeft:"auto", fontSize:18, color:"#BF5AF2" }}>→</div>
               </motion.button>
+
+              {/* Recipe Scanner */}
+              {(() => {
+                const [recipeUrl, setRecipeUrl] = React.useState("");
+                const [recipeMacros, setRecipeMacros] = React.useState(null);
+                const [recipeScan, setRecipeScan] = React.useState(false);
+                return (
+                  <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
+                    <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+                      RECIPE SCANNER
+                    </div>
+                    <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+                      <input value={recipeUrl} onChange={e => setRecipeUrl(e.target.value)}
+                        placeholder="Paste recipe link (Instagram, TikTok, YouTube, blog)"
+                        style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
+                          color:T.text, fontSize:12, outline:"none" }}/>
+                      <motion.button whileTap={{ scale:.96 }}
+                        onClick={async () => {
+                          if (!recipeUrl.trim()) return;
+                          setRecipeScan(true);
+                          try {
+                            const resp = await callClaudeAPI({
+                              system: "Estimate nutritional info for the recipe at the URL. Return ONLY valid JSON.",
+                              user: `Given this recipe URL: ${recipeUrl}, estimate the nutritional info per serving as JSON: {name, calories, protein, carbs, fat, servings}. Return ONLY valid JSON.`,
+                              history: [],
+                              maxTokens: 350,
+                              model: "claude-haiku-4-5-20251001",
+                            });
+                            const text = resp?.content?.[0]?.text || "{}";
+                            try {
+                              const macros = JSON.parse(text);
+                              setRecipeMacros(macros);
+                              const cacheKey = "rvn_rscan_" + btoa(recipeUrl).slice(0,12);
+                              try { localStorage.setItem(cacheKey, JSON.stringify(macros)); } catch {}
+                            } catch {}
+                          } catch (e) {
+                            console.error(e);
+                          }
+                          setRecipeScan(false);
+                        }}
+                        style={{ padding:"10px 16px", borderRadius:10, background:arch.glow, color:"#fff",
+                          border:"none", fontSize:11, fontWeight:700, cursor:"pointer" }}>
+                        {recipeScan ? "..." : "SCAN"}
+                      </motion.button>
+                    </div>
+                    {recipeMacros && (
+                      <div style={{ background:T.glass, borderRadius:12, padding:"12px", display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8 }}>
+                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>CAL</div><div style={{ fontSize:14, fontWeight:900, color:arch.glow }}>{recipeMacros.calories}</div></div>
+                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>P</div><div style={{ fontSize:14, fontWeight:900, color:"#30D158" }}>{recipeMacros.protein}g</div></div>
+                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>C</div><div style={{ fontSize:14, fontWeight:900, color:T.blue }}>{recipeMacros.carbs}g</div></div>
+                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>F</div><div style={{ fontSize:14, fontWeight:900, color:"#FF9F0A" }}>{recipeMacros.fat}g</div></div>
+                      </div>
+                    )}
+                  </GlassCard>
+                );
+              })()}
+
+              {/* Restaurant Mode */}
+              {(() => {
+                const [restaurant, setRestaurant] = React.useState("");
+                const [restRec, setRestRec] = React.useState(null);
+                const [restScan, setRestScan] = React.useState(false);
+                return (
+                  <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
+                    <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+                      RESTAURANT MODE
+                    </div>
+                    <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+                      <input value={restaurant} onChange={e => setRestaurant(e.target.value)}
+                        placeholder="Restaurant name"
+                        style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
+                          color:T.text, fontSize:12, outline:"none" }}/>
+                      <motion.button whileTap={{ scale:.96 }}
+                        onClick={async () => {
+                          if (!restaurant.trim()) return;
+                          setRestScan(true);
+                          try {
+                            const remaining = {
+                              protein: (profile.macroGoals?.protein || 180) - (profile.macroToday?.protein || 0),
+                              carbs: (profile.macroGoals?.carbs || 250) - (profile.macroToday?.carbs || 0),
+                              fats: (profile.macroGoals?.fats || 70) - (profile.macroToday?.fats || 0),
+                            };
+                            const resp = await callClaudeAPI({
+                              system: "You are a fitness nutrition AI. Give meal order recommendations in 2-3 sentences.",
+                              user: `User is at ${restaurant}. They still need approximately ${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat today. Give them a specific meal order recommendation in 2-3 sentences.`,
+                              history: [],
+                              maxTokens: 200,
+                              model: "claude-haiku-4-5-20251001",
+                            });
+                            const text = resp?.content?.[0]?.text || "Choose a balanced meal!";
+                            setRestRec(text);
+                            const cacheKey = "rvn_rest_" + restaurant.toLowerCase().replace(/\s/g,"");
+                            try { localStorage.setItem(cacheKey, text); } catch {}
+                          } catch (e) {
+                            console.error(e);
+                          }
+                          setRestScan(false);
+                        }}
+                        style={{ padding:"10px 16px", borderRadius:10, background:arch.glow, color:"#fff",
+                          border:"none", fontSize:11, fontWeight:700, cursor:"pointer" }}>
+                        {restScan ? "..." : "BUILD"}
+                      </motion.button>
+                    </div>
+                    {restRec && (
+                      <div style={{ background:T.glass, borderRadius:12, padding:"12px" }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:T.faint, marginBottom:6 }}>{restaurant.toUpperCase()}</div>
+                        <div style={{ fontSize:12, color:T.text, lineHeight:1.5 }}>{restRec}</div>
+                      </div>
+                    )}
+                  </GlassCard>
+                );
+              })()}
 
               {/* Custom meals quick-log */}
               <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
@@ -11874,6 +12494,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onSuppleme
               );
             })()}
 
+              {/* Female cycle sync card */}
+              {biology?.gender === "female" && <CycleSyncCard theme={theme} />}
+
+              {/* EMG Pad — Coming Soon */}
+              <EMGWaitlistCard theme={theme} />
             </motion.div>
           );
         })()}
@@ -14363,20 +14988,24 @@ function RVNVisionOverlay() {
               )}
             </div>
 
-            {/* Quick chips */}
-            {biopal.messages.length < 3 && (
-              <div style={{
-                display: "flex", gap: 6, padding: "0 14px 10px",
-                flexWrap: "wrap",
-              }}>
-                {quickChips.map((q) => (
-                  <button key={q} onClick={() => setDraft(q)}
-                    style={{
-                      background: T.glass, border: `1px solid ${T.border}`,
-                      borderRadius: 14, padding: "5px 10px",
-                      fontSize: 10.5, color: T.muted, cursor: "pointer",
-                      letterSpacing: ".02em",
-                    }}>{q}</button>
+            {/* Quick action chips — agentic Kailu */}
+            {biopal.messages.length === 0 && (
+              <div style={{ display:"flex", gap:8, overflowX:"auto", padding:"0 16px 10px", WebkitOverflowScrolling:"touch" }}>
+                {[
+                  { icon:"🔄", label:"Swap exercise", prompt:"My [joint/muscle] is bothering me. Swap out [exercise] for something safer that still hits the same muscle." },
+                  { icon:"◈", label:"Rebalance macros", prompt:"I'm behind on my macros today. Rebalance my remaining calories across protein, carbs, and fat." },
+                  { icon:"◉", label:"Recovery session", prompt:"Plan me a 25-minute mobility and recovery session for today." },
+                  { icon:"▲", label:"Shopping list", prompt:"I'm short on my macro goals. Build me a shopping list of 5-8 whole foods that will close the gap." },
+                  { icon:"⬡", label:"Fix my split", prompt:"I keep missing certain days in my program. Suggest a better split based on my schedule." },
+                ].map(a => (
+                  <motion.button key={a.label} whileTap={{ scale:.95 }}
+                    onClick={() => { setDraft(a.prompt); }}
+                    style={{ flexShrink:0, padding:"7px 13px", borderRadius:20, border:`1px solid ${T.border}`,
+                      background:T.glass, backdropFilter:"blur(8px)", cursor:"pointer",
+                      display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }}>
+                    <span style={{ fontSize:14 }}>{a.icon}</span>
+                    <span style={{ fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".04em" }}>{a.label}</span>
+                  </motion.button>
                 ))}
               </div>
             )}
@@ -17642,6 +18271,8 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
   const [busy,      setBusy]      = useState(false);
   const [profiles,  setProfiles]  = useState([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetBusy, setResetBusy] = useState(false);
 
   useEffect(() => {
     setLoadingList(true);
@@ -17843,8 +18474,30 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
               theme={theme} color={ac}
               disabled={busy || !password.trim()}/>
 
-            <div style={{ textAlign:"center", marginTop:10 }}>
-              <button onClick={() => { setPhase("lookup"); setPassword(""); setMsg(""); }}
+            {/* Forgot password */}
+            <div style={{ textAlign:"center", marginTop:12, display:"flex", flexDirection:"column", gap:6 }}>
+              {resetSent ? (
+                <div style={{ fontSize:11, color:T.green, letterSpacing:".04em" }}>
+                  ✓ Reset link sent to {email}
+                </div>
+              ) : (
+                <button
+                  onClick={async () => {
+                    setResetBusy(true);
+                    await sendPasswordResetEmail(email);
+                    setResetBusy(false);
+                    setResetSent(true);
+                  }}
+                  disabled={resetBusy}
+                  style={{
+                    background:"transparent", border:"none",
+                    color:T.blue, fontSize:11, cursor:"pointer", letterSpacing:".06em",
+                    textDecoration:"underline",
+                  }}>
+                  {resetBusy ? "Sending…" : "Forgot password?"}
+                </button>
+              )}
+              <button onClick={() => { setPhase("lookup"); setPassword(""); setMsg(""); setResetSent(false); }}
                 style={{
                   background:"transparent", border:"none",
                   color:T.muted, fontSize:11, cursor:"pointer", letterSpacing:".08em",
@@ -20014,20 +20667,31 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
                     ✓ LIVE
                   </div>
                 ) : (
-                  <motion.button whileTap={{ scale:.97 }}
-                    onClick={w.onConnect}
-                    disabled={!!connecting}
-                    style={{
-                      padding:"9px 18px",
-                      background: connecting === w.id ? `${w.color}11` : `${w.color}22`,
-                      border:`1px solid ${w.color}66`,
-                      borderRadius:10, fontSize:11, fontWeight:800,
-                      color:w.color, cursor: connecting ? "not-allowed" : "pointer",
+                  w.id === "whoop" ? (
+                    <div style={{
+                      fontSize:10, fontWeight:800, color:T.gold,
+                      background:`${T.gold}18`, padding:"5px 11px",
+                      borderRadius:8, border:`1px solid ${T.gold}44`,
                       letterSpacing:".06em",
-                      opacity: connecting && connecting !== w.id ? .5 : 1,
                     }}>
-                    {connecting === w.id ? "CONNECTING..." : "CONNECT"}
-                  </motion.button>
+                      ◈ COMING SOON
+                    </div>
+                  ) : (
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={w.onConnect}
+                      disabled={!!connecting}
+                      style={{
+                        padding:"9px 18px",
+                        background: connecting === w.id ? `${w.color}11` : `${w.color}22`,
+                        border:`1px solid ${w.color}66`,
+                        borderRadius:10, fontSize:11, fontWeight:800,
+                        color:w.color, cursor: connecting ? "not-allowed" : "pointer",
+                        letterSpacing:".06em",
+                        opacity: connecting && connecting !== w.id ? .5 : 1,
+                      }}>
+                      {connecting === w.id ? "CONNECTING..." : "CONNECT"}
+                    </motion.button>
+                  )
                 )}
               </div>
 
@@ -20863,7 +21527,7 @@ function ManagerPIN({ onUnlock, onBack, theme }) {
   const [pin, setPin] = useState("");
   const [shake, setShake] = useState(false);
   const [attempts, setAttempts] = useState(0);
-  const CORRECT = "0000";
+  const CORRECT = (() => { try { return localStorage.getItem("rvn_gym_pin") || "0000"; } catch { return "0000"; } })();
 
   const press = (d) => {
     if (pin.length >= 4) return;
@@ -20935,8 +21599,6 @@ function ManagerPIN({ onUnlock, onBack, theme }) {
             </motion.button>
           ))}
         </div>
-
-        <div style={{ marginTop:20, fontSize:11, color:T.faint }}>Default PIN: 0000</div>
       </div>
     </Screen>
   );
@@ -20978,25 +21640,33 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   // Hoisted tab state (React hooks must be at top level)
   const [rosterSearch, setRosterSearch] = useState("");
   const [rosterFilter, setRosterFilter] = useState("all");
-  const [nfcTags, setNfcTags] = useState([
-    { id:"TAG-001", equipment:"Squat Rack A",      location:"Floor 1", status:"active",     lastTap:"2h ago" },
-    { id:"TAG-002", equipment:"Bench Press B",     location:"Floor 1", status:"active",     lastTap:"4h ago" },
-    { id:"TAG-003", equipment:"Deadlift Platform", location:"Floor 2", status:"broken",     lastTap:"3d ago" },
-    { id:"TAG-004", equipment:"Cable Machine",     location:"Floor 1", status:"active",     lastTap:"1h ago" },
-    { id:"TAG-005", equipment:"Leg Press",         location:"Floor 2", status:"unassigned", lastTap:"never"  },
-  ]);
+  const [nfcTags, setNfcTags] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("rvn_nfc_tags") || "null");
+      if (saved && saved.length) return saved;
+    } catch (_) {}
+    return [
+      { id:"TAG-001", equipment:"Squat Rack A",      location:"Floor 1", status:"active",     lastTap:"2h ago" },
+      { id:"TAG-002", equipment:"Bench Press B",     location:"Floor 1", status:"active",     lastTap:"4h ago" },
+      { id:"TAG-003", equipment:"Deadlift Platform", location:"Floor 2", status:"broken",     lastTap:"3d ago" },
+      { id:"TAG-004", equipment:"Cable Machine",     location:"Floor 1", status:"active",     lastTap:"1h ago" },
+      { id:"TAG-005", equipment:"Leg Press",         location:"Floor 2", status:"unassigned", lastTap:"never"  },
+    ];
+  });
   const [nfcNewTag, setNfcNewTag] = useState({ id:"", equipment:"", location:"Floor 1" });
   const [nfcAdding, setNfcAdding] = useState(false);
   const [exportRange, setExportRange] = useState("30d");
   const [exportResult, setExportResult] = useState(null);
   const [rolesMembers, setRolesMembers] = useState([
-    { id:1, name:"Jordan Lee",   email:"jordan@gym.com", role:"manager", active:true  },
+    { id:1, name:"Jordan Lee",   email:"jordan@gym.com", role:"owner", active:true  },
     { id:2, name:"Sam Rivera",   email:"sam@gym.com",    role:"coach",   active:true  },
     { id:3, name:"Casey Morgan", email:"casey@gym.com",  role:"staff",   active:true  },
     { id:4, name:"Alex Kim",     email:"alex@gym.com",   role:"staff",   active:false },
   ]);
   const [rolesAddForm, setRolesAddForm] = useState({ name:"", email:"", role:"coach" });
   const [rolesAdding, setRolesAdding] = useState(false);
+  const [pinForm, setPinForm] = useState({ current:"", next:"", confirm:"" });
+  const [pinMsg, setPinMsg] = useState(null);
 
   // Mock analytics
   const analytics = {
@@ -21011,6 +21681,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
     { id:"overview",   label:"OVERVIEW",   icon:"◉" },
     { id:"inventory",  label:"INVENTORY",  icon:"◈" },
     { id:"roster",     label:"ROSTER",     icon:"👥" },
+    { id:"coach",      label:"COACH",      icon:"🎯" },
+    { id:"qr",         label:"QR ONBOARD", icon:"⬡" },
     { id:"nfc",        label:"NFC TAGS",   icon:"⬡" },
     { id:"export",     label:"EXPORT",     icon:"↗" },
     { id:"roles",      label:"ROLES",      icon:"🔑" },
@@ -21040,6 +21712,68 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   const saveChallenges = (list) => { setChallenges(list); try { localStorage.setItem("rvn_challenges", JSON.stringify(list)); } catch {}; };
   const [storyAdded, setStoryAdded] = useState(false);
 
+  // ── QR Onboarding state ──────────────────────────────────────────────────
+  const [qrGenerated, setQrGenerated] = useState(false);
+  const [qrDataUrl, setQrDataUrl] = useState(null);
+  const qrCanvasRef = useRef(null);
+
+  function generateQRCode() {
+    // Build the onboarding deep-link URL
+    const gymData = {
+      gymName:     venueBrand.gymName   || storeName || "My Gym",
+      accentColor: venueBrand.accentColor || "#2E5BFF",
+      welcomeMsg:  venueBrand.welcomeMsg  || "Welcome!",
+    };
+    const encoded = btoa(JSON.stringify(gymData));
+    const url     = `${window.location.origin}?rvn_gym=${encoded}`;
+
+    // Draw QR via canvas (simple pixel matrix — no lib needed for demo)
+    // We'll use the URL as a data matrix visually, or just show the link
+    setQrGenerated(true);
+    setQrDataUrl(url);
+  }
+
+  // ── Coach Workouts state ─────────────────────────────────────────────────
+  const [coachAssignments, setCoachAssignments] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("rvn_coach_assignments") || "[]"); } catch { return []; }
+  });
+  const [coachForm, setCoachForm] = useState({ memberId: "", memberName: "", program: "PPL", notes: "", week: 1 });
+  const [coachSaved, setCoachSaved] = useState(false);
+
+  const coachRoster = (() => {
+    try { return JSON.parse(localStorage.getItem("rvn_roster") || "[]"); } catch { return []; }
+  })();
+
+  const COACH_PROGRAMS = [
+    { id:"PPL",      label:"Push/Pull/Legs",   days:6, desc:"Classic 6-day hypertrophy split" },
+    { id:"UPPER_LOWER", label:"Upper/Lower",   days:4, desc:"4-day strength + hypertrophy"    },
+    { id:"FULL_BODY",   label:"Full Body 3x",  days:3, desc:"3-day beginner / intermediate"   },
+    { id:"POWERLIFTING",label:"Powerlifting",  days:4, desc:"Squat/Bench/Deadlift focus"      },
+    { id:"CARDIO_PLUS", label:"Cardio + Lift", days:5, desc:"5-day metabolic conditioning"    },
+  ];
+
+  function saveCoachAssignment() {
+    if (!coachForm.memberId && !coachForm.memberName.trim()) return;
+    const assignment = {
+      id:         Date.now(),
+      memberId:   coachForm.memberId,
+      memberName: coachForm.memberName || (coachRoster.find(m=>m.id===coachForm.memberId)?.name || "Member"),
+      program:    coachForm.program,
+      notes:      coachForm.notes,
+      week:       coachForm.week,
+      assignedAt: new Date().toISOString(),
+      status:     "active",
+    };
+    const next = [assignment, ...coachAssignments];
+    setCoachAssignments(next);
+    try { localStorage.setItem("rvn_coach_assignments", JSON.stringify(next)); } catch {}
+    // Also write to member's local key so they see it in their TRAIN tab
+    try { localStorage.setItem(`rvn_coach_program_${coachForm.memberId || "all"}`, JSON.stringify(assignment)); } catch {}
+    setCoachSaved(true);
+    setTimeout(() => setCoachSaved(false), 2000);
+    setCoachForm({ memberId:"", memberName:"", program:"PPL", notes:"", week:1 });
+  }
+
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }}>
       {/* Header */}
@@ -21053,7 +21787,6 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
           <BackBtn onBack={onBack} theme={theme}/>
           <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
             <div style={{ fontSize:12, fontWeight:800, color:T.text, letterSpacing:".1em" }}>COMMAND CENTER</div>
-            <SupaStatusBadge theme={theme}/>
           </div>
           <ThemeToggle theme={theme} onToggle={onThemeChange}/>
         </div>
@@ -21405,6 +22138,276 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
           </motion.div>
         )}
 
+        {/* ── QR ONBOARDING TAB ──────────────────────────────────────────────── */}
+        {hubTab === "qr" && (
+          <motion.div key="qr" {...FX.up}>
+            <GlassCard theme={theme} style={{ padding:"16px", marginBottom:12 }}>
+              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+                MEMBER QR ONBOARDING
+              </div>
+              <div style={{ fontSize:12, color:T.muted, marginBottom:16, lineHeight:1.6 }}>
+                Generate a QR code your members scan to instantly join your gym on RVN OS — pre-loaded with your branding, accent color, and welcome message.
+              </div>
+
+              {/* Gym info preview */}
+              <div style={{ background:`${T.blue}10`, border:`1px solid ${T.blue}30`, borderRadius:12, padding:"12px 14px", marginBottom:14 }}>
+                <div style={{ fontSize:9, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>WILL EMBED</div>
+                <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{venueBrand.gymName || storeName || "Your Gym Name"}</div>
+                <div style={{ fontSize:11, color:T.muted, marginTop:2 }}>{venueBrand.welcomeMsg || "Set welcome message in Brands tab"}</div>
+                <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:8 }}>
+                  <div style={{ width:16, height:16, borderRadius:"50%", background:venueBrand.accentColor || "#2E5BFF" }}/>
+                  <span style={{ fontSize:10, color:T.faint }}>{venueBrand.accentColor || "#2E5BFF"}</span>
+                </div>
+              </div>
+
+              {/* Generate button */}
+              <motion.button whileTap={{ scale:.97 }}
+                onClick={generateQRCode}
+                style={{
+                  width:"100%", padding:"13px", borderRadius:12,
+                  background:T.blue, color: theme==="dark"?"#000":"#fff",
+                  border:"none", fontSize:13, fontWeight:800,
+                  cursor:"pointer", marginBottom:14,
+                }}>
+                Generate QR Code
+              </motion.button>
+
+              {qrGenerated && qrDataUrl && (
+                <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
+                  style={{ textAlign:"center" }}>
+                  {/* Visual QR code placeholder — in production swap for a real QR lib */}
+                  <div style={{
+                    width:200, height:200, margin:"0 auto 12px",
+                    background:"#fff", borderRadius:16,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    flexDirection:"column", gap:8, padding:16,
+                    border:`2px solid ${T.blue}33`,
+                  }}>
+                    {/* Pixel art QR stand-in */}
+                    <svg viewBox="0 0 21 21" width={160} height={160}>
+                      {/* Finder pattern TL */}
+                      <rect x="0" y="0" width="7" height="7" fill="#000" rx="1"/>
+                      <rect x="1" y="1" width="5" height="5" fill="#fff"/>
+                      <rect x="2" y="2" width="3" height="3" fill="#000"/>
+                      {/* Finder pattern TR */}
+                      <rect x="14" y="0" width="7" height="7" fill="#000" rx="1"/>
+                      <rect x="15" y="1" width="5" height="5" fill="#fff"/>
+                      <rect x="16" y="2" width="3" height="3" fill="#000"/>
+                      {/* Finder pattern BL */}
+                      <rect x="0" y="14" width="7" height="7" fill="#000" rx="1"/>
+                      <rect x="1" y="15" width="5" height="5" fill="#fff"/>
+                      <rect x="2" y="16" width="3" height="3" fill="#000"/>
+                      {/* Data modules (pseudo-random pattern) */}
+                      {[9,10,11,9,12,14,15,13,16,17,18,9,11,13,15,17,10,12,14,16,18].map((x,i) => {
+                        const y = 1 + (i % 5) * 2;
+                        return x < 21 && y < 21 ? <rect key={i} x={x} y={y} width="1" height="1" fill="#000"/> : null;
+                      })}
+                      {[1,3,5,2,4,6,1,4,7,2,5,3,6,1,4,2,5,7,3,6].map((x,i) => {
+                        const y = 9 + (i % 4);
+                        return <rect key={`d${i}`} x={x} y={y} width="1" height="1" fill="#000"/>;
+                      })}
+                    </svg>
+                    <div style={{ fontSize:8, color:"#666", fontWeight:700, letterSpacing:".1em" }}>RVN OS · SCAN TO JOIN</div>
+                  </div>
+
+                  {/* Copyable link */}
+                  <div style={{
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    borderRadius:10, padding:"10px 12px",
+                    display:"flex", alignItems:"center", gap:8,
+                  }}>
+                    <div style={{ flex:1, fontSize:10, color:T.muted, wordBreak:"break-all", textAlign:"left" }}>
+                      {qrDataUrl.slice(0, 60)}…
+                    </div>
+                    <motion.button whileTap={{ scale:.96 }}
+                      onClick={() => { try { navigator.clipboard.writeText(qrDataUrl); } catch {} }}
+                      style={{
+                        flexShrink:0, background:T.blue, color: theme==="dark"?"#000":"#fff",
+                        border:"none", borderRadius:8, padding:"6px 10px",
+                        fontSize:10, fontWeight:800, cursor:"pointer",
+                      }}>
+                      COPY
+                    </motion.button>
+                  </div>
+                  <div style={{ fontSize:11, color:T.muted, marginTop:10 }}>
+                    Share this link or print the QR code for your front desk. Members who scan it will land directly in your gym's branded experience.
+                  </div>
+                </motion.div>
+              )}
+            </GlassCard>
+
+            {/* Instructions */}
+            <GlassCard theme={theme} style={{ padding:"14px 16px" }}>
+              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+                HOW IT WORKS
+              </div>
+              {[
+                { n:"1", text:"Set your gym name, accent color, and welcome message in the Brands tab" },
+                { n:"2", text:"Generate your QR code above and print or display it at your front desk" },
+                { n:"3", text:"Members scan → land on RVN OS pre-loaded with your gym's branding" },
+                { n:"4", text:"They complete onboarding and appear in your Roster automatically" },
+              ].map(step => (
+                <div key={step.n} style={{ display:"flex", gap:12, marginBottom:10 }}>
+                  <div style={{
+                    width:22, height:22, borderRadius:"50%",
+                    background:`${T.blue}22`, border:`1px solid ${T.blue}44`,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:10, fontWeight:900, color:T.blue, flexShrink:0,
+                  }}>{step.n}</div>
+                  <div style={{ fontSize:12, color:T.muted, lineHeight:1.5 }}>{step.text}</div>
+                </div>
+              ))}
+            </GlassCard>
+          </motion.div>
+        )}
+
+        {/* ── COACH TAB ──────────────────────────────────────────────────────── */}
+        {hubTab === "coach" && (
+          <motion.div key="coach" {...FX.up}>
+            {/* Assign workout */}
+            <GlassCard theme={theme} style={{ padding:"16px", marginBottom:12 }}>
+              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+                ASSIGN PROGRAM TO MEMBER
+              </div>
+
+              {/* Member picker */}
+              {coachRoster.length > 0 ? (
+                <div style={{ marginBottom:10 }}>
+                  <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>SELECT MEMBER</div>
+                  <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+                    {coachRoster.slice(0,8).map(m => (
+                      <motion.button key={m.id} whileTap={{ scale:.97 }}
+                        onClick={() => setCoachForm(f => ({ ...f, memberId:m.id, memberName:m.name }))}
+                        style={{
+                          padding:"6px 12px", borderRadius:20, fontSize:10, fontWeight:700,
+                          background: coachForm.memberId===m.id ? T.blue : T.glass,
+                          border:`1px solid ${coachForm.memberId===m.id ? T.blue : T.border}`,
+                          color: coachForm.memberId===m.id ? (theme==="dark"?"#000":"#fff") : T.muted,
+                          cursor:"pointer",
+                        }}>
+                        {m.name}
+                      </motion.button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ marginBottom:10 }}>
+                  <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>MEMBER NAME</div>
+                  <input
+                    value={coachForm.memberName}
+                    onChange={e => setCoachForm(f => ({ ...f, memberName:e.target.value }))}
+                    placeholder="e.g. Alex Chen"
+                    style={{ width:"100%", padding:"10px 12px", borderRadius:10, fontSize:13, fontWeight:600,
+                      border:`1px solid ${T.border}`, background:T.glass, color:T.text, boxSizing:"border-box" }}/>
+                </div>
+              )}
+
+              {/* Program picker */}
+              <div style={{ marginBottom:10 }}>
+                <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>PROGRAM</div>
+                <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  {COACH_PROGRAMS.map(p => (
+                    <motion.button key={p.id} whileTap={{ scale:.98 }}
+                      onClick={() => setCoachForm(f => ({ ...f, program:p.id }))}
+                      style={{
+                        textAlign:"left", padding:"10px 12px", borderRadius:10,
+                        background: coachForm.program===p.id ? `${T.green}18` : T.glass,
+                        border:`1px solid ${coachForm.program===p.id ? T.green : T.border}`,
+                        cursor:"pointer", display:"flex", justifyContent:"space-between", alignItems:"center",
+                      }}>
+                      <div>
+                        <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{p.label}</div>
+                        <div style={{ fontSize:10, color:T.muted }}>{p.desc}</div>
+                      </div>
+                      <div style={{ fontSize:10, color:T.faint }}>{p.days}d/wk</div>
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Week */}
+              <div style={{ marginBottom:10 }}>
+                <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>STARTING WEEK</div>
+                <div style={{ display:"flex", gap:6 }}>
+                  {[1,2,3,4].map(w => (
+                    <motion.button key={w} whileTap={{ scale:.97 }}
+                      onClick={() => setCoachForm(f => ({ ...f, week:w }))}
+                      style={{
+                        flex:1, padding:"8px", borderRadius:10, fontSize:12, fontWeight:800,
+                        background: coachForm.week===w ? T.blue : T.glass,
+                        border:`1px solid ${coachForm.week===w ? T.blue : T.border}`,
+                        color: coachForm.week===w ? (theme==="dark"?"#000":"#fff") : T.muted,
+                        cursor:"pointer",
+                      }}>
+                      Wk {w}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div style={{ marginBottom:14 }}>
+                <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>COACH NOTES (optional)</div>
+                <textarea
+                  value={coachForm.notes}
+                  onChange={e => setCoachForm(f => ({ ...f, notes:e.target.value }))}
+                  placeholder="e.g. Focus on RPE 8 on main lifts. Deload week 4."
+                  rows={2}
+                  style={{ width:"100%", padding:"10px 12px", borderRadius:10, fontSize:12,
+                    border:`1px solid ${T.border}`, background:T.glass, color:T.text,
+                    boxSizing:"border-box", resize:"none", fontFamily:"inherit" }}/>
+              </div>
+
+              {/* Assign button */}
+              <motion.button whileTap={{ scale:.96 }}
+                onClick={saveCoachAssignment}
+                disabled={!coachForm.memberId && !coachForm.memberName.trim()}
+                style={{
+                  width:"100%", padding:"13px", borderRadius:12,
+                  background: (!coachForm.memberId && !coachForm.memberName.trim()) ? `${T.green}44` : T.green,
+                  color:"#fff", border:"none", fontSize:13, fontWeight:800, cursor:"pointer",
+                }}>
+                {coachSaved ? "✓ Program Assigned!" : "Assign Program →"}
+              </motion.button>
+            </GlassCard>
+
+            {/* Active assignments */}
+            {coachAssignments.length > 0 && (
+              <GlassCard theme={theme} style={{ padding:"14px 16px" }}>
+                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+                  ACTIVE ASSIGNMENTS ({coachAssignments.length})
+                </div>
+                {coachAssignments.slice(0,5).map((a, i) => (
+                  <div key={a.id} style={{
+                    padding:"10px 0",
+                    borderBottom: i < coachAssignments.length - 1 ? `1px solid ${T.border}` : "none",
+                    display:"flex", alignItems:"center", gap:12,
+                  }}>
+                    <div style={{
+                      width:36, height:36, borderRadius:"50%",
+                      background:`${T.green}18`, border:`1px solid ${T.green}33`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      fontSize:14, flexShrink:0,
+                    }}>🎯</div>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{a.memberName}</div>
+                      <div style={{ fontSize:10, color:T.muted }}>
+                        {COACH_PROGRAMS.find(p=>p.id===a.program)?.label || a.program} · Week {a.week}
+                      </div>
+                      {a.notes && <div style={{ fontSize:10, color:T.faint, marginTop:2 }}>{a.notes}</div>}
+                    </div>
+                    <div style={{
+                      fontSize:9, fontWeight:800, color:T.green,
+                      background:`${T.green}14`, border:`1px solid ${T.green}33`,
+                      borderRadius:20, padding:"2px 8px",
+                    }}>ACTIVE</div>
+                  </div>
+                ))}
+              </GlassCard>
+            )}
+          </motion.div>
+        )}
+
         {hubTab === "settings" && (
           <motion.div key="settings" {...FX.up}>
             {/* Store name */}
@@ -21423,6 +22426,69 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     padding:"7px 14px", fontSize:11, fontWeight:800,
                     color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".06em",
                   }}>SAVE</motion.button>
+              </div>
+            </GlassCard>
+
+            {/* Change PIN */}
+            <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
+              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+                CHANGE PIN
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                <div>
+                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>CURRENT PIN</div>
+                  <input type="password" value={pinForm.current} onChange={e => setPinForm({...pinForm, current: e.target.value})}
+                    placeholder="Enter current PIN"
+                    style={{ width:"100%", padding:"8px 10px", fontSize:14, borderRadius:8, border:`1px solid ${T.border}`, background:T.glass }}/>
+                </div>
+                <div>
+                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>NEW PIN (4 digits)</div>
+                  <input type="password" value={pinForm.next} onChange={e => setPinForm({...pinForm, next: e.target.value})}
+                    placeholder="Enter new PIN"
+                    maxLength="4"
+                    style={{ width:"100%", padding:"8px 10px", fontSize:14, borderRadius:8, border:`1px solid ${T.border}`, background:T.glass }}/>
+                </div>
+                <div>
+                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>CONFIRM PIN</div>
+                  <input type="password" value={pinForm.confirm} onChange={e => setPinForm({...pinForm, confirm: e.target.value})}
+                    placeholder="Confirm new PIN"
+                    maxLength="4"
+                    style={{ width:"100%", padding:"8px 10px", fontSize:14, borderRadius:8, border:`1px solid ${T.border}`, background:T.glass }}/>
+                </div>
+                {pinMsg && (
+                  <div style={{ fontSize:11, color: pinMsg.type === "error" ? T.red : T.green, marginBottom:6 }}>
+                    {pinMsg.text}
+                  </div>
+                )}
+                <motion.button whileTap={{ scale:.96 }}
+                  onClick={() => {
+                    const stored = localStorage.getItem("rvn_gym_pin") || "0000";
+                    if (pinForm.current !== stored) {
+                      setPinMsg({ type:"error", text:"Current PIN is incorrect" });
+                      return;
+                    }
+                    if (pinForm.next !== pinForm.confirm) {
+                      setPinMsg({ type:"error", text:"New PINs don't match" });
+                      return;
+                    }
+                    if (pinForm.next.length !== 4) {
+                      setPinMsg({ type:"error", text:"PIN must be 4 digits" });
+                      return;
+                    }
+                    try {
+                      localStorage.setItem("rvn_gym_pin", pinForm.next);
+                      setPinMsg({ type:"success", text:"PIN updated successfully" });
+                      setPinForm({ current:"", next:"", confirm:"" });
+                      setTimeout(() => setPinMsg(null), 2000);
+                    } catch (e) {
+                      setPinMsg({ type:"error", text:"Failed to update PIN" });
+                    }
+                  }}
+                  style={{
+                    background:T.blue, border:"none", borderRadius:9,
+                    padding:"7px 14px", fontSize:11, fontWeight:800,
+                    color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".06em",
+                  }}>SAVE PIN</motion.button>
               </div>
             </GlassCard>
 
@@ -22001,26 +23067,27 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
           const teamMembers = rolesMembers; const setTeamMembers = setRolesMembers;
           const addForm = rolesAddForm; const setAddForm = setRolesAddForm;
           const adding = rolesAdding; const setAdding = setRolesAdding;
-          const roleColor = { owner:T.gold, coach:T.blue };
+          const roleColor = { owner:T.gold, coach:T.blue, staff:T.green };
           const permissions = [
-            { label:"View all members",       owner:true,  coach:false },
-            { label:"View assigned athletes", owner:true,  coach:true  },
-            { label:"See revenue data",       owner:true,  coach:false },
-            { label:"Manage NFC tags",        owner:true,  coach:false },
-            { label:"Export reports",         owner:true,  coach:false },
-            { label:"Edit inventory",         owner:true,  coach:false },
-            { label:"Message athletes",       owner:true,  coach:true  },
-            { label:"View workout data",      owner:true,  coach:true  },
+            { label:"View all members",       owner:true,  coach:false, staff:false },
+            { label:"View assigned athletes", owner:true,  coach:true,  staff:true  },
+            { label:"See revenue data",       owner:true,  coach:false, staff:false },
+            { label:"Manage NFC tags",        owner:true,  coach:false, staff:false },
+            { label:"Export reports",         owner:true,  coach:false, staff:false },
+            { label:"Edit inventory",         owner:true,  coach:false, staff:false },
+            { label:"Message athletes",       owner:true,  coach:true,  staff:true  },
+            { label:"View workout data",      owner:true,  coach:true,  staff:true  },
           ];
           return (
             <motion.div key="roles" {...FX.up}>
               {/* Permission matrix */}
               <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:14 }}>
                 <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>PERMISSION MATRIX</div>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 60px 60px", gap:0 }}>
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 60px 60px 60px", gap:0 }}>
                   <div style={{ fontSize:8, color:T.faint, fontWeight:800, paddingBottom:8 }}></div>
                   <div style={{ fontSize:8, color:T.gold, fontWeight:800, textAlign:"center", paddingBottom:8 }}>OWNER</div>
                   <div style={{ fontSize:8, color:T.blue, fontWeight:800, textAlign:"center", paddingBottom:8 }}>COACH</div>
+                  <div style={{ fontSize:8, color:T.green, fontWeight:800, textAlign:"center", paddingBottom:8 }}>STAFF</div>
                   {permissions.map((p,i) => (
                     <React.Fragment key={i}>
                       <div style={{ fontSize:10, color:T.muted, padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none" }}>{p.label}</div>
@@ -22028,6 +23095,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         fontSize:12, color:p.owner?T.green:T.faint }}>{ p.owner ? "✓" : "—" }</div>
                       <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
                         fontSize:12, color:p.coach?T.green:T.faint }}>{ p.coach ? "✓" : "—" }</div>
+                      <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
+                        fontSize:12, color:p.staff?T.green:T.faint }}>{ p.staff ? "✓" : "—" }</div>
                     </React.Fragment>
                   ))}
                 </div>
@@ -22089,7 +23158,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   <div style={{ marginBottom:12 }}>
                     <div style={{ fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:6 }}>ROLE</div>
                     <div style={{ display:"flex", gap:8 }}>
-                      {["coach","owner"].map(r => (
+                      {["coach","staff","owner"].map(r => (
                         <motion.button key={r} whileTap={{ scale:.97 }} onClick={() => setAddForm(f=>({...f,role:r}))}
                           style={{ flex:1, padding:"10px", borderRadius:10, border:`1px solid ${addForm.role===r?roleColor[r]:T.border}`,
                             background:addForm.role===r?`${roleColor[r]}22`:T.glass, cursor:"pointer",
@@ -23579,6 +24648,227 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
 }
 
 
+// ─── EMG WAITLIST CARD ────────────────────────────────────────────────────────
+function EMGWaitlistCard({ theme }) {
+  const T = D[theme] || D.dark;
+  const [email, setEmail] = useState("");
+  const [joined, setJoined] = useState(() => {
+    try { return !!localStorage.getItem("rvn_emg_waitlist"); } catch { return false; }
+  });
+  const [busy, setBusy] = useState(false);
+  const ac = "#7C3AED"; // purple — hardware accent
+
+  async function joinWaitlist() {
+    if (!email.includes("@")) return;
+    setBusy(true);
+    try {
+      // Save to Supabase waitlist table (table: rvn_emg_waitlist)
+      await supabase.from("rvn_emg_waitlist").insert({ email: email.trim(), created_at: new Date().toISOString() });
+    } catch (_) {}
+    try { localStorage.setItem("rvn_emg_waitlist", email.trim()); } catch {}
+    setBusy(false);
+    setJoined(true);
+  }
+
+  return (
+    <motion.div {...FX.up} style={{ marginBottom: 16 }}>
+      <div style={{
+        background: `${ac}10`,
+        border: `1px solid ${ac}33`,
+        borderRadius: 18,
+        padding: "18px 18px 16px",
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        {/* Background glow */}
+        <div style={{ position: "absolute", top: -30, right: -30, width: 120, height: 120,
+          background: `radial-gradient(circle, ${ac}22, transparent 70%)`,
+          pointerEvents: "none" }}/>
+
+        {/* Coming soon pill */}
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <div style={{
+            fontSize: 9, fontWeight: 900, letterSpacing: ".12em", color: ac,
+            background: `${ac}18`, border: `1px solid ${ac}44`,
+            borderRadius: 20, padding: "3px 10px",
+          }}>COMING SOON</div>
+          <div style={{ fontSize: 9, color: T.faint, letterSpacing: ".08em" }}>HARDWARE</div>
+        </div>
+
+        {/* Title */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
+          <div style={{ fontSize: 32, lineHeight: 1, flexShrink: 0 }}>⚡</div>
+          <div>
+            <div style={{ fontSize: 17, fontWeight: 900, color: T.text, letterSpacing: "-.01em", marginBottom: 3 }}>
+              RVN EMG Pad
+            </div>
+            <div style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>
+              Real-time electromyography sensors that detect muscle activation patterns during your lifts — Kailu reads the data and auto-corrects your form.
+            </div>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+          {["EMG Sensors", "AI Form Coach", "Fatigue Detection", "Wireless BLE"].map(f => (
+            <div key={f} style={{
+              fontSize: 9, fontWeight: 700, color: ac,
+              background: `${ac}12`, border: `1px solid ${ac}28`,
+              borderRadius: 20, padding: "3px 9px",
+            }}>{f}</div>
+          ))}
+        </div>
+
+        {/* Waitlist */}
+        {joined ? (
+          <motion.div initial={{ opacity:0, scale:.95 }} animate={{ opacity:1, scale:1 }}
+            style={{ textAlign: "center", padding: "10px 0" }}>
+            <div style={{ fontSize: 20, marginBottom: 4 }}>✓</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: ac }}>You're on the list!</div>
+            <div style={{ fontSize: 11, color: T.muted, marginTop: 3 }}>We'll email you when the EMG Pad ships.</div>
+          </motion.div>
+        ) : (
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && joinWaitlist()}
+              placeholder="your@email.com"
+              style={{
+                flex: 1, padding: "10px 12px", borderRadius: 10,
+                border: `1px solid ${ac}44`, background: `${ac}08`,
+                color: T.text, fontSize: 13, outline: "none",
+              }}/>
+            <motion.button whileTap={{ scale:.96 }}
+              onClick={joinWaitlist}
+              disabled={busy || !email.includes("@")}
+              style={{
+                padding: "10px 16px", borderRadius: 10,
+                background: busy || !email.includes("@") ? `${ac}40` : ac,
+                border: "none", color: "#fff", fontSize: 12, fontWeight: 800,
+                cursor: busy || !email.includes("@") ? "not-allowed" : "pointer",
+                whiteSpace: "nowrap", flexShrink: 0,
+              }}>
+              {busy ? "…" : "Notify Me"}
+            </motion.button>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── WHAT'S NEW / CHANGELOG ───────────────────────────────────────────────────
+const RVN_CHANGELOG = [
+  {
+    version: "6.1",
+    date: "May 2026",
+    badge: "🔥 LATEST",
+    badgeColor: "#e85d04",
+    items: [
+      { icon: "🧠", title: "Kailu AI Coach", desc: "Fully agentic AI that swaps exercises, rebalances macros, and adapts your split in real time." },
+      { icon: "📊", title: "Personalization Engine", desc: "Weekly AI learning summaries that adapt to your biometrics, sleep, and performance trends." },
+      { icon: "🍽️", title: "Nutrition Intelligence", desc: "Recipe scanner, restaurant mode, and smart meal planning with macro auto-fill." },
+      { icon: "💓", title: "Biometric Intelligence", desc: "HRV + sleep tracking with automatic deload recommendations." },
+      { icon: "🔄", title: "Cycle Sync", desc: "Phase-aware training intensity adapted to your biology cycle." },
+    ],
+  },
+  {
+    version: "6.0",
+    date: "Apr 2026",
+    badge: "LAUNCH",
+    badgeColor: "#2E5BFF",
+    items: [
+      { icon: "🏪", title: "ManagerHub B2B", desc: "Full command center for gym owners: roster management, NFC tags, revenue analytics, and branded experiences." },
+      { icon: "🔑", title: "Roles & Permissions", desc: "Owner / Coach / Staff role matrix with PIN-gated access." },
+      { icon: "⬡", title: "NFC Smart Tags", desc: "Tap-to-unlock equipment tracking, auto-log, and venue check-ins." },
+      { icon: "🏆", title: "Challenges", desc: "Create gym-wide challenges with leaderboards and custom rewards." },
+    ],
+  },
+  {
+    version: "5.0",
+    date: "Mar 2026",
+    badge: "MAJOR",
+    badgeColor: "#22c55e",
+    items: [
+      { icon: "☁️", title: "Cloud Sync", desc: "Supabase-backed profile sync across all your devices, fully encrypted." },
+      { icon: "🎯", title: "Bio-Score", desc: "Composite performance score combining sleep, macros, training adherence, and biometrics." },
+      { icon: "📱", title: "Multi-Mode", desc: "Gym · Store · Smoothie Bar operating modes with tailored experiences." },
+      { icon: "🤝", title: "Community", desc: "Gym-gated workout groups, leaderboards, and daily fitness Wordle." },
+    ],
+  },
+];
+
+function WhatsNewScreen({ theme, onBack }) {
+  const T = D[theme] || D.dark;
+  return (
+    <Screen theme={theme} style={{ overflowY: "auto" }}>
+      {/* Header */}
+      <div style={{
+        position: "sticky", top: 0, zIndex: 50,
+        background: `${T.bg}f0`, backdropFilter: "blur(20px)",
+        borderBottom: `1px solid ${T.border}`,
+        padding: "16px 22px 14px",
+        display: "flex", alignItems: "center", gap: 14,
+      }}>
+        <BackBtn onBack={onBack} theme={theme}/>
+        <div>
+          <div style={{ fontSize: 16, fontWeight: 900, color: T.text, letterSpacing: "-.01em" }}>What's New</div>
+          <div style={{ fontSize: 10, color: T.muted, letterSpacing: ".1em" }}>RVN OS · RELEASE NOTES</div>
+        </div>
+      </div>
+
+      <div style={{ padding: "20px 18px 60px" }}>
+        {RVN_CHANGELOG.map((release, ri) => (
+          <motion.div key={release.version} {...FX.up} transition={{ delay: ri * 0.07 }}
+            style={{ marginBottom: 28 }}>
+            {/* Version header */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <div style={{
+                fontSize: 11, fontWeight: 900, letterSpacing: ".12em",
+                color: T.text,
+              }}>v{release.version}</div>
+              <div style={{
+                fontSize: 9, fontWeight: 800, letterSpacing: ".1em",
+                color: release.badgeColor, background: `${release.badgeColor}18`,
+                border: `1px solid ${release.badgeColor}40`,
+                borderRadius: 20, padding: "2px 8px",
+              }}>{release.badge}</div>
+              <div style={{ fontSize: 10, color: T.faint, marginLeft: "auto" }}>{release.date}</div>
+            </div>
+
+            {/* Items */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {release.items.map((item, ii) => (
+                <motion.div key={ii} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: ri * 0.07 + ii * 0.04 }}
+                  style={{
+                    background: T.glass, border: `1px solid ${T.border}`,
+                    borderLeft: `3px solid ${release.badgeColor}`,
+                    borderRadius: 12, padding: "12px 14px",
+                    display: "flex", gap: 12, alignItems: "flex-start",
+                  }}>
+                  <div style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: T.text, marginBottom: 3 }}>{item.title}</div>
+                    <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.5 }}>{item.desc}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        ))}
+
+        {/* Footer */}
+        <div style={{ textAlign: "center", marginTop: 8 }}>
+          <div style={{ fontSize: 10, color: T.faint, letterSpacing: ".1em" }}>rvnvision.com · Build {OS_BUILD}</div>
+        </div>
+      </div>
+    </Screen>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ROOT APP — RVN OS
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -23624,26 +24914,147 @@ function RVNRoot() {
 
   const go = goto;
 
+  // ── App-ready signal for browser automation / auditing tools ─────────────────
+  useEffect(() => {
+    window.__RVN_READY = false;
+    const t = setTimeout(() => { window.__RVN_READY = true; }, 2000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // ── PWA: inject web app manifest + register service worker ─────────────────
+  useEffect(() => {
+    // Inject Web App Manifest via blob URL so it works with any base path
+    try {
+      if (!document.querySelector('link[rel="manifest"]')) {
+        const manifest = {
+          name: "RVN OS",
+          short_name: "RVN OS",
+          description: "Bio-Intelligence Performance OS",
+          start_url: "/",
+          display: "standalone",
+          orientation: "portrait",
+          background_color: "#07081a",
+          theme_color: "#07081a",
+          icons: [
+            { src: "/favicon.ico",  sizes: "64x64",   type: "image/x-icon" },
+            { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
+            { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable any" },
+          ],
+          categories: ["fitness", "health", "lifestyle"],
+          scope: "/",
+        };
+        const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement("link");
+        link.rel   = "manifest";
+        link.href  = url;
+        document.head.appendChild(link);
+      }
+      // Set meta theme-color
+      if (!document.querySelector('meta[name="theme-color"]')) {
+        const meta = document.createElement("meta");
+        meta.name    = "theme-color";
+        meta.content = "#07081a";
+        document.head.appendChild(meta);
+      }
+    } catch (e) { console.warn("[RVN] Manifest inject failed:", e); }
+
+    // Register inline Service Worker for offline caching
+    if ("serviceWorker" in navigator) {
+      try {
+        const swCode = `
+const CACHE = "rvn-v1";
+const SHELL = ["/", "/index.html"];
+self.addEventListener("install", e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())
+  );
+});
+self.addEventListener("activate", e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+    )).then(() => self.clients.claim())
+  );
+});
+self.addEventListener("fetch", e => {
+  if (e.request.method !== "GET") return;
+  if (e.request.url.includes("supabase.co")) return; // never cache API calls
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const network = fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      });
+      return cached || network;
+    })
+  );
+});
+self.addEventListener("push", e => {
+  const data = e.data?.json() || {};
+  e.waitUntil(
+    self.registration.showNotification(data.title || "RVN OS", {
+      body: data.body || "",
+      icon: "/favicon.ico",
+      badge: "/favicon.ico",
+      tag: data.tag || "rvn",
+      data: { url: data.url || "/" },
+    })
+  );
+});
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow(e.notification.data?.url || "/"));
+});
+`;
+        const swBlob = new Blob([swCode], { type: "application/javascript" });
+        const swUrl  = URL.createObjectURL(swBlob);
+        navigator.serviceWorker.register(swUrl, { scope: "/" }).then(reg => {
+          window.__RVN_SW = reg;
+          console.log("[RVN] Service worker registered");
+        }).catch(e => console.warn("[RVN] SW register failed:", e.message));
+      } catch (e) { console.warn("[RVN] SW setup failed:", e); }
+    }
+  }, []);
+
+  // ── PWA: add-to-home-screen prompt ─────────────────────────────────────────
+  const [pwaPrompt, setPwaPrompt] = useState(null);
+  const [pwaBannerDismissed, setPwaBannerDismissed] = useState(() => {
+    try { return !!localStorage.getItem("rvn_pwa_dismissed"); } catch { return false; }
+  });
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setPwaPrompt(e); };
+    window.addEventListener("beforeinstallprompt", handler);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
   // ── Supabase auth state ───────────────────────────────────────────────────────
   const [authSession,   setAuthSession]   = useState(null);   // supabase Session | null
   const [authChecked,   setAuthChecked]   = useState(false);  // have we resolved the initial session?
 
   useEffect(() => {
+    // Timeout guard — if Supabase hangs, unblock the app after 4s
+    const timeoutId = setTimeout(() => setAuthChecked(true), 4000);
+
     // Resolve current session (handles magic-link token in URL hash automatically)
     supabase.auth.getSession().then(({ data: { session } }) => {
+      clearTimeout(timeoutId);
       setAuthSession(session);
       setAuthChecked(true);
       if (session?.user) {
-        // Load cloud profile and merge into localStorage + local state
+        // Load cloud profile and merge into localStorage (don't race with onAuthStateChange)
         loadRemoteProfile(session.user.id).then(remote => {
           if (remote && Object.keys(remote).length > 0) {
             try { localStorage.setItem("rvn_profile", JSON.stringify(remote)); } catch {}
           }
         });
       }
-    });
+    }).catch(() => { clearTimeout(timeoutId); setAuthChecked(true); });
 
-    // Listen for sign-in / sign-out events
+    // Listen for sign-in / sign-out events (fires AFTER getSession resolves, no race)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setAuthSession(session);
       if (session?.user) {
@@ -23654,7 +25065,7 @@ function RVNRoot() {
         });
       }
     });
-    return () => subscription.unsubscribe();
+    return () => { clearTimeout(timeoutId); subscription.unsubscribe(); };
   }, []);
 
   // ── Station NFC state ────────────────────────────────────────────────────────
@@ -23709,8 +25120,108 @@ function RVNRoot() {
   // ── DEV bypass + ?demo=1 mode ────────────────────────────────────────────
   useEffect(() => {
     try {
-      const isDemoURL = new URLSearchParams(window.location.search).get("demo") === "1";
+      const demoParam  = new URLSearchParams(window.location.search).get("demo");
+      const gymParam   = new URLSearchParams(window.location.search).get("rvn_gym");
+      const isDemoURL  = demoParam === "1";
+      const isDemoManager = demoParam === "manager";
       const isDevBypass = localStorage.getItem("rvn_dev_bypass") === "true";
+
+      // ── ?rvn_gym=<base64> — QR code member onboarding deep-link ──────────
+      if (gymParam && screen === "splash") {
+        try {
+          const gymData = JSON.parse(atob(gymParam));
+          // Store gym branding so onboarding shows it
+          if (gymData.gymName) {
+            localStorage.setItem("rvn_venue_brand", JSON.stringify({
+              gymName:     gymData.gymName,
+              accentColor: gymData.accentColor || "#2E5BFF",
+              welcomeMsg:  gymData.welcomeMsg  || `Welcome to ${gymData.gymName}!`,
+              logoDataUrl: "",
+            }));
+          }
+          window.history.replaceState({}, "", window.location.pathname);
+          // Route to onboarding normally — venue branding will show on landing
+          setTimeout(() => go("landing"), 800);
+          return;
+        } catch (_) {}
+      }
+
+      // ── ?demo=manager — seeds a gym owner demo and routes to ManagerHub ──
+      if (isDemoManager && screen === "splash") {
+        const managerProfile = {
+          name: "Jordan Mills", email: "demo-manager@rvnos.com",
+          age: 34, gender: "male", activityLevel: "active",
+          archetypeId: "vtaper", goal: "vtaper", goalFocus: "muscle gain",
+          height: 71, weight: 185,
+          macroGoals: { protein: 185, carbs: 220, fat: 65, calories: 2200 },
+          isManager: true, gymName: "Iron Forge Athletics",
+          gymTier: "pro", gymId: "demo-gym-001",
+        };
+        localStorage.setItem("rvn_profile", JSON.stringify(managerProfile));
+        localStorage.setItem("rvn_mode", "gym");
+
+        // Seed venue branding
+        const venueBrand = {
+          gymName: "Iron Forge Athletics", tagline: "Forge Your Edge",
+          accentColor: "#e85d04", welcomeMsg: "Welcome to Iron Forge — Forge Your Edge.",
+          address: "247 Industrial Blvd, Austin TX 78701",
+          phone: "(512) 555-0192", website: "ironforge.fit",
+          logoDataUrl: null,
+        };
+        localStorage.setItem("rvn_venue_brand", JSON.stringify(venueBrand));
+
+        // Seed member roster
+        const rosterSeed = [
+          { id: "m1", name: "Marcus Webb",    goal: "Strength",    status: "active",   joined: "2024-09", checkins: 48, tag: "NFC-004" },
+          { id: "m2", name: "Priya Sharma",   goal: "Fat Loss",    status: "active",   joined: "2024-11", checkins: 61, tag: "NFC-009" },
+          { id: "m3", name: "Derek Hollis",   goal: "Endurance",   status: "active",   joined: "2025-01", checkins: 29, tag: "NFC-012" },
+          { id: "m4", name: "Simone Torres",  goal: "Muscle Gain", status: "active",   joined: "2024-07", checkins: 87, tag: "NFC-002" },
+          { id: "m5", name: "Kai Nakamura",   goal: "Strength",    status: "paused",   joined: "2024-10", checkins: 33, tag: null       },
+          { id: "m6", name: "Aaliyah Brooks", goal: "Fat Loss",    status: "active",   joined: "2025-02", checkins: 19, tag: "NFC-017" },
+          { id: "m7", name: "Ethan Reyes",    goal: "Athletic",    status: "active",   joined: "2024-06", checkins: 104,tag: "NFC-001" },
+          { id: "m8", name: "Layla Okonkwo",  goal: "Muscle Gain", status: "inactive", joined: "2024-08", checkins: 11, tag: null       },
+        ];
+        localStorage.setItem("rvn_roster", JSON.stringify(rosterSeed));
+
+        // Seed revenue analytics
+        const now = new Date();
+        const revSeed = Array.from({ length: 30 }, (_, i) => {
+          const d = new Date(now); d.setDate(d.getDate() - (29 - i));
+          return {
+            date: d.toISOString().slice(0, 10),
+            revenue: Math.round(1200 + Math.random() * 800 + (i > 20 ? 300 : 0)),
+            checkins: Math.round(18 + Math.random() * 14),
+            newMembers: Math.random() > 0.7 ? Math.ceil(Math.random() * 3) : 0,
+          };
+        });
+        localStorage.setItem("rvn_gym_revenue", JSON.stringify(revSeed));
+
+        // Seed NFC tags
+        const nfcSeed = [
+          { id: "NFC-001", equipment: "Squat Rack A",    location: "Floor 1", status: "active",   lastTap: "12m ago"  },
+          { id: "NFC-002", equipment: "Bench Press B",   location: "Floor 1", status: "active",   lastTap: "1h ago"   },
+          { id: "NFC-004", equipment: "Deadlift Platform",location:"Floor 2", status: "active",   lastTap: "3h ago"   },
+          { id: "NFC-009", equipment: "Cable Machine C",  location:"Floor 1", status: "inactive", lastTap: "2d ago"   },
+          { id: "NFC-012", equipment: "Leg Press",        location:"Floor 2", status: "active",   lastTap: "6h ago"   },
+          { id: "NFC-017", equipment: "Pull-up Rig",      location:"Floor 2", status: "active",   lastTap: "45m ago"  },
+        ];
+        localStorage.setItem("rvn_nfc_tags", JSON.stringify(nfcSeed));
+
+        // Seed challenges
+        const challengeSeed = [
+          { id: "ch1", name: "30-Day Strength Surge", participants: 14, prize: "$50 store credit", endDate: "2026-05-15", status: "active" },
+          { id: "ch2", name: "Cardio Consistency Cup", participants: 9, prize: "Free month",       endDate: "2026-05-31", status: "active" },
+        ];
+        localStorage.setItem("rvn_challenges", JSON.stringify(challengeSeed));
+
+        // Clean URL
+        window.history.replaceState({}, "", window.location.pathname);
+
+        if (typeof setMode === "function") setMode("gym");
+        setTimeout(() => go("hub"), 800);
+        return;
+      }
+
       if ((isDemoURL || isDevBypass) && screen === "splash") {
         // Seed a rich demo profile — looks like a real power user
         const demoProfile = {
@@ -23903,6 +25414,7 @@ function RVNRoot() {
           <GymProtocol key="protocol_gym" theme={theme}
             user={user} bioData={perfData} archetypeId={archetypeId} biology={biology} inventory={inventory}
             onBack={() => go("narrative")}
+            onChangelog={() => go("changelog")}
             onSupplements={() => go("supplements")}
             onMorningBrief={() => go("morning-brief")}
             onWorkoutHistory={() => go("workout-history")}
@@ -24230,10 +25742,68 @@ function RVNRoot() {
           <TosScreen key="tos" theme={theme} onBack={() => go("landing")}/>
         )}
 
+        {screen==="changelog" && (
+          <WhatsNewScreen key="changelog" theme={theme} onBack={() => go("protocol")}/>
+        )}
+
       </AnimatePresence>
 
       {/* Bio-Pal overlay — always mounted, context-aware */}
       <RVNVisionOverlay/>
+
+      {/* PWA Install Banner */}
+      <AnimatePresence>
+        {pwaPrompt && !pwaBannerDismissed && (
+          <motion.div
+            initial={{ y: 80, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 80, opacity: 0 }}
+            transition={{ type: "spring", damping: 22, stiffness: 280 }}
+            style={{
+              position: "fixed", bottom: 80, left: 16, right: 16, zIndex: 9999,
+              background: theme === "dark" ? "rgba(14,15,34,0.97)" : "rgba(255,255,255,0.97)",
+              backdropFilter: "blur(20px)",
+              border: `1px solid ${D[theme]?.blue}44`,
+              borderRadius: 18,
+              padding: "14px 16px",
+              display: "flex", alignItems: "center", gap: 12,
+              boxShadow: `0 8px 40px ${D[theme]?.blue}22`,
+            }}>
+            <div style={{ fontSize: 24 }}>📲</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, color: D[theme]?.text, marginBottom: 2 }}>
+                Install RVN OS
+              </div>
+              <div style={{ fontSize: 11, color: D[theme]?.muted }}>Add to home screen for the full experience</div>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button
+                onClick={async () => {
+                  if (pwaPrompt) {
+                    pwaPrompt.prompt();
+                    const { outcome } = await pwaPrompt.userChoice;
+                    setPwaPrompt(null);
+                    if (outcome === "accepted") { try { localStorage.setItem("rvn_pwa_dismissed", "1"); } catch {} }
+                  }
+                }}
+                style={{
+                  background: D[theme]?.blue, color: "#fff", border: "none",
+                  borderRadius: 10, padding: "8px 14px", fontSize: 12, fontWeight: 800,
+                  cursor: "pointer",
+                }}>
+                Install
+              </button>
+              <button
+                onClick={() => { setPwaBannerDismissed(true); try { localStorage.setItem("rvn_pwa_dismissed", "1"); } catch {} }}
+                style={{
+                  background: "transparent", border: `1px solid ${D[theme]?.border}`,
+                  borderRadius: 10, padding: "8px 10px", fontSize: 12, color: D[theme]?.muted,
+                  cursor: "pointer",
+                }}>
+                ✕
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Global Bug Report Button — always visible at bottom-right */}
       <div style={{

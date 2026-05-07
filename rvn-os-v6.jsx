@@ -18593,7 +18593,7 @@ CREATE POLICY "open_access" ON rvn_nutrition_log FOR ALL USING (true) WITH CHECK
 // pk_live_...  for production   |   pk_test_...  for testing
 const RVN_STRIPE_PK = (typeof window !== "undefined" && window.RVN_STRIPE_PK)
   ? window.RVN_STRIPE_PK
-  : "pk_live_REPLACE_ME";   // ← paste your Stripe publishable key here
+  : "pk_test_51TMHlfRfDUuv88ENO81mO4npgBm5IdNiUKqhwBScAbWFGWvseSgPwmDdLQQ0CelmlnnJ092TiNt66WQhQB5NClth00xR7fCNps";
 
 // Price IDs from Stripe Dashboard → Products → (each product) → Prices
 // Copy the price_... ID for each plan and paste it below.

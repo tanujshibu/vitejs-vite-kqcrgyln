@@ -19,11 +19,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2?target=deno
 // These must match the price IDs you create in the Stripe Dashboard.
 // The app will read the tier from rvn_profiles.subscription_tier.
 const PRICE_TO_TIER: Record<string, string> = {
-  "price_1TUbPURfDUuv88ENwALxwHZ9": "individual",   // $19/month   — Individual
-  "price_1TUbQERfDUuv88ENDksSLb5C": "gym_starter",  // $199/month  — Starter
-  "price_1TUbdwRfDUuv88ENPPtA0zKG": "gym_pro",      // $399/month  — Pro
-  "price_1TUbf1RfDUuv88ENyFI2Ty9P": "gym_multi",    // $599/month  — Multi-Location
-  "price_1TUbfbRfDUuv88ENVDhlN9pw": "gym_ent",      // $1499/month — Enterprise
+  // ── Fill in your real Stripe price IDs below ──────────────────────────────
+  // Individual
+  "price_individual_monthly":    "individual",   // $19/month — REPLACE with real ID
+  // Gym tiers
+  "price_gym_studio_monthly":    "gym_studio",   // $199/month — REPLACE
+  "price_gym_club_monthly":      "gym_club",     // $349/month — REPLACE
+  "price_gym_perf_monthly":      "gym_perf",     // $549/month — REPLACE
+  "price_gym_ent_monthly":       "gym_ent",      // $899/month — REPLACE
+  "price_gym_intro_month":       "gym_intro",    // free trial  — REPLACE
 };
 
 Deno.serve(async (req: Request) => {

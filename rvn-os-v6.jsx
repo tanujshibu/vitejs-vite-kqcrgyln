@@ -18598,12 +18598,11 @@ const RVN_STRIPE_PK = (typeof window !== "undefined" && window.RVN_STRIPE_PK)
 // Price IDs from Stripe Dashboard → Products → (each product) → Prices
 // Copy the price_... ID for each plan and paste it below.
 const RVN_STRIPE_PRICES = (typeof window !== "undefined" && window.RVN_STRIPE_PRICES) || {
-  individual:   "price_REPLACE_individual",   // $19/month
-  gym_intro:    "price_REPLACE_gym_intro",    // free 30-day trial then $199
-  gym_studio:   "price_REPLACE_gym_studio",   // $199/month
-  gym_club:     "price_REPLACE_gym_club",     // $349/month
-  gym_perf:     "price_REPLACE_gym_perf",     // $549/month
-  gym_ent:      "price_REPLACE_gym_ent",      // $899/month
+  individual:   "price_1TUbPURfDUuv88ENwALxwHZ9",  // $19/month  — RVN OS Individual
+  gym_starter:  "price_1TUbQERfDUuv88ENDksSLb5C",  // $199/month — Starter (1 location, 200 members)
+  gym_pro:      "price_1TUbdwRfDUuv88ENPPtA0zKG",  // $399/month — Pro (unlimited members)
+  gym_multi:    "price_1TUbf1RfDUuv88ENyFI2Ty9P",  // $599/month — Multi-Location (5 locations)
+  gym_ent:      "price_1TUbfbRfDUuv88ENVDhlN9pw",  // $1499/month — Enterprise / White-Label
 };
 
 // ── Stripe.js Lazy Loader ─────────────────────────────────────────────────────

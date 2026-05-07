@@ -7171,7 +7171,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
             {[
               { num:"14,200+", label:"PROTOCOLS BUILT" },
               { num:"89%",     label:"HIT GOAL WK 4"  },
-              { num:"4.9★",    label:"APP RATING"     },
+              { num:"16",       label:"ARCHETYPES"     },
             ].map(s => (
               <div key={s.label} style={{
                 flex:1, textAlign:"center", padding:"12px 6px",
@@ -24956,102 +24956,26 @@ function RVNRoot() {
     return () => clearTimeout(t);
   }, []);
 
-  // ── PWA: inject web app manifest + register service worker ─────────────────
+  // ── PWA: register service worker ─────────────────────────────────────────
+  // Manifest is served as /manifest.json (public/manifest.json) and linked in
+  // index.html — blob URL approach doesn't work on iOS Safari or in production.
   useEffect(() => {
-    // Inject Web App Manifest via blob URL so it works with any base path
+    // Set meta theme-color if missing (belt-and-suspenders)
     try {
-      if (!document.querySelector('link[rel="manifest"]')) {
-        const manifest = {
-          name: "RVN OS",
-          short_name: "RVN OS",
-          description: "Bio-Intelligence Performance OS",
-          start_url: "/",
-          display: "standalone",
-          orientation: "portrait",
-          background_color: "#07081a",
-          theme_color: "#07081a",
-          icons: [
-            { src: "/favicon.ico",  sizes: "64x64",   type: "image/x-icon" },
-            { src: "/icon-192.png", sizes: "192x192", type: "image/png" },
-            { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable any" },
-          ],
-          categories: ["fitness", "health", "lifestyle"],
-          scope: "/",
-        };
-        const blob = new Blob([JSON.stringify(manifest)], { type: "application/json" });
-        const url  = URL.createObjectURL(blob);
-        const link = document.createElement("link");
-        link.rel   = "manifest";
-        link.href  = url;
-        document.head.appendChild(link);
-      }
-      // Set meta theme-color
       if (!document.querySelector('meta[name="theme-color"]')) {
         const meta = document.createElement("meta");
         meta.name    = "theme-color";
         meta.content = "#07081a";
         document.head.appendChild(meta);
       }
-    } catch (e) { console.warn("[RVN] Manifest inject failed:", e); }
+    } catch (e) { console.warn("[RVN] theme-color meta failed:", e); }
 
-    // Register inline Service Worker for offline caching
+    // Register real service worker from /sw.js (same-origin, works on iOS)
     if ("serviceWorker" in navigator) {
-      try {
-        const swCode = `
-const CACHE = "rvn-v1";
-const SHELL = ["/", "/index.html"];
-self.addEventListener("install", e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())
-  );
-});
-self.addEventListener("activate", e => {
-  e.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE).map(k => caches.delete(k))
-    )).then(() => self.clients.claim())
-  );
-});
-self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
-  if (e.request.url.includes("supabase.co")) return; // never cache API calls
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      const network = fetch(e.request).then(res => {
-        if (res.ok) {
-          const clone = res.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return res;
-      });
-      return cached || network;
-    })
-  );
-});
-self.addEventListener("push", e => {
-  const data = e.data?.json() || {};
-  e.waitUntil(
-    self.registration.showNotification(data.title || "RVN OS", {
-      body: data.body || "",
-      icon: "/favicon.ico",
-      badge: "/favicon.ico",
-      tag: data.tag || "rvn",
-      data: { url: data.url || "/" },
-    })
-  );
-});
-self.addEventListener("notificationclick", e => {
-  e.notification.close();
-  e.waitUntil(clients.openWindow(e.notification.data?.url || "/"));
-});
-`;
-        const swBlob = new Blob([swCode], { type: "application/javascript" });
-        const swUrl  = URL.createObjectURL(swBlob);
-        navigator.serviceWorker.register(swUrl, { scope: "/" }).then(reg => {
-          window.__RVN_SW = reg;
-          console.log("[RVN] Service worker registered");
-        }).catch(e => console.warn("[RVN] SW register failed:", e.message));
-      } catch (e) { console.warn("[RVN] SW setup failed:", e); }
+      navigator.serviceWorker.register("/sw.js", { scope: "/" }).then(reg => {
+        window.__RVN_SW = reg;
+        console.log("[RVN] Service worker registered");
+      }).catch(e => console.warn("[RVN] SW register failed:", e.message));
     }
   }, []);
 

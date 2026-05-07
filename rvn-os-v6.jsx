@@ -18586,20 +18586,24 @@ CREATE POLICY "open_access" ON rvn_nutrition_log FOR ALL USING (true) WITH CHECK
 // ── Config — swap these once you create products in Stripe Dashboard ─────────
 // Set window.RVN_STRIPE_PK before loading the app (in your HTML <script>)
 // e.g.  window.RVN_STRIPE_PK = "pk_live_..."
+// ── Stripe config ─────────────────────────────────────────────────────────────
+// SETUP: Replace the placeholder strings below with your real Stripe keys.
+// Get them from: stripe.com → Developers → API keys
+//
+// pk_live_...  for production   |   pk_test_...  for testing
 const RVN_STRIPE_PK = (typeof window !== "undefined" && window.RVN_STRIPE_PK)
   ? window.RVN_STRIPE_PK
-  : "pk_test_REPLACE_ME";
+  : "pk_live_REPLACE_ME";   // ← paste your Stripe publishable key here
 
-// Price IDs from Stripe Dashboard → Products
-// Set window.RVN_STRIPE_PRICES to override, or just edit the defaults below
+// Price IDs from Stripe Dashboard → Products → (each product) → Prices
+// Copy the price_... ID for each plan and paste it below.
 const RVN_STRIPE_PRICES = (typeof window !== "undefined" && window.RVN_STRIPE_PRICES) || {
-  individual:   "price_individual_monthly",   // $19/month
-  gym_intro:    "price_gym_intro_month",       // FREE first month, then $175
-  gym_standard: "price_gym_standard_monthly", // $350/month — standard gym
-  gym_studio:   "price_gym_studio_monthly",   // $199/month — Studio tier
-  gym_club:     "price_gym_club_monthly",     // $349/month — Club tier
-  gym_perf:     "price_gym_perf_monthly",     // $549/month — Performance tier
-  gym_ent:      "price_gym_ent_monthly",      // $899/month — Enterprise tier
+  individual:   "price_REPLACE_individual",   // $19/month
+  gym_intro:    "price_REPLACE_gym_intro",    // free 30-day trial then $199
+  gym_studio:   "price_REPLACE_gym_studio",   // $199/month
+  gym_club:     "price_REPLACE_gym_club",     // $349/month
+  gym_perf:     "price_REPLACE_gym_perf",     // $549/month
+  gym_ent:      "price_REPLACE_gym_ent",      // $899/month
 };
 
 // ── Stripe.js Lazy Loader ─────────────────────────────────────────────────────
@@ -18623,16 +18627,16 @@ async function getStripe() {
 // Calls the Supabase Edge Function `create-checkout-session`
 // Returns { sessionId } or throws
 async function createCheckoutSession({ priceId, userId, email, gymId, isGym, successUrl, cancelUrl }) {
-  const supaUrl  = (typeof window !== "undefined" && window.RVN_SUPA_URL)  || "";
-  const supaKey  = (typeof window !== "undefined" && window.RVN_SUPA_KEY)  || "";
+  // RVN_SUPA_URL and RVN_SUPA_ANON are defined at the top of this file.
+  // The Edge Function accepts requests authenticated with the anon key.
+  if (!RVN_SUPA_URL) throw new Error("RVN_SUPA_URL not set — cannot create checkout session");
 
-  if (!supaUrl) throw new Error("RVN_SUPA_URL not set — cannot create checkout session");
-
-  const resp = await fetch(`${supaUrl}/functions/v1/create-checkout-session`, {
+  const resp = await fetch(`${RVN_SUPA_URL}/functions/v1/create-checkout-session`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${supaKey}`,
+      "Content-Type":  "application/json",
+      "Authorization": `Bearer ${RVN_SUPA_ANON}`,
+      "apikey":        RVN_SUPA_ANON,
     },
     body: JSON.stringify({
       priceId,
@@ -18677,6 +18681,10 @@ function useStripeCheckout() {
 function useSubscription(userId) {
   const [sub,        setSub]        = useState(null);
   const [subLoading, setSubLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  // Call refresh() to re-fetch subscription status (e.g. after checkout success)
+  const refresh = () => setRefreshKey(k => k + 1);
 
   useEffect(() => {
     if (!userId) { setSubLoading(false); return; }
@@ -18698,13 +18706,13 @@ function useSubscription(userId) {
       }
     })();
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [userId, refreshKey]);
 
   const isActive    = sub?.subscription_status === "active" || sub?.subscription_status === "trialing";
   const isGymMember = !!(sub?.gym_id && isActive);
   const tier        = sub?.subscription_tier || sub?.gym_tier || "free";
 
-  return { sub, subLoading, isActive, isGymMember, tier };
+  return { sub, subLoading, isActive, isGymMember, tier, refresh };
 }
 
 // ── SubscriptionScreen ────────────────────────────────────────────────────────

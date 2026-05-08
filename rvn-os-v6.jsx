@@ -2337,6 +2337,117 @@ function GlassCard({ children, theme, glow, style={}, onClick }) {
   );
 }
 
+// ─── FUEL TAB SUB-COMPONENTS (extracted to avoid hooks-in-IIFE violation) ──────
+function FuelRecipeScanner({ theme, T, arch, callClaudeAPI }) {
+  const [recipeUrl, setRecipeUrl] = React.useState("");
+  const [recipeMacros, setRecipeMacros] = React.useState(null);
+  const [recipeScan, setRecipeScan] = React.useState(false);
+  return (
+    <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
+      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+        RECIPE SCANNER
+      </div>
+      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+        <input value={recipeUrl} onChange={e => setRecipeUrl(e.target.value)}
+          placeholder="Paste recipe link (Instagram, TikTok, YouTube, blog)"
+          style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
+            color:T.text, fontSize:12, outline:"none" }}/>
+        <motion.button whileTap={{ scale:.96 }}
+          onClick={async () => {
+            if (!recipeUrl.trim()) return;
+            setRecipeScan(true);
+            try {
+              const resp = await callClaudeAPI({
+                system: "Estimate nutritional info for the recipe at the URL. Return ONLY valid JSON.",
+                user: `Given this recipe URL: ${recipeUrl}, estimate the nutritional info per serving as JSON: {name, calories, protein, carbs, fat, servings}. Return ONLY valid JSON.`,
+                history: [],
+                maxTokens: 350,
+                model: "claude-haiku-4-5-20251001",
+              });
+              const text = resp?.content?.[0]?.text || "{}";
+              try {
+                const macros = JSON.parse(text);
+                setRecipeMacros(macros);
+                const cacheKey = "rvn_rscan_" + btoa(recipeUrl).slice(0,12);
+                try { localStorage.setItem(cacheKey, JSON.stringify(macros)); } catch {}
+              } catch {}
+            } catch (e) {
+              console.error(e);
+            }
+            setRecipeScan(false);
+          }}
+          style={{ padding:"10px 16px", borderRadius:10, background:arch.glow, color:"#fff",
+            border:"none", fontSize:11, fontWeight:700, cursor:"pointer" }}>
+          {recipeScan ? "..." : "SCAN"}
+        </motion.button>
+      </div>
+      {recipeMacros && (
+        <div style={{ background:T.glass, borderRadius:12, padding:"12px", display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8 }}>
+          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>CAL</div><div style={{ fontSize:14, fontWeight:900, color:arch.glow }}>{recipeMacros.calories}</div></div>
+          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>P</div><div style={{ fontSize:14, fontWeight:900, color:"#30D158" }}>{recipeMacros.protein}g</div></div>
+          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>C</div><div style={{ fontSize:14, fontWeight:900, color:T.blue }}>{recipeMacros.carbs}g</div></div>
+          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>F</div><div style={{ fontSize:14, fontWeight:900, color:"#FF9F0A" }}>{recipeMacros.fat}g</div></div>
+        </div>
+      )}
+    </GlassCard>
+  );
+}
+
+function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
+  const [restaurant, setRestaurant] = React.useState("");
+  const [restRec, setRestRec] = React.useState(null);
+  const [restScan, setRestScan] = React.useState(false);
+  return (
+    <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
+      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+        RESTAURANT MODE
+      </div>
+      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+        <input value={restaurant} onChange={e => setRestaurant(e.target.value)}
+          placeholder="Restaurant name"
+          style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
+            color:T.text, fontSize:12, outline:"none" }}/>
+        <motion.button whileTap={{ scale:.96 }}
+          onClick={async () => {
+            if (!restaurant.trim()) return;
+            setRestScan(true);
+            try {
+              const remaining = {
+                protein: (profile.macroGoals?.protein || 180) - (profile.macroToday?.protein || 0),
+                carbs: (profile.macroGoals?.carbs || 250) - (profile.macroToday?.carbs || 0),
+                fats: (profile.macroGoals?.fats || 70) - (profile.macroToday?.fats || 0),
+              };
+              const resp = await callClaudeAPI({
+                system: "You are a fitness nutrition AI. Give meal order recommendations in 2-3 sentences.",
+                user: `User is at ${restaurant}. They still need approximately ${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat today. Give them a specific meal order recommendation in 2-3 sentences.`,
+                history: [],
+                maxTokens: 200,
+                model: "claude-haiku-4-5-20251001",
+              });
+              const text = resp?.content?.[0]?.text || "Choose a balanced meal!";
+              setRestRec(text);
+              const cacheKey = "rvn_rest_" + restaurant.toLowerCase().replace(/\s/g,"");
+              try { localStorage.setItem(cacheKey, text); } catch {}
+            } catch (e) {
+              console.error(e);
+            }
+            setRestScan(false);
+          }}
+          style={{ padding:"10px 16px", borderRadius:10, background:arch.glow, color:"#fff",
+            border:"none", fontSize:11, fontWeight:700, cursor:"pointer" }}>
+          {restScan ? "..." : "BUILD"}
+        </motion.button>
+      </div>
+      {restRec && (
+        <div style={{ background:T.glass, borderRadius:12, padding:"12px" }}>
+          <div style={{ fontSize:9, fontWeight:700, color:T.faint, marginBottom:6 }}>{restaurant.toUpperCase()}</div>
+          <div style={{ fontSize:12, color:T.text, lineHeight:1.5 }}>{restRec}</div>
+        </div>
+      )}
+    </GlassCard>
+  );
+}
+
 // ─── SCREEN SHELL ─────────────────────────────────────────────────────────────
 function Screen({ children, theme, style={} }) {
   const T = D[theme];
@@ -11755,116 +11866,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </motion.button>
 
               {/* Recipe Scanner */}
-              {(() => {
-                const [recipeUrl, setRecipeUrl] = React.useState("");
-                const [recipeMacros, setRecipeMacros] = React.useState(null);
-                const [recipeScan, setRecipeScan] = React.useState(false);
-                return (
-                  <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
-                    <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
-                      RECIPE SCANNER
-                    </div>
-                    <div style={{ display:"flex", gap:8, marginBottom:10 }}>
-                      <input value={recipeUrl} onChange={e => setRecipeUrl(e.target.value)}
-                        placeholder="Paste recipe link (Instagram, TikTok, YouTube, blog)"
-                        style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
-                          color:T.text, fontSize:12, outline:"none" }}/>
-                      <motion.button whileTap={{ scale:.96 }}
-                        onClick={async () => {
-                          if (!recipeUrl.trim()) return;
-                          setRecipeScan(true);
-                          try {
-                            const resp = await callClaudeAPI({
-                              system: "Estimate nutritional info for the recipe at the URL. Return ONLY valid JSON.",
-                              user: `Given this recipe URL: ${recipeUrl}, estimate the nutritional info per serving as JSON: {name, calories, protein, carbs, fat, servings}. Return ONLY valid JSON.`,
-                              history: [],
-                              maxTokens: 350,
-                              model: "claude-haiku-4-5-20251001",
-                            });
-                            const text = resp?.content?.[0]?.text || "{}";
-                            try {
-                              const macros = JSON.parse(text);
-                              setRecipeMacros(macros);
-                              const cacheKey = "rvn_rscan_" + btoa(recipeUrl).slice(0,12);
-                              try { localStorage.setItem(cacheKey, JSON.stringify(macros)); } catch {}
-                            } catch {}
-                          } catch (e) {
-                            console.error(e);
-                          }
-                          setRecipeScan(false);
-                        }}
-                        style={{ padding:"10px 16px", borderRadius:10, background:arch.glow, color:"#fff",
-                          border:"none", fontSize:11, fontWeight:700, cursor:"pointer" }}>
-                        {recipeScan ? "..." : "SCAN"}
-                      </motion.button>
-                    </div>
-                    {recipeMacros && (
-                      <div style={{ background:T.glass, borderRadius:12, padding:"12px", display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8 }}>
-                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>CAL</div><div style={{ fontSize:14, fontWeight:900, color:arch.glow }}>{recipeMacros.calories}</div></div>
-                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>P</div><div style={{ fontSize:14, fontWeight:900, color:"#30D158" }}>{recipeMacros.protein}g</div></div>
-                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>C</div><div style={{ fontSize:14, fontWeight:900, color:T.blue }}>{recipeMacros.carbs}g</div></div>
-                        <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>F</div><div style={{ fontSize:14, fontWeight:900, color:"#FF9F0A" }}>{recipeMacros.fat}g</div></div>
-                      </div>
-                    )}
-                  </GlassCard>
-                );
-              })()}
+              <FuelRecipeScanner theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI}/>
 
               {/* Restaurant Mode */}
-              {(() => {
-                const [restaurant, setRestaurant] = React.useState("");
-                const [restRec, setRestRec] = React.useState(null);
-                const [restScan, setRestScan] = React.useState(false);
-                return (
-                  <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
-                    <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
-                      RESTAURANT MODE
-                    </div>
-                    <div style={{ display:"flex", gap:8, marginBottom:10 }}>
-                      <input value={restaurant} onChange={e => setRestaurant(e.target.value)}
-                        placeholder="Restaurant name"
-                        style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
-                          color:T.text, fontSize:12, outline:"none" }}/>
-                      <motion.button whileTap={{ scale:.96 }}
-                        onClick={async () => {
-                          if (!restaurant.trim()) return;
-                          setRestScan(true);
-                          try {
-                            const remaining = {
-                              protein: (profile.macroGoals?.protein || 180) - (profile.macroToday?.protein || 0),
-                              carbs: (profile.macroGoals?.carbs || 250) - (profile.macroToday?.carbs || 0),
-                              fats: (profile.macroGoals?.fats || 70) - (profile.macroToday?.fats || 0),
-                            };
-                            const resp = await callClaudeAPI({
-                              system: "You are a fitness nutrition AI. Give meal order recommendations in 2-3 sentences.",
-                              user: `User is at ${restaurant}. They still need approximately ${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat today. Give them a specific meal order recommendation in 2-3 sentences.`,
-                              history: [],
-                              maxTokens: 200,
-                              model: "claude-haiku-4-5-20251001",
-                            });
-                            const text = resp?.content?.[0]?.text || "Choose a balanced meal!";
-                            setRestRec(text);
-                            const cacheKey = "rvn_rest_" + restaurant.toLowerCase().replace(/\s/g,"");
-                            try { localStorage.setItem(cacheKey, text); } catch {}
-                          } catch (e) {
-                            console.error(e);
-                          }
-                          setRestScan(false);
-                        }}
-                        style={{ padding:"10px 16px", borderRadius:10, background:arch.glow, color:"#fff",
-                          border:"none", fontSize:11, fontWeight:700, cursor:"pointer" }}>
-                        {restScan ? "..." : "BUILD"}
-                      </motion.button>
-                    </div>
-                    {restRec && (
-                      <div style={{ background:T.glass, borderRadius:12, padding:"12px" }}>
-                        <div style={{ fontSize:9, fontWeight:700, color:T.faint, marginBottom:6 }}>{restaurant.toUpperCase()}</div>
-                        <div style={{ fontSize:12, color:T.text, lineHeight:1.5 }}>{restRec}</div>
-                      </div>
-                    )}
-                  </GlassCard>
-                );
-              })()}
+              <FuelRestaurantMode theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI} profile={profile}/>
 
               {/* Custom meals quick-log */}
               <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,

@@ -7762,18 +7762,27 @@ function FactVisual({ type, color: C }) {
 
   // Three growing bars: muscle synthesis over 24 / 48 / 72hrs — 48h is PEAK
   if (type === "bars_grow") return (
-    <svg viewBox="0 0 160 108" width="160" height="108" style={{ overflow:"visible" }}>
+    <svg viewBox="0 0 160 108" width="160" height="108">
+      <defs>
+        {[{x:6,cid:"bg24"},{x:60,cid:"bg48"},{x:114,cid:"bg72"}].map(b => (
+          <clipPath key={b.cid} id={`bgrow_${b.cid}`}>
+            <rect x={b.x} y={14} width="40" height={82} rx="7"/>
+          </clipPath>
+        ))}
+      </defs>
       <motion.text x="80" y="10" textAnchor="middle" fontSize="8" fill={C} fontFamily="inherit" fontWeight="900"
         initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.78 }}>▲ PEAK</motion.text>
-      {[{x:6,h:40,l:"24h",d:0.15},{x:60,h:82,l:"48h",d:0.28},{x:114,h:52,l:"72h",d:0.42}].map(b => (
+      {[{x:6,h:40,l:"24h",d:0.15,cid:"bg24"},{x:60,h:82,l:"48h",d:0.28,cid:"bg48"},{x:114,h:52,l:"72h",d:0.42,cid:"bg72"}].map(b => (
         <g key={b.l}>
           {/* Background track */}
           <rect x={b.x} y={14} width="40" height={82} rx="7" fill={C} opacity={0.15}/>
-          {/* Filled bar — solid enough for both light + dark backgrounds */}
-          <motion.rect x={b.x} y={96-b.h} width="40" height={b.h} rx="7" fill={C}
-            opacity={b.l==="48h" ? 1 : 0.65}
-            initial={{ height:0, y:96 }} animate={{ height:b.h, y:96-b.h }}
-            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          {/* Filled bar — clipped to track so rounded corners never overflow */}
+          <g clipPath={`url(#bgrow_${b.cid})`}>
+            <motion.rect x={b.x} y={96} width="40" height={b.h} rx="7" fill={C}
+              opacity={b.l==="48h" ? 1 : 0.65}
+              initial={{ y:96, height:0 }} animate={{ y:96-b.h, height:b.h }}
+              transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          </g>
           <text x={b.x+20} y="106" textAnchor="middle" fontSize="9" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
         </g>
       ))}

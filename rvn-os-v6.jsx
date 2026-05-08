@@ -7805,7 +7805,7 @@ function FactVisual({ type, color: C }) {
           <rect x={b.x} y={6} width="56" height={82} rx="8" fill={C} opacity={0.12}/>
           {/* Filled bar — clipped to track bounds */}
           <g clipPath={`url(#two_${b.cid})`}>
-            <motion.rect x={b.x} width="56" height={b.h} rx="8" fill={C}
+            <motion.rect x={b.x} y={88} width="56" height={b.h} rx="8" fill={C}
               opacity={b.tag==="grow" ? 0.85 : 0.5}
               initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
               transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
@@ -8075,7 +8075,7 @@ function FactVisual({ type, color: C }) {
           <rect x={b.x} y={10} width="56" height={78} rx="8" fill={C} opacity={0.12}/>
           {/* Filled bar — clipped to track bounds */}
           <g clipPath={`url(#age_${b.cid})`}>
-            <motion.rect x={b.x} width="56" height={b.h} rx="8" fill={C}
+            <motion.rect x={b.x} y={88} width="56" height={b.h} rx="8" fill={C}
               opacity={b.tag==="bio" ? 0.85 : 0.5}
               initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
               transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
@@ -8106,7 +8106,7 @@ function FactVisual({ type, color: C }) {
       <g>
         <rect x="14" y="8" width="56" height="68" rx="9" fill={C} opacity={0.15}/>
         <g clipPath="url(#sa_fat)">
-          <motion.rect x="14" width="56" height="32" rx="9" fill={C} opacity={0.75}
+          <motion.rect x="14" y={76} width="56" height="32" rx="9" fill={C} opacity={0.75}
             initial={{ height:0, y:76 }} animate={{ height:32, y:44 }}
             transition={{ delay:0.2, duration:0.65, ease:[.22,1,.36,1] }}/>
         </g>
@@ -8118,7 +8118,7 @@ function FactVisual({ type, color: C }) {
       <g>
         <rect x="90" y="8" width="56" height="68" rx="9" fill={C} opacity={0.15}/>
         <g clipPath="url(#sa_muscle)">
-          <motion.rect x="90" width="56" height="56" rx="9" fill={C} opacity={0.75}
+          <motion.rect x="90" y={76} width="56" height="56" rx="9" fill={C} opacity={0.75}
             initial={{ height:0, y:76 }} animate={{ height:56, y:8 }}
             transition={{ delay:0.35, duration:0.65, ease:[.22,1,.36,1] }}/>
         </g>
@@ -8149,11 +8149,10 @@ function FactVisual({ type, color: C }) {
       {/* Bar growing up and stopping at ceiling */}
       <rect x="50" y="10" width="60" height="78" rx="10" fill={C} opacity={0.15}/>
       <g clipPath="url(#mc_cap)">
-        <motion.rect x="50" width="60" rx="10" fill={C} opacity={0.8}
+        <motion.rect x="50" y={88} width="60" rx="10" fill={C} opacity={0.8}
           initial={{ height:0, y:88 }} animate={{ height:78, y:10 }}
           transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
       </g>
-      {/* Note: no static y attr — Framer Motion owns y entirely via initial/animate */}
       {/* Bounce off indicator */}
       <motion.line x1="80" y1="10" x2="80" y2="3" stroke={C} strokeWidth="2.5" strokeLinecap="round"
         animate={{ opacity:[0,1,0] }} transition={{ delay:1.1, duration:0.4 }}/>

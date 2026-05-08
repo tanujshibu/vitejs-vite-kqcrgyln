@@ -7792,15 +7792,24 @@ function FactVisual({ type, color: C }) {
   // Two bars: training day vs rest day — rest is taller
   if (type === "two_bars") return (
     <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
-      {[{x:8,h:36,l:"TRAIN",tag:"active",d:0.15},{x:76,h:84,l:"REST",tag:"grow",d:0.28}].map(b => (
+      <defs>
+        {[{x:8,cid:"tbl"},{x:76,cid:"tbr"}].map(b => (
+          <clipPath key={b.cid} id={`two_${b.cid}`}>
+            <rect x={b.x} y={6} width="56" height={82} rx="8"/>
+          </clipPath>
+        ))}
+      </defs>
+      {[{x:8,h:36,l:"TRAIN",tag:"active",d:0.15,cid:"tbl"},{x:76,h:84,l:"REST",tag:"grow",d:0.28,cid:"tbr"}].map(b => (
         <g key={b.l}>
           {/* Track */}
           <rect x={b.x} y={6} width="56" height={82} rx="8" fill={C} opacity={0.12}/>
-          {/* Filled bar — solid opacity so it shows on light backgrounds */}
-          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
-            opacity={b.tag==="grow" ? 0.85 : 0.5}
-            initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
-            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          {/* Filled bar — clipped to track bounds */}
+          <g clipPath={`url(#two_${b.cid})`}>
+            <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
+              opacity={b.tag==="grow" ? 0.85 : 0.5}
+              initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
+              transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          </g>
           <text x={b.x+28} y="98" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
           {b.tag==="grow" && (
             <motion.text x={b.x+28} y={88-b.h-8} textAnchor="middle" fontSize="14"
@@ -8024,10 +8033,17 @@ function FactVisual({ type, color: C }) {
   // Horizontal bar filled to N% — for legs (70%) etc.
   if (type === "percent_fill") return (
     <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
+      <defs>
+        <clipPath id="pf_track">
+          <rect x="8" y="18" width="144" height="32" rx="10"/>
+        </clipPath>
+      </defs>
       <rect x="8" y="18" width="144" height="32" rx="10" fill={C} opacity={0.18}/>
-      <motion.rect x="8" y="18" height="32" rx="10" fill={C} opacity={0.75}
-        initial={{ width:0 }} animate={{ width: 144*0.7 }}
-        transition={{ delay:0.2, duration:1.0, ease:[.22,1,.36,1] }}/>
+      <g clipPath="url(#pf_track)">
+        <motion.rect x="8" y="18" height="32" rx="10" fill={C} opacity={0.75}
+          initial={{ width:0 }} animate={{ width: 144*0.7 }}
+          transition={{ delay:0.2, duration:1.0, ease:[.22,1,.36,1] }}/>
+      </g>
       <motion.text x="59" y="39" textAnchor="middle" fontSize="15" fill="#fff"
         fontFamily="inherit" fontWeight="900"
         initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.9 }}>70%</motion.text>
@@ -8043,18 +8059,27 @@ function FactVisual({ type, color: C }) {
   // Two bars: actual age tall, bio age short (–14yrs)
   if (type === "age_split") return (
     <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
+      <defs>
+        {[{x:8,cid:"asl"},{x:76,cid:"asr"}].map(b => (
+          <clipPath key={b.cid} id={`age_${b.cid}`}>
+            <rect x={b.x} y={10} width="56" height={78} rx="8"/>
+          </clipPath>
+        ))}
+      </defs>
       {[
-        {x:8,  h:78, l:"REAL AGE", tag:"real", d:0.15},
-        {x:76, h:44, l:"BIO AGE",  tag:"bio",  d:0.28},
+        {x:8,  h:78, l:"REAL AGE", tag:"real", d:0.15, cid:"asl"},
+        {x:76, h:44, l:"BIO AGE",  tag:"bio",  d:0.28, cid:"asr"},
       ].map(b => (
         <g key={b.l}>
           {/* Track */}
           <rect x={b.x} y={10} width="56" height={78} rx="8" fill={C} opacity={0.12}/>
-          {/* Filled bar — solid enough for light mode */}
-          <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
-            opacity={b.tag==="bio" ? 0.85 : 0.5}
-            initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
-            transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          {/* Filled bar — clipped to track bounds */}
+          <g clipPath={`url(#age_${b.cid})`}>
+            <motion.rect x={b.x} y={88-b.h} width="56" height={b.h} rx="8" fill={C}
+              opacity={b.tag==="bio" ? 0.85 : 0.5}
+              initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
+              transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
+          </g>
           <text x={b.x+28} y="98" textAnchor="middle" fontSize="8" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
           {b.tag==="bio" && (
             <motion.text x={b.x+28} y={88-b.h-10} textAnchor="middle" fontSize="9" fill={C}
@@ -8069,12 +8094,22 @@ function FactVisual({ type, color: C }) {
   // Fat arrow DOWN + Muscle arrow UP — for recomp facts
   if (type === "split_arrows") return (
     <svg viewBox="0 0 160 92" width="160" height="92" style={{ overflow:"visible" }}>
+      <defs>
+        <clipPath id="sa_fat">
+          <rect x="14" y="8" width="56" height="68" rx="9"/>
+        </clipPath>
+        <clipPath id="sa_muscle">
+          <rect x="90" y="8" width="56" height="68" rx="9"/>
+        </clipPath>
+      </defs>
       {/* FAT bar shrinking */}
       <g>
         <rect x="14" y="8" width="56" height="68" rx="9" fill={C} opacity={0.15}/>
-        <motion.rect x="14" y="44" width="56" height="32" rx="9" fill={C} opacity={0.75}
-          initial={{ height:0, y:76 }} animate={{ height:32, y:44 }}
-          transition={{ delay:0.2, duration:0.65, ease:[.22,1,.36,1] }}/>
+        <g clipPath="url(#sa_fat)">
+          <motion.rect x="14" y="44" width="56" height="32" rx="9" fill={C} opacity={0.75}
+            initial={{ height:0, y:76 }} animate={{ height:32, y:44 }}
+            transition={{ delay:0.2, duration:0.65, ease:[.22,1,.36,1] }}/>
+        </g>
         <motion.path d="M42 80 L42 87 L37 83 M42 87 L47 83" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round"
           initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.85 }}/>
         <text x="42" y="7" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="800">FAT</text>
@@ -8082,9 +8117,11 @@ function FactVisual({ type, color: C }) {
       {/* MUSCLE bar growing */}
       <g>
         <rect x="90" y="8" width="56" height="68" rx="9" fill={C} opacity={0.15}/>
-        <motion.rect x="90" y="8" width="56" height="56" rx="9" fill={C} opacity={0.75}
-          initial={{ height:0, y:76 }} animate={{ height:56, y:8 }}
-          transition={{ delay:0.35, duration:0.65, ease:[.22,1,.36,1] }}/>
+        <g clipPath="url(#sa_muscle)">
+          <motion.rect x="90" y="8" width="56" height="56" rx="9" fill={C} opacity={0.75}
+            initial={{ height:0, y:76 }} animate={{ height:56, y:8 }}
+            transition={{ delay:0.35, duration:0.65, ease:[.22,1,.36,1] }}/>
+        </g>
         <motion.path d="M118 3 L118 -4 L113 -1 M118 -4 L123 -1" fill="none" stroke={C} strokeWidth="2" strokeLinecap="round"
           initial={{ opacity:0 }} animate={{ opacity:0.85 }} transition={{ delay:0.9 }}/>
         <text x="118" y="7" textAnchor="middle" fontSize="8" fill={C} opacity="0.5" fontFamily="inherit" fontWeight="800">MUSCLE</text>
@@ -8098,6 +8135,11 @@ function FactVisual({ type, color: C }) {
   // Growing bar hits a biological ceiling cap — mass_builder/density
   if (type === "muscle_cap") return (
     <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
+      <defs>
+        <clipPath id="mc_cap">
+          <rect x="50" y="10" width="60" height="78" rx="10"/>
+        </clipPath>
+      </defs>
       {/* Ceiling line */}
       <motion.line x1="10" y1="10" x2="150" y2="10" stroke={C} strokeWidth="2" strokeDasharray="5 4" opacity={0.4}
         initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.75, duration:0.5 }}/>
@@ -8106,9 +8148,11 @@ function FactVisual({ type, color: C }) {
         animate={{ opacity:0.55 }} transition={{ delay:1.2 }}>MAX</motion.text>
       {/* Bar growing up and stopping at ceiling */}
       <rect x="50" y="10" width="60" height="78" rx="10" fill={C} opacity={0.15}/>
-      <motion.rect x="50" width="60" rx="10" fill={C} opacity={0.8}
-        initial={{ height:0, y:88 }} animate={{ height:78, y:10 }}
-        transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
+      <g clipPath="url(#mc_cap)">
+        <motion.rect x="50" width="60" rx="10" fill={C} opacity={0.8}
+          initial={{ height:0, y:88 }} animate={{ height:78, y:10 }}
+          transition={{ delay:0.15, duration:0.9, ease:[.22,1,.36,1] }}/>
+      </g>
       {/* Bounce off indicator */}
       <motion.line x1="80" y1="10" x2="80" y2="3" stroke={C} strokeWidth="2.5" strokeLinecap="round"
         animate={{ opacity:[0,1,0] }} transition={{ delay:1.1, duration:0.4 }}/>
@@ -8119,10 +8163,17 @@ function FactVisual({ type, color: C }) {
   // 40% fill bar — glute activation fact
   if (type === "glute_fill") return (
     <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
+      <defs>
+        <clipPath id="gf_track">
+          <rect x="8" y="16" width="144" height="32" rx="10"/>
+        </clipPath>
+      </defs>
       <rect x="8" y="16" width="144" height="32" rx="10" fill={C} opacity={0.18}/>
-      <motion.rect x="8" y="16" height="32" rx="10" fill={C} opacity={0.8}
-        initial={{ width:0 }} animate={{ width: 144*0.4 }}
-        transition={{ delay:0.2, duration:0.9, ease:[.22,1,.36,1] }}/>
+      <g clipPath="url(#gf_track)">
+        <motion.rect x="8" y="16" height="32" rx="10" fill={C} opacity={0.8}
+          initial={{ width:0 }} animate={{ width: 144*0.4 }}
+          transition={{ delay:0.2, duration:0.9, ease:[.22,1,.36,1] }}/>
+      </g>
       <motion.text x="37" y="37" textAnchor="middle" fontSize="14" fill="#fff"
         fontFamily="inherit" fontWeight="900"
         initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.8 }}>+40%</motion.text>

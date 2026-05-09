@@ -2021,13 +2021,20 @@ function GlobalStyles({ theme }) {
         -webkit-user-select: none;
         outline: none;
       }
-      /* Smooth property transitions — feels like iOS, not Android */
-      * { transition-property: background-color, border-color, color, opacity, box-shadow; transition-duration: 0.18s; transition-timing-function: cubic-bezier(0.22,1,0.36,1); }
-      /* Override transitions for transform — let Framer Motion own that */
-      motion\\.div, motion\\.button { transition: none !important; }
+      /* Scoped transitions — Framer Motion owns opacity/transform, so we only transition paint props on interactive elements */
+      button, a, [role="button"] {
+        transition: background-color 0.18s cubic-bezier(0.22,1,0.36,1),
+                    border-color    0.18s cubic-bezier(0.22,1,0.36,1),
+                    color           0.18s cubic-bezier(0.22,1,0.36,1),
+                    box-shadow      0.18s cubic-bezier(0.22,1,0.36,1);
+      }
       input, textarea, select {
         color:${T.text} !important; -webkit-text-fill-color:${T.text} !important;
         background:transparent; caret-color:${T.text}; border:none; outline:none; font-family:inherit;
+        /* iOS: prevent default rounded-rect appearance on text inputs */
+        -webkit-appearance:none; appearance:none;
+        /* iOS: prevent zoom on focus — must be ≥16px */
+        font-size:16px;
       }
       input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus {
         -webkit-box-shadow:0 0 0 1000px ${T.bgDeep} inset !important;
@@ -2060,13 +2067,21 @@ function GlobalStyles({ theme }) {
       @keyframes os_particle { 0%{transform:translate(0,0) scale(1);opacity:0;} 10%{opacity:1;} 90%{opacity:.6;} 100%{transform:translate(var(--pdx),var(--pdy)) scale(.1);opacity:0;} }
       @keyframes os_radar_pulse { 0%,100%{opacity:.35;transform:scale(1);} 50%{opacity:.7;transform:scale(1.03);} }
       @keyframes os_holo { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
-      @keyframes os_glitch { 0%,90%,100%{transform:translate(0);filter:none;} 92%{transform:translate(-2px,0);filter:hue-rotate(90deg);} 94%{transform:translate(2px,0);filter:hue-rotate(-90deg);} 96%{transform:translate(0);filter:none;} }
-      @keyframes os_heartbeat { 0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,255,255,0));} 14%{transform:scale(1.04);filter:drop-shadow(0 0 18px rgba(255,255,255,.55));} 28%{transform:scale(1);} 42%{transform:scale(1.028);} 70%{transform:scale(1);} }
+      /* filter: in keyframes forces CPU rendering on iOS — replaced with opacity/scale only */
+      @keyframes os_glitch { 0%,90%,100%{transform:translate(0);opacity:1;} 92%{transform:translate(-2px,0);opacity:.85;} 94%{transform:translate(2px,0);opacity:.9;} 96%{transform:translate(0);opacity:1;} }
+      @keyframes os_heartbeat { 0%,100%{transform:scale(1);opacity:.85;} 14%{transform:scale(1.04);opacity:1;} 28%{transform:scale(1);} 42%{transform:scale(1.028);} 70%{transform:scale(1);} }
       .os_heartbeat { animation: os_heartbeat 1.4s ease-in-out infinite; }
       body, html, #root, * { font-family: ${FONT_SANS}; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01","ss02","cv01","cv11"; }
       .os_serif, .os_serif * { font-family: ${FONT_SERIF} !important; font-feature-settings: "lnum","pnum"; }
       .os_wordmark { font-family: ${FONT_WORD}; font-weight: 500; letter-spacing: .14em; font-feature-settings: "lnum"; }
-      input[type=range] { -webkit-appearance:none; appearance:none; background:transparent; cursor:pointer; }
+      input[type=range] { -webkit-appearance:none; appearance:none; background:transparent; cursor:pointer; font-size:16px; }
+      /* Scroll containers: contain rubber-band to the element, not the whole page */
+      [data-scroll] { overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
+      /* Safe-area utility classes */
+      .pb-safe { padding-bottom:env(safe-area-inset-bottom); }
+      .pb-safe-nav { padding-bottom:calc(52px + env(safe-area-inset-bottom)); }
+      /* Minimum tap targets — wrap small interactive elements */
+      .tap-target { min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center; }
 
     `}</style>
   );
@@ -2093,7 +2108,7 @@ class RVNErrorBoundary extends Component {
     if (!this.state.hasError) return this.props.children;
     return (
       <div style={{
-        minHeight: "100vh", display: "flex", flexDirection: "column",
+        minHeight: "100dvh", display: "flex", flexDirection: "column",
         alignItems: "center", justifyContent: "center",
         background: "#0A0A0B", color: "#F2F4FF",
         fontFamily: `"SF Pro Display",system-ui,sans-serif`, padding: 32,
@@ -2357,7 +2372,7 @@ function FuelRecipeScanner({ theme, T, arch, callClaudeAPI }) {
         <input value={recipeUrl} onChange={e => setRecipeUrl(e.target.value)}
           placeholder="Paste recipe link (Instagram, TikTok, YouTube, blog)"
           style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
-            color:T.text, fontSize:12, outline:"none" }}/>
+            color:T.text, fontSize:16, outline:"none" }}/>
         <motion.button whileTap={{ scale:.96 }}
           onClick={async () => {
             if (!recipeUrl.trim()) return;
@@ -2412,7 +2427,7 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
         <input value={restaurant} onChange={e => setRestaurant(e.target.value)}
           placeholder="Restaurant name"
           style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
-            color:T.text, fontSize:12, outline:"none" }}/>
+            color:T.text, fontSize:16, outline:"none" }}/>
         <motion.button whileTap={{ scale:.96 }}
           onClick={async () => {
             if (!restaurant.trim()) return;
@@ -2455,14 +2470,20 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
 }
 
 // ─── SCREEN SHELL ─────────────────────────────────────────────────────────────
-function Screen({ children, theme, style={} }) {
+function Screen({ children, theme, style={}, onScroll, ref: refProp }) {
   const T = D[theme];
   return (
     <motion.div {...FX.page}
+      ref={refProp}
+      onScroll={onScroll}
+      data-scroll
       style={{
         position:"fixed", inset:0, background:T.bg,
         display:"flex", flexDirection:"column",
         overflowY:"auto", overflowX:"hidden",
+        overscrollBehavior:"contain",
+        // Safe area: content never hides behind home indicator
+        paddingBottom:"env(safe-area-inset-bottom)",
         ...style,
       }}>
       {children}
@@ -6399,7 +6420,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
           </div>
         </div>
 
-        <div style={{ padding:"16px 18px 52px", display:"flex", flexDirection:"column", gap:12 }}>
+        <div style={{ padding:"16px 18px", paddingBottom:"calc(52px + env(safe-area-inset-bottom))", display:"flex", flexDirection:"column", gap:12 }}>
 
           {/* Readiness card */}
           <motion.div {...FX.stagger(0, .05)}>
@@ -10945,11 +10966,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             <motion.button key={t.id} whileTap={{ scale:.97 }}
               onClick={() => setActiveGymTab(t.id)}
               style={{
-                flex:1, padding:"8px 2px", border:"none", cursor:"pointer",
+                flex:1, padding:"12px 2px", minHeight:44, border:"none", cursor:"pointer",
                 background: activeGymTab === t.id ? arch.glow : "transparent",
                 color: activeGymTab === t.id ? "#fff" : T.muted,
                 fontSize:8, fontWeight:900, letterSpacing:".07em",
-                display:"flex", flexDirection:"column", alignItems:"center", gap:1.5,
+                display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:2,
               }}>
               <span style={{ fontSize:13, lineHeight:1 }}>{t.icon}</span>
               {t.label}
@@ -10992,7 +11013,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         </div>
       </div>
 
-      <div style={{ padding:"16px 18px 52px" }}>
+      <div style={{ padding:"16px 18px", paddingBottom:"calc(52px + env(safe-area-inset-bottom))" }}>
 
         {/* Bio summary bar */}
         <motion.div {...FX.up} style={{ marginBottom:14 }}>
@@ -13399,7 +13420,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
         </div>
       </div>
 
-      <div style={{ padding:"16px 18px 52px" }}>
+      <div style={{ padding:"16px 18px", paddingBottom:"calc(52px + env(safe-area-inset-bottom))" }}>
 
         {/* ══ BENTO HERO GRID ═══════════════════════════════════════════════ */}
         {/* Row 1: wide bio card + tall avatar module */}
@@ -13796,7 +13817,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
         <Pill label="SMOOTHIE MODE" color={T.green} theme={theme}/>
       </div>
 
-      <div style={{ padding:"16px 18px 52px" }}>
+      <div style={{ padding:"16px 18px", paddingBottom:"calc(52px + env(safe-area-inset-bottom))" }}>
 
         {/* Greeting */}
         <motion.div {...FX.up} style={{ marginBottom:18 }}>
@@ -18833,7 +18854,7 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
 
   return (
     <div style={{
-      background: "#0a0a0a", minHeight: "100vh",
+      background: "#0a0a0a", minHeight: "100dvh",
       display: "flex", flexDirection: "column",
       alignItems: "center", justifyContent: "center",
       padding: "40px 20px",
@@ -18986,7 +19007,7 @@ function SubscriptionGate({ userId, email, onBack, theme, children }) {
     return (
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "center",
-        minHeight: "100vh", background: "#0a0a0a",
+        minHeight: "100dvh", background: "#0a0a0a",
         fontFamily: RVN_MONO,
       }}>
         <div style={{ color: "#333", fontSize: 10, letterSpacing: 4 }}>
@@ -19169,7 +19190,7 @@ function CommunityUnlock({ profile, onJoinCommunity, onBack, theme }) {
       color: T.fg,
       padding: 20,
       fontFamily: FONT_SANS,
-      minHeight: "100vh",
+      minHeight: "100dvh",
       display: "flex",
       flexDirection: "column",
     }}>
@@ -19297,7 +19318,7 @@ function CommunityWordle({ community, profile, onBack, theme }) {
       color: T.fg,
       padding: 20,
       fontFamily: FONT_SANS,
-      minHeight: "100vh",
+      minHeight: "100dvh",
       display: "flex",
       flexDirection: "column",
     }}>
@@ -19443,7 +19464,7 @@ function CommunityLeaderboard({ community, profile, onBack, theme }) {
       color: T.fg,
       padding: 20,
       fontFamily: FONT_SANS,
-      minHeight: "100vh",
+      minHeight: "100dvh",
       display: "flex",
       flexDirection: "column",
     }}>
@@ -19540,7 +19561,7 @@ function CommunityChatFeed({ community, profile, onBack, theme }) {
       color: T.fg,
       padding: 20,
       fontFamily: FONT_SANS,
-      minHeight: "100vh",
+      minHeight: "100dvh",
       display: "flex",
       flexDirection: "column",
     }}>
@@ -19620,7 +19641,7 @@ function CommunityHub({ profile, communities, onSelectCommunity, onBack, theme }
         color: T.fg,
         padding: 20,
         fontFamily: FONT_SANS,
-        minHeight: "100vh",
+        minHeight: "100dvh",
         textAlign: "center",
       }}>
         <button onClick={onBack} style={{
@@ -19660,7 +19681,7 @@ function CommunityHub({ profile, communities, onSelectCommunity, onBack, theme }
       color: T.fg,
       padding: 20,
       fontFamily: FONT_SANS,
-      minHeight: "100vh",
+      minHeight: "100dvh",
     }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Communities</h2>
@@ -20050,8 +20071,8 @@ function ContentScreen({ profile, gymContent, onBack, theme }) {
         background: T.bg, color: T.fg,
         padding: 20,
         fontFamily: FONT_SANS,
-        minHeight: "100vh",
-        paddingBottom: 100,
+        minHeight: "100dvh",
+        paddingBottom: "calc(100px + env(safe-area-inset-bottom))",
       }}>
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
@@ -21925,7 +21946,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
         </div>
       </div>
 
-      <div style={{ padding:"16px 18px 52px" }}>
+      <div style={{ padding:"16px 18px", paddingBottom:"calc(52px + env(safe-area-inset-bottom))" }}>
 
         {/* OVERVIEW TAB */}
         {hubTab === "overview" && (

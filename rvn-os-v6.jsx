@@ -8496,23 +8496,32 @@ function FactVisual({ type, color: C }) {
 // Each case is a visual metaphor that instantly communicates the fact's story.
 function FactAnimSVG({ type, color }) {
 
-  // ── split: 168h donut ring — tiny gold arc = 10 gym hours ────────────────────
+  // ── split: 168 dot grid — 10 glow gold, 158 stay dim ────────────────────────
+  // 14 cols × 12 rows = 168 dots. First 10 light up one by one.
   if (type === "split") {
-    const r = 66, circ = Math.round(2 * Math.PI * r);
-    const arc = Math.round((10 / 168) * circ);
+    const cols = 14, rows = 12, pitch = 13, r = 4;
+    const ox = (200 - cols * pitch) / 2 + pitch / 2;
+    const oy = (190 - rows * pitch) / 2 + pitch / 2;
+    const dots = [];
+    for (let i = 0; i < 168; i++) {
+      const col = i % cols, row = Math.floor(i / cols);
+      const x = ox + col * pitch, y = oy + row * pitch;
+      const isGym = i < 10;
+      const delay = isGym ? (i * 0.08).toFixed(2) : "0";
+      dots.push(
+        <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r={r}
+          fill={isGym ? color : color} opacity={isGym ? "0" : "0.12"}>
+          {isGym && <>
+            <animate attributeName="opacity" values="0;1" dur="0.18s" begin={`${delay}s`} fill="freeze"/>
+            <animate attributeName="r" values={`${r};${r+3};${r}`} dur="1.6s" begin={`${(parseFloat(delay)+0.18).toFixed(2)}s`} repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="1;0.6;1" dur="1.6s" begin={`${(parseFloat(delay)+0.18).toFixed(2)}s`} repeatCount="indefinite"/>
+          </>}
+        </circle>
+      );
+    }
     return (
-      <svg viewBox="0 0 200 200" width="190" height="190" style={{overflow:"visible"}}>
-        <circle cx="100" cy="100" r={r} fill="none" stroke={color} strokeWidth="14" opacity="0.12" transform="rotate(-90 100 100)"/>
-        <circle cx="100" cy="100" r={r} fill="none" stroke={color} strokeWidth="14"
-          strokeLinecap="round" strokeDasharray={`${arc} ${circ - arc}`} transform="rotate(-90 100 100)">
-          <animate attributeName="opacity" values="0;1" dur="0.4s" fill="freeze"/>
-          <animate attributeName="strokeWidth" values="12;20;12" dur="2.2s" begin="0.5s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="100" cy={100 - r} r="8" fill={color} opacity="0">
-          <animate attributeName="opacity" values="0;0.9;0.5;0.9" keyTimes="0;0.2;0.6;1" dur="2s" begin="0.4s" repeatCount="indefinite"/>
-        </circle>
-        <text x="100" y="94" textAnchor="middle" fill={color} fontSize="20" fontWeight="800" fontFamily="system-ui,sans-serif">10h GYM</text>
-        <text x="100" y="114" textAnchor="middle" fill={color} fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.5">of 168h week</text>
+      <svg viewBox="0 0 200 190" width="195" height="185" style={{overflow:"visible"}}>
+        {dots}
       </svg>
     );
   }
@@ -8631,18 +8640,23 @@ function FactAnimSVG({ type, color }) {
 
   // ── lightning: pulsing bolt — 200mg dose ─────────────────────────────────────
   if (type === "lightning") {
+    // Clean large bolt centered in 200x200
+    const boltPts = "114,12 148,92 116,92 86,188 52,106 86,106";
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        <ellipse cx="100" cy="100" rx="50" ry="50" fill={color}>
-          <animate attributeName="rx" values="42;70;42" dur="1.4s" repeatCount="indefinite"/>
-          <animate attributeName="ry" values="42;70;42" dur="1.4s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.07;0.2;0.07" dur="1.4s" repeatCount="indefinite"/>
+        {/* Subtle glow behind bolt — stays small */}
+        <ellipse cx="100" cy="100" rx="44" ry="56" fill={color}>
+          <animate attributeName="opacity" values="0.06;0.14;0.06" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="rx" values="44;52;44" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="56;66;56" dur="1.4s" repeatCount="indefinite"/>
         </ellipse>
-        <polygon points="108,30 130,90 108,90 92,170 70,106 94,106" fill={color}>
-          <animate attributeName="opacity" values="0.7;1;0.7" dur="1.4s" repeatCount="indefinite"/>
+        {/* Bolt fill */}
+        <polygon points={boltPts} fill={color}>
+          <animate attributeName="opacity" values="0.75;1;0.75" dur="1.4s" repeatCount="indefinite"/>
         </polygon>
-        <polygon points="108,30 130,90 108,90 92,170 70,106 94,106" fill="none" stroke={color} strokeWidth="2">
-          <animate attributeName="opacity" values="0.2;0.7;0.2" dur="1.4s" repeatCount="indefinite"/>
+        {/* Bright rim */}
+        <polygon points={boltPts} fill="none" stroke={color} strokeWidth="1.5" opacity="0.5">
+          <animate attributeName="opacity" values="0.2;0.6;0.2" dur="1.4s" repeatCount="indefinite"/>
         </polygon>
       </svg>
     );
@@ -8706,26 +8720,37 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── fire: 3 rising flames — 72h of inflammation ──────────────────────────────
+  // ── fire: bicep silhouette with crack lines — soreness = muscle damage ───────
   if (type === "fire") {
+    // Arch shape = flexed bicep peak silhouette
+    const bicep = "M 56,162 L 56,108 C 56,68 68,40 100,32 C 132,40 144,68 144,108 L 144,162 Z";
+    // Two jagged crack lines that draw in from bottom to top
+    const crack1 = "M 84,162 L 97,114 L 84,96 L 100,32";
+    const crack2 = "M 116,162 L 106,118 L 120,100 L 102,32";
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        <ellipse cx="100" cy="158" rx="54" ry="13" fill={color}>
-          <animate attributeName="opacity" values="0.18;0.48;0.18" dur="1.2s" repeatCount="indefinite"/>
-        </ellipse>
-        <rect x="62" y="82" width="22" height="72" rx="11" fill={color} opacity="0.52">
-          <animate attributeName="height" values="72;102;72" dur="1.1s" repeatCount="indefinite"/>
-          <animate attributeName="y" values="82;52;82" dur="1.1s" repeatCount="indefinite"/>
-        </rect>
-        <rect x="89" y="48" width="22" height="106" rx="11" fill={color} opacity="0.92">
-          <animate attributeName="height" values="106;136;106" dur="0.9s" repeatCount="indefinite"/>
-          <animate attributeName="y" values="48;18;48" dur="0.9s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.8;1;0.8" dur="0.9s" repeatCount="indefinite"/>
-        </rect>
-        <rect x="116" y="92" width="22" height="62" rx="11" fill={color} opacity="0.42">
-          <animate attributeName="height" values="62;88;62" dur="1.3s" repeatCount="indefinite"/>
-          <animate attributeName="y" values="92;66;92" dur="1.3s" repeatCount="indefinite"/>
-        </rect>
+        {/* Glow behind */}
+        <path d={bicep} fill={color} opacity="0.18">
+          <animate attributeName="opacity" values="0.12;0.28;0.12" dur="1.8s" repeatCount="indefinite"/>
+        </path>
+        {/* Bicep fill — pulses damaged red */}
+        <path d={bicep} fill={color}>
+          <animate attributeName="opacity" values="0.72;0.95;0.72" dur="1.8s" repeatCount="indefinite"/>
+        </path>
+        {/* Crack 1 draws in */}
+        <path d={crack1} fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray="145" strokeDashoffset="145" opacity="0.95">
+          <animate attributeName="stroke-dashoffset" from="145" to="0" dur="0.35s" begin="0.4s" fill="freeze"/>
+        </path>
+        {/* Crack 2 draws in */}
+        <path d={crack2} fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray="145" strokeDashoffset="145" opacity="0.95">
+          <animate attributeName="stroke-dashoffset" from="145" to="0" dur="0.35s" begin="0.62s" fill="freeze"/>
+        </path>
+        {/* Flash on crack — feels like pain */}
+        <path d={bicep} fill="white" opacity="0">
+          <animate attributeName="opacity" values="0;0;0.35;0;0;0.35;0" keyTimes="0;0.37;0.42;0.47;0.55;0.6;1" dur="2.5s" repeatCount="indefinite"/>
+        </path>
       </svg>
     );
   }

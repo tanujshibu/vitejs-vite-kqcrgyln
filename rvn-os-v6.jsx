@@ -8834,38 +8834,18 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
         <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}
           transition={{ duration:.6, ease:[.22,1,.36,1] }}
           style={{ marginBottom:32 }}>
-          <div style={{ fontSize:13, fontWeight:700, color:ac, letterSpacing:".12em",
-            marginBottom:14, textTransform:"uppercase" }}>
-            Most athletes never reach their potential.
-          </div>
           <div style={{ fontSize:38, fontWeight:900, letterSpacing:"-.03em",
             color:T.text, lineHeight:1.06, marginBottom:16 }}>
-            Not because of effort.
+            The best version of your body isn't behind you.
           </div>
-          <div style={{ fontSize:16, color:T.muted, lineHeight:1.65, maxWidth:300 }}>
-            Because they're running someone else's protocol. 7 questions from now, you'll have yours.
+          <div style={{ fontSize:17, color:T.muted, lineHeight:1.65, maxWidth:300 }}>
+            Most people just never find out what it looks like.
           </div>
         </motion.div>
 
-        {/* Stats row */}
-        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:.3, duration:.5 }}
-          style={{ display:"flex", gap:0, borderTop:`1px solid ${T.border}`,
-            borderBottom:`1px solid ${T.border}`, padding:"18px 0", marginBottom:8 }}>
-          {[
-            { n:"~90s", l:"to complete" },
-            { n:"7",    l:"questions" },
-            { n:"1",    l:"protocol — yours" },
-          ].map((s, i) => (
-            <div key={s.n} style={{ flex:1, textAlign:"center",
-              borderRight: i < 2 ? `1px solid ${T.border}` : "none" }}>
-              <div style={{ fontSize:24, fontWeight:900, color:ac, letterSpacing:"-.02em" }}>{s.n}</div>
-              <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em", marginTop:3, fontWeight:700 }}>
-                {s.l.toUpperCase()}
-              </div>
-            </div>
-          ))}
-        </motion.div>
+        {/* Thin divider */}
+        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.35 }}
+          style={{ height:1, background:T.border, marginBottom:8 }}/>
 
         {/* Logo */}
         <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.55 }}

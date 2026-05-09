@@ -1056,28 +1056,109 @@ function calcProteinReq(weightKg, archetypeId) {
   };
 }
 
-function calcHypertrophyScore(perfData) {
+// ─── COMPREHENSIVE BIO SCORE ENGINE ──────────────────────────────────────────
+// Research sources:
+//   Strength norms:  Symmetric Strength (n=809,986 competitive lifters)
+//   Protein:         ISSN Position Stand (Stokes 2018), Phillips & Van Loon 2011
+//   Sleep impact:    Dattilo 2011 (−18% MPS), Leproult & Van Cauter 2011 (−10% T/wk)
+//   Training freq:   Krieger 2010 meta-analysis (2×/muscle/wk = optimal hypertrophy)
+//   Caffeine:        Grgic 2018 BJSM meta-analysis (3–6mg/kg optimal window)
+//   Age decline:     Lexell 1995, Izquierdo 1999 (~12-15% per decade after 50)
+function calcComprehensiveBioScore(perfData, biology, age) {
   if (!perfData?.all) return null;
   const bench = perfData.all.bench || 0;
   const squat = perfData.all.squat || 0;
   const bw    = perfData.all.bw    || 0;
   if (!bw || bw < 50) return null;
+
+  const isFemale   = biology?.gender === "female";
   const benchRatio = bench / bw;
   const squatRatio = squat / bw;
-  let score = 58;
-  // Bench: elite raw competitive = 2.5x+, advanced = 2.0x, intermediate = 1.5x, beginner = 1.0x
-  if      (benchRatio >= 2.5) score += 20;
-  else if (benchRatio >= 2.0) score += 16;
-  else if (benchRatio >= 1.5) score += 11;
-  else if (benchRatio >= 1.0) score += 6;
-  else if (benchRatio >= 0.75) score += 2;
-  // Squat: elite raw = 3.0x+, competitive = 2.5x, advanced = 2.0x, intermediate = 1.5x
-  if      (squatRatio >= 3.0) score += 20;
-  else if (squatRatio >= 2.5) score += 16;
-  else if (squatRatio >= 2.0) score += 12;
-  else if (squatRatio >= 1.5) score += 7;
-  else if (squatRatio >= 1.0) score += 3;
-  return Math.min(score, 98);
+
+  // BASE SCORE — everyone entering data starts here
+  let score = 60;
+
+  // ── BENCH STRENGTH (0–20 pts) ─────────────────────────────────────────────
+  // Male norms: 90th% competitive = 1.95×, Elite = 1.75×, Adv = 1.5×, Int = 1.0×
+  // Female norms: 90th% competitive = 1.35×, Elite = 1.1×, Adv = 0.85×, Int = 0.5×
+  if (!isFemale) {
+    if      (benchRatio >= 1.95) score += 20;
+    else if (benchRatio >= 1.75) score += 17;
+    else if (benchRatio >= 1.5)  score += 13;
+    else if (benchRatio >= 1.25) score += 9;
+    else if (benchRatio >= 1.0)  score += 6;
+    else if (benchRatio >= 0.75) score += 3;
+    else                          score += 1;
+  } else {
+    if      (benchRatio >= 1.35) score += 20;
+    else if (benchRatio >= 1.1)  score += 17;
+    else if (benchRatio >= 0.85) score += 13;
+    else if (benchRatio >= 0.65) score += 9;
+    else if (benchRatio >= 0.5)  score += 6;
+    else if (benchRatio >= 0.35) score += 3;
+    else                          score += 1;
+  }
+
+  // ── SQUAT STRENGTH (0–12 pts) ─────────────────────────────────────────────
+  // Male norms: 90th% competitive = 2.83×, Elite = 2.5×, Adv = 2.0×, Int = 1.5×
+  // Female norms: 90th% competitive = 2.26×, Elite = 1.8×, Adv = 1.4×, Int = 1.0×
+  if (!isFemale) {
+    if      (squatRatio >= 2.83) score += 12;
+    else if (squatRatio >= 2.5)  score += 10;
+    else if (squatRatio >= 2.0)  score += 8;
+    else if (squatRatio >= 1.5)  score += 5;
+    else if (squatRatio >= 1.0)  score += 3;
+    else                          score += 1;
+  } else {
+    if      (squatRatio >= 2.26) score += 12;
+    else if (squatRatio >= 1.8)  score += 10;
+    else if (squatRatio >= 1.4)  score += 8;
+    else if (squatRatio >= 1.0)  score += 5;
+    else if (squatRatio >= 0.7)  score += 3;
+    else                          score += 1;
+  }
+
+  // ── TRAINING FREQUENCY (0–5 pts) ──────────────────────────────────────────
+  // "med" (3-4×/wk) ≈ 2× per muscle/wk = peak hypertrophy stimulus (Krieger 2010)
+  // "high" (5+×/wk) = solid but recovery cost; "low" = suboptimal stimulus
+  const freq = biology?.frequency || "med";
+  if      (freq === "med")  score += 5;
+  else if (freq === "high") score += 3;
+  else                       score += 1;
+
+  // ── RECOVERY BOTTLENECK (penalty) ─────────────────────────────────────────
+  // Sleep is the biggest lever: -18% muscle protein synthesis (Dattilo 2011),
+  // -10% serum testosterone per week at 5hrs/night (Leproult 2011)
+  const bottleneck = biology?.bottleneck;
+  if      (bottleneck === "sleep")    score -= 8;
+  else if (bottleneck === "soreness") score -= 4;
+  else if (bottleneck === "fog")      score -= 3;
+
+  // ── CAFFEINE OPTIMIZATION (0–3 pts) ───────────────────────────────────────
+  // Optimal window: 3–6mg/kg bodyweight (Grgic 2018 BJSM meta-analysis)
+  // "med" ≈ 100–200mg = within optimal range
+  // "high" = above ceiling → diminishing returns + HPA axis strain
+  const caffeine = biology?.caffeine || "med";
+  if      (caffeine === "med")  score += 3;
+  else if (caffeine === "low")  score += 2;
+  else                           score += 1;
+
+  // ── AGE MODIFIER (−6 to 0) ────────────────────────────────────────────────
+  // Strength peaks 25-35, minimal decline to 40, then ~12-15% per decade
+  // (Lexell 1995: 10% loss/decade in type II fibers after 50)
+  let a = age;
+  if (!a) { try { a = JSON.parse(localStorage.getItem("rvn_profile") || "{}").age || 25; } catch { a = 25; } }
+  if      (a >= 60) score -= 6;
+  else if (a >= 50) score -= 4;
+  else if (a >= 40) score -= 2;
+  else if (a >= 35) score -= 1;
+
+  return Math.min(Math.max(score, 40), 98);
+}
+
+// Legacy wrapper — kept for any direct callers outside calcBioScore
+function calcHypertrophyScore(perfData) {
+  return calcComprehensiveBioScore(perfData, null, null);
 }
 
 function calcLogicCitation(archetypeId, perfData) {
@@ -1511,22 +1592,25 @@ const SUPPLEMENT_MOA = [
 ];
 
 // ─── BIO SCORE CALCULATOR ─────────────────────────────────────────────────────
-function calcBioScore(archetypeId, performanceData) {
-  // Try real hypertrophy calculation first
-  const hypertrophy = calcHypertrophyScore(performanceData);
-  if (hypertrophy !== null) return hypertrophy;
-  // Legacy fallback when no bodyweight data
+// biology: { gender, frequency, caffeine, bottleneck } — from BiologyStep
+// age: number — from PersonalizeStep (optional, falls back to localStorage)
+function calcBioScore(archetypeId, performanceData, biology, age) {
+  // Full multi-factor calculation when gym performance data is present
+  const comprehensive = calcComprehensiveBioScore(performanceData, biology, age);
+  if (comprehensive !== null) return comprehensive;
+  // Store-mode / no-performance-data fallback: use archetype base + biology modifiers
   const base = { vtaper:72, abs:68, density:76, athletic:74, longevity:65, skin:70, cognitive:73, metabolic:67,
-                 glutes:74, hourglass:70, lean_athlete:73, tone_define:68 };
+                 glutes:74, hourglass:70, lean_athlete:73, tone_define:68, shred:70, full_body:72 };
   let score = base[archetypeId] || 70;
-  if (!performanceData) return score;
-  const { metric, value } = performanceData;
-  if (metric === "bench"  && value > 225) score += 8;
-  else if (metric === "bench"  && value > 135) score += 4;
-  else if (metric === "squat"  && value > 315) score += 10;
-  else if (metric === "sleep"  && value >= 7.5) score += 6;
-  else if (metric === "stress" && value <= 4)   score += 5;
-  return Math.min(score, 98);
+  // Apply biology modifiers even in fallback mode
+  if (biology) {
+    const freq = biology.frequency;
+    if (freq === "med") score += 3; else if (freq === "high") score += 1;
+    const bott = biology.bottleneck;
+    if (bott === "sleep") score -= 5; else if (bott === "soreness") score -= 2;
+    if (biology.caffeine === "med") score += 2;
+  }
+  return Math.min(Math.max(score, 40), 98);
 }
 
 // ─── AI TYPEWRITER HOOK ───────────────────────────────────────────────────────
@@ -2478,6 +2562,155 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
         </div>
       )}
     </GlassCard>
+  );
+}
+
+// ─── FITNESS CLAIM CHECKER ────────────────────────────────────────────────────
+// Paste any IG caption or fitness claim → cross-referenced against research
+function FitnessClaimChecker({ theme, T, color }) {
+  const ac = color || "#0A84FF";
+  const [claim,   setClaim]   = React.useState("");
+  const [result,  setResult]  = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+  const [error,   setError]   = React.useState(null);
+
+  const VERDICT_CFG = {
+    VERIFIED:   { icon:"✅", color:"#30D158", label:"VERIFIED"   },
+    MISLEADING: { icon:"⚠️",  color:"#FF9F0A", label:"MISLEADING" },
+    FALSE:      { icon:"❌", color:"#FF3B30", label:"FALSE"       },
+    UNVERIFIED: { icon:"❓", color:"#8E8E93", label:"UNVERIFIED"  },
+  };
+
+  async function checkClaim() {
+    if (!claim.trim() || loading) return;
+    setLoading(true); setError(null); setResult(null);
+    const system = `You are a fitness science fact-checker with deep expertise in exercise physiology, sports nutrition, and peer-reviewed research. Evaluate fitness and nutrition claims objectively.
+Respond ONLY with valid JSON in this exact format (no markdown, no explanation):
+{"verdict":"VERIFIED","confidence":85,"summary":"One sentence verdict","evidence":"2-3 sentences explaining the evidence and research basis","sources":["Author et al. (Year) — Study name / Journal","Author et al. (Year) — Study name / Journal"],"nuance":"Any important caveats, context, or population-specific notes"}
+Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (partially true but overstated/missing key context), FALSE (contradicted by evidence), UNVERIFIED (insufficient research). Confidence is 0-100.`;
+    try {
+      const resp = await callClaudeAPI({ system, history:[], user:`Fact-check this fitness claim: "${claim.trim()}"`, maxTokens:420, model:"claude-haiku-4-5-20251001" });
+      if (!resp) throw new Error("No response");
+      const match = resp.match(/\{[\s\S]*\}/);
+      if (!match) throw new Error("Bad format");
+      const parsed = JSON.parse(match[0]);
+      if (!parsed.verdict) throw new Error("Missing verdict");
+      setResult(parsed);
+    } catch {
+      setError("Couldn't analyze right now. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div style={{ marginTop:22 }}>
+      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:8 }}>
+        ◉ CLAIM CHECKER
+      </div>
+      <div style={{ fontSize:11, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
+        Paste any fitness or nutrition claim from social media. We'll check it against the research.
+      </div>
+
+      {/* Input card */}
+      <div style={{ background:T.card, borderRadius:18, border:`1px solid ${T.border}`, overflow:"hidden", marginBottom:12, boxShadow:T.shadowSm }}>
+        <textarea
+          value={claim} onChange={e => setClaim(e.target.value)}
+          placeholder={"e.g. \"Creatine causes hair loss\" or \"You must eat within 30 minutes of training\"…"}
+          rows={3}
+          style={{ width:"100%", boxSizing:"border-box", padding:"14px 16px", background:"transparent",
+            border:"none", outline:"none", fontSize:12, color:T.text, resize:"none",
+            fontFamily:"inherit", lineHeight:1.5 }}
+        />
+        <div style={{ padding:"8px 12px", borderTop:`1px solid ${T.border}`, display:"flex", justifyContent:"flex-end", alignItems:"center", gap:8 }}>
+          {error && <div style={{ fontSize:10, color:"#FF3B30", flex:1 }}>{error}</div>}
+          {result && (
+            <button onClick={() => { setResult(null); setClaim(""); }}
+              style={{ padding:"6px 12px", borderRadius:8, background:"transparent",
+                border:`1px solid ${T.border}`, color:T.muted, fontSize:10, cursor:"pointer" }}>
+              Clear
+            </button>
+          )}
+          <motion.button whileTap={{ scale:.95 }}
+            disabled={loading || !claim.trim()} onClick={checkClaim}
+            style={{ padding:"8px 18px", borderRadius:12, fontSize:11, fontWeight:800, cursor:"pointer",
+              background:claim.trim() ? ac : T.glass,
+              border:claim.trim() ? "none" : `1px solid ${T.border}`,
+              color:claim.trim() ? "#fff" : T.muted,
+              opacity:loading ? 0.6 : 1, letterSpacing:".05em" }}>
+            {loading ? "🔬 Checking…" : "⚡ FACT CHECK"}
+          </motion.button>
+        </div>
+      </div>
+
+      {loading && (
+        <div style={{ textAlign:"center", padding:"22px 0" }}>
+          <motion.div animate={{ rotate:360 }}
+            transition={{ duration:1.2, repeat:isMobile?0:Infinity, ease:"linear" }}
+            style={{ width:28, height:28, borderRadius:"50%", border:`3px solid ${ac}40`,
+              borderTopColor:ac, margin:"0 auto 10px" }}/>
+          <div style={{ fontSize:11, color:T.muted }}>Cross-referencing research databases…</div>
+        </div>
+      )}
+
+      {result && !loading && (() => {
+        const vc = VERDICT_CFG[result.verdict] || VERDICT_CFG.UNVERIFIED;
+        return (
+          <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+            style={{ background:T.card, borderRadius:18, padding:"16px",
+              border:`1.5px solid ${vc.color}44`,
+              boxShadow:`0 0 24px ${vc.color}18, 0 2px 12px rgba(0,0,0,.12)` }}>
+
+            {/* Verdict header */}
+            <div style={{ display:"flex", alignItems:"flex-start", gap:12, marginBottom:12 }}>
+              <div style={{ fontSize:30, lineHeight:1 }}>{vc.icon}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:10, fontWeight:900, color:vc.color, letterSpacing:".14em", marginBottom:3 }}>
+                  {vc.label}
+                </div>
+                <div style={{ fontSize:13, fontWeight:700, color:T.text, lineHeight:1.35 }}>
+                  {result.summary}
+                </div>
+              </div>
+              <div style={{ textAlign:"center", flexShrink:0 }}>
+                <div style={{ fontSize:20, fontWeight:900, color:vc.color, lineHeight:1 }}>{result.confidence}%</div>
+                <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>CONFIDENCE</div>
+              </div>
+            </div>
+
+            {/* Evidence */}
+            <div style={{ fontSize:11, color:T.muted, lineHeight:1.65, marginBottom:12,
+              padding:"10px 12px", background:`${vc.color}0E`, borderRadius:10,
+              borderLeft:`3px solid ${vc.color}55` }}>
+              {result.evidence}
+            </div>
+
+            {/* Sources */}
+            {result.sources?.length > 0 && (
+              <div style={{ marginBottom:10 }}>
+                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>
+                  RESEARCH SOURCES
+                </div>
+                {result.sources.map((s, i) => (
+                  <div key={i} style={{ fontSize:9.5, color:T.muted, paddingLeft:10,
+                    borderLeft:`2px solid ${vc.color}44`, marginBottom:4, lineHeight:1.4 }}>
+                    {s}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Nuance / caveat */}
+            {result.nuance && (
+              <div style={{ fontSize:10, color:T.faint, padding:"8px 10px",
+                background:`${T.border}55`, borderRadius:8, fontStyle:"italic", lineHeight:1.5 }}>
+                ◈ {result.nuance}
+              </div>
+            )}
+          </motion.div>
+        );
+      })()}
+    </div>
   );
 }
 
@@ -6382,7 +6615,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
   const hour      = new Date().getHours();
   const _allArch  = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
   const arch      = _allArch.find(a => a.id === archetypeId) || GYM_ARCHETYPES[0];
-  const bioScore  = calcBioScore(archetypeId, bioData) || 72;
+  const bioScore  = calcBioScore(archetypeId, bioData, biology) || 72;
   const firstName = user?.name?.split(" ")[0] || "Athlete";
   const dayLabel  = new Date().toLocaleDateString("en-US", { weekday:"long" });
   const dateLabel = new Date().toLocaleDateString("en-US", { month:"short", day:"numeric" });
@@ -9683,21 +9916,28 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
       const bw    = allVals.bw    || 175;
       const bench = allVals.bench || 135;
       const squat = allVals.squat || 185;
-      const bwKg  = bw * 0.4536;
-      // Heavier lifters and higher strength ratios = higher protein demand
+      const bwKg  = Math.round(bw * 0.4536);
+      // ISSN Position Stand protein tiers by strength level (Stokes 2018, Phillips & Van Loon 2011)
+      // Competitive (90th pct lifters): 2.4g/kg — maximum MPS stimulus
+      // Elite (1.75-2x bench): 2.2g/kg — advanced hypertrophy protocol
+      // Advanced (1.5x bench): 2.0g/kg — solid training demand
+      // Intermediate (1.0-1.5x bench): 1.8g/kg — established ISSN minimum for muscle gain
+      // Novice (<1.0x bench): 1.6g/kg — baseline recommendation
       const benchRatio = bench / bw;
       const squatRatio = squat / bw;
-      const isElite    = benchRatio >= 2.0 || squatRatio >= 2.5;
-      const isAdvanced = benchRatio >= 1.5 || squatRatio >= 2.0;
-      const multiplier = isElite ? 2.2 : isAdvanced ? 2.0 : 1.8;
+      const isCompetitive = benchRatio >= 1.95 || squatRatio >= 2.83;
+      const isElite       = benchRatio >= 1.75 || squatRatio >= 2.5;
+      const isAdvanced    = benchRatio >= 1.5  || squatRatio >= 2.0;
+      const isIntermediate= benchRatio >= 1.0  || squatRatio >= 1.5;
+      const multiplier    = isCompetitive ? 2.4 : isElite ? 2.2 : isAdvanced ? 2.0 : isIntermediate ? 1.8 : 1.6;
+      const level         = isCompetitive ? "competitive" : isElite ? "elite" : isAdvanced ? "advanced" : isIntermediate ? "intermediate" : "foundation";
       const proteinTarget = Math.round(bwKg * multiplier);
       const perMeal = Math.round(proteinTarget / 4);
-      const level = isElite ? "elite" : isAdvanced ? "advanced" : "optimal";
       return {
         stat: `${proteinTarget}g`,
         icon: "⬡",
         headline: `Your daily protein target — starting today`,
-        body: `At ${bw}lbs with your strength level, your ${level} protein intake is ${proteinTarget}g/day (${multiplier}g per kg). That's ~${perMeal}g per meal across 4 meals. The average person eats ~65g total — that gap explains most failed transformations.`,
+        body: `At ${bw}lbs (${bwKg}kg), your ${level}-level protein target is ${proteinTarget}g/day — ${multiplier}g per kg of bodyweight. That's ~${perMeal}g across 4 meals. The average person eats ~65g total. That gap is where transformations are won or lost.`,
         color: "#2E5BFF",
       };
     } else {
@@ -10659,7 +10899,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
     ? (biology?.gender==="female" ? FEMALE_GYM_ARCHETYPES : GYM_ARCHETYPES)
     : STORE_ARCHETYPES;
   const arch = archetypes.find(a=>a.id===archetypeId)||archetypes[0];
-  const bioScore = calcBioScore(archetypeId, bioData);
+  const bioScore = calcBioScore(archetypeId, bioData, biology);
 
   // Scanning → reveal sequence
   const [phase, setPhase] = useState(0); // 0=scanning, 1=reveal
@@ -11683,7 +11923,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     setSaving(true);
     setSaveErr(null);
     try {
-      const bioScore = calcBioScore(archetypeId, bioData);
+      const bioScore = calcBioScore(archetypeId, bioData, biology);
       await saveWorkoutSession({
         email:       user?.email  || "",
         userId:      user?.id     || null,
@@ -11732,7 +11972,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const doneSets  = Object.values(setsDone).filter(Boolean).length;
   const progress  = totalSets > 0 ? (doneSets/totalSets)*100 : 0;
 
-  const bioScore = calcBioScore(archetypeId, bioData);
+  const bioScore = calcBioScore(archetypeId, bioData, biology);
 
   // One-tap check-in handler
   const handleCheckIn = async () => {
@@ -12057,7 +12297,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         <motion.div {...FX.up} style={{ marginBottom:14 }}>
           <GlassCard theme={theme} glow={arch.glow} style={{ padding:"12px 14px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-              <BioRing score={calcBioScore(archetypeId, bioData)} color={arch.glow} size={60} theme={theme}/>
+              <BioRing score={calcBioScore(archetypeId, bioData, biology)} color={arch.glow} size={60} theme={theme}/>
               <div style={{ flex:1 }}>
                 <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".1em" }}>TARGET MUSCLES</div>
                 <div style={{ fontSize:13, fontWeight:700, color:T.text, marginTop:2 }}>{arch.muscles.join(" · ")}</div>
@@ -12567,7 +12807,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         <div style={{ background:T.glass, border:"1px solid "+T.border,
                           borderRadius:10, padding:"10px 14px", textAlign:"center", minWidth:80 }}>
                           <div style={{ fontSize:22, fontWeight:900, color:T.green }}>
-                            {calcBioScore(archetypeId, bioData)}
+                            {calcBioScore(archetypeId, bioData, biology)}
                           </div>
                           <div style={{ fontSize:8.5, fontWeight:700, color:T.faint, letterSpacing:".08em" }}>BIO-SCORE</div>
                           <div style={{ fontSize:8, color:T.faint, marginTop:2 }}>CALCULATED</div>
@@ -12841,6 +13081,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   </div>
                 );
               })()}
+
+              {/* ── CLAIM CHECKER ──────────────────────────────────────────── */}
+              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginTop:14,
+                border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
+                <FitnessClaimChecker theme={theme} T={T} color={arch.glow}/>
+              </div>
             </motion.div>
           );
         })()}
@@ -24869,6 +25115,27 @@ function MealPlanScreen({ theme, onBack, user }) {
   });
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeError, setRecipeError] = useState(null);
+  // Saved recipes — persisted in localStorage
+  const [savedRecipes, setSavedRecipes] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("rvn_saved_recipes") || "[]"); } catch { return []; }
+  });
+  const [savedNotif, setSavedNotif] = useState(null); // recipe name just saved
+
+  function saveRecipe(recipe) {
+    const already = savedRecipes.some(r => r.name === recipe.name);
+    if (already) return;
+    const updated = [{ ...recipe, savedAt: new Date().toISOString() }, ...savedRecipes].slice(0, 30);
+    setSavedRecipes(updated);
+    try { localStorage.setItem("rvn_saved_recipes", JSON.stringify(updated)); } catch {}
+    setSavedNotif(recipe.name);
+    setTimeout(() => setSavedNotif(null), 2400);
+  }
+
+  function unsaveRecipe(name) {
+    const updated = savedRecipes.filter(r => r.name !== name);
+    setSavedRecipes(updated);
+    try { localStorage.setItem("rvn_saved_recipes", JSON.stringify(updated)); } catch {}
+  }
 
   async function generatePlan(force = false) {
     if (loading) return;
@@ -24941,6 +25208,28 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
   return (
     <Screen theme={theme}>
       <motion.div {...FX.page} style={{ padding:"20px 20px 120px" }}>
+
+        {/* ── SAVED RECIPE TOAST ──────────────────────────────────── */}
+        <AnimatePresence>
+          {savedNotif && (
+            <motion.div
+              initial={{ opacity:0, y:-16, scale:.95 }}
+              animate={{ opacity:1, y:0, scale:1 }}
+              exit={{ opacity:0, y:-12, scale:.95 }}
+              transition={{ type:"spring", stiffness:320, damping:28 }}
+              style={{
+                position:"fixed", top:28, left:"50%", transform:"translateX(-50%)",
+                zIndex:9999, background:"#30D158", color:"#fff",
+                padding:"10px 20px", borderRadius:14,
+                fontSize:12, fontWeight:800, letterSpacing:".04em",
+                boxShadow:"0 4px 20px #30D15840",
+                pointerEvents:"none", whiteSpace:"nowrap",
+              }}>
+              💾 Saved: {savedNotif}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Header */}
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
           <BackBtn onBack={onBack} theme={theme}/>
@@ -25196,6 +25485,19 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                       <div style={{ fontSize:11, color:T.muted, lineHeight:1.4 }}>{step}</div>
                     </div>
                   ))}
+
+                  {/* ── SAVE BUTTON ─────────────────────────────── */}
+                  <motion.button whileTap={{ scale:.95 }}
+                    onClick={() => saveRecipe(r)}
+                    style={{
+                      marginTop:10, width:"100%", padding:"10px", borderRadius:12,
+                      background: savedRecipes.some(s => s.name === r.name) ? "#30D15818" : "#30D158",
+                      border: savedRecipes.some(s => s.name === r.name) ? "1px solid #30D15840" : "none",
+                      color: savedRecipes.some(s => s.name === r.name) ? "#30D158" : "#fff",
+                      fontSize:12, fontWeight:800, cursor:"pointer", letterSpacing:".05em",
+                    }}>
+                    {savedRecipes.some(s => s.name === r.name) ? "✓ SAVED" : "💾 SAVE RECIPE"}
+                  </motion.button>
                 </motion.div>
               ))}
 
@@ -25210,6 +25512,113 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                   ✕ Clear Recipes
                 </motion.button>
               </div>
+            </div>
+          )}
+
+          {/* ── MY SAVED RECIPES ──────────────────────────────────────────── */}
+          {savedRecipes.length > 0 && (
+            <div style={{ marginTop:18 }}>
+              {/* Header */}
+              <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                  <div style={{
+                    width:28, height:28, borderRadius:8,
+                    background:"#FF9F0A20", border:"1px solid #FF9F0A40",
+                    display:"flex", alignItems:"center", justifyContent:"center", fontSize:14,
+                  }}>📚</div>
+                  <div>
+                    <div style={{ fontSize:13, fontWeight:800, color:T.text }}>MY RECIPES</div>
+                    <div style={{ fontSize:10, color:T.muted }}>{savedRecipes.length} saved</div>
+                  </div>
+                </div>
+              </div>
+
+              {savedRecipes.map((r, i) => (
+                <motion.div key={r.name + i}
+                  initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
+                  transition={{ delay: i * 0.04 }}
+                  style={{
+                    background:T.card, borderRadius:16, padding:"14px 16px",
+                    marginBottom:10, border:`1px solid ${T.border}`,
+                  }}>
+                  {/* Recipe name + macros row */}
+                  <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", marginBottom:8 }}>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:800, color:T.text, marginBottom:2 }}>{r.name}</div>
+                      {r.cookTime && (
+                        <div style={{ fontSize:10, color:T.muted }}>⏱ {r.cookTime}</div>
+                      )}
+                    </div>
+                    <motion.button whileTap={{ scale:.92 }}
+                      onClick={() => unsaveRecipe(r.name)}
+                      style={{
+                        padding:"4px 10px", borderRadius:8,
+                        background:"transparent", border:`1px solid ${T.border}`,
+                        color:T.faint, fontSize:10, fontWeight:700, cursor:"pointer",
+                      }}>
+                      ✕ Remove
+                    </motion.button>
+                  </div>
+
+                  {/* Macro pills */}
+                  {r.macros && (
+                    <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:8 }}>
+                      {[
+                        { label:"Cals",    val: r.macros.calories, color:"#FF9F0A" },
+                        { label:"Protein", val: r.macros.protein + "g", color:"#30D158" },
+                        { label:"Carbs",   val: r.macros.carbs + "g",   color:"#0A84FF" },
+                        { label:"Fat",     val: r.macros.fat + "g",     color:"#FF6B6B"  },
+                      ].map(m => (
+                        <div key={m.label} style={{
+                          padding:"3px 8px", borderRadius:6,
+                          background: m.color + "18", border:`1px solid ${m.color}30`,
+                          fontSize:10, fontWeight:700, color: m.color,
+                        }}>
+                          {m.val} {m.label}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Ingredients */}
+                  {r.ingredients && r.ingredients.length > 0 && (
+                    <div style={{ marginBottom:8 }}>
+                      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:4 }}>INGREDIENTS</div>
+                      <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
+                        {r.ingredients.map((ing, j) => (
+                          <div key={j} style={{
+                            padding:"2px 7px", borderRadius:5,
+                            background: T.bg, border:`1px solid ${T.border}`,
+                            fontSize:10, color:T.muted,
+                          }}>{ing}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Steps (collapsed by default) */}
+                  {r.steps && r.steps.length > 0 && (
+                    <details style={{ cursor:"pointer" }}>
+                      <summary style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", outline:"none" }}>
+                        HOW TO MAKE IT ▾
+                      </summary>
+                      <div style={{ marginTop:6 }}>
+                        {r.steps.map((step, j) => (
+                          <div key={j} style={{ display:"flex", gap:8, alignItems:"flex-start", marginBottom:5 }}>
+                            <div style={{
+                              width:18, height:18, borderRadius:"50%", flexShrink:0,
+                              background:"#FF9F0A20", border:"1px solid #FF9F0A40",
+                              display:"flex", alignItems:"center", justifyContent:"center",
+                              fontSize:9, fontWeight:900, color:"#FF9F0A",
+                            }}>{j+1}</div>
+                            <div style={{ fontSize:11, color:T.muted, lineHeight:1.4 }}>{step}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </motion.div>
+              ))}
             </div>
           )}
         </div>

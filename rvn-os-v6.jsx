@@ -8638,26 +8638,21 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── lightning: pulsing bolt — 200mg dose ─────────────────────────────────────
+  // ── lightning: bold zigzag bolt — 200mg dose ────────────────────────────────
   if (type === "lightning") {
-    // Clean large bolt centered in 200x200
-    const boltPts = "114,12 148,92 116,92 86,188 52,106 86,106";
+    // Single stroked path = clean unambiguous bolt shape, no glow blob
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {/* Subtle glow behind bolt — stays small */}
-        <ellipse cx="100" cy="100" rx="44" ry="56" fill={color}>
-          <animate attributeName="opacity" values="0.06;0.14;0.06" dur="1.4s" repeatCount="indefinite"/>
-          <animate attributeName="rx" values="44;52;44" dur="1.4s" repeatCount="indefinite"/>
-          <animate attributeName="ry" values="56;66;56" dur="1.4s" repeatCount="indefinite"/>
-        </ellipse>
-        {/* Bolt fill */}
-        <polygon points={boltPts} fill={color}>
-          <animate attributeName="opacity" values="0.75;1;0.75" dur="1.4s" repeatCount="indefinite"/>
-        </polygon>
-        {/* Bright rim */}
-        <polygon points={boltPts} fill="none" stroke={color} strokeWidth="1.5" opacity="0.5">
-          <animate attributeName="opacity" values="0.2;0.6;0.2" dur="1.4s" repeatCount="indefinite"/>
-        </polygon>
+        <path d="M 120,18 L 86,96 L 114,96 L 80,182"
+          fill="none" stroke={color} strokeWidth="26" strokeLinecap="round" strokeLinejoin="round">
+          <animate attributeName="opacity" values="0.75;1;0.75" dur="1.3s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-width" values="24;30;24" dur="1.3s" repeatCount="indefinite"/>
+        </path>
+        {/* Inner highlight — thinner, brighter */}
+        <path d="M 120,18 L 86,96 L 114,96 L 80,182"
+          fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" opacity="0">
+          <animate attributeName="opacity" values="0;0.35;0" dur="1.3s" repeatCount="indefinite"/>
+        </path>
       </svg>
     );
   }

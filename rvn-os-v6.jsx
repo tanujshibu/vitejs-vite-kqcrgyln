@@ -280,7 +280,12 @@ const D = {
 const IOS_SPRING        = { type:"spring", stiffness:420, damping:34, mass:0.75 };
 const IOS_SPRING_SLOW   = { type:"spring", stiffness:320, damping:30, mass:1.0  };
 const IOS_EXIT          = { duration:0.16, ease:[0.4,0,1,1] };
-const FX = {
+// On mobile: all entry animations are instant (no opacity:0 flash on re-render)
+const FX = isMobile ? {
+  page:    {},
+  up:      {},
+  stagger: () => ({}),
+} : {
   page: {
     initial: { opacity:0, y:8 },
     animate: { opacity:1, y:0,  transition: IOS_SPRING },

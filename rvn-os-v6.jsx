@@ -8822,41 +8822,68 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase -1: Hook screen ──────────────────────────────────────────────────
   if (phase === -1) return (
-    <Screen theme={theme}>
+    <Screen theme={theme} style={{ overflow:"hidden" }}>
+
+      {/* Deep background glow */}
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-        background:`radial-gradient(ellipse 80% 55% at 50% 30%, ${ac}15, transparent)` }}/>
+        background:`radial-gradient(ellipse 100% 60% at 50% 40%, ${ac}28, transparent 70%)` }}/>
 
-      {/* Opening statement — big, cinematic, personal */}
-      <motion.div style={{ flex:1, display:"flex", flexDirection:"column",
-        justifyContent:"center", padding:"48px 28px 24px" }}>
+      {/* Hero visual — centered logo with pulsing rings */}
+      <motion.div
+        initial={{ opacity:0, scale:.7 }} animate={{ opacity:1, scale:1 }}
+        transition={{ duration:.7, ease:[.22,1,.36,1] }}
+        style={{ position:"absolute", top:"18%", left:"50%", transform:"translateX(-50%)",
+          display:"flex", alignItems:"center", justifyContent:"center" }}>
 
-        {/* Dramatic opener */}
-        <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}
-          transition={{ duration:.6, ease:[.22,1,.36,1] }}
-          style={{ marginBottom:32 }}>
-          <div style={{ fontSize:38, fontWeight:900, letterSpacing:"-.03em",
-            color:T.text, lineHeight:1.06, marginBottom:16 }}>
-            The best version of your body isn't behind you.
-          </div>
-          <div style={{ fontSize:17, color:T.muted, lineHeight:1.65, maxWidth:300 }}>
-            Most people just never find out what it looks like.
-          </div>
-        </motion.div>
+        {/* Outer pulse ring */}
+        <motion.div
+          animate={{ scale:[1,1.18,1], opacity:[.18,.0,.18] }}
+          transition={{ duration:2.8, repeat:Infinity, ease:"easeInOut" }}
+          style={{ position:"absolute", width:200, height:200, borderRadius:"50%",
+            border:`1px solid ${ac}`, pointerEvents:"none" }}/>
 
-        {/* Thin divider */}
-        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.35 }}
-          style={{ height:1, background:T.border, marginBottom:8 }}/>
+        {/* Mid ring */}
+        <motion.div
+          animate={{ scale:[1,1.12,1], opacity:[.28,.05,.28] }}
+          transition={{ duration:2.8, repeat:Infinity, ease:"easeInOut", delay:.4 }}
+          style={{ position:"absolute", width:150, height:150, borderRadius:"50%",
+            border:`1.5px solid ${ac}`, pointerEvents:"none" }}/>
+
+        {/* Inner glow disc */}
+        <motion.div
+          animate={{ opacity:[.35,.6,.35] }}
+          transition={{ duration:2.4, repeat:Infinity, ease:"easeInOut" }}
+          style={{ position:"absolute", width:110, height:110, borderRadius:"50%",
+            background:`radial-gradient(circle, ${ac}44 0%, transparent 70%)`,
+            pointerEvents:"none" }}/>
 
         {/* Logo */}
-        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.55 }}
-          style={{ display:"flex", justifyContent:"center", marginTop:28 }}>
-          <RVNLogo size={44} glow={ac}/>
+        <div style={{ position:"relative", zIndex:2 }}>
+          <RVNLogo size={72} glow={ac}/>
+        </div>
+      </motion.div>
+
+      {/* Text — bottom half */}
+      <motion.div style={{ flex:1, display:"flex", flexDirection:"column",
+        justifyContent:"flex-end", padding:"0 28px 0" }}>
+
+        <motion.div
+          initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.3, duration:.6, ease:[.22,1,.36,1] }}
+          style={{ paddingBottom:32 }}>
+          <div style={{ fontSize:36, fontWeight:900, letterSpacing:"-.03em",
+            color:T.text, lineHeight:1.08, marginBottom:14 }}>
+            The best version of your body isn't behind you.
+          </div>
+          <div style={{ fontSize:15, color:T.muted, lineHeight:1.7, maxWidth:310 }}>
+            Most people just never find out what it looks like.
+          </div>
         </motion.div>
       </motion.div>
 
       {/* CTA */}
       <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:.65 }}
+        transition={{ delay:.55 }}
         style={{ padding:"0 24px 52px" }}>
         <ShimmerCTA label="Build my protocol  →" onClick={() => setPhase(0)} theme={theme} color={ac}/>
         {onBack && (

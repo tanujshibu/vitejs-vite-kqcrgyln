@@ -8722,7 +8722,21 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   const [caffeine,   setCaffeine]   = useState(null);
   const [bottleneck, setBottleneck] = useState(null);
   const [factData,   setFactData]   = useState(null);
+  const [hookTick,   setHookTick]   = useState(0);
   const afterFlash = useRef(null);
+
+  // Cycling metric values for hook screen (shapes shift under blur)
+  const HOOK_POOLS = [
+    ["182g","194g","168g","211g","175g","203g","159g"],
+    ["2,840","3,120","2,650","2,980","3,240","2,770","3,050"],
+    ["4×/wk","5×/wk","3×/wk","6×/wk","4×/wk","5×/wk","3×/wk"],
+    ["87.3","91.2","73.8","84.6","92.1","78.4","88.9"],
+  ];
+  useEffect(() => {
+    if (phase !== -1) return;
+    const id = setInterval(() => setHookTick(t => t + 1), 150);
+    return () => clearInterval(id);
+  }, [phase]);
 
   // Reset picked when phase changes
   useEffect(() => { setPicked(null); }, [phase]);
@@ -8742,18 +8756,24 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
     const stepColor = glows[(step - 1) % glows.length];
     return (
       <Screen theme={theme} style={{ overflow:"hidden" }}>
-        {/* Ambient colored glow unique to each step */}
-        <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}18, transparent 60%)`,
-          zIndex:0 }}/>
+        {/* Ambient colored glow — breathes */}
+        <motion.div
+          animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
+          transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+          style={{ position:"absolute", inset:0, pointerEvents:"none",
+            background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
+            zIndex:0 }}/>
 
-        {/* Giant faded step number in background */}
-        <div style={{
-          position:"absolute", top:"-10px", right:"-8px",
-          fontSize:180, fontWeight:900, color:T.text, opacity:.03,
-          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-          userSelect:"none", zIndex:0,
-        }}>{String(step).padStart(2,"0")}</div>
+        {/* Giant faded step number — pulses */}
+        <motion.div
+          animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+          transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+          style={{
+            position:"absolute", top:"-10px", right:"-8px",
+            fontSize:180, fontWeight:900, color:T.text,
+            letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+            userSelect:"none", zIndex:0, transformOrigin:"top right",
+          }}>{String(step).padStart(2,"0")}</motion.div>
 
         {/* Back button + step dots */}
         <div style={{ position:"relative", zIndex:1,
@@ -8779,12 +8799,17 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
           style={{ position:"relative", zIndex:1, flex:1, display:"flex",
             flexDirection:"column", padding:"24px 24px 48px" }}>
 
-          {/* Story hook above headline */}
+          {/* Story hook — accent left border, subtle drift */}
           {storyHook && (
-            <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+            <motion.div
+              initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
               transition={{ delay:.1, duration:.35 }}
-              style={{ fontSize:12, color:T.faint, fontStyle:"italic",
-                lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+              style={{
+                fontSize:12, color: T.muted, fontStyle:"italic",
+                lineHeight:1.6, marginBottom:16, maxWidth:310,
+                borderLeft:`2px solid ${stepColor}88`,
+                paddingLeft:10,
+              }}>
               {storyHook}
             </motion.div>
           )}
@@ -8796,7 +8821,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
             <div style={{
               fontSize:32, fontWeight:900, letterSpacing:"-.03em",
               color:T.text, lineHeight:1.12,
-              textShadow: theme==="dark" ? `0 0 60px ${stepColor}33` : "none",
+              textShadow: theme==="dark" ? `0 0 60px ${stepColor}44` : "none",
             }}>{headline}</div>
             {/* Color accent underline */}
             <motion.div
@@ -8804,7 +8829,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
               transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
               style={{ height:2, width:40, background:stepColor,
                 borderRadius:2, marginTop:10, transformOrigin:"left",
-                boxShadow:`0 0 8px ${stepColor}88` }}/>
+                boxShadow:`0 0 8px ${stepColor}99` }}/>
           </motion.div>
 
           <div style={{ display:"flex", flexDirection:"column", gap:12 }}>{children}</div>
@@ -8823,84 +8848,100 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   // ── Phase -1: Hook screen ──────────────────────────────────────────────────
   if (phase === -1) return (
     <Screen theme={theme} style={{ overflow:"hidden" }}>
-      {/* bg glow */}
-      <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-        background:`radial-gradient(ellipse 100% 55% at 50% 35%, ${ac}22, transparent 70%)` }}/>
+      {/* bg glow — breathing */}
+      <motion.div
+        animate={{ opacity:[0.7,1,0.7], scale:[1,1.06,1] }}
+        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+        style={{ position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 100% 55% at 50% 35%, ${ac}28, transparent 70%)` }}/>
 
-      {/* ── HERO: teased protocol card ── */}
-      <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+      {/* ── HERO: teased protocol card — floats ── */}
+      <motion.div
+        initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
         transition={{ duration:.6, ease:[.22,1,.36,1] }}
         style={{ padding:"20px 22px 0" }}>
 
-        {/* Card */}
-        <div style={{
-          background: theme==="dark" ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)",
-          backdropFilter: isMobile?"none":"blur(20px)",
-          border: `1px solid ${ac}44`,
-          borderRadius: 24,
-          padding: "22px 20px 18px",
-          boxShadow: `0 24px 60px ${ac}1A, inset 0 0 0 1px ${ac}22`,
-          position: "relative", overflow:"hidden",
-        }}>
+        {/* Float wrapper */}
+        <motion.div
+          animate={{ y:[0,-7,0] }}
+          transition={{ duration:3.2, repeat:Infinity, ease:"easeInOut" }}>
 
-          {/* Shimmer sweep */}
-          <motion.div
-            animate={{ x:["-100%","200%"] }}
-            transition={{ duration:2.4, repeat:Infinity, repeatDelay:1.8, ease:"easeInOut" }}
-            style={{ position:"absolute", inset:0, pointerEvents:"none",
-              background:`linear-gradient(105deg, transparent 40%, ${ac}18 50%, transparent 60%)` }}/>
+          {/* Card */}
+          <div style={{
+            background: theme==="dark" ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)",
+            backdropFilter: isMobile?"none":"blur(20px)",
+            border: `1px solid ${ac}44`,
+            borderRadius: 24,
+            padding: "22px 20px 18px",
+            boxShadow: `0 24px 60px ${ac}28, inset 0 0 0 1px ${ac}22`,
+            position: "relative", overflow:"hidden",
+          }}>
 
-          {/* Card header */}
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
-            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-              <motion.div animate={{ opacity:[1,.4,1] }} transition={{ duration:1.6, repeat:Infinity }}
-                style={{ width:8, height:8, borderRadius:"50%", background:ac }}/>
-              <div style={{ fontSize:9, fontWeight:800, letterSpacing:".16em", color:ac }}>
-                YOUR PROTOCOL
-              </div>
-            </div>
-            <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em" }}>LOCKED</div>
-          </div>
+            {/* Shimmer sweep */}
+            <motion.div
+              animate={{ x:["-100%","200%"] }}
+              transition={{ duration:2.4, repeat:Infinity, repeatDelay:1.4, ease:"easeInOut" }}
+              style={{ position:"absolute", inset:0, pointerEvents:"none",
+                background:`linear-gradient(105deg, transparent 40%, ${ac}20 50%, transparent 60%)` }}/>
 
-          {/* 2×2 metric grid */}
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
-            {[
-              { label:"DAILY PROTEIN", val:"— — g" },
-              { label:"DAILY CALORIES", val:"—,— — —" },
-              { label:"WEEKLY SESSIONS", val:"— ×/wk" },
-              { label:"BIO SCORE", val:"— — . —" },
-            ].map((m, i) => (
-              <motion.div key={m.label}
-                initial={{ opacity:0 }} animate={{ opacity:1 }}
-                transition={{ delay:.2 + i*.1 }}
-                style={{
-                  background: theme==="dark" ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.04)",
-                  borderRadius:14, padding:"12px 14px",
-                  border:`1px solid ${T.border}`,
-                }}>
-                <div style={{ fontSize:8, fontWeight:700, letterSpacing:".1em", color:T.faint, marginBottom:6 }}>
-                  {m.label}
+            {/* Card header */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <motion.div animate={{ opacity:[1,.3,1] }} transition={{ duration:1.4, repeat:Infinity }}
+                  style={{ width:8, height:8, borderRadius:"50%", background:ac,
+                    boxShadow:`0 0 8px ${ac}` }}/>
+                <div style={{ fontSize:9, fontWeight:800, letterSpacing:".16em", color:ac }}>
+                  YOUR PROTOCOL
                 </div>
-                <div style={{
-                  fontSize:20, fontWeight:900, color:T.text,
-                  filter:"blur(5px)", userSelect:"none", letterSpacing:"-.01em",
-                }}>{m.val}</div>
+              </div>
+              <motion.div animate={{ opacity:[0.4,0.8,0.4] }} transition={{ duration:2.2, repeat:Infinity }}>
+                <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em" }}>SCANNING...</div>
               </motion.div>
-            ))}
-          </div>
-
-          {/* Bottom bar */}
-          <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:12,
-            display:"flex", alignItems:"center", gap:8 }}>
-            <div style={{ flex:1, height:6, borderRadius:3,
-              background: theme==="dark" ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)", overflow:"hidden" }}>
-              <motion.div animate={{ width:["0%","65%"] }} transition={{ delay:.8, duration:1.2, ease:[.22,1,.36,1] }}
-                style={{ height:"100%", background:`linear-gradient(90deg,${ac},${ac}88)`,
-                  borderRadius:3, boxShadow:`0 0 8px ${ac}` }}/>
             </div>
-            <div style={{ fontSize:9, fontWeight:700, color:ac, letterSpacing:".08em" }}>BUILDING...</div>
+
+            {/* 2×2 metric grid — values cycle under blur */}
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
+              {[
+                { label:"DAILY PROTEIN" },
+                { label:"DAILY CALORIES" },
+                { label:"WEEKLY SESSIONS" },
+                { label:"BIO SCORE" },
+              ].map((m, i) => (
+                <motion.div key={m.label}
+                  initial={{ opacity:0 }} animate={{ opacity:1 }}
+                  transition={{ delay:.2 + i*.1 }}
+                  style={{
+                    background: theme==="dark" ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.04)",
+                    borderRadius:14, padding:"12px 14px",
+                    border:`1px solid ${T.border}`,
+                  }}>
+                  <div style={{ fontSize:8, fontWeight:700, letterSpacing:".1em", color:T.faint, marginBottom:6 }}>
+                    {m.label}
+                  </div>
+                  <div style={{
+                    fontSize:20, fontWeight:900, color:T.text,
+                    filter:"blur(5px)", userSelect:"none", letterSpacing:"-.01em",
+                    transition:"none",
+                  }}>{HOOK_POOLS[i][hookTick % HOOK_POOLS[i].length]}</div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Bottom bar */}
+            <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:12,
+              display:"flex", alignItems:"center", gap:8 }}>
+              <div style={{ flex:1, height:6, borderRadius:3,
+                background: theme==="dark" ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)", overflow:"hidden" }}>
+                <motion.div animate={{ width:["0%","65%"] }} transition={{ delay:.8, duration:1.4, ease:[.22,1,.36,1] }}
+                  style={{ height:"100%", background:`linear-gradient(90deg,${ac},${ac}88)`,
+                    borderRadius:3, boxShadow:`0 0 10px ${ac}` }}/>
+              </div>
+              <motion.div animate={{ opacity:[0.7,1,0.7] }} transition={{ duration:1.2, repeat:Infinity }}>
+                <div style={{ fontSize:9, fontWeight:700, color:ac, letterSpacing:".08em" }}>BUILDING...</div>
+              </motion.div>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </motion.div>
 
       {/* Text */}
@@ -9034,13 +9075,20 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto", overflow:"hidden" }}>
-      {/* Ambient glow */}
-      <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-        background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}18, transparent 60%)`, zIndex:0 }}/>
-      {/* Giant faded step number */}
-      <div style={{ position:"absolute", top:"-10px", right:"-8px",
-        fontSize:180, fontWeight:900, color:T.text, opacity:.03,
-        letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none", userSelect:"none", zIndex:0 }}>02</div>
+      {/* Ambient glow — breathes */}
+      <motion.div
+        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
+        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        style={{ position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
+      {/* Giant faded step number — pulses */}
+      <motion.div
+        animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+        style={{ position:"absolute", top:"-10px", right:"-8px",
+          fontSize:180, fontWeight:900, color:T.text,
+          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+          userSelect:"none", zIndex:0, transformOrigin:"top right" }}>02</motion.div>
 
       <div style={{ position:"relative", zIndex:1,
         padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -9058,18 +9106,19 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
 
       <div style={{ position:"relative", zIndex:1, padding:"24px 22px 36px" }}>
         <motion.div {...FX.up} style={{ marginBottom:8 }}>
-          <div style={{ fontSize:12, color:T.faint, fontStyle:"italic",
-            lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+          <div style={{ fontSize:12, color:T.muted, fontStyle:"italic",
+            lineHeight:1.6, marginBottom:14, maxWidth:310,
+            borderLeft:`2px solid ${ac}88`, paddingLeft:10 }}>
             Bio-scan done. Your training, nutrition, and recovery all branch from this one choice.
           </div>
           <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1.12,
-            textShadow: theme==="dark" ? `0 0 60px ${ac}33` : "none" }}>
+            textShadow: theme==="dark" ? `0 0 60px ${ac}44` : "none" }}>
             What are you<br/>actually building?
           </div>
           <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
             transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
             style={{ height:2, width:40, background:ac, borderRadius:2, marginTop:10,
-              transformOrigin:"left", boxShadow:`0 0 8px ${ac}88` }}/>
+              transformOrigin:"left", boxShadow:`0 0 8px ${ac}99` }}/>
         </motion.div>
         <div style={{ marginBottom:16 }}/>
 
@@ -9219,27 +9268,36 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
         </div>
       </div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"0 24px 36px" }}>
-        {/* Same cinematic step-number bg */}
-        <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}18, transparent 60%)`, zIndex:0 }}/>
-        <div style={{ position:"absolute", top:"-10px", right:"-8px",
-          fontSize:180, fontWeight:900, color:T.text, opacity:.03,
-          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none", userSelect:"none", zIndex:0 }}>03</div>
+        {/* Ambient glow — breathes */}
+        <motion.div
+          animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
+          transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+          style={{ position:"absolute", inset:0, pointerEvents:"none",
+            background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
+        {/* Giant faded step number — pulses */}
+        <motion.div
+          animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+          transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+          style={{ position:"absolute", top:"-10px", right:"-8px",
+            fontSize:180, fontWeight:900, color:T.text,
+            letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+            userSelect:"none", zIndex:0, transformOrigin:"top right" }}>03</motion.div>
 
         <motion.div {...FX.up} style={{ position:"relative", zIndex:1, marginBottom:8 }}>
-          <div style={{ fontSize:12, color:T.faint, fontStyle:"italic", lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+          <div style={{ fontSize:12, color:T.muted, fontStyle:"italic", lineHeight:1.6, marginBottom:14, maxWidth:310,
+            borderLeft:`2px solid ${ac}88`, paddingLeft:10 }}>
             {isGym
               ? "These numbers tell your protocol how hard to push — and how much you can actually handle."
               : "Be honest here. The protocol can only fix what it knows about."}
           </div>
           <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1.12,
-            textShadow: theme==="dark" ? `0 0 60px ${ac}33` : "none" }}>
+            textShadow: theme==="dark" ? `0 0 60px ${ac}44` : "none" }}>
             {isGym ? "Strength Baseline" : "Lifestyle Baseline"}
           </div>
           <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
             transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
             style={{ height:2, width:40, background:ac, borderRadius:2, marginTop:10,
-              transformOrigin:"left", boxShadow:`0 0 8px ${ac}88` }}/>
+              transformOrigin:"left", boxShadow:`0 0 8px ${ac}99` }}/>
         </motion.div>
         <div style={{ height:16, position:"relative", zIndex:1 }}/>
 
@@ -9432,15 +9490,23 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
     const stepColor = glows[(step - 1) % glows.length];
     return (
       <Screen theme={theme} style={{ overflow:"hidden" }}>
-        <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}18, transparent 60%)`,
-          zIndex:0 }}/>
-        <div style={{
-          position:"absolute", top:"-10px", right:"-8px",
-          fontSize:180, fontWeight:900, color:T.text, opacity:.03,
-          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-          userSelect:"none", zIndex:0,
-        }}>{String(step).padStart(2,"0")}</div>
+        {/* Ambient glow — breathes */}
+        <motion.div
+          animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
+          transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+          style={{ position:"absolute", inset:0, pointerEvents:"none",
+            background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
+            zIndex:0 }}/>
+        {/* Giant faded step number — pulses */}
+        <motion.div
+          animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+          transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+          style={{
+            position:"absolute", top:"-10px", right:"-8px",
+            fontSize:180, fontWeight:900, color:T.text,
+            letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+            userSelect:"none", zIndex:0, transformOrigin:"top right",
+          }}>{String(step).padStart(2,"0")}</motion.div>
 
         <div style={{ position:"relative", zIndex:1,
           padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -9468,8 +9534,12 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
           {storyHook && (
             <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
               transition={{ delay:.1, duration:.35 }}
-              style={{ fontSize:12, color:T.faint, fontStyle:"italic",
-                lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+              style={{
+                fontSize:12, color:T.muted, fontStyle:"italic",
+                lineHeight:1.6, marginBottom:16, maxWidth:310,
+                borderLeft:`2px solid ${stepColor}88`,
+                paddingLeft:10,
+              }}>
               {storyHook}
             </motion.div>
           )}
@@ -9479,14 +9549,14 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
             <div style={{
               fontSize:32, fontWeight:900, letterSpacing:"-.03em",
               color:T.text, lineHeight:1.12,
-              textShadow: theme==="dark" ? `0 0 60px ${stepColor}33` : "none",
+              textShadow: theme==="dark" ? `0 0 60px ${stepColor}44` : "none",
             }}>{headline}</div>
             <motion.div
               initial={{ scaleX:0 }} animate={{ scaleX:1 }}
               transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
               style={{ height:2, width:40, background:stepColor,
                 borderRadius:2, marginTop:10, transformOrigin:"left",
-                boxShadow:`0 0 8px ${stepColor}88` }}/>
+                boxShadow:`0 0 8px ${stepColor}99` }}/>
           </motion.div>
           <div style={{ flex:1 }}>{children}</div>
           {showContinue && (

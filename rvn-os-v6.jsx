@@ -8823,68 +8823,101 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   // ── Phase -1: Hook screen ──────────────────────────────────────────────────
   if (phase === -1) return (
     <Screen theme={theme} style={{ overflow:"hidden" }}>
-
-      {/* Deep background glow */}
+      {/* bg glow */}
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-        background:`radial-gradient(ellipse 100% 60% at 50% 40%, ${ac}28, transparent 70%)` }}/>
+        background:`radial-gradient(ellipse 100% 55% at 50% 35%, ${ac}22, transparent 70%)` }}/>
 
-      {/* Hero visual — centered logo with pulsing rings */}
-      <motion.div
-        initial={{ opacity:0, scale:.7 }} animate={{ opacity:1, scale:1 }}
-        transition={{ duration:.7, ease:[.22,1,.36,1] }}
-        style={{ position:"absolute", top:"18%", left:"50%", transform:"translateX(-50%)",
-          display:"flex", alignItems:"center", justifyContent:"center" }}>
+      {/* ── HERO: body scan visual ── */}
+      <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ duration:.6 }}
+        style={{ position:"relative", height:300, width:"100%", overflow:"hidden" }}>
 
-        {/* Outer pulse ring */}
+        {/* Body SVG — motion-capture skeleton style */}
+        <svg viewBox="0 0 160 280" style={{ position:"absolute", left:"50%",
+          transform:"translateX(-50%)", height:"100%", opacity:.9 }}>
+          <defs>
+            <filter id="glow-ob">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          {/* head */}
+          <circle cx="80" cy="28" r="16" fill="none" stroke={ac} strokeWidth="1.5" filter="url(#glow-ob)"/>
+          {/* neck */}
+          <line x1="80" y1="44" x2="80" y2="58" stroke={ac} strokeWidth="1.5"/>
+          {/* shoulders */}
+          <line x1="44" y1="68" x2="116" y2="68" stroke={ac} strokeWidth="1.5" filter="url(#glow-ob)"/>
+          {/* torso */}
+          <line x1="80" y1="58" x2="80" y2="148" stroke={ac} strokeWidth="1.5"/>
+          {/* left arm upper */}
+          <line x1="44" y1="68" x2="28" y2="110" stroke={ac} strokeWidth="1.5"/>
+          {/* left arm lower */}
+          <line x1="28" y1="110" x2="20" y2="150" stroke={ac} strokeWidth="1.5"/>
+          {/* right arm upper */}
+          <line x1="116" y1="68" x2="132" y2="110" stroke={ac} strokeWidth="1.5"/>
+          {/* right arm lower */}
+          <line x1="132" y1="110" x2="140" y2="150" stroke={ac} strokeWidth="1.5"/>
+          {/* hips */}
+          <line x1="58" y1="148" x2="102" y2="148" stroke={ac} strokeWidth="1.5" filter="url(#glow-ob)"/>
+          {/* left leg upper */}
+          <line x1="58" y1="148" x2="52" y2="210" stroke={ac} strokeWidth="1.5"/>
+          {/* left leg lower */}
+          <line x1="52" y1="210" x2="48" y2="272" stroke={ac} strokeWidth="1.5"/>
+          {/* right leg upper */}
+          <line x1="102" y1="148" x2="108" y2="210" stroke={ac} strokeWidth="1.5"/>
+          {/* right leg lower */}
+          <line x1="108" y1="210" x2="112" y2="272" stroke={ac} strokeWidth="1.5"/>
+          {/* joint dots */}
+          {[[80,28],[44,68],[116,68],[28,110],[132,110],[20,150],[140,150],[58,148],[102,148],[52,210],[108,210]].map(([x,y],i) => (
+            <circle key={i} cx={x} cy={y} r="3.5" fill={ac} filter="url(#glow-ob)"/>
+          ))}
+        </svg>
+
+        {/* Animated scan line */}
         <motion.div
-          animate={{ scale:[1,1.18,1], opacity:[.18,.0,.18] }}
-          transition={{ duration:2.8, repeat:Infinity, ease:"easeInOut" }}
-          style={{ position:"absolute", width:200, height:200, borderRadius:"50%",
-            border:`1px solid ${ac}`, pointerEvents:"none" }}/>
+          animate={{ top:["5%","95%","5%"] }}
+          transition={{ duration:3.2, repeat:Infinity, ease:"easeInOut" }}
+          style={{ position:"absolute", left:0, right:0, height:2, pointerEvents:"none",
+            background:`linear-gradient(90deg,transparent 0%,${ac}99 40%,${ac} 50%,${ac}99 60%,transparent 100%)`,
+            boxShadow:`0 0 12px ${ac}88` }}/>
 
-        {/* Mid ring */}
-        <motion.div
-          animate={{ scale:[1,1.12,1], opacity:[.28,.05,.28] }}
-          transition={{ duration:2.8, repeat:Infinity, ease:"easeInOut", delay:.4 }}
-          style={{ position:"absolute", width:150, height:150, borderRadius:"50%",
-            border:`1.5px solid ${ac}`, pointerEvents:"none" }}/>
-
-        {/* Inner glow disc */}
-        <motion.div
-          animate={{ opacity:[.35,.6,.35] }}
-          transition={{ duration:2.4, repeat:Infinity, ease:"easeInOut" }}
-          style={{ position:"absolute", width:110, height:110, borderRadius:"50%",
-            background:`radial-gradient(circle, ${ac}44 0%, transparent 70%)`,
-            pointerEvents:"none" }}/>
-
-        {/* Logo */}
-        <div style={{ position:"relative", zIndex:2 }}>
-          <RVNLogo size={72} glow={ac}/>
-        </div>
+        {/* Floating data chips */}
+        {[
+          { label:"PROTEIN", val:"185g", x:"72%", y:"14%", delay:.4 },
+          { label:"KCAL",    val:"2,840", x:"0%",  y:"30%", delay:.6 },
+          { label:"RECOVERY",val:"Score", x:"68%", y:"52%", delay:.8 },
+          { label:"SESSIONS",val:"4×/wk", x:"2%",  y:"65%", delay:1.0 },
+        ].map(chip => (
+          <motion.div key={chip.label}
+            initial={{ opacity:0, scale:.7 }} animate={{ opacity:1, scale:1 }}
+            transition={{ delay:chip.delay, duration:.4, ease:[.22,1,.36,1] }}
+            style={{ position:"absolute", left:chip.x, top:chip.y,
+              background: theme==="dark" ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)",
+              backdropFilter:isMobile?"none":"blur(12px)",
+              border:`1px solid ${ac}44`,
+              borderRadius:10, padding:"6px 10px", minWidth:72 }}>
+            <div style={{ fontSize:7.5, fontWeight:700, color:ac, letterSpacing:".1em" }}>{chip.label}</div>
+            <div style={{ fontSize:15, fontWeight:900, color:T.text, letterSpacing:"-.01em" }}>{chip.val}</div>
+          </motion.div>
+        ))}
       </motion.div>
 
-      {/* Text — bottom half */}
-      <motion.div style={{ flex:1, display:"flex", flexDirection:"column",
-        justifyContent:"flex-end", padding:"0 28px 0" }}>
-
-        <motion.div
-          initial={{ opacity:0, y:40 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:.3, duration:.6, ease:[.22,1,.36,1] }}
-          style={{ paddingBottom:32 }}>
-          <div style={{ fontSize:36, fontWeight:900, letterSpacing:"-.03em",
-            color:T.text, lineHeight:1.08, marginBottom:14 }}>
-            The best version of your body isn't behind you.
-          </div>
-          <div style={{ fontSize:15, color:T.muted, lineHeight:1.7, maxWidth:310 }}>
-            Most people just never find out what it looks like.
-          </div>
-        </motion.div>
+      {/* Text */}
+      <motion.div initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:.3, duration:.55, ease:[.22,1,.36,1] }}
+        style={{ padding:"20px 28px 0" }}>
+        <div style={{ fontSize:34, fontWeight:900, letterSpacing:"-.03em",
+          color:T.text, lineHeight:1.08, marginBottom:12 }}>
+          The best version of your body isn't behind you.
+        </div>
+        <div style={{ fontSize:14, color:T.muted, lineHeight:1.7, maxWidth:310 }}>
+          Most people just never find out what it looks like.
+        </div>
       </motion.div>
 
       {/* CTA */}
       <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:.55 }}
-        style={{ padding:"0 24px 52px" }}>
+        transition={{ delay:.6 }}
+        style={{ padding:"20px 24px 52px", marginTop:"auto" }}>
         <ShimmerCTA label="Build my protocol  →" onClick={() => setPhase(0)} theme={theme} color={ac}/>
         {onBack && (
           <div style={{ textAlign:"center", marginTop:14 }}>

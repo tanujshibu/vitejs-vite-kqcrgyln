@@ -8683,39 +8683,46 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── brain: 6 neural nodes pulse — brain fog degrades signal strength ──────────
+  // ── brain: smiley face that goes foggy — brain fog = cognitive decline ────────
+  // Face starts clear and bright → eyes droop → smile flattens → haze drifts in
   if (type === "brain") {
-    const angles = [0, 60, 120, 180, 240, 300];
-    const nr = 56;
+    // Fog particles — small dots that drift in and fade
+    const fogDots = [
+      {cx:68,cy:72,r:5,delay:"1.2s"},{cx:138,cy:65,r:4,delay:"1.5s"},
+      {cx:55,cy:115,r:6,delay:"1.8s"},{cx:148,cy:120,r:4,delay:"2.0s"},
+      {cx:80,cy:155,r:5,delay:"1.4s"},{cx:125,cy:150,r:6,delay:"1.7s"},
+      {cx:100,cy:46,r:4,delay:"2.1s"},{cx:62,cy:142,r:3,delay:"1.9s"},
+    ];
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {angles.map((deg, i) => {
-          const rad = (deg - 90) * Math.PI / 180;
-          const nx = (100 + nr * Math.cos(rad)).toFixed(1);
-          const ny = (100 + nr * Math.sin(rad)).toFixed(1);
-          return <line key={i} x1="100" y1="100" x2={nx} y2={ny} stroke={color} strokeWidth="1.5" opacity="0.12"/>;
-        })}
-        {[0, 1, 2].map(i => (
-          <circle key={i} cx="100" cy="100" r="10" fill="none" stroke={color} strokeWidth="1.5">
-            <animate attributeName="r" values="15;82;15" dur="3s" begin={`${i}s`} repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.55;0;0.55" dur="3s" begin={`${i}s`} repeatCount="indefinite"/>
+        {/* Face outline */}
+        <circle cx="100" cy="100" r="65" fill="none" stroke={color} strokeWidth="3">
+          <animate attributeName="opacity" values="0.9;0.35;0.9" dur="3s" begin="1.0s" repeatCount="indefinite"/>
+        </circle>
+        {/* Left eye — starts bright, droops dim */}
+        <circle cx="78" cy="88" r="8" fill={color}>
+          <animate attributeName="opacity" values="1;1;0.3;0.3" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="cy" values="88;88;93;93" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        {/* Right eye */}
+        <circle cx="122" cy="88" r="8" fill={color}>
+          <animate attributeName="opacity" values="1;1;0.3;0.3" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="cy" values="88;88;93;93" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+        </circle>
+        {/* Smile — arc that flattens to a straight line then droops */}
+        <path d="M 72,118 Q 100,140 128,118" fill="none" stroke={color} strokeWidth="4.5" strokeLinecap="round">
+          <animate attributeName="d"
+            values="M 72,118 Q 100,140 128,118;M 72,118 Q 100,140 128,118;M 72,120 Q 100,120 128,120;M 72,120 Q 100,128 128,120"
+            keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;1;0.55;0.55" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+        </path>
+        {/* Fog particles drift in after face dims */}
+        {fogDots.map((d, i) => (
+          <circle key={i} cx={d.cx} cy={d.cy} r={d.r} fill={color} opacity="0">
+            <animate attributeName="opacity" values="0;0.35;0" dur="2s" begin={d.delay} repeatCount="indefinite"/>
+            <animate attributeName="cy" values={`${d.cy};${d.cy - 8};${d.cy}`} dur="2s" begin={d.delay} repeatCount="indefinite"/>
           </circle>
         ))}
-        {angles.map((deg, i) => {
-          const rad = (deg - 90) * Math.PI / 180;
-          const nx = (100 + nr * Math.cos(rad)).toFixed(1);
-          const ny = (100 + nr * Math.sin(rad)).toFixed(1);
-          return (
-            <circle key={i} cx={nx} cy={ny} r="7" fill={color}>
-              <animate attributeName="opacity" values="0.28;1;0.28" dur="2s" begin={`${i * 0.33}s`} repeatCount="indefinite"/>
-              <animate attributeName="r" values="5;10;5" dur="2s" begin={`${i * 0.33}s`} repeatCount="indefinite"/>
-            </circle>
-          );
-        })}
-        <circle cx="100" cy="100" r="10" fill={color}>
-          <animate attributeName="r" values="8;15;8" dur="2s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
-        </circle>
       </svg>
     );
   }

@@ -8670,12 +8670,15 @@ const LOTTIE_MUSCLE = {
         ]}], ip:0, op:90, st:0
       };
     }),
-    // Label: "24h", "48h", "72h"
-    ...["24h","48h","72h"].map((label,i) => ({
-      ddd:0, ind:i+20, ty:5, nm:`label${i}`, sr:1,
-      ks:{ o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[[72,100,128][i],148,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]} },
-      ao:0, t:{ d:{k:[{s:{f:"Arial",fc:[1,1,1,0.5],s:11,t:label,j:2,tr:0,lh:13.2,ls:0,fc:[1,1,1,1]},t:0}]}, p:{}, m:{g:1,a:{a:0,k:[0,0]}}, a:[] },
-      ip:0, op:90, st:0
+    // Dot markers under each bar instead of text (text layers need font embedding)
+    ...[72,100,128].map((x,i) => ({
+      ddd:0, ind:i+20, ty:4, nm:`dot${i}`, sr:1,
+      ks:{ o:{a:0,k:50}, r:{a:0,k:0}, p:{a:0,k:[x,148,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]} },
+      ao:0, shapes:[{ty:"gr",it:[
+        {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[5,5]}},
+        {ty:"fl",c:{a:0,k:[1,0.294,0.169,1]},o:{a:0,k:100}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}], ip:0, op:90, st:0
     }))
   ]
 };

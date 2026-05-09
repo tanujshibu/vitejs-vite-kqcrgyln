@@ -7214,7 +7214,11 @@ function LandingPhoneMockup({ ac, theme }) {
   };
 
   return (
-    <div style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center" }}>
+    <motion.div
+      initial={{ opacity:0, y:220, rotate:-8, scale:0.82 }}
+      animate={{ opacity:1, y:0,   rotate:0,  scale:1   }}
+      transition={{ type:"spring", stiffness:260, damping:22, mass:1.05, delay:0.1 }}
+      style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center" }}>
       {/* iPhone frame */}
       <div style={{
         width:180, height:360,
@@ -7286,7 +7290,7 @@ function LandingPhoneMockup({ ac, theme }) {
       <div style={{ marginTop:6, fontSize:9, fontWeight:700, color:ac, letterSpacing:".12em" }}>
         {labels[slide]}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -7376,12 +7380,9 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
       }}>
 
         {/* ── Phone mockup carousel ── */}
-        <motion.div
-          initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:.2, duration:.7, ease:[.22,1,.36,1] }}
-          style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%" }}>
+        <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%" }}>
           <LandingPhoneMockup ac={ac} theme={theme}/>
-        </motion.div>
+        </div>
 
         {/* ── Bottom: headline + tagline + CTA ── */}
         <div style={{ width:"100%", maxWidth:360 }}>

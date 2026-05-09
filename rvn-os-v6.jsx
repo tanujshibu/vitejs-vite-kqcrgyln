@@ -8472,89 +8472,89 @@ function FactVisual({ type, color: C }) {
 const ONBOARDING_FACTS = {
   gender: {
     male: {
-      stat: "168", color: "#D4AF37", visual: "bar_compare",
-      headline: "Only 10 of these hours are gym. The rest decide your results.",
-      body: "10 gym hours is 6% of your week. Sleep, food, and recovery own the other 94%. Your protocol addresses all of it.",
+      stat: "94%", color: "#D4AF37", visual: "bar_compare",
+      headline: "Your results live outside the gym.",
+      body: "94% of your week isn't training. Sleep, food, stress — that's where your body actually changes. Your protocol controls all of it.",
     },
     female: {
       stat: "Zero", color: "#BF5AF2", visual: "dumbbell",
-      headline: "Women who got bulky from lifting",
-      body: "15–20× less testosterone means lifting makes you leaner — not bigger.",
+      headline: "The women who got 'bulky' from lifting don't exist.",
+      body: "Women have a fraction of the hormones needed to bulk up. Lifting makes you leaner and more defined. The fear of bulk is the #1 reason women never reach their goal.",
     },
   },
   frequency: {
     high: {
       stat: "48hrs", color: "#FF4B2B", visual: "bars_grow",
-      headline: "Your muscles grow on rest days, not gym days",
-      body: "Protein synthesis stays elevated 48hrs after training. Hit too soon and you interrupt it.",
+      headline: "You're hitting the gym before your last session is done.",
+      body: "Your body is still rebuilding for 48 hours after you train. Going back too soon stops that process cold. Your protocol fixes the timing.",
     },
     med: {
-      stat: "Rest days", color: "#C9A84C", visual: "two_bars",
-      headline: "Are doing more work than your gym days",
-      body: "Muscles don't grow during training — they grow during rest. Your off days are building you.",
+      stat: "Sweet spot", color: "#C9A84C", visual: "two_bars",
+      headline: "You're in the window that actually works.",
+      body: "3-4 sessions gives you enough to grow and enough time to recover. Most people either do too much or too little. You're right where you need to be.",
     },
     low: {
-      stat: "2 sessions", color: "#30D158", visual: "bar_compare",
-      headline: "Done right, beats 5 done wrong. Every time.",
-      body: "Two sessions with real progression outperforms daily training with poor recovery.",
+      stat: "Quality", color: "#30D158", visual: "bar_compare",
+      headline: "Two sessions done right beats five done tired.",
+      body: "Frequency isn't the variable that matters. Recovery is. Your protocol makes every session you show up to count.",
     },
   },
   caffeine: {
     high: {
-      stat: "40min", color: "#FF9F0A", visual: "clock",
-      headline: "You've been timing your pre-workout wrong",
-      body: "Caffeine peaks 30–45min after you take it. You should be warming up before it kicks in.",
+      stat: "30min", color: "#FF9F0A", visual: "clock",
+      headline: "You should be warming up when it hits — not just arriving.",
+      body: "Caffeine takes 30-45 minutes to kick in. Most people walk into the gym and then drink it. Your window is different — your protocol adjusts for this.",
     },
     med: {
-      stat: "200mg", color: "#C9A84C", visual: "gauge",
-      headline: "More caffeine doesn't mean more performance",
-      body: "200mg maxes out training output. Most pre-workouts have double — that's anxiety, not energy.",
+      stat: "Less", color: "#C9A84C", visual: "gauge",
+      headline: "More caffeine doesn't hit harder. It just makes you anxious.",
+      body: "There's a ceiling for actual performance. Most pre-workouts go way past it. Above that, you're buying jitters — not energy. Your protocol dials the right amount.",
     },
     low: {
       stat: "10 days", color: "#30D158", visual: "calendar_dots",
-      headline: "Your next pre-workout will feel like the first time",
-      body: "A 10-day reset returns your receptors to baseline. We'll cycle this in.",
+      headline: "A short reset and your pre-workout feels like the first time again.",
+      body: "When you're used to high doses, nothing feels like it works. Ten days off brings everything back to baseline. Your protocol builds this cycle in automatically.",
     },
   },
   bottleneck: {
     sleep: {
       stat: "30%", color: "#5AC8FA", visual: "battery",
-      headline: "Bad sleep erases 30% of your workout",
-      body: "Your workout sends the signal. Sleep delivers the result. Without it, gains are lost.",
+      headline: "Every bad night cuts your workout by almost a third.",
+      body: "You can train perfectly and eat right, but if sleep is off — the results don't show. The gym is where you trigger change. Sleep is where it actually happens.",
     },
     soreness: {
       stat: "72hrs", color: "#FF4B2B", visual: "timeline_dots",
-      headline: "Soreness means you recovered poorly, not trained hard",
-      body: "DOMS peaks at 72hrs and is just inflammation. Elite athletes rarely get sore — their recovery is dialed.",
+      headline: "Soreness isn't a sign you trained hard. It means you recovered poorly.",
+      body: "People who are always sore aren't working harder — their recovery is broken. The goal is to get stronger without needing 3 days to walk again. Your protocol fixes this.",
     },
     fog: {
       stat: "6×", color: "#BF5AF2", visual: "brain_pulse",
-      headline: "Your brain is the muscle most people forget to recover",
-      body: "The CNS controls every rep and contraction. Optimize neural recovery and next session outputs 6× more.",
+      headline: "When your brain is tired, so is every muscle in your body.",
+      body: "Mental fog after training isn't just in your head. Your nervous system is genuinely drained. Your protocol recovers this first — and everything else follows.",
     },
   },
   archetype: {
-    // ── Male archetypes (GYM_ARCHETYPES IDs) ─────────────────────────────────
-    vtaper:       { stat: "12wks",  color: "#2E5BFF",  visual: "v_shape",       headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
-    abs:          { stat: "1 layer",color: "#D4AF37",  visual: "layer_reveal",  headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
-    density:      { stat: "0.5lbs", color: "#FF4B2B",  visual: "muscle_cap",    headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
-    athletic:     { stat: "8%",     color: "#00FFAB",  visual: "bars_grow",     headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
-    chest_arms:   { stat: "8wks",   color: "#FF9F0A",  visual: "two_bars",      headline: "Your arms will look different in 8 weeks. Guaranteed.",   body: "Arms and chest respond faster than any other muscle. The gains are early, visible, and compound." },
-    powerlifter:  { stat: "5g",     color: "#BF5AF2",  visual: "gauge",         headline: "Creatine has 400+ studies. No supplement is more proven.", body: "5g daily is all it takes. Your 1RM goes up within 2 weeks — not months." },
-    shred:        { stat: "24hrs",  color: "#FF3B30",  visual: "battery",       headline: "Your metabolism stays elevated 24 hours after HIIT",      body: "This isn't about burning calories in the gym. HIIT reprograms your metabolic rate for the entire next day." },
-    calisthenics: { stat: "∞",      color: "#5AC8FA",  visual: "timeline_dots", headline: "Calisthenics is the only training with no ceiling",       body: "There's always a harder progression. Planche, one-arm pull-up, front lever — the skill chain never ends." },
-    // ── Female archetypes (FEMALE_GYM_ARCHETYPES IDs) ────────────────────────
-    glutes:       { stat: "+40%",   color: "#BF5AF2",  visual: "glute_fill",    headline: "More activation. More growth. Better shape.",              body: "The right exercises and cues change glute activation by 40%+. Most people never learn them." },
-    hourglass:    { stat: "12wks",  color: "#BF5AF2",  visual: "hourglass_form",headline: "Shoulder-waist-hip balance. Engineered.",                 body: "Shoulder width and hip shape are trainable. The hourglass is built — not found — in 12 weeks." },
-    lean_athlete: { stat: "+20%",   color: "#30D158",  visual: "bars_grow",     headline: "Your cycle is a training superpower",                     body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
-    tone_define:  { stat: "16wks",  color: "#30D158",  visual: "timeline_dots", headline: "Visible definition by week 16. Week 8 if you're dialed.", body: "Muscle definition is about protocol precision, not just lifting more. Your hormonal environment is the key." },
-    lower_build:  { stat: "70%",    color: "#FF9F0A",  visual: "percent_fill",  headline: "Lower body is 70% of your total muscle mass",             body: "Training legs doesn't just build legs — it floods your entire body with anabolic hormones. Nothing drives results faster." },
-    body_recomp:  { stat: "Both",   color: "#FF9F0A",  visual: "split_arrows",  headline: "Lose fat and build muscle at the same time",              body: "Sports science denied it for decades. Your protocol is built around doing both simultaneously." },
-    arms_back_f:  { stat: "8wks",   color: "#5AC8FA",  visual: "dumbbell",      headline: "Arms and back define the athletic feminine silhouette",   body: "Visible definition in arms and upper back reshapes how every outfit fits. 8 weeks to visible change." },
-    full_body_f:  { stat: "24wks",  color: "#30D158",  visual: "bars_grow",     headline: "At 24 weeks you're unrecognizable",                       body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
-    // ── Legacy / fallback keys ────────────────────────────────────────────────
-    longevity:    { stat: "14yrs",  color: "#00FFAB",  visual: "age_split",     headline: "Active adults are 14 years younger biologically",         body: "Training keeps your biological age a decade and a half behind your real age. That's measurable." },
-    default:      { stat: "10×",    color: "#2E5BFF",  visual: "two_bars",      headline: "Protocol beats motivation every time",                    body: "Structured protocols are 10× more likely to reach goals than training on instinct." },
+    // ── Male archetypes ───────────────────────────────────────────────────────
+    vtaper:       { stat: "12wks",   color: "#2E5BFF", visual: "v_shape",       headline: "People are going to notice in three months.",                    body: "Wider shoulders, tighter waist. The V-taper is the fastest visible transformation. Strangers will ask what you changed." },
+    abs:          { stat: "1 layer", color: "#D4AF37", visual: "layer_reveal",  headline: "Your six-pack is already there. One layer of fat is hiding it.", body: "You don't build abs — you reveal them. Your protocol strips the layer that's covering yours, without any guesswork." },
+    density:      { stat: "0.5lbs",  color: "#FF4B2B", visual: "muscle_cap",    headline: "That's the most muscle your body can build in a week. We're going to hit that every week.", body: "Most people train too hard and eat too little to ever reach the ceiling. Your protocol is designed around it." },
+    athletic:     { stat: "8%",      color: "#00FFAB", visual: "bars_grow",     headline: "Adding conditioning to your lifts makes you stronger — not weaker.", body: "Most gym guys avoid cardio because they think it steals gains. Done right, it adds 8% more output. Your protocol does both." },
+    chest_arms:   { stat: "8wks",    color: "#FF9F0A", visual: "two_bars",      headline: "Arms and chest show change faster than anywhere else.",           body: "By week 8, you'll feel it in every shirt you put on. These muscles respond early, and the gains compound from there." },
+    powerlifter:  { stat: "5g",      color: "#BF5AF2", visual: "gauge",         headline: "One supplement actually works. Every single time.",               body: "5 grams of creatine a day. 400+ studies behind it. Your strength goes up within 2 weeks. Your protocol starts here." },
+    shred:        { stat: "24hrs",   color: "#FF3B30", visual: "battery",       headline: "One session keeps your body burning for the entire next day.",    body: "The right kind of cardio doesn't just burn during the workout — it raises your metabolism for 24 hours after. Your protocol is built around this." },
+    calisthenics: { stat: "∞",       color: "#5AC8FA", visual: "timeline_dots", headline: "There's always a harder version. That's what makes it work.",     body: "Weights have a ceiling. Skills don't. Planche, one-arm pull-up, front lever — the progression never stops, and neither do the results." },
+    // ── Female archetypes ─────────────────────────────────────────────────────
+    glutes:       { stat: "+40%",    color: "#BF5AF2", visual: "glute_fill",    headline: "Most glute exercises barely activate your glutes.",               body: "Small changes in angle and technique change activation by 40% or more. Most people do the right exercises the wrong way their whole life. Your protocol fixes this first." },
+    hourglass:    { stat: "12wks",   color: "#BF5AF2", visual: "hourglass_form",headline: "The hourglass isn't something you're born with — it's something you build.", body: "Shoulder width and hip shape both respond to training. The ratio is trainable. 12 weeks to a real, visible shift." },
+    lean_athlete: { stat: "20%",     color: "#30D158", visual: "bars_grow",     headline: "Working with your cycle instead of ignoring it changes everything.", body: "Your body shifts across the month. Training against it wastes energy. Training with it adds 20% more from the exact same sessions." },
+    tone_define:  { stat: "16wks",   color: "#30D158", visual: "timeline_dots", headline: "Week 8, you see it. Week 16, everyone else does.",                body: "Definition isn't about eating less — it's about replacing fat with muscle at the same time. Your protocol does both." },
+    lower_build:  { stat: "70%",     color: "#FF9F0A", visual: "percent_fill",  headline: "Legs aren't just legs — they're the engine for your whole body.", body: "Training your lower body releases hormones that build every other muscle too. Nothing speeds results faster. Your protocol starts here." },
+    body_recomp:  { stat: "Both",    color: "#FF9F0A", visual: "split_arrows",  headline: "Lose fat and build muscle at the same time. Your protocol does exactly this.", body: "Most trainers say pick one. That's because most protocols aren't built for both. Yours is." },
+    arms_back_f:  { stat: "8wks",    color: "#5AC8FA", visual: "dumbbell",      headline: "Arms and back define how every outfit fits.",                     body: "Visible definition in your upper body reshapes your silhouette from every angle. 8 weeks is all it takes to see the change." },
+    full_body_f:  { stat: "24wks",   color: "#30D158", visual: "bars_grow",     headline: "At week 24, you won't recognize your own photos.",               body: "The change builds quietly, then hits all at once. Every session until month 6 is a layer being added. Your protocol tracks every one of them." },
+    // ── Fallback ──────────────────────────────────────────────────────────────
+    longevity:    { stat: "14yrs",   color: "#00FFAB", visual: "age_split",     headline: "People who train consistently are 14 years younger — biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed — all measurably younger. Your protocol builds a body that stays that way." },
+    default:      { stat: "10×",     color: "#2E5BFF", visual: "two_bars",      headline: "A protocol beats motivation every single time.",                  body: "Motivated people skip. Protocols run. People with a real system are 10× more likely to reach their goal. You just started building yours." },
   },
 };
 
@@ -8977,7 +8977,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   if (phase === 0) return (
     <QWrap step={1} total={7}
       headline="Let's start with your biology."
-      storyHook="Your hormonal profile is the foundation. Everything else — protein, timing, recovery — is calibrated around this."
+      storyHook="Two people can follow the exact same plan and get completely different results. This is why."
       onBackFn={() => setPhase(-1)}>
       {[
         { value:"male",   label:"Man",   sub:"Testosterone-optimized protocol", icon:"♂", color:"#2E5BFF" },
@@ -8993,7 +8993,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   if (phase === 1) return (
     <QWrap step={2} total={7}
       headline="How often do you train?"
-      storyHook="Most athletes are training more than they can actually recover from. Let's see where you are."
+      storyHook="Most people think more sessions = more results. It's almost never true."
       onBackFn={() => setPhase(0)}>
       {[
         { value:"high", label:"5+ times a week",    sub:"High frequency athlete",      icon:"🔥", color:"#FF4B2B" },
@@ -9010,7 +9010,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   if (phase === 2) return (
     <QWrap step={3} total={7}
       headline="How sensitive are you to caffeine?"
-      storyHook="73% of athletes are timing their caffeine wrong. This one answer changes your entire pre-workout window."
+      storyHook="Most people drink coffee wrong for the gym. Not too much — just at the wrong time."
       onBackFn={() => setPhase(1)}>
       {[
         { value:"high", label:"Very sensitive",  sub:"Jittery on even one coffee",     icon:"😬", color:"#FF4B2B" },
@@ -9026,8 +9026,8 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   // ── Phase 3: Recovery bottleneck ──────────────────────────────────────────
   if (phase === 3) return (
     <QWrap step={4} total={7}
-      headline="What's killing your recovery?"
-      storyHook="The thing holding you back is always more specific than 'not working hard enough.' Pick yours."
+      headline="What's holding you back?"
+      storyHook="Everyone says they just need to work harder. That's almost never the real issue."
       onBackFn={() => setPhase(2)}>
       {[
         { value:"sleep",    label:"Sleep quality",  sub:"I don't sleep well or long enough",  icon:"😴", color:"#5AC8FA" },
@@ -9109,7 +9109,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
           <div style={{ fontSize:12, color:T.muted, fontStyle:"italic",
             lineHeight:1.6, marginBottom:14, maxWidth:310,
             borderLeft:`2px solid ${ac}88`, paddingLeft:10 }}>
-            Bio-scan done. Your training, nutrition, and recovery all branch from this one choice.
+            You've answered the biology. Now comes the one choice that shapes everything else.
           </div>
           <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1.12,
             textShadow: theme==="dark" ? `0 0 60px ${ac}44` : "none" }}>
@@ -9287,8 +9287,8 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
           <div style={{ fontSize:12, color:T.muted, fontStyle:"italic", lineHeight:1.6, marginBottom:14, maxWidth:310,
             borderLeft:`2px solid ${ac}88`, paddingLeft:10 }}>
             {isGym
-              ? "These numbers tell your protocol how hard to push — and how much you can actually handle."
-              : "Be honest here. The protocol can only fix what it knows about."}
+              ? "Numbers don't lie. This is where we find out what you're actually working with."
+              : "Your lifestyle isn't separate from your protocol. It is your protocol."}
           </div>
           <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1.12,
             textShadow: theme==="dark" ? `0 0 60px ${ac}44` : "none" }}>
@@ -9638,7 +9638,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   // ── Phase 0: Primary Goal ──────────────────────────────────────────────────
   if (phase === 0) return (
     <QScreen step={4} total={7} headline="What's your primary goal?"
-      storyHook="Your calorie target, macro split, and training structure all depend on this. Pick one — not what you think you should say."
+      storyHook="Be honest here. The protocol can only take you where you actually want to go."
       onBackFn={onBack}>
       <TapCards selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
         { value:"muscle", icon:"💪", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#2E5BFF" },
@@ -9651,7 +9651,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   // ── Phase 1: Activity Level ────────────────────────────────────────────────
   if (phase === 1) return (
     <QScreen step={5} total={7} headline="How active are you outside the gym?"
-      storyHook="Training is only part of your energy output. Most people under-eat because they only count the gym."
+      storyHook="The gym is only part of the picture. What you do outside it matters just as much."
       onBackFn={() => advance(0)}>
       <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(2); }} options={[
         { value:"sedentary", icon:"🪑", label:"Mostly Sitting",     sub:"Desk job, minimal walking",          color:"#5AC8FA" },
@@ -9665,7 +9665,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   // ── Phase 2: Training Days ─────────────────────────────────────────────────
   if (phase === 2) return (
     <QScreen step={6} total={7} headline="How many days do you train per week?"
-      storyHook="Volume without structure is just fatigue. This sets your weekly training load — honestly, not optimistically."
+      storyHook="Not what you wish you could do. What you'll actually show up and do."
       onBackFn={() => advance(1)}>
       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
         {[
@@ -9715,7 +9715,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   // ── Phase 3: Diet Style ────────────────────────────────────────────────────
   if (phase === 3) return (
     <QScreen step={7} total={7} headline="Last one. What's your diet style?"
-      storyHook="This isn't about what's 'healthiest.' It's about building a protocol you'll actually stick to."
+      storyHook="The best diet is the one you'll actually stick to. Pick the one that's actually you."
       onBackFn={() => advance(2)}>
       <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
         { value:"standard",  icon:"🥩", label:"Standard",    sub:"Balanced macros — the default protocol",   color:"#D4AF37" },

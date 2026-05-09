@@ -7992,66 +7992,79 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Three growing bars: muscle synthesis over 24 / 48 / 72hrs — 48h is PEAK
-  if (type === "bars_grow") return (
-    <svg viewBox="0 0 160 108" width="160" height="108">
-      <defs>
-        {[{x:6,cid:"bg24"},{x:60,cid:"bg48"},{x:114,cid:"bg72"}].map(b => (
-          <clipPath key={b.cid} id={`bgrow_${b.cid}`}>
-            <rect x={b.x} y={14} width="40" height={82} rx="7"/>
-          </clipPath>
+  // Three growing bars — CSS scaleY so it always fires
+  if (type === "bars_grow") {
+    const TRACK_H = 82;
+    const bars = [
+      { pct:0.49, l:"24h",  d:0.12, peak:false },
+      { pct:1.00, l:"48h",  d:0.25, peak:true  },
+      { pct:0.63, l:"72h",  d:0.40, peak:false },
+    ];
+    return (
+      <div style={{ display:"flex", alignItems:"flex-end", gap:12, height:TRACK_H+28, position:"relative" }}>
+        {/* ▲ PEAK label */}
+        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.7 }}
+          style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)",
+            fontSize:8, fontWeight:900, color:C, letterSpacing:".08em", whiteSpace:"nowrap" }}>
+          ▲ PEAK
+        </motion.div>
+        {bars.map((b,i) => (
+          <div key={b.l} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+            {/* Track */}
+            <div style={{ width:40, height:TRACK_H, borderRadius:8, background:C, opacity:0.15, position:"relative", overflow:"hidden" }}>
+              {/* Fill — scaleY from bottom */}
+              <motion.div
+                initial={{ scaleY:0 }} animate={{ scaleY:1 }}
+                transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}
+                style={{ position:"absolute", bottom:0, left:0, right:0,
+                  height: Math.round(TRACK_H * b.pct),
+                  borderRadius:8, background:C,
+                  opacity: b.peak ? 1 : 0.65,
+                  transformOrigin:"bottom",
+                  boxShadow: b.peak ? `0 0 16px ${C}88` : "none",
+                }}/>
+            </div>
+            <div style={{ fontSize:9, fontWeight:700, color:C, opacity:0.85, letterSpacing:".04em" }}>{b.l}</div>
+          </div>
         ))}
-      </defs>
-      <motion.text x="80" y="10" textAnchor="middle" fontSize="8" fill={C} fontFamily="inherit" fontWeight="900"
-        initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.78 }}>▲ PEAK</motion.text>
-      {[{x:6,h:40,l:"24h",d:0.15,cid:"bg24"},{x:60,h:82,l:"48h",d:0.28,cid:"bg48"},{x:114,h:52,l:"72h",d:0.42,cid:"bg72"}].map(b => (
-        <g key={b.l}>
-          {/* Background track */}
-          <rect x={b.x} y={14} width="40" height={82} rx="7" fill={C} opacity={0.15}/>
-          {/* Filled bar — clipped to track so rounded corners never overflow */}
-          <g clipPath={`url(#bgrow_${b.cid})`}>
-            <motion.rect x={b.x} y={96} width="40" height={b.h} rx="7" fill={C}
-              opacity={b.l==="48h" ? 1 : 0.65}
-              initial={{ y:96, height:0 }} animate={{ y:96-b.h, height:b.h }}
-              transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          </g>
-          <text x={b.x+20} y="106" textAnchor="middle" fontSize="9" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
-        </g>
-      ))}
-    </svg>
-  );
+      </div>
+    );
+  }
 
-  // Two bars: training day vs rest day — rest is taller
-  if (type === "two_bars") return (
-    <svg viewBox="0 0 140 100" width="140" height="100" style={{ overflow:"visible" }}>
-      <defs>
-        {[{x:8,cid:"tbl"},{x:76,cid:"tbr"}].map(b => (
-          <clipPath key={b.cid} id={`two_${b.cid}`}>
-            <rect x={b.x} y={6} width="56" height={82} rx="8"/>
-          </clipPath>
+  // Two bars: TRAIN vs REST — CSS scaleY
+  if (type === "two_bars") {
+    const TRACK_H = 88;
+    const bars = [
+      { pct:0.40, l:"TRAIN", d:0.12, peak:false },
+      { pct:1.00, l:"REST",  d:0.28, peak:true  },
+    ];
+    return (
+      <div style={{ display:"flex", alignItems:"flex-end", gap:16, height:TRACK_H+28 }}>
+        {bars.map((b,i) => (
+          <div key={b.l} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
+            <div style={{ width:52, height:TRACK_H, borderRadius:10, background:C, opacity:0.14, position:"relative", overflow:"hidden" }}>
+              <motion.div
+                initial={{ scaleY:0 }} animate={{ scaleY:1 }}
+                transition={{ delay:b.d, duration:0.58, ease:[.22,1,.36,1] }}
+                style={{ position:"absolute", bottom:0, left:0, right:0,
+                  height: Math.round(TRACK_H * b.pct),
+                  borderRadius:10, background:C,
+                  opacity: b.peak ? 0.9 : 0.52,
+                  transformOrigin:"bottom",
+                  boxShadow: b.peak ? `0 0 18px ${C}88` : "none",
+                }}/>
+            </div>
+            <div style={{ fontSize:9, fontWeight:700, color:C, opacity:0.85, letterSpacing:".06em" }}>{b.l}</div>
+            {b.peak && (
+              <motion.div initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
+                transition={{ delay:0.75, type:"spring", stiffness:260 }}
+                style={{ fontSize:16 }}>⬆</motion.div>
+            )}
+          </div>
         ))}
-      </defs>
-      {[{x:8,h:36,l:"TRAIN",tag:"active",d:0.15,cid:"tbl"},{x:76,h:84,l:"REST",tag:"grow",d:0.28,cid:"tbr"}].map(b => (
-        <g key={b.l}>
-          {/* Track */}
-          <rect x={b.x} y={6} width="56" height={82} rx="8" fill={C} opacity={0.12}/>
-          {/* Filled bar — clipped to track bounds */}
-          <g clipPath={`url(#two_${b.cid})`}>
-            <motion.rect x={b.x} y={88} width="56" height={b.h} rx="8" fill={C}
-              opacity={b.tag==="grow" ? 0.85 : 0.5}
-              initial={{ height:0, y:88 }} animate={{ height:b.h, y:88-b.h }}
-              transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}/>
-          </g>
-          <text x={b.x+28} y="98" textAnchor="middle" fontSize="8.5" fill={C} opacity="0.85" fontFamily="inherit" fontWeight="700">{b.l}</text>
-          {b.tag==="grow" && (
-            <motion.text x={b.x+28} y={88-b.h-8} textAnchor="middle" fontSize="14"
-              initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
-              transition={{ delay:0.75, type:"spring", stiffness:260 }}>⬆</motion.text>
-          )}
-        </g>
-      ))}
-    </svg>
-  );
+      </div>
+    );
+  }
 
   // Clock face sweeping minute hand to :40
   if (type === "clock") return (
@@ -8084,25 +8097,30 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Battery draining to 30% — sleep erases your gains
+  // Battery draining — CSS scaleX from right
   if (type === "battery") return (
-    <svg viewBox="0 0 160 68" width="160" height="68">
+    <div style={{ position:"relative", width:160, height:60, display:"flex", alignItems:"center" }}>
       {/* Outer casing */}
-      <motion.rect x="4" y="14" width="128" height="40" rx="9" fill="none" stroke={C} strokeWidth="2"
-        initial={{ opacity:0 }} animate={{ opacity:0.6 }} transition={{ delay:0.1 }}/>
+      <motion.div initial={{ opacity:0 }} animate={{ opacity:0.55 }} transition={{ delay:0.1 }}
+        style={{ position:"absolute", left:4, top:10, width:128, height:40,
+          borderRadius:9, border:`2px solid ${C}` }}/>
       {/* Terminal nub */}
-      <rect x="132" y="26" width="18" height="16" rx="5" fill={C} opacity={0.35}/>
-      {/* Full bar (background) */}
-      <rect x="10" y="20" width="116" height="28" rx="6" fill={C} opacity={0.18}/>
-      {/* Fill: starts full, drains to 30% */}
-      <motion.rect x="10" y="20" width="116" height="28" rx="6" fill={C} opacity={0.7}
-        animate={{ width: 35, opacity:0.55 }}
-        transition={{ delay:0.35, duration:1.1, ease:[.22,1,.36,1] }}/>
-      {/* % label inside */}
-      <motion.text x="78" y="38" textAnchor="middle" fontSize="10" fill={C}
-        fontFamily="inherit" fontWeight="900"
-        initial={{ opacity:0 }} animate={{ opacity:0.5 }} transition={{ delay:1.3 }}>70% GONE</motion.text>
-    </svg>
+      <div style={{ position:"absolute", left:132, top:22, width:18, height:16,
+        borderRadius:5, background:C, opacity:0.35 }}/>
+      {/* Track */}
+      <div style={{ position:"absolute", left:10, top:16, width:116, height:28,
+        borderRadius:6, background:C, opacity:0.15, overflow:"hidden" }}>
+        {/* Fill drains from full → 30% */}
+        <motion.div
+          initial={{ scaleX:1 }} animate={{ scaleX:0.30 }}
+          transition={{ delay:0.35, duration:1.1, ease:[.22,1,.36,1] }}
+          style={{ height:"100%", background:C, opacity:0.8, transformOrigin:"left", borderRadius:6 }}/>
+      </div>
+      {/* Label */}
+      <motion.div initial={{ opacity:0 }} animate={{ opacity:0.55 }} transition={{ delay:1.4 }}
+        style={{ position:"absolute", left:40, top:22, fontSize:10, fontWeight:900,
+          color:C, letterSpacing:".04em" }}>30% LEFT</motion.div>
+    </div>
   );
 
   // Dot timeline: soreness peaks at 72hrs

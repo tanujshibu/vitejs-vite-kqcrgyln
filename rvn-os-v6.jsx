@@ -7070,10 +7070,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
       }}/>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
-      {/* Ticker */}
-      <AITicker theme={theme} mode={mode}/>
-
-      {/* Top bar */}
+      {/* Top bar — logo left, menu right */}
       <div style={{
         display:"flex", alignItems:"center", justifyContent:"space-between",
         padding:"16px 22px", position:"relative", zIndex:10,
@@ -7087,266 +7084,72 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
             <div style={{ fontSize:9, fontWeight:700, color:T.faint, letterSpacing:".1em" }}>{M.label}</div>
           </div>
         </div>
-        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-          <ThemeToggle theme={theme} onToggle={onThemeToggle || (() => {})}/>
-          <motion.button whileTap={{ scale:.96 }} onClick={onManager}
-            style={{
-              background:"transparent", border:`1px solid ${T.blue}`,
-              borderRadius:22, padding:"6px 14px", cursor:"pointer",
-              fontSize:11, fontWeight:700, color:T.blue, letterSpacing:".06em",
-            }}>For Gym Owners →</motion.button>
-          <motion.button whileTap={{ scale:.96 }} onClick={onManager}
-            style={{
-              background:T.glass, border:`1px solid ${T.border}`,
-              backdropFilter:isMobile?"none":"blur(8px)", borderRadius:22,
-              padding:"6px 14px", cursor:"pointer",
-              fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".06em",
-            }}>···</motion.button>
-        </div>
+        {/* ··· opens gym owner / manager flow */}
+        <motion.button whileTap={{ scale:.96 }} onClick={onManager}
+          style={{
+            background:T.glass, border:`1px solid ${T.border}`,
+            backdropFilter:isMobile?"none":"blur(8px)", borderRadius:22,
+            padding:"6px 14px", cursor:"pointer",
+            fontSize:13, fontWeight:700, color:T.muted,
+          }}>···</motion.button>
       </div>
 
-      {/* Hero */}
+      {/* Hero — centered, breathing room */}
       <div style={{
         flex:1, display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center",
-        padding:"0 28px 32px", position:"relative", zIndex:10,
+        padding:"0 32px 60px", position:"relative", zIndex:10,
       }}>
-        {/* Mode badge */}
-        <motion.div {...FX.stagger(0,.1)} style={{ marginBottom:20 }}>
-          <Pill label={`${M.icon}  ${M.tagline}`} color={ac} theme={theme}/>
-        </motion.div>
-
         {/* Hero words */}
-        <div style={{ textAlign:"center", marginBottom:14 }}>
+        <div style={{ textAlign:"center", marginBottom:24 }}>
           {words.map((word, i) => (
             <motion.div key={word}
               initial={{ opacity:0, y:36, filter:"blur(10px)" }}
               animate={{ opacity:1, y:0,  filter:"blur(0px)"  }}
               transition={{ delay:.18+i*.13, duration:.65, ease:[.22,1,.36,1] }}
               style={{
-                fontSize:"clamp(42px, 14.5vw, 62px)", fontWeight:900, lineHeight:.98, letterSpacing:"-.03em",
+                fontSize:"clamp(44px, 15vw, 68px)", fontWeight:900,
+                lineHeight:.96, letterSpacing:"-.03em",
                 color: i===1 ? ac : T.text,
-                textShadow: i===1 && theme==="dark" ? `0 0 48px ${ac}55` : "none",
+                textShadow: i===1 && theme==="dark" ? `0 0 60px ${ac}44` : "none",
               }}>
               {word}
             </motion.div>
           ))}
         </div>
 
-        {/* AI sub-line */}
+        {/* Single clean tagline */}
         <motion.div
           initial={{ opacity:0 }} animate={{ opacity:1 }}
-          transition={{ delay:.68, duration:.5 }}
-          style={{ marginBottom:36, textAlign:"center", maxWidth:300 }}>
-          <div style={{ fontSize:13, color:T.muted, lineHeight:1.6 }}>{M.heroBio}</div>
+          transition={{ delay:.62, duration:.5 }}
+          style={{ marginBottom:52, textAlign:"center", maxWidth:260 }}>
+          <div style={{ fontSize:14, color:T.muted, lineHeight:1.55, fontWeight:400 }}>
+            Your training program, built around you.
+          </div>
         </motion.div>
 
-        {/* CTA */}
+        {/* Primary CTA */}
         <motion.div
           initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:.82 }}
-          style={{ width:"100%", maxWidth:340 }}>
-          <ShimmerCTA label={`${M.ctaLabel}  →`} onClick={onBegin} theme={theme} color={ac} icon={M.icon}/>
+          transition={{ delay:.78 }}
+          style={{ width:"100%", maxWidth:320 }}>
+          <ShimmerCTA label="Create My Plan  →" onClick={onBegin} theme={theme} color={ac} icon={M.icon}/>
         </motion.div>
 
-        {/* Returning user — Sign In */}
+        {/* Sign in — subtle, below CTA */}
         <motion.div
           initial={{ opacity:0 }} animate={{ opacity:1 }}
-          transition={{ delay:.88 }}
-          style={{ marginTop:10, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
-          <span style={{ fontSize:11, color:T.faint, letterSpacing:".04em" }}>Returning athlete?</span>
+          transition={{ delay:.92 }}
+          style={{ marginTop:18, display:"flex", alignItems:"center", gap:6 }}>
+          <span style={{ fontSize:12, color:T.faint }}>Already have an account?</span>
           <button onClick={onSignIn}
             style={{
               background:"transparent", border:"none", cursor:"pointer",
-              fontSize:11, fontWeight:800, color:ac, letterSpacing:".08em", padding:"4px 6px",
+              fontSize:12, fontWeight:800, color:ac, letterSpacing:".06em", padding:"4px 6px",
             }}>
-            SIGN IN →
+            Sign in →
           </button>
         </motion.div>
-
-        {/* Ghost Bar — Live VBT Telemetry HUD */}
-        <motion.button
-          initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:.95 }}
-          whileTap={{ scale:.97 }}
-          onClick={onGhostBar}
-          style={{
-            marginTop:14, width:"100%", maxWidth:340,
-            background:"transparent",
-            border:`1px solid ${T.border}`,
-            borderRadius:16, padding:"12px 16px",
-            cursor:"pointer", color:T.text,
-            display:"flex", alignItems:"center", justifyContent:"space-between",
-            fontSize:12, fontWeight:700, letterSpacing:".08em", textTransform:"uppercase",
-          }}>
-          <span style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <span style={{
-              width:8, height:8, borderRadius:4, background:"#4D8CFF",
-              boxShadow:"0 0 12px #4D8CFF",
-            }}/>
-            Ghost Bar · Live VBT
-          </span>
-          <span style={{ color:T.muted, fontSize:10 }}>PERFORMANCE DATA →</span>
-        </motion.button>
-
-        {/* Surgical Vision — Agentic macro scanner + calorie monitor */}
-        <motion.button
-          initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:1.02 }}
-          whileTap={{ scale:.97 }}
-          onClick={onSurgical}
-          style={{
-            marginTop:10, width:"100%", maxWidth:340,
-            background:"transparent",
-            border:`1px solid ${T.border}`,
-            borderRadius:16, padding:"12px 16px",
-            cursor:"pointer", color:T.text,
-            display:"flex", alignItems:"center", justifyContent:"space-between",
-            fontSize:12, fontWeight:700, letterSpacing:".08em", textTransform:"uppercase",
-          }}>
-          <span style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <span style={{
-              width:8, height:8, borderRadius:4, background:"#8AFF9E",
-              boxShadow:"0 0 12px #8AFF9E",
-            }}/>
-            Surgical Vision · Macro Scan
-          </span>
-          <span style={{ color:T.muted, fontSize:10 }}>AGENTIC →</span>
-        </motion.button>
-
-        {/* Wearable Sync — Whoop + Apple Health + Calorie Entropy */}
-        <motion.button
-          initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:1.08 }}
-          whileTap={{ scale:.97 }}
-          onClick={onWearables}
-          style={{
-            marginTop:10, width:"100%", maxWidth:340,
-            background:"transparent",
-            border:`1px solid ${T.border}`,
-            borderRadius:16, padding:"12px 16px",
-            cursor:"pointer", color:T.text,
-            display:"flex", alignItems:"center", justifyContent:"space-between",
-            fontSize:12, fontWeight:700, letterSpacing:".08em", textTransform:"uppercase",
-          }}>
-          <span style={{ display:"flex", alignItems:"center", gap:10 }}>
-            <span style={{
-              width:8, height:8, borderRadius:4, background:"#00FFAB",
-              boxShadow:"0 0 12px #00FFAB",
-            }}/>
-            Wearable Sync · Entropy
-          </span>
-          <span style={{ color:T.muted, fontSize:10 }}>WHOOP / APPLE →</span>
-        </motion.button>
-
-        {/* Bio-clock widget */}
-        <motion.div
-          initial={{ opacity:0 }} animate={{ opacity:1 }}
-          transition={{ delay:1.0 }}
-          style={{ marginTop:20, width:"100%", maxWidth:340 }}>
-          <BioClockWidget theme={theme} compact/>
-        </motion.div>
-
-        {/* NFC / Environment indicator — no selector, mode is set by venue NFC
-            (or Manager). Customers never pick mode manually. */}
-        <motion.div
-          initial={{ opacity:0 }} animate={{ opacity:1 }}
-          transition={{ delay:1.15 }}
-          style={{ marginTop:20, width:"100%", maxWidth:340 }}>
-          <div style={{
-            display:"flex", alignItems:"center", gap:10,
-            padding:"10px 14px",
-            background:T.glass, border:`1px solid ${T.border}`,
-            backdropFilter:isMobile?"none":"blur(16px)", borderRadius:14,
-          }}>
-            <div style={{
-              width:30, height:30, borderRadius:"50%",
-              background: modeLockedBy === "nfc" ? `${ac}22` : T.glass,
-              border: `1px solid ${modeLockedBy === "nfc" ? ac+"66" : T.border}`,
-              display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:14, color: modeLockedBy === "nfc" ? ac : T.faint,
-            }}>📡</div>
-            <div style={{ flex:1, minWidth:0 }}>
-              <div style={{ fontSize:9, fontWeight:700, letterSpacing:".12em", color:T.faint }}>
-                {modeLockedBy === "nfc" ? "NFC LINKED" : "ENVIRONMENT"}
-              </div>
-              <div style={{ fontSize:12, fontWeight:800, color:T.text, letterSpacing:"-.01em",
-                            whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>
-                {modeLockedBy === "nfc" && location?.venueName
-                  ? `${location.venueName} · ${M.label}`
-                  : M.label}
-              </div>
-            </div>
-            {modeLockedBy === "nfc" && (
-              <div style={{ display:"flex", flexDirection:"column", alignItems:"flex-end", gap:5 }}>
-                <div style={{
-                  fontSize:8, fontWeight:800, letterSpacing:".1em",
-                  color:ac, padding:"4px 8px",
-                  border:`1px solid ${ac}55`, borderRadius:8,
-                }}>LIVE</div>
-                <button
-                  onClick={() => { if (typeof resetMode === "function") resetMode(); }}
-                  style={{
-                    fontSize:8, fontWeight:700, letterSpacing:".08em",
-                    color:T.faint, padding:"3px 7px",
-                    border:`1px solid ${T.border}`, borderRadius:6,
-                    background:"transparent", cursor:"pointer",
-                  }}>LEAVE</button>
-              </div>
-            )}
-          </div>
-          {modeLockedBy === "nfc" ? (
-            <NfcAutoLeaveTimer ac={ac} T={T} onLeave={() => { if (typeof resetMode === "function") resetMode(); }} />
-          ) : (
-            <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center", letterSpacing:".08em" }}>
-              TAP AN RVN NFC POINT TO UNLOCK THE LOCAL EXPERIENCE
-            </div>
-          )}
-        </motion.div>
-
-        {/* ── Social Proof ─────────────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:1.3, duration:0.5 }}
-          style={{ marginTop:28, width:"100%", maxWidth:340 }}>
-          {/* Stats row */}
-          <div style={{ display:"flex", gap:10, marginBottom:14 }}>
-            {[
-              { num:"14,200+", label:"PROTOCOLS BUILT" },
-              { num:"89%",     label:"HIT GOAL WK 4"  },
-              { num:"16",       label:"ARCHETYPES"     },
-            ].map(s => (
-              <div key={s.label} style={{
-                flex:1, textAlign:"center", padding:"12px 6px",
-                background:T.glass, border:`1px solid ${T.border}`,
-                backdropFilter:isMobile?"none":"blur(12px)", borderRadius:14,
-              }}>
-                <div style={{ fontSize:16, fontWeight:900, color:T.text, letterSpacing:"-.01em" }}>{s.num}</div>
-                <div style={{ fontSize:7.5, fontWeight:700, letterSpacing:".1em", color:T.faint, marginTop:3 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-          {/* Testimonials */}
-          {[
-            { q:"Lost 18lbs in 12 weeks. I didn't change my workout — just followed the protocol.", name:"@marcus_lifts" },
-            { q:"The bio-score made me realize I was doing way too much. Less sessions, more results.", name:"@sarabfit" },
-          ].map((t, i) => (
-            <motion.div key={i}
-              initial={{ opacity:0, x: i===0?-16:16 }} animate={{ opacity:1, x:0 }}
-              transition={{ delay:1.45+i*0.1 }}
-              style={{
-                padding:"14px 16px", marginBottom:10,
-                background:T.glass, border:`1px solid ${T.border}`,
-                backdropFilter:isMobile?"none":"blur(12px)", borderRadius:16,
-              }}>
-              <div style={{ fontSize:12, color:T.text, lineHeight:1.55, marginBottom:8, fontStyle:"italic" }}>
-                "{t.q}"
-              </div>
-              <div style={{ fontSize:10, fontWeight:700, color:ac, letterSpacing:".08em" }}>{t.name}</div>
-            </motion.div>
-          ))}
-        </motion.div>
-
       </div>
     </Screen>
   );
@@ -25932,18 +25735,20 @@ function RVNRoot() {
         )}
       </AnimatePresence>
 
-      {/* Global Bug Report Button — always visible at bottom-right */}
-      <div style={{
-        position: "fixed", bottom: 90, left: 16, zIndex: 8888,
-        display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6,
-      }}>
-        <BugReportButton
-          email={user?.email || ""}
-          screen={screen}
-          stateSnapshot={{ screen, mode, archetypeId, userId: user?.id }}
-          theme={theme}
-        />
-      </div>
+      {/* Bug Report — hidden on landing so new users never see it */}
+      {screen !== "landing" && (
+        <div style={{
+          position: "fixed", bottom: 90, left: 16, zIndex: 8888,
+          display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6,
+        }}>
+          <BugReportButton
+            email={user?.email || ""}
+            screen={screen}
+            stateSnapshot={{ screen, mode, archetypeId, userId: user?.id }}
+            theme={theme}
+          />
+        </div>
+      )}
     </>
   );
 }

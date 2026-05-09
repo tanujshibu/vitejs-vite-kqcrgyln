@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, createContext, useContext, useReducer, Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
+import Lottie from "lottie-react";
 
 // ─── MOBILE PERFORMANCE FLAG ──────────────────────────────────────────────────
 // backdrop-filter blur + many simultaneous animations overwhelm mobile GPUs.
@@ -8487,89 +8488,288 @@ function FactVisual({ type, color: C }) {
   return null;
 }
 
+// ─── CUSTOM LOTTIE ANIMATIONS ─────────────────────────────────────────────────
+// Hand-coded Lottie JSON — fully on-brand, no external dependency, no paywall.
+// Each animation loops at 30fps and is designed for the dark cinematic FactFlash.
+
+const LOTTIE_SLEEP = {
+  v:"5.5.7", fr:30, ip:0, op:120, w:200, h:200, nm:"sleep", ddd:0, assets:[],
+  layers:[
+    // Outer pulse ring 1
+    { ddd:0, ind:1, ty:4, nm:"ring1", sr:1, ks:{
+      o:{ a:1, k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[60]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[0]},{t:120,s:[60]}] },
+      r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+    }, ao:0, shapes:[{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[40,40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[160,160]},{t:120,s:[40,40]}]}},
+      {ty:"st",c:{a:0,k:[0.353,0.784,0.980,1]},o:{a:0,k:100},w:{a:0,k:1.5}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]}], ip:0, op:120, st:0 },
+    // Outer pulse ring 2 (offset)
+    { ddd:0, ind:2, ty:4, nm:"ring2", sr:1, ks:{
+      o:{ a:1, k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[60]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:90,s:[0]},{t:120,s:[30]}] },
+      r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+    }, ao:0, shapes:[{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[40,40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:90,s:[140,140]},{t:120,s:[40,40]}]}},
+      {ty:"st",c:{a:0,k:[0.353,0.784,0.980,1]},o:{a:0,k:100},w:{a:0,k:1}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]}], ip:0, op:120, st:0 },
+    // Moon core — crescent via two overlapping circles
+    { ddd:0, ind:3, ty:4, nm:"moon", sr:1, ks:{
+      o:{a:0,k:100}, r:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[-15]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[15]},{t:120,s:[-15]}]},
+      p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+    }, ao:0, shapes:[{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[54,54]}},
+      {ty:"fl",c:{a:0,k:[0.353,0.784,0.980,1]},o:{a:0,k:100}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]},{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[18,-16]},s:{a:0,k:[44,44]}},
+      {ty:"fl",c:{a:0,k:[0.067,0.067,0.067,1]},o:{a:0,k:100}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]}], ip:0, op:120, st:0 },
+    // Star 1
+    { ddd:0, ind:4, ty:4, nm:"star1", sr:1, ks:{
+      o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:20,s:[100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:50,s:[100]},{t:70,s:[0]}]},
+      r:{a:0,k:0}, p:{a:0,k:[138,62,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+    }, ao:0, shapes:[{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[8,8]}},
+      {ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]}], ip:0, op:120, st:0 },
+    // Star 2
+    { ddd:0, ind:5, ty:4, nm:"star2", sr:1, ks:{
+      o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:40,s:[80]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:70,s:[80]},{t:90,s:[0]}]},
+      r:{a:0,k:0}, p:{a:0,k:[148,80,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+    }, ao:0, shapes:[{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[5,5]}},
+      {ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]}], ip:0, op:120, st:0 },
+  ]
+};
+
+const LOTTIE_BRAIN = {
+  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"brain", ddd:0, assets:[],
+  layers:[
+    // Neural pulse rings — 3 staggered rings from center
+    ...[0,1,2].map((i) => ({
+      ddd:0, ind:i+1, ty:4, nm:`pulse${i}`, sr:1, ks:{
+        o:{a:1,k:[
+          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20,s:[80]},
+          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20+45,s:[0]},
+          {t:90,s:[0]}
+        ]},
+        r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+      }, ao:0, shapes:[{ty:"gr",it:[
+        {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[
+          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20,s:[20,20]},
+          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20+45,s:[130,130]},
+          {t:90,s:[20,20]}
+        ]}},
+        {ty:"st",c:{a:0,k:[0.749,0.353,0.949,1]},o:{a:0,k:100},w:{a:0,k:1.5}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}], ip:0, op:90, st:0
+    })),
+    // 6 node dots around center (neural nodes)
+    ...[0,1,2,3,4,5].map((i) => {
+      const angle = (i/6)*Math.PI*2;
+      const r = 52;
+      const x = Math.round(100 + r*Math.cos(angle));
+      const y = Math.round(100 + r*Math.sin(angle));
+      return {
+        ddd:0, ind:i+10, ty:4, nm:`node${i}`, sr:1, ks:{
+          o:{a:1,k:[
+            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8,s:[30]},
+            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8+20,s:[100]},
+            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8+40,s:[30]},
+            {t:90,s:[30]}
+          ]},
+          r:{a:0,k:0}, p:{a:0,k:[x,y,0]}, a:{a:0,k:[0,0,0]},
+          s:{a:1,k:[
+            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8,s:[60,60,100]},
+            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8+20,s:[120,120,100]},
+            {t:i*8+40,s:[60,60,100]}
+          ]}
+        }, ao:0, shapes:[{ty:"gr",it:[
+          {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[10,10]}},
+          {ty:"fl",c:{a:0,k:[0.749,0.353,0.949,1]},o:{a:0,k:100}},
+          {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+        ]}], ip:0, op:90, st:0
+      };
+    }),
+    // Center core dot
+    { ddd:0, ind:20, ty:4, nm:"core", sr:1, ks:{
+      o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]},
+      s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[100,100,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:45,s:[140,140,100]},{t:90,s:[100,100,100]}]}
+    }, ao:0, shapes:[{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[18,18]}},
+      {ty:"fl",c:{a:0,k:[0.749,0.353,0.949,1]},o:{a:0,k:100}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]}], ip:0, op:90, st:0 }
+  ]
+};
+
+const LOTTIE_FIRE = {
+  v:"5.5.7", fr:30, ip:0, op:60, w:200, h:200, nm:"fire", ddd:0, assets:[],
+  layers:[
+    // 3 flame bars — inner glow, rising and shrinking
+    ...[0,1,2].map((i) => {
+      const x = 80 + i*20;
+      const baseH = [70, 100, 60][i];
+      const peakH = [110, 150, 95][i];
+      const delay = [0,8,4][i];
+      return {
+        ddd:0, ind:i+1, ty:4, nm:`flame${i}`, sr:1, ks:{
+          o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[x,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+        }, ao:0, shapes:[{ty:"gr",it:[
+          {ty:"rc",d:1,p:{a:0,k:[0,0]},s:{a:1,k:[
+            {i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:delay,s:[14, baseH]},
+            {i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:delay+30,s:[14, peakH]},
+            {t:delay+60,s:[14, baseH]}
+          ]},r:{a:0,k:6}},
+          {ty:"fl",c:{a:1,k:[
+            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[1,0.298,0.169,1]},
+            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[1,0.620,0.0,1]},
+            {t:60,s:[1,0.298,0.169,1]}
+          ]},o:{a:0,k:[{t:0,s:[100]}]}},
+          {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+        ]}], ip:0, op:60, st:0
+      };
+    }),
+    // Glow base
+    { ddd:0, ind:10, ty:4, nm:"glow", sr:1, ks:{
+      o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[70]},{t:60,s:[40]}]},
+      r:{a:0,k:0}, p:{a:0,k:[100,145,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
+    }, ao:0, shapes:[{ty:"gr",it:[
+      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[80,18]}},
+      {ty:"fl",c:{a:0,k:[1,0.4,0.18,1]},o:{a:0,k:100}},
+      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+    ]}], ip:0, op:60, st:0 }
+  ]
+};
+
+const LOTTIE_MUSCLE = {
+  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"muscle", ddd:0, assets:[],
+  layers:[
+    // 3 staggered growing bars — like protein synthesis over time
+    ...[0,1,2].map((i) => {
+      const x = [72,100,128][i];
+      const maxH = [80,120,96][i];
+      const delay = [20,0,12][i];
+      const col = i===1 ? [1,0.294,0.169,1] : [1,0.294,0.169,0.6];
+      return {
+        ddd:0, ind:i+1, ty:4, nm:`bar${i}`, sr:1, ks:{
+          o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[x,120,0]}, a:{a:0,k:[0,0,maxH/2]}, s:{a:0,k:[100,100,100]}
+        }, ao:0, shapes:[{ty:"gr",it:[
+          {ty:"rc",d:1,p:{a:0,k:[0,0]},s:{a:1,k:[
+            {i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:delay,s:[16,0]},
+            {i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:delay+40,s:[16,maxH]},
+            {t:90,s:[16,maxH]}
+          ]},r:{a:0,k:5}},
+          {ty:"fl",c:{a:0,k:col},o:{a:0,k:100}},
+          {ty:"tr",p:{a:0,k:[0,-(maxH/2)]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+        ]}], ip:0, op:90, st:0
+      };
+    }),
+    // Label: "24h", "48h", "72h"
+    ...["24h","48h","72h"].map((label,i) => ({
+      ddd:0, ind:i+20, ty:5, nm:`label${i}`, sr:1,
+      ks:{ o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[[72,100,128][i],148,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]} },
+      ao:0, t:{ d:{k:[{s:{f:"Arial",fc:[1,1,1,0.5],s:11,t:label,j:2,tr:0,lh:13.2,ls:0,fc:[1,1,1,1]},t:0}]}, p:{}, m:{g:1,a:{a:0,k:[0,0]}}, a:[] },
+      ip:0, op:90, st:0
+    }))
+  ]
+};
+
+const LOTTIE_MAP = {
+  sleep:    LOTTIE_SLEEP,
+  brain:    LOTTIE_BRAIN,
+  fire:     LOTTIE_FIRE,
+  muscle:   LOTTIE_MUSCLE,
+};
+
 const ONBOARDING_FACTS = {
   gender: {
     male: {
-      stat: "94%", color: "#D4AF37", visual: "bar_compare",
-      headline: "Your results live outside the gym.",
-      body: "94% of your week isn't training. Sleep, food, stress — that's where your body actually changes. Your protocol controls all of it.",
+      stat: "168", color: "#D4AF37", visual: "bar_compare",
+      headline: "Only 10 of these hours are gym. The rest decide your results.",
+      body: "10 gym hours is 6% of your week. Sleep, food, and recovery own the other 94%. Your protocol addresses all of it.",
     },
     female: {
       stat: "Zero", color: "#BF5AF2", visual: "dumbbell",
-      headline: "The women who got 'bulky' from lifting don't exist.",
-      body: "Women have a fraction of the hormones needed to bulk up. Lifting makes you leaner and more defined. The fear of bulk is the #1 reason women never reach their goal.",
+      headline: "Women who got bulky from lifting",
+      body: "15–20× less testosterone means lifting makes you leaner — not bigger.",
     },
   },
   frequency: {
     high: {
-      stat: "48hrs", color: "#FF4B2B", visual: "bars_grow",
-      headline: "You're hitting the gym before your last session is done.",
-      body: "Your body is still rebuilding for 48 hours after you train. Going back too soon stops that process cold. Your protocol fixes the timing.",
+      stat: "48hrs", color: "#FF4B2B", visual: "bars_grow", lottie: "muscle",
+      headline: "Your muscles grow on rest days, not gym days",
+      body: "Protein synthesis stays elevated 48hrs after training. Hit too soon and you interrupt it.",
     },
     med: {
-      stat: "Sweet spot", color: "#C9A84C", visual: "two_bars",
-      headline: "You're in the window that actually works.",
-      body: "3-4 sessions gives you enough to grow and enough time to recover. Most people either do too much or too little. You're right where you need to be.",
+      stat: "Rest days", color: "#C9A84C", visual: "two_bars",
+      headline: "Are doing more work than your gym days",
+      body: "Muscles don't grow during training — they grow during rest. Your off days are building you.",
     },
     low: {
-      stat: "Quality", color: "#30D158", visual: "bar_compare",
-      headline: "Two sessions done right beats five done tired.",
-      body: "Frequency isn't the variable that matters. Recovery is. Your protocol makes every session you show up to count.",
+      stat: "2 sessions", color: "#30D158", visual: "bar_compare",
+      headline: "Done right, beats 5 done wrong. Every time.",
+      body: "Two sessions with real progression outperforms daily training with poor recovery.",
     },
   },
   caffeine: {
     high: {
-      stat: "30min", color: "#FF9F0A", visual: "clock",
-      headline: "You should be warming up when it hits — not just arriving.",
-      body: "Caffeine takes 30-45 minutes to kick in. Most people walk into the gym and then drink it. Your window is different — your protocol adjusts for this.",
+      stat: "40min", color: "#FF9F0A", visual: "clock",
+      headline: "You've been timing your pre-workout wrong",
+      body: "Caffeine peaks 30–45min after you take it. You should be warming up before it kicks in.",
     },
     med: {
-      stat: "Less", color: "#C9A84C", visual: "gauge",
-      headline: "More caffeine doesn't hit harder. It just makes you anxious.",
-      body: "There's a ceiling for actual performance. Most pre-workouts go way past it. Above that, you're buying jitters — not energy. Your protocol dials the right amount.",
+      stat: "200mg", color: "#C9A84C", visual: "gauge",
+      headline: "More caffeine doesn't mean more performance",
+      body: "200mg maxes out training output. Most pre-workouts have double — that's anxiety, not energy.",
     },
     low: {
       stat: "10 days", color: "#30D158", visual: "calendar_dots",
-      headline: "A short reset and your pre-workout feels like the first time again.",
-      body: "When you're used to high doses, nothing feels like it works. Ten days off brings everything back to baseline. Your protocol builds this cycle in automatically.",
+      headline: "Your next pre-workout will feel like the first time",
+      body: "A 10-day reset returns your receptors to baseline. We'll cycle this in.",
     },
   },
   bottleneck: {
     sleep: {
-      stat: "30%", color: "#5AC8FA", visual: "battery",
-      headline: "Every bad night cuts your workout by almost a third.",
-      body: "You can train perfectly and eat right, but if sleep is off — the results don't show. The gym is where you trigger change. Sleep is where it actually happens.",
+      stat: "30%", color: "#5AC8FA", visual: "battery", lottie: "sleep",
+      headline: "Bad sleep erases 30% of your workout",
+      body: "Your workout sends the signal. Sleep delivers the result. Without it, gains are lost.",
     },
     soreness: {
-      stat: "72hrs", color: "#FF4B2B", visual: "timeline_dots",
-      headline: "Soreness isn't a sign you trained hard. It means you recovered poorly.",
-      body: "People who are always sore aren't working harder — their recovery is broken. The goal is to get stronger without needing 3 days to walk again. Your protocol fixes this.",
+      stat: "72hrs", color: "#FF4B2B", visual: "timeline_dots", lottie: "fire",
+      headline: "Soreness means you recovered poorly, not trained hard",
+      body: "DOMS peaks at 72hrs and is just inflammation. Elite athletes rarely get sore — their recovery is dialed.",
     },
     fog: {
-      stat: "6×", color: "#BF5AF2", visual: "brain_pulse",
-      headline: "When your brain is tired, so is every muscle in your body.",
-      body: "Mental fog after training isn't just in your head. Your nervous system is genuinely drained. Your protocol recovers this first — and everything else follows.",
+      stat: "6×", color: "#BF5AF2", visual: "brain_pulse", lottie: "brain",
+      headline: "Your brain is the muscle most people forget to recover",
+      body: "The CNS controls every rep and contraction. Optimize neural recovery and next session outputs 6× more.",
     },
   },
   archetype: {
     // ── Male archetypes ───────────────────────────────────────────────────────
-    vtaper:       { stat: "12wks",   color: "#2E5BFF", visual: "v_shape",       headline: "People are going to notice in three months.",                    body: "Wider shoulders, tighter waist. The V-taper is the fastest visible transformation. Strangers will ask what you changed." },
-    abs:          { stat: "1 layer", color: "#D4AF37", visual: "layer_reveal",  headline: "Your six-pack is already there. One layer of fat is hiding it.", body: "You don't build abs — you reveal them. Your protocol strips the layer that's covering yours, without any guesswork." },
-    density:      { stat: "0.5lbs",  color: "#FF4B2B", visual: "muscle_cap",    headline: "That's the most muscle your body can build in a week. We're going to hit that every week.", body: "Most people train too hard and eat too little to ever reach the ceiling. Your protocol is designed around it." },
-    athletic:     { stat: "8%",      color: "#00FFAB", visual: "bars_grow",     headline: "Adding conditioning to your lifts makes you stronger — not weaker.", body: "Most gym guys avoid cardio because they think it steals gains. Done right, it adds 8% more output. Your protocol does both." },
-    chest_arms:   { stat: "8wks",    color: "#FF9F0A", visual: "two_bars",      headline: "Arms and chest show change faster than anywhere else.",           body: "By week 8, you'll feel it in every shirt you put on. These muscles respond early, and the gains compound from there." },
-    powerlifter:  { stat: "5g",      color: "#BF5AF2", visual: "gauge",         headline: "One supplement actually works. Every single time.",               body: "5 grams of creatine a day. 400+ studies behind it. Your strength goes up within 2 weeks. Your protocol starts here." },
-    shred:        { stat: "24hrs",   color: "#FF3B30", visual: "battery",       headline: "One session keeps your body burning for the entire next day.",    body: "The right kind of cardio doesn't just burn during the workout — it raises your metabolism for 24 hours after. Your protocol is built around this." },
-    calisthenics: { stat: "∞",       color: "#5AC8FA", visual: "timeline_dots", headline: "There's always a harder version. That's what makes it work.",     body: "Weights have a ceiling. Skills don't. Planche, one-arm pull-up, front lever — the progression never stops, and neither do the results." },
+    vtaper:       { stat: "12wks",  color: "#2E5BFF",  visual: "v_shape",        headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
+    abs:          { stat: "1 layer",color: "#D4AF37",  visual: "layer_reveal",   headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
+    density:      { stat: "0.5lbs", color: "#FF4B2B",  visual: "muscle_cap",     headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
+    athletic:     { stat: "8%",     color: "#00FFAB",  visual: "bars_grow",      headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
+    chest_arms:   { stat: "8wks",   color: "#FF9F0A",  visual: "two_bars",       headline: "Your arms will look different in 8 weeks. Guaranteed.",   body: "Arms and chest respond faster than any other muscle. The gains are early, visible, and compound." },
+    powerlifter:  { stat: "5g",     color: "#BF5AF2",  visual: "gauge",          headline: "Creatine has 400+ studies. No supplement is more proven.", body: "5g daily is all it takes. Your 1RM goes up within 2 weeks — not months." },
+    shred:        { stat: "24hrs",  color: "#FF3B30",  visual: "battery",        headline: "Your metabolism stays elevated 24 hours after HIIT",      body: "This isn't about burning calories in the gym. HIIT reprograms your metabolic rate for the entire next day." },
+    calisthenics: { stat: "∞",      color: "#5AC8FA",  visual: "timeline_dots",  headline: "Calisthenics is the only training with no ceiling",       body: "There's always a harder progression. Planche, one-arm pull-up, front lever — the skill chain never ends." },
     // ── Female archetypes ─────────────────────────────────────────────────────
-    glutes:       { stat: "+40%",    color: "#BF5AF2", visual: "glute_fill",    headline: "Most glute exercises barely activate your glutes.",               body: "Small changes in angle and technique change activation by 40% or more. Most people do the right exercises the wrong way their whole life. Your protocol fixes this first." },
-    hourglass:    { stat: "12wks",   color: "#BF5AF2", visual: "hourglass_form",headline: "The hourglass isn't something you're born with — it's something you build.", body: "Shoulder width and hip shape both respond to training. The ratio is trainable. 12 weeks to a real, visible shift." },
-    lean_athlete: { stat: "20%",     color: "#30D158", visual: "bars_grow",     headline: "Working with your cycle instead of ignoring it changes everything.", body: "Your body shifts across the month. Training against it wastes energy. Training with it adds 20% more from the exact same sessions." },
-    tone_define:  { stat: "16wks",   color: "#30D158", visual: "timeline_dots", headline: "Week 8, you see it. Week 16, everyone else does.",                body: "Definition isn't about eating less — it's about replacing fat with muscle at the same time. Your protocol does both." },
-    lower_build:  { stat: "70%",     color: "#FF9F0A", visual: "percent_fill",  headline: "Legs aren't just legs — they're the engine for your whole body.", body: "Training your lower body releases hormones that build every other muscle too. Nothing speeds results faster. Your protocol starts here." },
-    body_recomp:  { stat: "Both",    color: "#FF9F0A", visual: "split_arrows",  headline: "Lose fat and build muscle at the same time. Your protocol does exactly this.", body: "Most trainers say pick one. That's because most protocols aren't built for both. Yours is." },
-    arms_back_f:  { stat: "8wks",    color: "#5AC8FA", visual: "dumbbell",      headline: "Arms and back define how every outfit fits.",                     body: "Visible definition in your upper body reshapes your silhouette from every angle. 8 weeks is all it takes to see the change." },
-    full_body_f:  { stat: "24wks",   color: "#30D158", visual: "bars_grow",     headline: "At week 24, you won't recognize your own photos.",               body: "The change builds quietly, then hits all at once. Every session until month 6 is a layer being added. Your protocol tracks every one of them." },
+    glutes:       { stat: "+40%",   color: "#BF5AF2",  visual: "glute_fill",     headline: "More activation. More growth. Better shape.",              body: "The right exercises and cues change glute activation by 40%+. Most people never learn them." },
+    hourglass:    { stat: "12wks",  color: "#BF5AF2",  visual: "hourglass_form", headline: "Shoulder-waist-hip balance. Engineered.",                 body: "Shoulder width and hip shape are trainable. The hourglass is built — not found — in 12 weeks." },
+    lean_athlete: { stat: "+20%",   color: "#30D158",  visual: "bars_grow",      headline: "Your cycle is a training superpower",                     body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
+    tone_define:  { stat: "16wks",  color: "#30D158",  visual: "timeline_dots",  headline: "Visible definition by week 16. Week 8 if you're dialed.", body: "Muscle definition is about protocol precision, not just lifting more. Your hormonal environment is the key." },
+    lower_build:  { stat: "70%",    color: "#FF9F0A",  visual: "percent_fill",   headline: "Lower body is 70% of your total muscle mass",             body: "Training legs doesn't just build legs — it floods your entire body with anabolic hormones. Nothing drives results faster." },
+    body_recomp:  { stat: "Both",   color: "#FF9F0A",  visual: "split_arrows",   headline: "Lose fat and build muscle at the same time",              body: "Sports science denied it for decades. Your protocol is built around doing both simultaneously." },
+    arms_back_f:  { stat: "8wks",   color: "#5AC8FA",  visual: "dumbbell",       headline: "Arms and back define the athletic feminine silhouette",   body: "Visible definition in arms and upper back reshapes how every outfit fits. 8 weeks to visible change." },
+    full_body_f:  { stat: "24wks",  color: "#30D158",  visual: "bars_grow",      headline: "At 24 weeks you're unrecognizable",                       body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
     // ── Fallback ──────────────────────────────────────────────────────────────
     longevity:    { stat: "14yrs",   color: "#00FFAB", visual: "age_split",     headline: "People who train consistently are 14 years younger — biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed — all measurably younger. Your protocol builds a body that stays that way." },
     default:      { stat: "10×",     color: "#2E5BFF", visual: "two_bars",      headline: "A protocol beats motivation every single time.",                  body: "Motivated people skip. Protocols run. People with a real system are 10× more likely to reach their goal. You just started building yours." },
@@ -8621,13 +8821,17 @@ function FactFlash({ data, onContinue, theme }) {
         style={{ position:"absolute", width:240, height:240, borderRadius:"50%",
           border:`1px solid ${data.color}`, pointerEvents:"none" }}/>
 
-      {/* ANIMATED VISUAL — the gif-like moment */}
+      {/* ANIMATED VISUAL — custom Lottie if key present, SVG fallback */}
       <motion.div
         initial={{ opacity:0, scale:0.7, y:16 }} animate={{ opacity:1, scale:1, y:0 }}
         transition={{ delay:0.05, duration:0.45, ease:[0.22,1,0.36,1] }}
         style={{ marginBottom:20, display:"flex", alignItems:"center", justifyContent:"center",
           filter:`drop-shadow(0 0 18px ${data.color}66)` }}>
-        <FactVisual type={data.visual} color={data.color}/>
+        {LOTTIE_MAP[data.lottie]
+          ? <Lottie animationData={LOTTIE_MAP[data.lottie]} loop autoplay
+              style={{ width:200, height:200 }}/>
+          : <FactVisual type={data.visual} color={data.color}/>
+        }
       </motion.div>
 
       {/* THE STAT */}

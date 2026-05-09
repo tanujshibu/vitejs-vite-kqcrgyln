@@ -8636,6 +8636,27 @@ function FactFlash({ data, onContinue, theme }) {
   );
 }
 
+// ─── STORY HOOK — punchy one-liner that sets up tension before each question ──
+function StoryHook({ text, theme, accent, delay=0 }) {
+  const T = D[theme] || D.dark;
+  return (
+    <motion.div
+      initial={{ opacity:0, y:-6 }} animate={{ opacity:1, y:0 }}
+      transition={{ delay, duration:.4, ease:[.22,1,.36,1] }}
+      style={{ marginBottom:10 }}>
+      <div style={{
+        fontSize:13, fontStyle:"italic",
+        color: accent || T.muted,
+        lineHeight:1.5,
+        borderLeft:`2px solid ${accent || T.borderHi}`,
+        paddingLeft:10,
+      }}>
+        {text}
+      </div>
+    </motion.div>
+  );
+}
+
 // ─── ONBOARDING TAP CARD — Cal AI black-select pattern ────────────────────────
 function OBCard({ option, selected, onPick, index = 0, theme }) {
   const T = D[theme] || D.dark;
@@ -8716,7 +8737,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   if (factData) return <FactFlash data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
   // Shared question wrapper
-  function QWrap({ step, total=7, label, headline, sub, children, onBackFn }) {
+  function QWrap({ step, total=7, storyHook, headline, sub, children, onBackFn }) {
     return (
       <Screen theme={theme}>
         <div style={{ padding:"16px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -8727,15 +8748,16 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
           initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
           transition={{ duration:.36, ease:[.22,1,.36,1] }}
           style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 24px 48px" }}>
-          <StepProgress step={step} total={total} label={label} accent={ac} theme={theme}/>
+          <StepProgress step={step} total={total} label="BIO ASSESSMENT" accent={ac} theme={theme}/>
           <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
-            style={{ marginBottom:28, marginTop:18 }}>
+            style={{ marginBottom:storyHook ? 12 : 28, marginTop:18 }}>
             <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.18 }}>
               {headline}
             </div>
             {sub && <div style={{ fontSize:13, color:T.muted, marginTop:6, lineHeight:1.5 }}>{sub}</div>}
           </motion.div>
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>{children}</div>
+          {storyHook && <StoryHook text={storyHook} theme={theme} accent={ac} delay={.22}/>}
+          <div style={{ display:"flex", flexDirection:"column", gap:12, marginTop: storyHook ? 12 : 0 }}>{children}</div>
         </motion.div>
       </Screen>
     );
@@ -8752,55 +8774,65 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   if (phase === -1) return (
     <Screen theme={theme}>
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-        background:`radial-gradient(ellipse 70% 45% at 50% 35%, ${ac}1E, transparent)` }}/>
+        background:`radial-gradient(ellipse 80% 55% at 50% 30%, ${ac}15, transparent)` }}/>
+
+      {/* Opening statement — big, cinematic, personal */}
       <motion.div style={{ flex:1, display:"flex", flexDirection:"column",
-        alignItems:"center", justifyContent:"center", padding:"40px 28px 24px", gap:0 }}>
+        justifyContent:"center", padding:"48px 28px 24px" }}>
 
-        {/* Logo */}
-        <motion.div initial={{ opacity:0, scale:.7 }} animate={{ opacity:1, scale:1 }}
-          transition={{ duration:.55, ease:[.22,1,.36,1] }} style={{ marginBottom:28 }}>
-          <RVNLogo size={58} glow={ac}/>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.div initial={{ opacity:0, y:22 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:.22, duration:.5 }}
-          style={{ textAlign:"center", marginBottom:14 }}>
-          <div style={{ fontSize:36, fontWeight:900, letterSpacing:"-.03em",
-            color:T.text, lineHeight:1.08 }}>
-            Built around<br/>your biology.
+        {/* Dramatic opener */}
+        <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }}
+          transition={{ duration:.6, ease:[.22,1,.36,1] }}
+          style={{ marginBottom:32 }}>
+          <div style={{ fontSize:13, fontWeight:700, color:ac, letterSpacing:".12em",
+            marginBottom:14, textTransform:"uppercase" }}>
+            Most athletes never reach their potential.
           </div>
-          <div style={{ fontSize:14, color:T.muted, marginTop:12, lineHeight:1.6, maxWidth:290, margin:"12px auto 0" }}>
-            7 questions. Your exact protocol — not a template built for someone else.
+          <div style={{ fontSize:38, fontWeight:900, letterSpacing:"-.03em",
+            color:T.text, lineHeight:1.06, marginBottom:16 }}>
+            Not because of effort.
+          </div>
+          <div style={{ fontSize:16, color:T.muted, lineHeight:1.65, maxWidth:300 }}>
+            Because they're running someone else's protocol. 7 questions from now, you'll have yours.
           </div>
         </motion.div>
 
-        {/* Stats */}
-        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.5 }}
-          style={{ display:"flex", gap:32, marginTop:28, marginBottom:8 }}>
-          {[{n:"~90s",l:"to complete"},{n:"7",l:"questions"},{n:"1",l:"protocol for you"}].map(s => (
-            <div key={s.n} style={{ textAlign:"center" }}>
-              <div style={{ fontSize:22, fontWeight:900, color:ac, letterSpacing:"-.02em" }}>{s.n}</div>
+        {/* Stats row */}
+        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.3, duration:.5 }}
+          style={{ display:"flex", gap:0, borderTop:`1px solid ${T.border}`,
+            borderBottom:`1px solid ${T.border}`, padding:"18px 0", marginBottom:8 }}>
+          {[
+            { n:"~90s", l:"to complete" },
+            { n:"7",    l:"questions" },
+            { n:"1",    l:"protocol — yours" },
+          ].map((s, i) => (
+            <div key={s.n} style={{ flex:1, textAlign:"center",
+              borderRight: i < 2 ? `1px solid ${T.border}` : "none" }}>
+              <div style={{ fontSize:24, fontWeight:900, color:ac, letterSpacing:"-.02em" }}>{s.n}</div>
               <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em", marginTop:3, fontWeight:700 }}>
                 {s.l.toUpperCase()}
               </div>
             </div>
           ))}
         </motion.div>
+
+        {/* Logo */}
+        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.55 }}
+          style={{ display:"flex", justifyContent:"center", marginTop:28 }}>
+          <RVNLogo size={44} glow={ac}/>
+        </motion.div>
       </motion.div>
 
-      {/* CTA pinned to bottom */}
+      {/* CTA */}
       <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:.62 }}
+        transition={{ delay:.65 }}
         style={{ padding:"0 24px 52px" }}>
-        <ShimmerCTA label="Let's build mine  →" onClick={() => setPhase(0)} theme={theme} color={ac}/>
+        <ShimmerCTA label="Build my protocol  →" onClick={() => setPhase(0)} theme={theme} color={ac}/>
         {onBack && (
           <div style={{ textAlign:"center", marginTop:14 }}>
-            <button onClick={onBack}
-              style={{ background:"none", border:"none", cursor:"pointer",
-                fontSize:12, color:T.faint, letterSpacing:".04em" }}>
-              ← Back to home
-            </button>
+            <button onClick={onBack} style={{ background:"none", border:"none", cursor:"pointer",
+              fontSize:12, color:T.faint, letterSpacing:".04em" }}>← Back</button>
           </div>
         )}
       </motion.div>
@@ -8809,9 +8841,9 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase 0: Gender ────────────────────────────────────────────────────────
   if (phase === 0) return (
-    <QWrap step={1} total={7} label="BIOLOGICAL PROFILE"
+    <QWrap step={1} total={7}
       headline="Let's start with your biology."
-      sub="Your protocol is calibrated differently based on this."
+      storyHook="Your hormonal profile is the foundation. Everything else — protein, timing, recovery — is calibrated around this."
       onBackFn={() => setPhase(-1)}>
       {[
         { value:"male",   label:"Man",   sub:"Testosterone-optimized protocol", icon:"♂", color:"#2E5BFF" },
@@ -8825,8 +8857,9 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase 1: Training frequency ────────────────────────────────────────────
   if (phase === 1) return (
-    <QWrap step={2} total={7} label="TRAINING HABITS"
-      headline="How often do you currently train?"
+    <QWrap step={2} total={7}
+      headline="How often do you train?"
+      storyHook="Most athletes are training more than they can actually recover from. Let's see where you are."
       onBackFn={() => setPhase(0)}>
       {[
         { value:"high", label:"5+ times a week",    sub:"High frequency athlete",      icon:"🔥", color:"#FF4B2B" },
@@ -8841,9 +8874,9 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase 2: Caffeine ──────────────────────────────────────────────────────
   if (phase === 2) return (
-    <QWrap step={3} total={7} label="STIMULANT PROFILE"
+    <QWrap step={3} total={7}
       headline="How sensitive are you to caffeine?"
-      sub="This shapes your pre-workout and timing protocol."
+      storyHook="73% of athletes are timing their caffeine wrong. This one answer changes your entire pre-workout window."
       onBackFn={() => setPhase(1)}>
       {[
         { value:"high", label:"Very sensitive",  sub:"Jittery on even one coffee",     icon:"😬", color:"#FF4B2B" },
@@ -8858,9 +8891,9 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase 3: Recovery bottleneck ──────────────────────────────────────────
   if (phase === 3) return (
-    <QWrap step={4} total={7} label="RECOVERY PROFILE"
-      headline="What limits your recovery most?"
-      sub="Your protocol targets this first."
+    <QWrap step={4} total={7}
+      headline="What's killing your recovery?"
+      storyHook="The thing holding you back is always more specific than 'not working hard enough.' Pick yours."
       onBackFn={() => setPhase(2)}>
       {[
         { value:"sleep",    label:"Sleep quality",  sub:"I don't sleep well or long enough",  icon:"😴", color:"#5AC8FA" },
@@ -8914,12 +8947,15 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
       </div>
       <div style={{ padding:"16px 18px 36px" }}>
         <StepProgress step={2} total={5} label="SELECT OBJECTIVE" accent={ac} theme={theme}/>
-        <motion.div {...FX.up} style={{ marginTop:20, marginBottom:14 }}>
+        <motion.div {...FX.up} style={{ marginTop:20, marginBottom:8 }}>
           <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
-            What Are You<br/>Building?
+            What are you<br/>actually building?
           </div>
-          <div style={{ fontSize:13, color:T.muted, marginTop:4 }}>Select your primary protocol</div>
         </motion.div>
+        <StoryHook
+          text="Bio-scan done. Now tell the protocol what you want — your training, nutrition, and recovery all split from this choice."
+          theme={theme} accent={ac} delay={.18}/>
+        <div style={{ marginBottom:12 }}/>
 
         <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
           {archetypes.map((arch, i) => {
@@ -9058,13 +9094,18 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
         <RVNLogo size={30}/>
       </div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"16px 24px 36px" }}>
-        <StepProgress step={3} total={5} label="PERFORMANCE BASELINE" accent={ac} theme={theme}/>
-        <motion.div {...FX.up} style={{ marginTop:22, marginBottom:16 }}>
+        <StepProgress step={3} total={5} label="BASELINE" accent={ac} theme={theme}/>
+        <motion.div {...FX.up} style={{ marginTop:22, marginBottom:8 }}>
           <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
             {isGym ? "Strength Baseline" : "Lifestyle Baseline"}
           </div>
-          <div style={{ fontSize:13, color:T.muted, marginTop:4 }}>Precision calibration for your protocol</div>
         </motion.div>
+        <StoryHook
+          text={isGym
+            ? "The protocol needs a starting point. These numbers tell it how hard to push — and how much you can actually handle."
+            : "Recovery is where results actually happen. Be honest here — the protocol can only fix what it knows about."}
+          theme={theme} accent={ac} delay={.15}/>
+        <div style={{ height:12 }}/>
 
         {/* Metric tabs */}
         <div style={{ display:"flex", gap:8, marginBottom:20 }}>
@@ -9250,7 +9291,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   }
 
   // Shared question screen
-  function QScreen({ step, total, headline, sub, children, onBackFn, showContinue, onContinue }) {
+  function QScreen({ step, total, headline, storyHook, children, onBackFn, showContinue, onContinue }) {
     return (
       <Screen theme={theme}>
         <div style={{ padding:"16px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -9263,16 +9304,16 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
           exit={{ opacity:0, x:-40 }}
           transition={{ duration:.36, ease:[.22,1,.36,1] }}
           style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 24px 40px" }}>
-          <StepProgress step={step} total={total} label="PERSONALIZE" accent={ac} theme={theme}/>
+          <StepProgress step={step} total={total} label="PROTOCOL" accent={ac} theme={theme}/>
           <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
             transition={{ delay:.1 }}
-            style={{ marginBottom:28, marginTop:18 }}>
+            style={{ marginBottom: storyHook ? 8 : 28, marginTop:18 }}>
             <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.18 }}>
               {headline}
             </div>
-            {sub && <div style={{ fontSize:13, color:T.muted, marginTop:6, lineHeight:1.5 }}>{sub}</div>}
           </motion.div>
-          <div style={{ flex:1 }}>
+          {storyHook && <StoryHook text={storyHook} theme={theme} accent={ac} delay={.18}/>}
+          <div style={{ flex:1, marginTop: storyHook ? 12 : 0 }}>
             {children}
           </div>
           {showContinue && (
@@ -9353,7 +9394,9 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 
   // ── Phase 0: Primary Goal ──────────────────────────────────────────────────
   if (phase === 0) return (
-    <QScreen step={4} total={7} headline="What's your primary goal?" onBackFn={onBack}>
+    <QScreen step={4} total={7} headline="What's your primary goal?"
+      storyHook="Your calorie target, macro split, and training structure all depend on this. Pick one — not what you think you should say."
+      onBackFn={onBack}>
       <TapCards selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
         { value:"muscle", icon:"💪", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#2E5BFF" },
         { value:"fat",    icon:"🔥", label:"Lose Fat",     sub:"Burn fat while preserving lean muscle",   color:"#FF4B2B" },
@@ -9365,7 +9408,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   // ── Phase 1: Activity Level ────────────────────────────────────────────────
   if (phase === 1) return (
     <QScreen step={5} total={7} headline="How active are you outside the gym?"
-      sub="This calibrates your calorie burn beyond training."
+      storyHook="Training is only part of your energy output. Most people under-eat because they only count the gym."
       onBackFn={() => advance(0)}>
       <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(2); }} options={[
         { value:"sedentary", icon:"🪑", label:"Mostly Sitting",     sub:"Desk job, minimal walking",          color:"#5AC8FA" },
@@ -9379,6 +9422,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   // ── Phase 2: Training Days ─────────────────────────────────────────────────
   if (phase === 2) return (
     <QScreen step={6} total={7} headline="How many days do you train per week?"
+      storyHook="Volume without structure is just fatigue. This sets your weekly training load — honestly, not optimistically."
       onBackFn={() => advance(1)}>
       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
         {[
@@ -9427,8 +9471,8 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 
   // ── Phase 3: Diet Style ────────────────────────────────────────────────────
   if (phase === 3) return (
-    <QScreen step={7} total={7} headline="What's your diet style?"
-      sub="This calibrates your macro split."
+    <QScreen step={7} total={7} headline="Last one. What's your diet style?"
+      storyHook="This isn't about what's 'healthiest.' It's about building a protocol you'll actually stick to."
       onBackFn={() => advance(2)}>
       <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
         { value:"standard",  icon:"🥩", label:"Standard",    sub:"Balanced macros — the default protocol",   color:"#D4AF37" },

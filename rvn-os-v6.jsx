@@ -8546,13 +8546,7 @@ function FactAnimSVG({ type, color }) {
           <animate attributeName="opacity" values="0.5;0" dur="1.8s" begin="1.2s" repeatCount="indefinite"/>
           <animate attributeName="r" values="14;28;14" dur="1.8s" begin="1.2s" repeatCount="indefinite"/>
         </circle>
-        <text x="108" y="34" textAnchor="middle" fill={color} fontSize="10" fontWeight="700" fontFamily="system-ui,sans-serif" opacity="0">
-          PEAK SYNTHESIS
-          <animate attributeName="opacity" values="0;0;0.9" keyTimes="0;0.75;1" dur="1.2s" fill="freeze"/>
-        </text>
-        <text x="22" y="161" textAnchor="middle" fill={color} fontSize="10" fontFamily="system-ui,sans-serif" opacity="0.3">GYM</text>
-        <text x="108" y="161" textAnchor="middle" fill={color} fontSize="10" fontWeight="700" fontFamily="system-ui,sans-serif" opacity="0.8">48H</text>
-        <text x="178" y="161" textAnchor="middle" fill={color} fontSize="10" fontFamily="system-ui,sans-serif" opacity="0.3">72H</text>
+        {/* No text labels — the curve tells the story */}
       </svg>
     );
   }
@@ -8633,7 +8627,7 @@ function FactAnimSVG({ type, color }) {
         <circle cx="100" cy="100" r="6" fill={color}>
           <animate attributeName="r" values="5;9;5" dur="2.5s" repeatCount="indefinite"/>
         </circle>
-        <text x="100" y="152" textAnchor="middle" fill={color} fontSize="11" fontWeight="600" fontFamily="system-ui,sans-serif" opacity="0.65">40 MIN BEFORE</text>
+        {/* No text label — clean */}
       </svg>
     );
   }
@@ -8645,40 +8639,26 @@ function FactAnimSVG({ type, color }) {
     const cLen = 230;
     return (
       <svg viewBox="0 0 200 180" width="195" height="175" style={{overflow:"visible"}}>
-        {/* Axes */}
-        <line x1="20" y1="148" x2="182" y2="148" stroke={color} strokeWidth="1.5" opacity="0.18"/>
-        <line x1="20" y1="22"  x2="20"  y2="148" stroke={color} strokeWidth="1.5" opacity="0.18"/>
-        {/* Axis label */}
-        <text x="100" y="165" textAnchor="middle" fill={color} fontSize="9" fontWeight="600"
-          fontFamily="system-ui,sans-serif" opacity="0.5">CAFFEINE DOSE</text>
-        {/* Dose-response curve draws in */}
+        {/* Subtle axes — just enough structure, no labels */}
+        <line x1="24" y1="148" x2="182" y2="148" stroke={color} strokeWidth="1.2" opacity="0.12"/>
+        <line x1="24" y1="22"  x2="24"  y2="148" stroke={color} strokeWidth="1.2" opacity="0.12"/>
+        {/* Curve draws itself */}
         <path d={curve} fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round"
           strokeDasharray={cLen} strokeDashoffset={cLen}>
           <animate attributeName="stroke-dashoffset" from={cLen} to="0" dur="1.4s" fill="freeze"/>
         </path>
-        {/* 200mg peak dot — pulses after curve reaches it */}
+        {/* Peak dot — pulses at the sweet spot, no text needed */}
         <circle cx="110" cy="34" r="7" fill={color} opacity="0">
           <animate attributeName="opacity" values="0;1" dur="0.2s" begin="0.85s" fill="freeze"/>
-          <animate attributeName="r" values="6;13;6" dur="1.8s" begin="1.4s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="1;0.55;1" dur="1.8s" begin="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="6;14;6" dur="2s" begin="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;0.5;1" dur="2s" begin="1.4s" repeatCount="indefinite"/>
         </circle>
-        {/* Dotted guide line at 200mg */}
-        <line x1="110" y1="148" x2="110" y2="40" stroke={color} strokeWidth="1.2"
-          strokeDasharray="4 3" opacity="0">
-          <animate attributeName="opacity" values="0;0.4" dur="0.2s" begin="0.85s" fill="freeze"/>
-        </line>
-        {/* 200mg x-axis label */}
-        <text x="110" y="161" textAnchor="middle" fill={color} fontSize="9.5" fontWeight="700"
-          fontFamily="system-ui,sans-serif" opacity="0">
-          <animate attributeName="opacity" values="0;0.85" dur="0.2s" begin="0.85s" fill="freeze"/>
-          200mg
-        </text>
-        {/* SWEET SPOT label above peak */}
-        <text x="110" y="25" textAnchor="middle" fill={color} fontSize="9" fontWeight="700"
-          fontFamily="system-ui,sans-serif" opacity="0">
-          <animate attributeName="opacity" values="0;0.7" dur="0.2s" begin="1.0s" fill="freeze"/>
-          SWEET SPOT
-        </text>
+        {/* Glow halo behind peak dot */}
+        <circle cx="110" cy="34" r="7" fill={color} opacity="0">
+          <animate attributeName="opacity" values="0;0.18" dur="0.2s" begin="0.85s" fill="freeze"/>
+          <animate attributeName="r" values="7;26;7" dur="2s" begin="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.18;0;0.18" dur="2s" begin="1.4s" repeatCount="indefinite"/>
+        </circle>
       </svg>
     );
   }
@@ -8757,37 +8737,46 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── fire: bicep silhouette with crack lines — soreness = muscle damage ───────
+  // ── fire: flexed bicep with fiber breakdown particles — soreness = muscle degrading ──
   if (type === "fire") {
-    // Arch shape = flexed bicep peak silhouette
-    const bicep = "M 56,162 L 56,108 C 56,68 68,40 100,32 C 132,40 144,68 144,108 L 144,162 Z";
-    // Two jagged crack lines that draw in from bottom to top
-    const crack1 = "M 84,162 L 97,114 L 84,96 L 100,32";
-    const crack2 = "M 116,162 L 106,118 L 120,100 L 102,32";
+    // Properly rounded flexed bicep — curved sides, classic domed peak, rounded base
+    const bicep = "M 68,158 C 58,150 52,132 53,106 C 54,80 64,56 78,43 C 87,35 94,31 100,30 C 106,31 113,35 122,43 C 136,56 146,80 147,106 C 148,132 142,150 132,158 C 118,165 82,165 68,158 Z";
+    // Peak highlight arc — the bright dome on top of the muscle
+    const peakArc = "M 80,46 C 87,36 94,31 100,30 C 106,31 113,36 120,46";
+    // Fiber particles rise off the peak area — muscle fibers breaking down
+    const fibers = [
+      {x:88,  y:62,  r:2.8, dur:"2.2s", delay:"0s"  },
+      {x:100, y:44,  r:2.2, dur:"2.6s", delay:"0.4s" },
+      {x:113, y:60,  r:2.5, dur:"2.0s", delay:"0.8s" },
+      {x:93,  y:80,  r:2.0, dur:"2.4s", delay:"1.2s" },
+      {x:107, y:75,  r:1.8, dur:"2.8s", delay:"0.6s" },
+      {x:82,  y:92,  r:2.2, dur:"2.2s", delay:"1.6s" },
+      {x:118, y:88,  r:1.6, dur:"2.5s", delay:"1.0s" },
+      {x:100, y:62,  r:1.5, dur:"3.0s", delay:"1.9s" },
+    ];
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {/* Glow behind */}
-        <path d={bicep} fill={color} opacity="0.18">
-          <animate attributeName="opacity" values="0.12;0.28;0.12" dur="1.8s" repeatCount="indefinite"/>
-        </path>
-        {/* Bicep fill — pulses damaged red */}
+        {/* Warm aura behind — breathes like heat */}
+        <ellipse cx="100" cy="98" rx="58" ry="72" fill={color} opacity="0.13">
+          <animate attributeName="opacity" values="0.08;0.20;0.08" dur="2.4s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="70;78;70" dur="2.4s" repeatCount="indefinite"/>
+        </ellipse>
+        {/* Muscle body — rich fill that pulses */}
         <path d={bicep} fill={color}>
-          <animate attributeName="opacity" values="0.72;0.95;0.72" dur="1.8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.80;1;0.80" dur="2.4s" repeatCount="indefinite"/>
         </path>
-        {/* Crack 1 draws in */}
-        <path d={crack1} fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"
-          strokeDasharray="145" strokeDashoffset="145" opacity="0.95">
-          <animate attributeName="stroke-dashoffset" from="145" to="0" dur="0.35s" begin="0.4s" fill="freeze"/>
+        {/* Peak highlight — glows brightest at the dome */}
+        <path d={peakArc} fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
+          <animate attributeName="opacity" values="0.45;0.85;0.45" dur="2.4s" repeatCount="indefinite"/>
         </path>
-        {/* Crack 2 draws in */}
-        <path d={crack2} fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round"
-          strokeDasharray="145" strokeDashoffset="145" opacity="0.95">
-          <animate attributeName="stroke-dashoffset" from="145" to="0" dur="0.35s" begin="0.62s" fill="freeze"/>
-        </path>
-        {/* Flash on crack — feels like pain */}
-        <path d={bicep} fill="white" opacity="0">
-          <animate attributeName="opacity" values="0;0;0.35;0;0;0.35;0" keyTimes="0;0.37;0.42;0.47;0.55;0.6;1" dur="2.5s" repeatCount="indefinite"/>
-        </path>
+        {/* Fiber breakdown particles — drift upward and dissolve */}
+        {fibers.map((f, i) => (
+          <circle key={i} cx={f.x} cy={f.y} r={f.r} fill="white">
+            <animate attributeName="opacity" values="0;0.75;0" dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+            <animate attributeName="cy" values={`${f.y};${f.y-20};${f.y-42}`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+            <animate attributeName="r" values={`${f.r};${f.r*0.7};0.2`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+          </circle>
+        ))}
       </svg>
     );
   }

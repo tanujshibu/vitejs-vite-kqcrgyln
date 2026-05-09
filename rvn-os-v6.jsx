@@ -7356,7 +7356,6 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
             <div style={{ fontSize:15, fontWeight:800, color:T.text, letterSpacing:"-.01em" }}>
               {storeName || "RVN VISION"}
             </div>
-            <div style={{ fontSize:9, fontWeight:700, color:T.faint, letterSpacing:".1em" }}>{M.label}</div>
           </div>
         </div>
         {/* ··· opens gym owner / manager flow */}
@@ -9863,123 +9862,280 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
   );
 }
 
-// ─── BIO-NARRATIVE ────────────────────────────────────────────────────────────
+// ─── BIO-NARRATIVE — ATHLETE PROFILE REVEAL ───────────────────────────────────
 function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue, onBack, theme }) {
   const T = D[theme];
   const M = OS_MODES[mode];
   const ac = T[M.accentKey];
   const archetypes = mode==="gym"
-  ? (biology?.gender==="female" ? FEMALE_GYM_ARCHETYPES : GYM_ARCHETYPES)
-  : STORE_ARCHETYPES;
+    ? (biology?.gender==="female" ? FEMALE_GYM_ARCHETYPES : GYM_ARCHETYPES)
+    : STORE_ARCHETYPES;
   const arch = archetypes.find(a=>a.id===archetypeId)||archetypes[0];
   const bioScore = calcBioScore(archetypeId, bioData);
-  const circ = useBioClock();
 
-  const aiGreeting = `${getTimeGreeting(user?.name)}. Your biological signature has been logged. Protocol locked and loaded.`;
-  const [shown, setShown] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setShown(true), 120); return () => clearTimeout(t); }, []);
+  // Scanning → reveal sequence
+  const [phase, setPhase] = useState(0); // 0=scanning, 1=reveal
+  const [scoreFill, setScoreFill] = useState(0);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [ctaVisible, setCtaVisible] = useState(false);
+
+  // Build personalized stats from bioData
+  const bw = bioData?.all?.bw || bioData?.bw || 175;
+  const bwKg = Math.round(bw * 0.453592);
+  const proteinTarget = Math.round(bwKg * 2.0);
+  const calorieTarget = Math.round(bwKg * 10 * 1.55 + 300); // approx muscle-build TDEE
+  const frequency = biology?.frequency;
+  const freqLabel = frequency === "high" ? "5–6×/week" : frequency === "med" ? "3–4×/week" : "1–2×/week";
+
+  useEffect(() => {
+    // Phase 0: scanning animation — 1.6s
+    const t1 = setTimeout(() => setPhase(1), 1600);
+    // Phase 1: bio score counter starts
+    const t2 = setTimeout(() => {
+      let n = 0;
+      const step = () => {
+        n = Math.min(n + 3, bioScore);
+        setScoreFill(n);
+        if (n < bioScore) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }, 2000);
+    // Stats appear
+    const t3 = setTimeout(() => setStatsVisible(true), 2600);
+    // CTA appears
+    const t4 = setTimeout(() => setCtaVisible(true), 3200);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+  }, [bioScore]);
+
+  const scanPct = Math.min(scoreFill / 100, 1);
+  const circumference = 2 * Math.PI * 52;
+
+  // Personal stat cards
+  const stats = [
+    { label:"DAILY PROTEIN",  value:`${proteinTarget}g`,   icon:"⚡", color:ac },
+    { label:"CALORIE TARGET", value:`${calorieTarget}`,    icon:"🔥", color:"#FF9F0A" },
+    { label:"TRAINING FREQ",  value:freqLabel,              icon:"💪", color:"#30D158" },
+    { label:"BIO SCORE",      value:`${bioScore}`,          icon:"◈",  color:arch?.glow || ac },
+  ];
 
   return (
-    <Screen theme={theme} style={{ padding:"28px 20px 40px", overflowY:"auto" }}>
-      <div style={{ maxWidth:420, margin:"0 auto", display:"flex", flexDirection:"column", gap:16 }}>
+    <Screen theme={theme} style={{ overflowY:"auto", position:"relative" }}>
+      {/* Background glow */}
+      <div style={{
+        position:"absolute", inset:0, pointerEvents:"none",
+        background: theme==="dark"
+          ? `radial-gradient(ellipse 80% 50% at 50% 0%, ${ac}18 0%, transparent 70%)`
+          : `radial-gradient(ellipse 80% 50% at 50% 0%, ${ac}10 0%, transparent 70%)`,
+      }}/>
 
-        {/* Header */}
-        <motion.div initial={{ opacity:0, y:-16 }} animate={{ opacity:1, y:0 }}
-          transition={{ duration:.5 }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:4 }}>
-            <motion.button whileTap={{ scale:.96 }} onClick={onBack}
-              style={{ background:"none", border:"none", cursor:"pointer",
-                fontSize:11, color:T.faint, padding:0, letterSpacing:".06em" }}>
-              ← BACK
-            </motion.button>
-            <BioClockWidget theme={theme} compact />
-          </div>
-          <div style={{ fontSize:11, color:ac, fontWeight:800, letterSpacing:".14em",
-            textTransform:"uppercase", marginBottom:4 }}>
-            {M.label} · Bio-Intelligence
-          </div>
-          <div style={{ fontSize:26, fontWeight:900, color:T.text, lineHeight:1.1,
-            letterSpacing:"-.02em" }}>
-            {arch?.name || "Your Protocol"}
-          </div>
-          <div style={{ fontSize:11, color:T.muted, marginTop:4, lineHeight:1.6 }}>
-            {arch?.tagline || arch?.signature || "Optimized for your biology."}
-          </div>
-        </motion.div>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
+        position:"relative", zIndex:1, maxWidth:420, margin:"0 auto", width:"100%" }}>
 
-        {/* AI Greeting Card */}
-        <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
-          transition={{ duration:.5, delay:.15 }}>
-          <GlassCard theme={theme} glow style={{ padding:"16px 18px" }}>
-            <div style={{ fontSize:8.5, fontWeight:800, color:ac,
-              letterSpacing:".14em", marginBottom:8 }}>◉ RVN VISION · NARRATIVE</div>
-            <AITyping theme={theme} />
-            {shown && (
-              <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
-                transition={{ duration:.6, delay:.3 }}
-                style={{ fontSize:13, color:T.text, lineHeight:1.7, marginTop:8 }}>
-                {aiGreeting}
-              </motion.div>
-            )}
-          </GlassCard>
-        </motion.div>
-
-        {/* Bio Score Ring */}
-        <motion.div initial={{ opacity:0, scale:.9 }} animate={{ opacity:1, scale:1 }}
-          transition={{ duration:.5, delay:.25 }}
-          style={{ display:"flex", justifyContent:"center" }}>
-          <GlassCard theme={theme} style={{ padding:"20px 32px",
-            display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center" }}>
-            <BioRing score={bioScore} theme={theme} color={ac} size={110}/>
-            <div style={{ fontSize:10, color:T.muted, marginTop:8, letterSpacing:".08em", textAlign:"center" }}>
-              BIOLOGICAL READINESS SCORE
-            </div>
-          </GlassCard>
-        </motion.div>
-
-        {/* Archetype signature */}
-        {arch?.signature && (
-          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
-            transition={{ duration:.5, delay:.35 }}>
-            <GlassCard theme={theme} style={{ padding:"14px 18px", borderLeft:`3px solid ${ac}` }}>
-              <div style={{ fontSize:8.5, fontWeight:800, color:T.faint,
-                letterSpacing:".14em", marginBottom:6 }}>ARCHETYPE SIGNATURE</div>
-              <div style={{ fontSize:13, color:T.text, lineHeight:1.6, fontStyle:"italic" }}>
-                "{arch.signature}"
+        {/* ── PHASE 0: Scanning ── */}
+        <AnimatePresence mode="wait">
+          {phase === 0 && (
+            <motion.div key="scan"
+              initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0, scale:.96 }}
+              transition={{ duration:.4 }}
+              style={{ flex:1, display:"flex", flexDirection:"column",
+                alignItems:"center", justifyContent:"center", gap:20 }}>
+              {/* Scanning ring */}
+              <div style={{ position:"relative", width:120, height:120 }}>
+                <svg width={120} height={120} style={{ transform:"rotate(-90deg)" }}>
+                  <circle cx={60} cy={60} r={52} fill="none"
+                    stroke={T.border} strokeWidth={2}/>
+                  <motion.circle cx={60} cy={60} r={52} fill="none"
+                    stroke={ac} strokeWidth={3} strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset: 0 }}
+                    transition={{ duration:1.4, ease:"easeInOut" }}/>
+                </svg>
+                <div style={{
+                  position:"absolute", inset:0,
+                  display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+                }}>
+                  <RVNLogo size={34} glow={ac}/>
+                </div>
               </div>
-            </GlassCard>
-          </motion.div>
-        )}
-
-        {/* Past Session History Feed */}
-        {user?.email && (
-          <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
-            transition={{ duration:.5, delay:.40 }}>
-            <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-              letterSpacing:".14em", marginBottom:8 }}>PAST SESSIONS</div>
-            <HistoryFeed email={user.email} theme={theme} accentColor={ac}/>
-          </motion.div>
-        )}
-
-        {/* CTA */}
-        <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
-          transition={{ duration:.5, delay:.55 }}>
-          <ShimmerCTA
-            label={`Launch ${M.label} Protocol  →`}
-            onClick={onContinue}
-            theme={theme} color={ac}/>
-        </motion.div>
-
-        {/* ToS / Privacy footer links */}
-        <div style={{ textAlign:"center", paddingTop:8, paddingBottom:4 }}>
-          {typeof onTos === "function" && (
-            <button onClick={onTos}
-              style={{ background:"none", border:"none", cursor:"pointer",
-                fontSize:9, color:T.faint, letterSpacing:".08em", textDecoration:"underline" }}>
-              Terms & Privacy
-            </button>
+              <motion.div
+                initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
+                transition={{ delay:.3 }}
+                style={{ textAlign:"center" }}>
+                <div style={{ fontSize:11, fontWeight:800, color:ac,
+                  letterSpacing:".18em", textTransform:"uppercase" }}>
+                  Analyzing Your Profile
+                </div>
+                <div style={{ fontSize:12, color:T.muted, marginTop:6, lineHeight:1.5 }}>
+                  Building your personalized protocol...
+                </div>
+              </motion.div>
+            </motion.div>
           )}
-        </div>
+
+          {/* ── PHASE 1: Reveal ── */}
+          {phase === 1 && (
+            <motion.div key="reveal"
+              initial={{ opacity:0 }} animate={{ opacity:1 }}
+              transition={{ duration:.5 }}
+              style={{ display:"flex", flexDirection:"column", gap:0 }}>
+
+              {/* Back */}
+              <motion.button whileTap={{ scale:.96 }} onClick={onBack}
+                initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.2 }}
+                style={{ background:"none", border:"none", cursor:"pointer",
+                  fontSize:11, color:T.faint, padding:"0 0 16px", letterSpacing:".06em",
+                  textAlign:"left" }}>
+                ← BACK
+              </motion.button>
+
+              {/* Unlock badge */}
+              <motion.div
+                initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+                transition={{ delay:.15, duration:.4 }}
+                style={{ marginBottom:6 }}>
+                <div style={{
+                  display:"inline-flex", alignItems:"center", gap:6,
+                  background:`${ac}18`, border:`1px solid ${ac}44`,
+                  borderRadius:100, padding:"5px 12px",
+                }}>
+                  <span style={{ fontSize:10 }}>🔓</span>
+                  <span style={{ fontSize:9.5, fontWeight:800, color:ac, letterSpacing:".12em" }}>
+                    ATHLETE PROFILE UNLOCKED
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Giant archetype name */}
+              <motion.div
+                initial={{ opacity:0, y:20, scale:.96 }} animate={{ opacity:1, y:0, scale:1 }}
+                transition={{ delay:.28, duration:.55, ease:[.22,1,.36,1] }}
+                style={{ marginBottom:4 }}>
+                <div style={{
+                  fontSize:"clamp(38px,11vw,52px)", fontWeight:900,
+                  letterSpacing:"-.03em", lineHeight:.95,
+                  color: T.text,
+                }}>
+                  THE
+                </div>
+                <div style={{
+                  fontSize:"clamp(38px,11vw,52px)", fontWeight:900,
+                  letterSpacing:"-.03em", lineHeight:.95,
+                  color: arch?.glow || ac,
+                  textShadow: theme==="dark" ? `0 0 60px ${arch?.glow || ac}55` : "none",
+                }}>
+                  {(arch?.name || "ATHLETE").toUpperCase()}
+                </div>
+              </motion.div>
+
+              {/* Archetype signature */}
+              <motion.div
+                initial={{ opacity:0 }} animate={{ opacity:1 }}
+                transition={{ delay:.48, duration:.4 }}
+                style={{ fontSize:13, color:T.muted, lineHeight:1.5, marginBottom:22, paddingTop:6 }}>
+                {arch?.signature || "Protocol locked and calibrated to your biology."}
+              </motion.div>
+
+              {/* Bio score ring + headline */}
+              <motion.div
+                initial={{ opacity:0, scale:.88 }} animate={{ opacity:1, scale:1 }}
+                transition={{ delay:.55, duration:.5, ease:[.22,1,.36,1] }}
+                style={{ display:"flex", alignItems:"center", gap:20, marginBottom:20,
+                  background:T.glass, border:`1.5px solid ${arch?.glow || ac}33`,
+                  borderRadius:20, padding:"16px 20px",
+                  boxShadow: theme==="dark" ? `0 0 32px ${arch?.glow || ac}22` : "none",
+                }}>
+                {/* Ring */}
+                <div style={{ position:"relative", width:80, height:80, flexShrink:0 }}>
+                  <svg width={80} height={80} style={{ transform:"rotate(-90deg)" }}>
+                    <circle cx={40} cy={40} r={33} fill="none"
+                      stroke={T.border} strokeWidth={4}/>
+                    <circle cx={40} cy={40} r={33} fill="none"
+                      stroke={arch?.glow || ac} strokeWidth={4} strokeLinecap="round"
+                      strokeDasharray={2 * Math.PI * 33}
+                      strokeDashoffset={2 * Math.PI * 33 * (1 - scoreFill / 100)}
+                      style={{ transition:"stroke-dashoffset .02s" }}/>
+                  </svg>
+                  <div style={{
+                    position:"absolute", inset:0,
+                    display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+                  }}>
+                    <div style={{ fontSize:20, fontWeight:900, color:arch?.glow || ac, lineHeight:1 }}>
+                      {scoreFill}
+                    </div>
+                    <div style={{ fontSize:7.5, color:T.faint, letterSpacing:".08em" }}>BIO SCORE</div>
+                  </div>
+                </div>
+                {/* Text */}
+                <div>
+                  <div style={{ fontSize:9.5, fontWeight:800, color:T.faint,
+                    letterSpacing:".12em", marginBottom:4 }}>BIOLOGICAL READINESS</div>
+                  <div style={{ fontSize:16, fontWeight:900, color:T.text, lineHeight:1.2 }}>
+                    {scoreFill >= 85 ? "Elite-tier" : scoreFill >= 70 ? "Advanced" : "Building phase"}
+                  </div>
+                  <div style={{ fontSize:11, color:T.muted, marginTop:2, lineHeight:1.4 }}>
+                    {scoreFill >= 85
+                      ? "Your biology is primed for maximum output."
+                      : scoreFill >= 70
+                      ? "Strong foundation. Protocol will accelerate gains."
+                      : "Your biggest gains are still ahead."}
+                  </div>
+                </div>
+              </motion.div>
+
+              {/* Personalized stats grid */}
+              <AnimatePresence>
+                {statsVisible && (
+                  <motion.div
+                    initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
+                    transition={{ duration:.45 }}
+                    style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:22 }}>
+                    {stats.map((s, i) => (
+                      <motion.div key={s.label}
+                        initial={{ opacity:0, scale:.92 }} animate={{ opacity:1, scale:1 }}
+                        transition={{ delay: i * .06, duration:.35 }}
+                        style={{
+                          background:T.glass, border:`1px solid ${T.border}`,
+                          borderRadius:14, padding:"12px 14px",
+                        }}>
+                        <div style={{ fontSize:16, marginBottom:4 }}>{s.icon}</div>
+                        <div style={{ fontSize:18, fontWeight:900, color:s.color, letterSpacing:"-.01em" }}>
+                          {s.value}
+                        </div>
+                        <div style={{ fontSize:8.5, color:T.faint, letterSpacing:".1em", marginTop:1, fontWeight:700 }}>
+                          {s.label}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* CTA */}
+              <AnimatePresence>
+                {ctaVisible && (
+                  <motion.div
+                    initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+                    transition={{ duration:.45 }}>
+                    <ShimmerCTA
+                      label={`Launch My Protocol  →`}
+                      onClick={onContinue}
+                      theme={theme} color={arch?.glow || ac}/>
+                    {/* Past sessions if logged in */}
+                    {user?.email && (
+                      <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
+                        transition={{ delay:.3 }}
+                        style={{ marginTop:16 }}>
+                        <HistoryFeed email={user.email} theme={theme} accentColor={ac}/>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </Screen>
@@ -14939,8 +15095,8 @@ function RVNVisionOverlay() {
   const { state, biopalToggle, biopalSend, biopalProcessing, bioLogicLog, bioLogicUpdate, goto, scheduleSetPending, scheduleLock } = env;
   const { theme, mode, biopal, bioLogic, screen } = state;
   // Only render on post-onboarding screens — not during splash/onboarding flow
-  // Hide only on splash (loading) and manager PIN — show everywhere else
-  if (screen === "splash" || screen === "manager") return null;
+  const _onboardScreens = ["splash","landing","biology","target","performance","personalize","account","narrative","manager"];
+  if (_onboardScreens.includes(screen)) return null;
   const T = D[theme];
   const M = (typeof OS_MODES !== "undefined" && OS_MODES[mode]) ? OS_MODES[mode] : null;
   const ac = M ? T[M.accentKey] : T.blue;

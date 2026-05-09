@@ -9186,223 +9186,240 @@ function generateAIGoals({ age, heightIn, bw, activityLevel, trainingDays, goalF
   };
 }
 
-// ─── PERSONALIZE STEP ─────────────────────────────────────────────────────────
+// ─── PERSONALIZE STEP — Cal AI-style one-question-per-screen ─────────────────
 function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, theme }) {
   const T  = D[theme] || D.dark;
   const ac = T.blue;
   const bw = perfData?.all?.bw || 175;
 
+  // Current phase: 0=goal, 1=activity, 2=trainingDays, 3=diet, 4=age
+  const [phase,         setPhase]         = useState(0);
+  const [goalFocus,     setGoalFocus]     = useState(null);
+  const [activityLevel, setActivityLevel] = useState(null);
+  const [trainingDays,  setTrainingDays]  = useState(null);
+  const [dietType,      setDietType]      = useState(null);
   const [age,           setAge]           = useState(24);
-  const [heightFt,      setHeightFt]      = useState(5);
-  const [heightIn,      setHeightIn]      = useState(9);
-  const [activityLevel, setActivityLevel] = useState("moderate");
-  const [trainingDays,  setTrainingDays]  = useState(4);
-  const [goalFocus,     setGoalFocus]     = useState("muscle");
-  const [dietType,      setDietType]      = useState("standard");
-  const [sleepGoal,     setSleepGoal]     = useState(8);
-  const [aiPreview,     setAiPreview]     = useState(null);
-  const [generating,    setGenerating]    = useState(false);
 
-  const totalHeightIn = (heightFt * 12) + heightIn;
+  // Fixed defaults for less-critical inputs
+  const heightIn   = 69; // 5'9"
+  const sleepGoal  = 8;
 
-  // Auto-generate preview whenever inputs change
-  useEffect(() => {
-    const t = setTimeout(() => {
-      const goals = generateAIGoals({ age, heightIn: totalHeightIn, bw, activityLevel, trainingDays, goalFocus, dietType, biology });
-      setAiPreview(goals);
-    }, 300);
-    return () => clearTimeout(t);
-  }, [age, heightFt, heightIn, activityLevel, trainingDays, goalFocus, dietType, biology, bw]);
+  function advance(nextPhase) {
+    setPhase(nextPhase);
+  }
 
-  const handleSubmit = () => {
-    setGenerating(true);
-    setTimeout(() => {
-      const goals = generateAIGoals({ age, heightIn: totalHeightIn, bw, activityLevel, trainingDays, goalFocus, dietType, biology });
-      const profile = { ...goals, age, heightIn: totalHeightIn, bw, activityLevel, trainingDays, goalFocus, dietType };
-      try { localStorage.setItem("rvn_profile", JSON.stringify(profile)); } catch {}
-      onSubmit(profile);
-    }, 600);
-  };
+  function finish(finalAge) {
+    const a = finalAge ?? age;
+    const goals = generateAIGoals({
+      age: a, heightIn, bw,
+      activityLevel: activityLevel || "moderate",
+      trainingDays: trainingDays || 4,
+      goalFocus: goalFocus || "muscle",
+      dietType: dietType || "standard",
+      biology,
+    });
+    const profile = {
+      ...goals, age: a, heightIn, bw,
+      activityLevel: activityLevel || "moderate",
+      trainingDays: trainingDays || 4,
+      goalFocus: goalFocus || "muscle",
+      dietType: dietType || "standard",
+    };
+    try { localStorage.setItem("rvn_profile", JSON.stringify(profile)); } catch {}
+    onSubmit(profile);
+  }
 
-  const TileRow = ({ options, value, onChange, cols = 2 }) => (
-    <div style={{ display:"grid", gridTemplateColumns:`repeat(${cols}, 1fr)`, gap:8 }}>
-      {options.map(opt => (
-        <motion.button key={opt.value} whileTap={{ scale:.97 }}
-          onClick={() => onChange(opt.value)}
-          style={{
-            padding:"10px 8px", borderRadius:12, cursor:"pointer",
-            border:`1px solid ${value === opt.value ? ac : T.border}`,
-            background: value === opt.value ? `${ac}18` : T.glass,
-            color: value === opt.value ? ac : T.muted,
-            fontSize:11, fontWeight:800, letterSpacing:".04em", textAlign:"center",
-            boxShadow: value === opt.value ? `0 0 12px ${ac}33` : "none",
-          }}>
-          <div style={{ fontSize:16, marginBottom:3 }}>{opt.icon}</div>
-          {opt.label}
-        </motion.button>
-      ))}
-    </div>
-  );
-
-  const SectionLabel = ({ text }) => (
-    <div style={{ fontSize:10, fontWeight:800, letterSpacing:".14em", color:T.faint, marginBottom:10, marginTop:20 }}>{text}</div>
-  );
-
-  return (
-    <Screen theme={theme}>
-      <div style={{ padding:"16px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <BackBtn onBack={onBack} theme={theme}/>
-        <RVNLogo size={30}/>
-      </div>
-      <div style={{ flex:1, overflowY:"auto", padding:"16px 24px 36px" }}>
-        <StepProgress step={4} total={5} label="KAILU PERSONALIZATION" accent={ac} theme={theme}/>
-
-        <motion.div {...FX.up} style={{ marginTop:16, marginBottom:20 }}>
-          <div style={{ fontSize:28, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
-            Personalize Your Goals
+  // Shared question screen
+  function QScreen({ step, total, headline, sub, children, onBackFn, showContinue, onContinue }) {
+    return (
+      <Screen theme={theme}>
+        <div style={{ padding:"16px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+          <BackBtn onBack={onBackFn || onBack} theme={theme}/>
+          <RVNLogo size={30}/>
+        </div>
+        <motion.div
+          key={`ps-phase-${step}`}
+          initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
+          exit={{ opacity:0, x:-40 }}
+          transition={{ duration:.36, ease:[.22,1,.36,1] }}
+          style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 24px 40px" }}>
+          <StepProgress step={step} total={total} label="PERSONALIZE" accent={ac} theme={theme}/>
+          <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
+            transition={{ delay:.1 }}
+            style={{ marginBottom:28, marginTop:18 }}>
+            <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.18 }}>
+              {headline}
+            </div>
+            {sub && <div style={{ fontSize:13, color:T.muted, marginTop:6, lineHeight:1.5 }}>{sub}</div>}
+          </motion.div>
+          <div style={{ flex:1 }}>
+            {children}
           </div>
-          <div style={{ fontSize:13, color:T.muted, marginTop:4, lineHeight:1.5 }}>
-            Answer a few questions and our AI will calculate your exact macro targets, sleep goals, and training load — backed by peer-reviewed research.
-          </div>
+          {showContinue && (
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.3 }}
+              style={{ marginTop:20 }}>
+              <ShimmerCTA label="Continue  →" onClick={onContinue} theme={theme} color={ac}/>
+            </motion.div>
+          )}
         </motion.div>
+      </Screen>
+    );
+  }
 
-        {/* Age */}
-        <SectionLabel text="YOUR AGE"/>
-        <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:4 }}>
-          <input type="range" min={16} max={65} step={1} value={age}
-            onChange={e => setAge(Number(e.target.value))}
-            style={{ flex:1, accentColor: ac }}/>
-          <div style={{ fontSize:28, fontWeight:900, color:T.text, minWidth:52, textAlign:"right" }}>
-            {age}<span style={{ fontSize:13, color:T.faint, marginLeft:3 }}>yrs</span>
-          </div>
-        </div>
-
-        {/* Height */}
-        <SectionLabel text="HEIGHT"/>
-        <div style={{ display:"flex", gap:12 }}>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:9, color:T.faint, marginBottom:4 }}>FEET</div>
-            <input type="range" min={4} max={7} step={1} value={heightFt}
-              onChange={e => setHeightFt(Number(e.target.value))}
-              style={{ width:"100%", accentColor: ac }}/>
-            <div style={{ fontSize:22, fontWeight:900, color:T.text, textAlign:"center", marginTop:4 }}>
-              {heightFt}<span style={{ fontSize:12, color:T.faint }}>ft</span>
-            </div>
-          </div>
-          <div style={{ flex:1 }}>
-            <div style={{ fontSize:9, color:T.faint, marginBottom:4 }}>INCHES</div>
-            <input type="range" min={0} max={11} step={1} value={heightIn}
-              onChange={e => setHeightIn(Number(e.target.value))}
-              style={{ width:"100%", accentColor: ac }}/>
-            <div style={{ fontSize:22, fontWeight:900, color:T.text, textAlign:"center", marginTop:4 }}>
-              {heightIn}<span style={{ fontSize:12, color:T.faint }}>in</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Activity Level */}
-        <SectionLabel text="ACTIVITY LEVEL OUTSIDE THE GYM"/>
-        <TileRow cols={2} value={activityLevel} onChange={setActivityLevel} options={[
-          { value:"sedentary", icon:"🪑", label:"Desk Job" },
-          { value:"light",     icon:"🚶", label:"Lightly Active" },
-          { value:"moderate",  icon:"🚴", label:"Moderately Active" },
-          { value:"active",    icon:"⚡", label:"Very Active" },
-        ]}/>
-
-        {/* Goal Focus */}
-        <SectionLabel text="PRIMARY GOAL"/>
-        <TileRow cols={3} value={goalFocus} onChange={setGoalFocus} options={[
-          { value:"muscle", icon:"💪", label:"Build Muscle" },
-          { value:"fat",    icon:"🔥", label:"Lose Fat"    },
-          { value:"recomp", icon:"⚖️", label:"Recomp"      },
-        ]}/>
-
-        {/* Training Days */}
-        <SectionLabel text="GYM SESSIONS PER WEEK"/>
-        <div style={{ display:"flex", gap:8 }}>
-          {[2,3,4,5,6].map(d => (
-            <motion.button key={d} whileTap={{ scale:.96 }}
-              onClick={() => setTrainingDays(d)}
+  // Large tap card used for all multiple-choice phases
+  function TapCards({ options, selected, onPick, autoAdvance = true }) {
+    return (
+      <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+        {options.map((opt, i) => {
+          const isSelected = selected === opt.value;
+          return (
+            <motion.button key={opt.value}
+              initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
+              transition={{ delay:.12 + i*.07, duration:.32, ease:[.22,1,.36,1] }}
+              whileTap={{ scale:.97 }}
+              onClick={() => {
+                opt.onSelect?.();
+                if (autoAdvance) {
+                  // Small delay so selection is visible before advancing
+                  setTimeout(() => onPick(opt.value), 180);
+                } else {
+                  onPick(opt.value);
+                }
+              }}
               style={{
-                flex:1, padding:"12px 0", borderRadius:10, cursor:"pointer",
-                border:`1px solid ${trainingDays===d ? ac : T.border}`,
-                background: trainingDays===d ? `${ac}18` : T.glass,
-                color: trainingDays===d ? ac : T.muted,
-                fontSize:16, fontWeight:900,
-              }}>{d}x</motion.button>
-          ))}
-        </div>
-
-        {/* Diet Type */}
-        <SectionLabel text="DIET STYLE"/>
-        <TileRow cols={2} value={dietType} onChange={setDietType} options={[
-          { value:"standard",    icon:"🥩", label:"Standard"    },
-          { value:"plant",       icon:"🥦", label:"Plant-Based" },
-          { value:"keto",        icon:"🥑", label:"Keto"        },
-          { value:"highcarb",    icon:"🍚", label:"High Carb"   },
-        ]}/>
-
-        {/* Sleep Goal */}
-        <SectionLabel text="SLEEP TARGET (HOURS/NIGHT)"/>
-        <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:4 }}>
-          <input type="range" min={5} max={10} step={0.5} value={sleepGoal}
-            onChange={e => setSleepGoal(Number(e.target.value))}
-            style={{ flex:1, accentColor: ac }}/>
-          <div style={{ fontSize:28, fontWeight:900, color:T.text, minWidth:52, textAlign:"right" }}>
-            {sleepGoal}<span style={{ fontSize:13, color:T.faint, marginLeft:3 }}>h</span>
-          </div>
-        </div>
-
-        {/* AI Preview Card */}
-        {aiPreview && (
-          <motion.div key={JSON.stringify(aiPreview.macroGoals)} {...FX.up}
-            style={{ marginTop:20, marginBottom:8 }}>
-            <GlassCard theme={theme} glow={ac} style={{ padding:"14px" }}>
-              <div style={{ fontSize:9, fontWeight:800, letterSpacing:".16em", color:ac, marginBottom:8 }}>
-                ◈ KAILU-GENERATED TARGETS · UPDATES IN REAL TIME
+                width:"100%", padding:"20px 22px",
+                background: isSelected
+                  ? (theme==="dark" ? "#ffffff" : "#000000")
+                  : T.glass,
+                backdropFilter:isMobile?"none":"blur(16px)",
+                border:`1.5px solid ${isSelected ? (theme==="dark" ? "#ffffff" : "#000000") : T.border}`,
+                borderRadius:18, cursor:"pointer",
+                display:"flex", alignItems:"center", gap:16,
+                textAlign:"left", transition:"all .15s",
+              }}>
+              <div style={{
+                width:44, height:44, borderRadius:14, flexShrink:0,
+                background: isSelected
+                  ? (theme==="dark" ? "#00000018" : "#ffffff18")
+                  : `${opt.color || ac}18`,
+                display:"flex", alignItems:"center", justifyContent:"center",
+                fontSize:20,
+              }}>{opt.icon}</div>
+              <div style={{ flex:1 }}>
+                <div style={{
+                  fontSize:17, fontWeight:800,
+                  color: isSelected ? (theme==="dark" ? "#000" : "#fff") : T.text,
+                  letterSpacing:"-.01em",
+                }}>{opt.label}</div>
+                {opt.sub && <div style={{
+                  fontSize:12, marginTop:2, lineHeight:1.4,
+                  color: isSelected ? (theme==="dark" ? "#00000088" : "#ffffff88") : T.faint,
+                }}>{opt.sub}</div>}
               </div>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8, marginBottom:10 }}>
-                {[
-                  { label:"CALORIES", value:`${aiPreview.calories}`, unit:"kcal", color:T.text },
-                  { label:"PROTEIN",  value:`${aiPreview.macroGoals.protein}`, unit:"g", color:ac },
-                  { label:"CARBS",    value:`${aiPreview.macroGoals.carbs}`,   unit:"g", color:T.teal },
-                  { label:"FATS",     value:`${aiPreview.macroGoals.fats}`,    unit:"g", color:"#FF9F0A" },
-                ].map(({ label, value, unit, color }) => (
-                  <div key={label} style={{ background:T.glass, borderRadius:10, padding:"8px 6px", textAlign:"center", border:`1px solid ${T.border}` }}>
-                    <div style={{ fontSize:8, color:T.faint, letterSpacing:".1em", fontWeight:700, marginBottom:3 }}>{label}</div>
-                    <div style={{ fontSize:18, fontWeight:900, color, fontVariantNumeric:"tabular-nums" }}>{value}</div>
-                    <div style={{ fontSize:9, color:T.faint }}>{unit}</div>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display:"flex", alignItems:"center", gap:8, padding:"8px 10px", background:T.glass, borderRadius:8 }}>
-                <div style={{ fontSize:16 }}>😴</div>
-                <div>
-                  <div style={{ fontSize:10, fontWeight:800, color:T.text }}>Sleep Target: {aiPreview.sleepTarget}h</div>
-                  <div style={{ fontSize:10, color:T.muted, lineHeight:1.4 }}>{aiPreview.reasoning.sleep}</div>
+              {isSelected && (
+                <div style={{
+                  width:22, height:22, borderRadius:"50%", flexShrink:0,
+                  background: theme==="dark" ? "#000" : "#fff",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:12, color: theme==="dark" ? "#fff" : "#000",
+                }}>✓</div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // ── Phase 0: Primary Goal ──────────────────────────────────────────────────
+  if (phase === 0) return (
+    <QScreen step={4} total={7} headline="What's your primary goal?" onBackFn={onBack}>
+      <TapCards selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
+        { value:"muscle", icon:"💪", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#2E5BFF" },
+        { value:"fat",    icon:"🔥", label:"Lose Fat",     sub:"Burn fat while preserving lean muscle",   color:"#FF4B2B" },
+        { value:"recomp", icon:"⚖️", label:"Body Recomp",  sub:"Simultaneously build muscle and lose fat", color:"#D4AF37" },
+      ]}/>
+    </QScreen>
+  );
+
+  // ── Phase 1: Activity Level ────────────────────────────────────────────────
+  if (phase === 1) return (
+    <QScreen step={5} total={7} headline="How active are you outside the gym?"
+      sub="This calibrates your calorie burn beyond training."
+      onBackFn={() => advance(0)}>
+      <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(2); }} options={[
+        { value:"sedentary", icon:"🪑", label:"Mostly Sitting",     sub:"Desk job, minimal walking",          color:"#5AC8FA" },
+        { value:"light",     icon:"🚶", label:"Lightly Active",      sub:"Some walking, on your feet part-time", color:"#30D158" },
+        { value:"moderate",  icon:"🚴", label:"Moderately Active",   sub:"Physical job or daily movement",       color:"#D4AF37" },
+        { value:"active",    icon:"⚡", label:"Very Active",         sub:"On your feet all day, labor work",      color:"#FF4B2B" },
+      ]}/>
+    </QScreen>
+  );
+
+  // ── Phase 2: Training Days ─────────────────────────────────────────────────
+  if (phase === 2) return (
+    <QScreen step={6} total={7} headline="How many days do you train per week?"
+      onBackFn={() => advance(1)}>
+      <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+        {[
+          { d:2, label:"2 days", sub:"2×/week — Building the habit" },
+          { d:3, label:"3 days", sub:"3×/week — Classic push/pull/legs" },
+          { d:4, label:"4 days", sub:"4×/week — Upper/lower split" },
+          { d:5, label:"5 days", sub:"5×/week — Dedicated training block" },
+          { d:6, label:"6 days", sub:"6×/week — High frequency athlete" },
+        ].map((item, i) => {
+          const isSelected = trainingDays === item.d;
+          return (
+            <motion.button key={item.d}
+              initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
+              transition={{ delay:.1 + i*.06, duration:.3, ease:[.22,1,.36,1] }}
+              whileTap={{ scale:.97 }}
+              onClick={() => { setTrainingDays(item.d); setTimeout(() => advance(3), 180); }}
+              style={{
+                width:"100%", padding:"18px 22px",
+                background: isSelected ? (theme==="dark"?"#ffffff":"#000000") : T.glass,
+                border:`1.5px solid ${isSelected?(theme==="dark"?"#fff":"#000"):T.border}`,
+                borderRadius:16, cursor:"pointer",
+                display:"flex", alignItems:"center", justifyContent:"space-between",
+                textAlign:"left", transition:"all .15s",
+              }}>
+              <div>
+                <div style={{ fontSize:17, fontWeight:800,
+                  color:isSelected?(theme==="dark"?"#000":"#fff"):T.text }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize:12, color:isSelected?(theme==="dark"?"#00000088":"#ffffff88"):T.faint, marginTop:2 }}>
+                  {item.sub}
                 </div>
               </div>
-              <div style={{ marginTop:8, fontSize:9.5, color:T.muted, lineHeight:1.5 }}>
-                {aiPreview.reasoning.calories}
-              </div>
-            </GlassCard>
-          </motion.div>
-        )}
-
-        {/* Actions */}
-        <motion.div style={{ marginTop:16, display:"flex", flexDirection:"column", gap:10 }}>
-          <ShimmerCTA
-            label={generating ? "Kailu is calculating…" : "Generate with Kailu  →"}
-            onClick={handleSubmit} theme={theme} color={ac}
-          />
-          <button onClick={() => onSubmit(null)}
-            style={{ padding:"10px", borderRadius:12, background:"transparent", border:`1px solid ${T.border}`, color:T.faint, fontSize:10, fontWeight:700, letterSpacing:".1em", cursor:"pointer" }}>
-            ⚡ SKIP · USE DEFAULTS
-          </button>
-        </motion.div>
+              {isSelected && (
+                <div style={{ width:22, height:22, borderRadius:"50%",
+                  background:theme==="dark"?"#000":"#fff",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:12, color:theme==="dark"?"#fff":"#000" }}>✓</div>
+              )}
+            </motion.button>
+          );
+        })}
       </div>
-    </Screen>
+    </QScreen>
   );
+
+  // ── Phase 3: Diet Style ────────────────────────────────────────────────────
+  if (phase === 3) return (
+    <QScreen step={7} total={7} headline="What's your diet style?"
+      sub="This calibrates your macro split."
+      onBackFn={() => advance(2)}>
+      <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
+        { value:"standard",  icon:"🥩", label:"Standard",    sub:"Balanced macros — the default protocol",   color:"#D4AF37" },
+        { value:"highcarb",  icon:"🍚", label:"High Carb",   sub:"Performance-focused, carb-forward fueling", color:"#FF9F0A" },
+        { value:"plant",     icon:"🥦", label:"Plant-Based", sub:"Vegan/vegetarian — protein sources optimized", color:"#30D158" },
+        { value:"keto",      icon:"🥑", label:"Keto / Low Carb", sub:"Fat-dominant, insulin management",      color:"#5AC8FA" },
+      ]}/>
+    </QScreen>
+  );
+
+  return null;
 }
 
 // ─── DIGITAL KEY ANIMATION ───────────────────────────────────────────────────

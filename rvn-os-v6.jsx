@@ -8736,28 +8736,78 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   if (factData) return <FactFlash data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
-  // Shared question wrapper
-  function QWrap({ step, total=7, storyHook, headline, sub, children, onBackFn }) {
+  // Shared question wrapper — cinematic story-mode layout
+  function QWrap({ step, total=7, storyHook, headline, children, onBackFn }) {
+    const glows = ["#2E5BFF","#BF5AF2","#C9A84C","#FF4B2B","#30D158","#5AC8FA","#FF9F0A"];
+    const stepColor = glows[(step - 1) % glows.length];
     return (
-      <Screen theme={theme}>
-        <div style={{ padding:"16px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+      <Screen theme={theme} style={{ overflow:"hidden" }}>
+        {/* Ambient colored glow unique to each step */}
+        <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}18, transparent 60%)`,
+          zIndex:0 }}/>
+
+        {/* Giant faded step number in background */}
+        <div style={{
+          position:"absolute", top:"-10px", right:"-8px",
+          fontSize:180, fontWeight:900, color:T.text, opacity:.03,
+          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+          userSelect:"none", zIndex:0,
+        }}>{String(step).padStart(2,"0")}</div>
+
+        {/* Back button + step dots */}
+        <div style={{ position:"relative", zIndex:1,
+          padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <BackBtn onBack={onBackFn} theme={theme}/>
-          <RVNLogo size={30}/>
+          {/* Step dots */}
+          <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+            {Array.from({ length:total }, (_, i) => (
+              <div key={i} style={{
+                width: i + 1 === step ? 18 : 5,
+                height:5, borderRadius:3,
+                background: i + 1 <= step ? stepColor : T.border,
+                transition:"all .3s ease",
+                boxShadow: i + 1 === step ? `0 0 6px ${stepColor}` : "none",
+              }}/>
+            ))}
+          </div>
         </div>
-        <motion.div key={`bio-${step}`}
-          initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
-          transition={{ duration:.36, ease:[.22,1,.36,1] }}
-          style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 24px 48px" }}>
-          <StepProgress step={step} total={total} label="BIO ASSESSMENT" accent={ac} theme={theme}/>
-          <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
-            style={{ marginBottom:storyHook ? 12 : 28, marginTop:18 }}>
-            <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.18 }}>
-              {headline}
-            </div>
-            {sub && <div style={{ fontSize:13, color:T.muted, marginTop:6, lineHeight:1.5 }}>{sub}</div>}
+
+        <motion.div key={`bio-q${step}`}
+          initial={{ opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
+          transition={{ duration:.38, ease:[.22,1,.36,1] }}
+          style={{ position:"relative", zIndex:1, flex:1, display:"flex",
+            flexDirection:"column", padding:"24px 24px 48px" }}>
+
+          {/* Story hook above headline */}
+          {storyHook && (
+            <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+              transition={{ delay:.1, duration:.35 }}
+              style={{ fontSize:12, color:T.faint, fontStyle:"italic",
+                lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+              {storyHook}
+            </motion.div>
+          )}
+
+          {/* Big question */}
+          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+            transition={{ delay:.18 }}
+            style={{ marginBottom:28 }}>
+            <div style={{
+              fontSize:32, fontWeight:900, letterSpacing:"-.03em",
+              color:T.text, lineHeight:1.12,
+              textShadow: theme==="dark" ? `0 0 60px ${stepColor}33` : "none",
+            }}>{headline}</div>
+            {/* Color accent underline */}
+            <motion.div
+              initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+              transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
+              style={{ height:2, width:40, background:stepColor,
+                borderRadius:2, marginTop:10, transformOrigin:"left",
+                boxShadow:`0 0 8px ${stepColor}88` }}/>
           </motion.div>
-          {storyHook && <StoryHook text={storyHook} theme={theme} accent={ac} delay={.22}/>}
-          <div style={{ display:"flex", flexDirection:"column", gap:12, marginTop: storyHook ? 12 : 0 }}>{children}</div>
+
+          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>{children}</div>
         </motion.div>
       </Screen>
     );
@@ -8940,22 +8990,45 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
   if (factData) return <FactFlash key="target-fact" data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
   return (
-    <Screen theme={theme} style={{ overflowY:"auto" }}>
-      <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+    <Screen theme={theme} style={{ overflowY:"auto", overflow:"hidden" }}>
+      {/* Ambient glow */}
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+        background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}18, transparent 60%)`, zIndex:0 }}/>
+      {/* Giant faded step number */}
+      <div style={{ position:"absolute", top:"-10px", right:"-8px",
+        fontSize:180, fontWeight:900, color:T.text, opacity:.03,
+        letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none", userSelect:"none", zIndex:0 }}>02</div>
+
+      <div style={{ position:"relative", zIndex:1,
+        padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <BackBtn onBack={onBack} theme={theme}/>
-        <RVNLogo size={30}/>
+        <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+          {Array.from({ length:5 }, (_, i) => (
+            <div key={i} style={{
+              width: i === 1 ? 18 : 5, height:5, borderRadius:3,
+              background: i <= 1 ? ac : T.border, transition:"all .3s ease",
+              boxShadow: i === 1 ? `0 0 6px ${ac}` : "none",
+            }}/>
+          ))}
+        </div>
       </div>
-      <div style={{ padding:"16px 18px 36px" }}>
-        <StepProgress step={2} total={5} label="SELECT OBJECTIVE" accent={ac} theme={theme}/>
-        <motion.div {...FX.up} style={{ marginTop:20, marginBottom:8 }}>
-          <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
+
+      <div style={{ position:"relative", zIndex:1, padding:"24px 22px 36px" }}>
+        <motion.div {...FX.up} style={{ marginBottom:8 }}>
+          <div style={{ fontSize:12, color:T.faint, fontStyle:"italic",
+            lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+            Bio-scan done. Your training, nutrition, and recovery all branch from this one choice.
+          </div>
+          <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1.12,
+            textShadow: theme==="dark" ? `0 0 60px ${ac}33` : "none" }}>
             What are you<br/>actually building?
           </div>
+          <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+            transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
+            style={{ height:2, width:40, background:ac, borderRadius:2, marginTop:10,
+              transformOrigin:"left", boxShadow:`0 0 8px ${ac}88` }}/>
         </motion.div>
-        <StoryHook
-          text="Bio-scan done. Now tell the protocol what you want — your training, nutrition, and recovery all split from this choice."
-          theme={theme} accent={ac} delay={.18}/>
-        <div style={{ marginBottom:12 }}/>
+        <div style={{ marginBottom:16 }}/>
 
         <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
           {archetypes.map((arch, i) => {
@@ -9088,24 +9161,44 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
   if (factData) return <FactFlash key="perf-fact" data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
   return (
-    <Screen theme={theme}>
-      <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+    <Screen theme={theme} style={{ position:"relative", overflow:"hidden" }}>
+      <div style={{ padding:"18px 22px 0", position:"relative", zIndex:1,
+        display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <BackBtn onBack={onBack} theme={theme}/>
-        <RVNLogo size={30}/>
+        <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+          {Array.from({ length:5 }, (_, i) => (
+            <div key={i} style={{
+              width: i === 2 ? 18 : 5, height:5, borderRadius:3,
+              background: i <= 2 ? ac : T.border, transition:"all .3s ease",
+              boxShadow: i === 2 ? `0 0 6px ${ac}` : "none",
+            }}/>
+          ))}
+        </div>
       </div>
-      <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"16px 24px 36px" }}>
-        <StepProgress step={3} total={5} label="BASELINE" accent={ac} theme={theme}/>
-        <motion.div {...FX.up} style={{ marginTop:22, marginBottom:8 }}>
-          <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"0 24px 36px" }}>
+        {/* Same cinematic step-number bg */}
+        <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}18, transparent 60%)`, zIndex:0 }}/>
+        <div style={{ position:"absolute", top:"-10px", right:"-8px",
+          fontSize:180, fontWeight:900, color:T.text, opacity:.03,
+          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none", userSelect:"none", zIndex:0 }}>03</div>
+
+        <motion.div {...FX.up} style={{ position:"relative", zIndex:1, marginBottom:8 }}>
+          <div style={{ fontSize:12, color:T.faint, fontStyle:"italic", lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+            {isGym
+              ? "These numbers tell your protocol how hard to push — and how much you can actually handle."
+              : "Be honest here. The protocol can only fix what it knows about."}
+          </div>
+          <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1.12,
+            textShadow: theme==="dark" ? `0 0 60px ${ac}33` : "none" }}>
             {isGym ? "Strength Baseline" : "Lifestyle Baseline"}
           </div>
+          <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+            transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
+            style={{ height:2, width:40, background:ac, borderRadius:2, marginTop:10,
+              transformOrigin:"left", boxShadow:`0 0 8px ${ac}88` }}/>
         </motion.div>
-        <StoryHook
-          text={isGym
-            ? "The protocol needs a starting point. These numbers tell it how hard to push — and how much you can actually handle."
-            : "Recovery is where results actually happen. Be honest here — the protocol can only fix what it knows about."}
-          theme={theme} accent={ac} delay={.15}/>
-        <div style={{ height:12 }}/>
+        <div style={{ height:16, position:"relative", zIndex:1 }}/>
 
         {/* Metric tabs */}
         <div style={{ display:"flex", gap:8, marginBottom:20 }}>
@@ -9290,32 +9383,69 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
     onSubmit(profile);
   }
 
-  // Shared question screen
+  // Shared question screen — same cinematic layout as BiologyStep
   function QScreen({ step, total, headline, storyHook, children, onBackFn, showContinue, onContinue }) {
+    const glows = ["#2E5BFF","#BF5AF2","#C9A84C","#FF4B2B","#30D158","#5AC8FA","#FF9F0A"];
+    const stepColor = glows[(step - 1) % glows.length];
     return (
-      <Screen theme={theme}>
-        <div style={{ padding:"16px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+      <Screen theme={theme} style={{ overflow:"hidden" }}>
+        <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}18, transparent 60%)`,
+          zIndex:0 }}/>
+        <div style={{
+          position:"absolute", top:"-10px", right:"-8px",
+          fontSize:180, fontWeight:900, color:T.text, opacity:.03,
+          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+          userSelect:"none", zIndex:0,
+        }}>{String(step).padStart(2,"0")}</div>
+
+        <div style={{ position:"relative", zIndex:1,
+          padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <BackBtn onBack={onBackFn || onBack} theme={theme}/>
-          <RVNLogo size={30}/>
-        </div>
-        <motion.div
-          key={`ps-phase-${step}`}
-          initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
-          exit={{ opacity:0, x:-40 }}
-          transition={{ duration:.36, ease:[.22,1,.36,1] }}
-          style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 24px 40px" }}>
-          <StepProgress step={step} total={total} label="PROTOCOL" accent={ac} theme={theme}/>
-          <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
-            transition={{ delay:.1 }}
-            style={{ marginBottom: storyHook ? 8 : 28, marginTop:18 }}>
-            <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.18 }}>
-              {headline}
-            </div>
-          </motion.div>
-          {storyHook && <StoryHook text={storyHook} theme={theme} accent={ac} delay={.18}/>}
-          <div style={{ flex:1, marginTop: storyHook ? 12 : 0 }}>
-            {children}
+          <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+            {Array.from({ length:total }, (_, i) => (
+              <div key={i} style={{
+                width: i + 1 === step ? 18 : 5,
+                height:5, borderRadius:3,
+                background: i + 1 <= step ? stepColor : T.border,
+                transition:"all .3s ease",
+                boxShadow: i + 1 === step ? `0 0 6px ${stepColor}` : "none",
+              }}/>
+            ))}
           </div>
+        </div>
+
+        <motion.div
+          key={`ps-q${step}`}
+          initial={{ opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
+          exit={{ opacity:0, x:-40 }}
+          transition={{ duration:.38, ease:[.22,1,.36,1] }}
+          style={{ position:"relative", zIndex:1, flex:1, display:"flex",
+            flexDirection:"column", padding:"24px 24px 40px" }}>
+          {storyHook && (
+            <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+              transition={{ delay:.1, duration:.35 }}
+              style={{ fontSize:12, color:T.faint, fontStyle:"italic",
+                lineHeight:1.55, marginBottom:14, maxWidth:300 }}>
+              {storyHook}
+            </motion.div>
+          )}
+          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+            transition={{ delay:.18 }}
+            style={{ marginBottom:28 }}>
+            <div style={{
+              fontSize:32, fontWeight:900, letterSpacing:"-.03em",
+              color:T.text, lineHeight:1.12,
+              textShadow: theme==="dark" ? `0 0 60px ${stepColor}33` : "none",
+            }}>{headline}</div>
+            <motion.div
+              initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+              transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
+              style={{ height:2, width:40, background:stepColor,
+                borderRadius:2, marginTop:10, transformOrigin:"left",
+                boxShadow:`0 0 8px ${stepColor}88` }}/>
+          </motion.div>
+          <div style={{ flex:1 }}>{children}</div>
           {showContinue && (
             <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.3 }}
               style={{ marginTop:20 }}>

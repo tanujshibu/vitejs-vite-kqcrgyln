@@ -2,6 +2,12 @@ import React, { useState, useEffect, useRef, useMemo, createContext, useContext,
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
 
+// ─── MOBILE PERFORMANCE FLAG ──────────────────────────────────────────────────
+// backdrop-filter blur + many simultaneous animations overwhelm mobile GPUs.
+// On mobile: disable blurs, stop infinite loops → no more flickering.
+const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+const BF = isMobile ? "none" : null; // blur shorthand — null means use full value
+
 // ─── SUPABASE CLIENT ──────────────────────────────────────────────────────────
 // Anon key is safe to expose in the frontend — RLS policies protect all data.
 const SUPABASE_URL  = "https://pstqlqiitylggqchkzyh.supabase.co";
@@ -2183,7 +2189,7 @@ function AITyping({ theme }) {
       {[0,1,2].map(i => (
         <motion.div key={i}
           animate={{ y:[-4,0,-4], opacity:[0.4,1,0.4] }}
-          transition={{ duration:0.9, delay:i*0.18, repeat:Infinity, ease:"easeInOut" }}
+          transition={{ duration:0.9, delay:i*0.18, repeat:isMobile?0:Infinity, ease:"easeInOut" }}
           style={{ width:7, height:7, borderRadius:"50%", background:T.blue }}/>
       ))}
     </div>
@@ -2208,7 +2214,7 @@ function AITicker({ theme, mode }) {
     }}>
       <motion.div
         animate={{ x:["0%","-50%"] }}
-        transition={{ duration:28, ease:"linear", repeat:Infinity }}
+        transition={{ duration:28, ease:"linear", repeat:isMobile?0:Infinity }}
         style={{ display:"inline-block", fontSize:9, fontWeight:700,
           color:T.faint, letterSpacing:".12em", whiteSpace:"nowrap" }}>
         {text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}
@@ -2320,8 +2326,8 @@ function GlassCard({ children, theme, glow, style={}, onClick }) {
         background: glow
           ? `linear-gradient(135deg, ${glow}0D 0%, ${T.glass} 100%)`
           : T.glass,
-        backdropFilter:"blur(24px) saturate(200%) brightness(1.04)",
-        WebkitBackdropFilter:"blur(24px) saturate(200%) brightness(1.04)",
+        backdropFilter: isMobile ? "none" : "blur(24px) saturate(200%) brightness(1.04)",
+        WebkitBackdropFilter: isMobile ? "none" : "blur(24px) saturate(200%) brightness(1.04)",
         // 1px outer edge + 1px inner highlight — "Precision-Engineered" layering
         border:`1px solid ${glow ? glow+"55" : T.border}`,
         outline: `1px solid ${T.borderInner}`,
@@ -2675,7 +2681,7 @@ function ShimmerCTA({ label, onClick, theme, color, disabled, icon }) {
           ? `0 4px 18px ${ac}44, 0 1px 4px ${ac}22`
           : `0 0 24px ${ac}44, 0 4px 16px rgba(0,0,0,0.3)`,
         display:"flex", alignItems:"center", justifyContent:"center", gap:8,
-        backdropFilter:"blur(16px) saturate(180%)",
+        backdropFilter:isMobile?"none":"blur(16px) saturate(180%)",
       }}>
       {icon && <span>{icon}</span>}
       {label}
@@ -3011,25 +3017,25 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
         <motion.ellipse
           cx="40" cy="60" rx="10" ry="7" fill={g} opacity={active?.32:.08}
           animate={active && animating ? { scale:[1,1.04,1] } : {}}
-          transition={{ duration:1.8, repeat:Infinity, ease:"easeInOut" }}
+          transition={{ duration:1.8, repeat:isMobile?0:Infinity, ease:"easeInOut" }}
         />
         <motion.ellipse
           cx="60" cy="60" rx="10" ry="7" fill={g} opacity={active?.32:.08}
           animate={active && animating ? { scale:[1,1.04,1] } : {}}
-          transition={{ duration:1.8, repeat:Infinity, ease:"easeInOut", delay:.1 }}
+          transition={{ duration:1.8, repeat:isMobile?0:Infinity, ease:"easeInOut", delay:.1 }}
         />
         {/* Deltoid caps */}
         <motion.ellipse
           cx="21" cy="49" rx="7" ry="10" fill={g} opacity={active?.48:.12}
           filter={active?`url(#${p}_sss)`:""}
           animate={active && animating ? { scale:[1,1.05,1] } : {}}
-          transition={{ duration:2, repeat:Infinity, ease:"easeInOut", delay:.2 }}
+          transition={{ duration:2, repeat:isMobile?0:Infinity, ease:"easeInOut", delay:.2 }}
         />
         <motion.ellipse
           cx="79" cy="49" rx="7" ry="10" fill={g} opacity={active?.48:.12}
           filter={active?`url(#${p}_sss)`:""}
           animate={active && animating ? { scale:[1,1.05,1] } : {}}
-          transition={{ duration:2, repeat:Infinity, ease:"easeInOut", delay:.3 }}
+          transition={{ duration:2, repeat:isMobile?0:Infinity, ease:"easeInOut", delay:.3 }}
         />
         {/* Lat wing highlight accent */}
         {active && (
@@ -3057,7 +3063,7 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
       {active && animating && (
         <motion.g clipPath={`url(#${p}_clipBody)`}
           initial={{ x:-120 }} animate={{ x:120 }}
-          transition={{ duration:2.2, repeat:Infinity, ease:"easeInOut", repeatDelay:.8 }}>
+          transition={{ duration:2.2, repeat:isMobile?0:Infinity, ease:"easeInOut", repeatDelay:.8 }}>
           <rect x="-30" y="30" width="60" height="110" fill={`url(#${p}_shimmer)`} transform="skewX(-18)"/>
         </motion.g>
       )}
@@ -3158,7 +3164,7 @@ function AvatarAbs({ active, glow, size=160, animating=false }) {
             transition={{
               duration: 1.6,
               delay: i*0.08,
-              repeat: Infinity,
+              repeat: isMobile?0:Infinity,
               ease: "easeInOut",
             }}
           />
@@ -3181,7 +3187,7 @@ function AvatarAbs({ active, glow, size=160, animating=false }) {
       {active && animating && (
         <motion.g clipPath={`url(#${p}_clipBody)`}
           initial={{ x:-110 }} animate={{ x:110 }}
-          transition={{ duration:2.4, repeat:Infinity, ease:"easeInOut", repeatDelay:.6 }}>
+          transition={{ duration:2.4, repeat:isMobile?0:Infinity, ease:"easeInOut", repeatDelay:.6 }}>
           <rect x="-25" y="40" width="55" height="90" fill={`url(#${p}_shimmer)`} transform="skewX(-20)"/>
         </motion.g>
       )}
@@ -3255,14 +3261,14 @@ function AvatarDensity({ active, glow, size=160, animating=false }) {
           filter={active?`url(#${p}_sss)`:""}
           animate={active && animating ? { scale:[1,1.06,1] } : {}}
           style={{ transformOrigin:"37px 58px", transformBox:"fill-box" }}
-          transition={{ duration:1.8, repeat:Infinity, ease:"easeInOut" }}
+          transition={{ duration:1.8, repeat:isMobile?0:Infinity, ease:"easeInOut" }}
         />
         <motion.ellipse
           cx="63" cy="58" rx="15" ry="12" fill={g} opacity={active?.42:.14}
           filter={active?`url(#${p}_sss)`:""}
           animate={active && animating ? { scale:[1,1.06,1] } : {}}
           style={{ transformOrigin:"63px 58px", transformBox:"fill-box" }}
-          transition={{ duration:1.8, repeat:Infinity, ease:"easeInOut", delay:.08 }}
+          transition={{ duration:1.8, repeat:isMobile?0:Infinity, ease:"easeInOut", delay:.08 }}
         />
         {/* Trap mass */}
         <path d="M26,39 Q50,33 74,39 Q62,26 50,24 Q38,26 26,39Z"
@@ -3302,7 +3308,7 @@ function AvatarDensity({ active, glow, size=160, animating=false }) {
       {active && animating && (
         <motion.g clipPath={`url(#${p}_clipBody)`}
           initial={{ x:-130 }} animate={{ x:130 }}
-          transition={{ duration:2.3, repeat:Infinity, ease:"easeInOut", repeatDelay:.7 }}>
+          transition={{ duration:2.3, repeat:isMobile?0:Infinity, ease:"easeInOut", repeatDelay:.7 }}>
           <rect x="-30" y="30" width="65" height="110" fill={`url(#${p}_shimmer)`} transform="skewX(-18)"/>
         </motion.g>
       )}
@@ -3703,7 +3709,7 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
               stroke={glow} strokeWidth="0.7" opacity="0.55"
               initial={{ y1:0, y2:0 }}
               animate={{ y1:[0,188], y2:[0,188] }}
-              transition={{ duration:2.8, repeat:Infinity, ease:"linear", repeatDelay:0.5 }}/>
+              transition={{ duration:2.8, repeat:isMobile?0:Infinity, ease:"linear", repeatDelay:0.5 }}/>
           )}
 
           {/* ── Label (active state) ── */}
@@ -3931,7 +3937,7 @@ function BioClockWidget({ theme, compact=false }) {
       <div style={{ display:"flex", alignItems:"center", gap:8,
         padding:"5px 10px", borderRadius:20,
         background:T.glass, border:`1px solid ${T.border}`,
-        backdropFilter:"blur(12px)" }}>
+        backdropFilter:isMobile?"none":"blur(12px)" }}>
         <span style={{ fontSize:9, fontWeight:800, color:circ.color,
           letterSpacing:".08em" }}>{circ.phase||circ.window}</span>
         <span style={{ fontSize:11, fontWeight:700, color:T.text,
@@ -4125,7 +4131,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
           textAlign:"center", zIndex:3 }}>
           <motion.div
             animate={playing ? { scale:[1,1.04,1], opacity:[0.85,1,0.85] } : {}}
-            transition={{ duration:2.5, repeat:Infinity }}
+            transition={{ duration:2.5, repeat:isMobile?0:Infinity }}
             style={{ width:88, height:88, borderRadius:"50%",
               background:`radial-gradient(circle, ${color}44 0%, ${color}11 100%)`,
               border:`2.5px solid ${color}`, display:"flex", alignItems:"center",
@@ -4153,7 +4159,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
 
         {/* Verified badge */}
         <motion.div
-          animate={{ opacity:[0.7,1,0.7] }} transition={{ duration:2, repeat:Infinity }}
+          animate={{ opacity:[0.7,1,0.7] }} transition={{ duration:2, repeat:isMobile?0:Infinity }}
           style={{ position:"absolute", top:14, left:14, zIndex:4,
             background:`${color}22`, border:`1px solid ${color}`,
             borderRadius:20, padding:"4px 10px",
@@ -4163,7 +4169,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
 
         {/* REC dot */}
         {playing && (
-          <motion.div animate={{ opacity:[1,0,1] }} transition={{ duration:1, repeat:Infinity }}
+          <motion.div animate={{ opacity:[1,0,1] }} transition={{ duration:1, repeat:isMobile?0:Infinity }}
             style={{ position:"absolute", top:14, right:14, zIndex:4,
               width:8, height:8, borderRadius:"50%", background:"#FF3B30" }}/>
         )}
@@ -4222,7 +4228,7 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
         background: review.pinned
           ? `linear-gradient(135deg, ${color}22 0%, ${T.glass} 100%)`
           : T.glass,
-        backdropFilter:"blur(20px) saturate(180%)",
+        backdropFilter:isMobile?"none":"blur(20px) saturate(180%)",
         border:`1.5px solid ${review.pinned ? color+"66" : T.border}`,
         borderRadius:18, padding:"14px 16px", cursor:"pointer",
         position:"relative", overflow:"hidden",
@@ -4244,7 +4250,7 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
         {/* Avatar orb */}
         <motion.div
           animate={{ boxShadow:[`0 0 0 0 ${color}44`,`0 0 0 6px ${color}00`] }}
-          transition={{ duration:2.5, repeat:Infinity }}
+          transition={{ duration:2.5, repeat:isMobile?0:Infinity }}
           style={{ width:40, height:40, borderRadius:"50%", flexShrink:0,
             background:`radial-gradient(circle, ${color}44 0%, ${color}11 100%)`,
             border:`2px solid ${color}66`, display:"flex",
@@ -4283,7 +4289,7 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
 
       {/* Verified badge */}
       <motion.div
-        animate={{ opacity:[0.8,1,0.8] }} transition={{ duration:2.2, repeat:Infinity }}
+        animate={{ opacity:[0.8,1,0.8] }} transition={{ duration:2.2, repeat:isMobile?0:Infinity }}
         style={{ display:"inline-flex", alignItems:"center", gap:5,
           marginTop:10, padding:"5px 10px", borderRadius:20,
           background:`${review.resultBadgeColor}18`,
@@ -5189,7 +5195,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       letterSpacing:".1em" }}>WK {ms.week}</div>
                     {isCurrent && isRVN && (
                       <motion.div animate={{ opacity:[0.7,1,0.7] }}
-                        transition={{ duration:1.2, repeat:Infinity }}
+                        transition={{ duration:1.2, repeat:isMobile?0:Infinity }}
                         style={{ fontSize:7, fontWeight:900, color:ms.color,
                           background:`${ms.color}22`, padding:"1px 6px", borderRadius:8 }}>
                         ACTIVE
@@ -5842,7 +5848,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                   style={{
                     position:"fixed", inset:0, zIndex:9999,
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    background:"rgba(0,0,0,.65)", backdropFilter:"blur(12px)",
+                    background:"rgba(0,0,0,.65)", backdropFilter:isMobile?"none":"blur(12px)",
                   }}
                   onClick={() => setPrCelebration(null)}
                 >
@@ -6710,7 +6716,7 @@ function TosScreen({ onBack, theme, initialTab = "tos" }) {
       {/* Header */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
-        background:`${T.bg}ee`, backdropFilter:"blur(16px)",
+        background:`${T.bg}ee`, backdropFilter:isMobile?"none":"blur(16px)",
         borderBottom:`1px solid ${T.border}`,
         padding:"13px 20px 12px",
       }}>
@@ -7066,7 +7072,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
           <motion.button whileTap={{ scale:.96 }} onClick={onManager}
             style={{
               background:T.glass, border:`1px solid ${T.border}`,
-              backdropFilter:"blur(8px)", borderRadius:22,
+              backdropFilter:isMobile?"none":"blur(8px)", borderRadius:22,
               padding:"6px 14px", cursor:"pointer",
               fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".06em",
             }}>···</motion.button>
@@ -7225,7 +7231,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
             display:"flex", alignItems:"center", gap:10,
             padding:"10px 14px",
             background:T.glass, border:`1px solid ${T.border}`,
-            backdropFilter:"blur(16px)", borderRadius:14,
+            backdropFilter:isMobile?"none":"blur(16px)", borderRadius:14,
           }}>
             <div style={{
               width:30, height:30, borderRadius:"50%",
@@ -7287,7 +7293,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
               <div key={s.label} style={{
                 flex:1, textAlign:"center", padding:"12px 6px",
                 background:T.glass, border:`1px solid ${T.border}`,
-                backdropFilter:"blur(12px)", borderRadius:14,
+                backdropFilter:isMobile?"none":"blur(12px)", borderRadius:14,
               }}>
                 <div style={{ fontSize:16, fontWeight:900, color:T.text, letterSpacing:"-.01em" }}>{s.num}</div>
                 <div style={{ fontSize:7.5, fontWeight:700, letterSpacing:".1em", color:T.faint, marginTop:3 }}>{s.label}</div>
@@ -7305,7 +7311,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
               style={{
                 padding:"14px 16px", marginBottom:10,
                 background:T.glass, border:`1px solid ${T.border}`,
-                backdropFilter:"blur(12px)", borderRadius:16,
+                backdropFilter:isMobile?"none":"blur(12px)", borderRadius:16,
               }}>
               <div style={{ fontSize:12, color:T.text, lineHeight:1.55, marginBottom:8, fontStyle:"italic" }}>
                 "{t.q}"
@@ -7421,7 +7427,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
       style={{
         position:"fixed", inset:0, zIndex:10000,
         background: theme==="dark" ? "rgba(7,8,26,0.94)" : "rgba(241,241,248,0.96)",
-        backdropFilter:"blur(20px)",
+        backdropFilter:isMobile?"none":"blur(20px)",
         display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center",
         padding:"24px",
@@ -7672,7 +7678,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
       style={{
         position:"fixed", inset:0, zIndex:10001,
         background: theme==="dark" ? "rgba(7,8,26,0.96)" : "rgba(241,241,248,0.97)",
-        backdropFilter:"blur(24px)",
+        backdropFilter:isMobile?"none":"blur(24px)",
         display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center",
         padding:"28px 20px",
@@ -7832,7 +7838,7 @@ function FactVisual({ type, color: C }) {
             <motion.circle key={`g${idx}`} cx={cx} cy={cy} r={S/2 + 5}
               fill={C} opacity={0}
               animate={{ opacity:[0, 0.18, 0] }}
-              transition={{ delay: 0.8 + idx*0.01, duration:1.6, repeat:Infinity, repeatDelay:0.4 }}/>
+              transition={{ delay: 0.8 + idx*0.01, duration:1.6, repeat:isMobile?0:Infinity, repeatDelay:0.4 }}/>
           );
         })}
         <text x={PAD} y={H-1} fontSize="8.5" fill={C} opacity="0.4" fontFamily="inherit" fontWeight="700">168 HOURS IN A WEEK</text>
@@ -7864,7 +7870,7 @@ function FactVisual({ type, color: C }) {
         transition={{ delay:0.48, duration:0.4 }}/>
       <motion.circle cx="90" cy="-8" r="10" fill={C} opacity={0.15}
         animate={{ scale:[1,1.3,1], opacity:[0.15,0.35,0.15] }}
-        transition={{ delay:0.9, duration:1.2, repeat:Infinity }}/>
+        transition={{ delay:0.9, duration:1.2, repeat:isMobile?0:Infinity }}/>
       <motion.text x="90" y="-3" textAnchor="middle" fontSize="13"
         initial={{ opacity:0, y:-16, scale:0 }} animate={{ opacity:1, y:-3, scale:1 }}
         transition={{ delay:0.85, type:"spring", stiffness:300 }}>✨</motion.text>
@@ -7999,7 +8005,7 @@ function FactVisual({ type, color: C }) {
           {d.peak && <>
             <motion.circle cx={d.x} cy="26" r="20" fill="none" stroke={C} strokeWidth="1.2"
               animate={{ opacity:[0,0.55,0], r:[12,22,12] }}
-              transition={{ delay:0.9, duration:1.3, repeat:Infinity }}/>
+              transition={{ delay:0.9, duration:1.3, repeat:isMobile?0:Infinity }}/>
             <text x={d.x} y="30" textAnchor="middle" fontSize="8" fill="#07081A" fontFamily="inherit" fontWeight="900">😬</text>
           </>}
         </g>
@@ -8021,7 +8027,7 @@ function FactVisual({ type, color: C }) {
         <motion.circle key={i} cx="60" cy="54" r={18+i*14} fill="none" stroke={C} strokeWidth="1.5"
           animate={{ opacity:[0,0.5,0], scale:[0.85,1.15,0.85] }}
           style={{ transformOrigin:"60px 54px" }}
-          transition={{ delay:0.5+i*0.3, duration:1.4, repeat:Infinity, repeatDelay:0.1 }}/>
+          transition={{ delay:0.5+i*0.3, duration:1.4, repeat:isMobile?0:Infinity, repeatDelay:0.1 }}/>
       ))}
       {/* Smile */}
       <motion.path d="M52 62 Q60 70 68 62" fill="none" stroke={C} strokeWidth="2.5" strokeLinecap="round"
@@ -8577,7 +8583,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                   onClick={() => onPick(opt.id)}
                   style={{
                     width:"100%", padding:"20px 22px",
-                    background: T.glass, backdropFilter:"blur(16px)",
+                    background: T.glass, backdropFilter:isMobile?"none":"blur(16px)",
                     border:`1.5px solid ${T.border}`,
                     borderRadius:18, cursor:"pointer",
                     display:"flex", alignItems:"center", justifyContent:"space-between",
@@ -8636,7 +8642,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                 }}
                 style={{
                   width:"100%", padding:"22px 22px",
-                  background: T.glass, backdropFilter:"blur(16px)",
+                  background: T.glass, backdropFilter:isMobile?"none":"blur(16px)",
                   border:`1.5px solid ${T.border}`,
                   borderRadius:18, cursor:"pointer",
                   display:"flex", alignItems:"center", justifyContent:"space-between",
@@ -8766,7 +8772,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
                 background: hovered===arch.id
                   ? `linear-gradient(145deg,${arch.glow}22,${T.glass})`
                   : T.glass,
-                backdropFilter:"blur(20px)",
+                backdropFilter:isMobile?"none":"blur(20px)",
                 border: `1.5px solid ${hovered===arch.id ? arch.glow+"66" : T.border}`,
                 borderRadius:20, padding:"18px 14px 16px",
                 cursor:"pointer", textAlign:"left",
@@ -8894,7 +8900,7 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
               style={{
                 flex:1, padding:"9px 6px",
                 background: sel===m.id ? ac : T.glass,
-                backdropFilter:"blur(8px)",
+                backdropFilter:isMobile?"none":"blur(8px)",
                 border:`1px solid ${sel===m.id ? ac : T.border}`,
                 borderRadius:10, cursor:"pointer",
                 fontSize:10, fontWeight:800,
@@ -9303,7 +9309,7 @@ function DigitalKey({ color="#D4AF37", theme }) {
       {/* Radial glow pulse */}
       <motion.div
         animate={{ scale:[1,1.6,1], opacity:[0.3,0,0.3] }}
-        transition={{ duration:2.4, repeat:Infinity }}
+        transition={{ duration:2.4, repeat:isMobile?0:Infinity }}
         style={{ position:"absolute", width:100, height:100, borderRadius:"50%",
           background:`radial-gradient(circle, ${color}44 0%, transparent 70%)`,
           pointerEvents:"none" }}/>
@@ -9313,7 +9319,7 @@ function DigitalKey({ color="#D4AF37", theme }) {
         <motion.div key={deg}
           initial={{ opacity:0, scaleX:0 }}
           animate={{ opacity:[0,0.7,0], scaleX:[0,1,0] }}
-          transition={{ duration:0.8, delay:i*0.06, repeat:Infinity, repeatDelay:1.8 }}
+          transition={{ duration:0.8, delay:i*0.06, repeat:isMobile?0:Infinity, repeatDelay:1.8 }}
           style={{
             position:"absolute", top:"50%", left:"50%",
             width:44, height:1.5,
@@ -9717,7 +9723,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                 style={{ textAlign:"center", padding:"32px 20px" }}>
                 <motion.div
                   animate={{ scale:[1,1.15,1], opacity:[0.7,1,0.7] }}
-                  transition={{ duration:2, repeat:Infinity }}
+                  transition={{ duration:2, repeat:isMobile?0:Infinity }}
                   style={{ fontSize:52, marginBottom:16 }}>
                   {"\u25c9"}
                 </motion.div>
@@ -10009,7 +10015,7 @@ function BioGraph({ moa, arch, theme }) {
             <div style={{ fontSize:9, color:moa.color, fontWeight:700 }}>RVN Protocol</div>
           </div>
           <motion.div style={{ marginLeft:"auto", fontSize:9, fontWeight:900, color:moa.color }}
-            animate={{ opacity:[0.6,1,0.6] }} transition={{ duration:2, repeat:Infinity }}>
+            animate={{ opacity:[0.6,1,0.6] }} transition={{ duration:2, repeat:isMobile?0:Infinity }}>
             +55% ADVANTAGE
           </motion.div>
         </div>
@@ -10054,7 +10060,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
       style={{
         position:"fixed", inset:0, zIndex:200,
         background: theme==="dark" ? "#0A0A0Bf8" : "#F5F7FAf8",
-        backdropFilter:"blur(24px)",
+        backdropFilter:isMobile?"none":"blur(24px)",
         display:"flex", flexDirection:"column",
       }}>
       <div style={{ borderBottom:"1px solid "+T.border, padding:"14px 18px 12px",
@@ -10747,7 +10753,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             {/* Header */}
             <div style={{
               position:"sticky", top:0, zIndex:10,
-              background:`${T.bg}f0`, backdropFilter:"blur(18px)",
+              background:`${T.bg}f0`, backdropFilter:isMobile?"none":"blur(18px)",
               borderBottom:`1px solid ${T.border}`,
               padding:"16px 20px 12px",
               display:"flex", alignItems:"center", gap:14,
@@ -10885,7 +10891,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
       {/* Sticky header */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
-        background:`${T.bg}ee`, backdropFilter:"blur(16px)",
+        background:`${T.bg}ee`, backdropFilter:isMobile?"none":"blur(16px)",
         borderBottom:`1px solid ${T.border}`,
         padding:"13px 20px 10px",
       }}>
@@ -12573,7 +12579,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               position:"fixed", bottom:100, left:"50%", transform:"translateX(-50%)",
               zIndex:200,
               background: theme === "dark" ? "rgba(20,20,28,0.96)" : "rgba(255,255,255,0.97)",
-              backdropFilter:"blur(24px)",
+              backdropFilter:isMobile?"none":"blur(24px)",
               borderRadius:24, padding:"18px 28px",
               border:`1px solid ${T.border}`,
               boxShadow: T.shadowLg,
@@ -12949,7 +12955,7 @@ function StoreBrandBottle({ color, theme }) {
   return (
     <motion.div
       animate={{ rotateY:[0,360] }}
-      transition={{ duration:5, ease:"linear", repeat:Infinity }}
+      transition={{ duration:5, ease:"linear", repeat:isMobile?0:Infinity }}
       style={{ transformStyle:"preserve-3d", display:"inline-block" }}>
       <svg width="54" height="88" viewBox="0 0 54 88">
         <defs>
@@ -13037,7 +13043,7 @@ function TruthEngine({ comparisons, theme }) {
               background: activeIdx===i
                 ? (theme==="dark" ? "rgba(20,20,30,0.85)" : "rgba(255,255,255,0.85)")
                 : T.glass,
-              backdropFilter:"blur(24px) saturate(200%)",
+              backdropFilter:isMobile?"none":"blur(24px) saturate(200%)",
               WebkitBackdropFilter:"blur(24px) saturate(200%)",
               borderRadius: activeIdx===i ? "14px 14px 0 0" : 14,
               border:`1px solid ${activeIdx===i ? T.gold+"aa" : T.border}`,
@@ -13082,7 +13088,7 @@ function TruthEngine({ comparisons, theme }) {
                 transition={{ duration:.35, ease:[.22,1,.36,1] }}
                 style={{ transformOrigin:"top",
                   background: theme==="dark" ? "rgba(14,14,22,0.92)" : "rgba(255,255,255,0.92)",
-                  backdropFilter:"blur(32px) saturate(200%)",
+                  backdropFilter:isMobile?"none":"blur(32px) saturate(200%)",
                   WebkitBackdropFilter:"blur(32px) saturate(200%)",
                   border:`1px solid ${T.gold}88`,
                   borderTop:"none",
@@ -13117,7 +13123,7 @@ function TruthEngine({ comparisons, theme }) {
                       background: theme==="dark" ? "rgba(255,70,70,0.06)" : "rgba(255,80,80,0.04)",
                       border:`1px solid ${T.red}55`,
                       borderRadius:12, padding:"12px 10px",
-                      backdropFilter:"blur(12px)" }}>
+                      backdropFilter:isMobile?"none":"blur(12px)" }}>
                     {/* Red border glow */}
                     <div style={{ fontSize:9, fontWeight:800, color:T.red,
                       letterSpacing:".12em", marginBottom:8 }}>GENERIC</div>
@@ -13145,13 +13151,13 @@ function TruthEngine({ comparisons, theme }) {
                         {/* Flicker effect: three broken segments */}
                         <motion.div
                           animate={{ opacity:[1,0.3,1,0.6,1,0.2,1] }}
-                          transition={{ duration:1.8, repeat:Infinity, times:[0,.1,.2,.5,.7,.85,1] }}
+                          transition={{ duration:1.8, repeat:isMobile?0:Infinity, times:[0,.1,.2,.5,.7,.85,1] }}
                           style={{ position:"absolute", left:0, top:0,
                             width:`${comp.generic.bioavail*0.6}%`, height:"100%",
                             background:T.red, borderRadius:3 }}/>
                         <motion.div
                           animate={{ opacity:[0,1,0,0.4,0] }}
-                          transition={{ duration:1.8, repeat:Infinity, times:[0,.15,.3,.6,1] }}
+                          transition={{ duration:1.8, repeat:isMobile?0:Infinity, times:[0,.15,.3,.6,1] }}
                           style={{ position:"absolute", left:`${comp.generic.bioavail*0.62}%`, top:0,
                             width:`${comp.generic.bioavail*0.2}%`, height:"100%",
                             background:T.red+"88", borderRadius:3 }}/>
@@ -13190,7 +13196,7 @@ function TruthEngine({ comparisons, theme }) {
                       background: theme==="dark" ? "rgba(212,175,55,0.07)" : "rgba(212,175,55,0.05)",
                       border:`1px solid ${T.gold}77`,
                       borderRadius:12, padding:"12px 10px",
-                      backdropFilter:"blur(12px)",
+                      backdropFilter:isMobile?"none":"blur(12px)",
                       boxShadow:`0 0 20px ${T.gold}18` }}>
                     <div style={{ fontSize:9, fontWeight:800, color:T.gold,
                       letterSpacing:".12em", marginBottom:8 }}>STORE BRAND</div>
@@ -13221,7 +13227,7 @@ function TruthEngine({ comparisons, theme }) {
                             `0 0 10px ${T.gold}cc`,
                             `0 0 4px ${T.gold}88`
                           ]}}
-                          transition={{ duration:1.6, repeat:Infinity }}
+                          transition={{ duration:1.6, repeat:isMobile?0:Infinity }}
                           style={{ width:`${comp.store.bioavail}%`, height:"100%",
                             background:`linear-gradient(90deg, ${T.gold}bb, ${T.gold})`,
                             borderRadius:3 }}/>
@@ -13264,7 +13270,7 @@ function TruthEngine({ comparisons, theme }) {
                   <div style={{ height:8, borderRadius:4, background:T.border, overflow:"hidden", display:"flex" }}>
                     <motion.div
                       animate={{ opacity:[1,0.4,1,0.7,1] }}
-                      transition={{ duration:2.2, repeat:Infinity }}
+                      transition={{ duration:2.2, repeat:isMobile?0:Infinity }}
                       style={{ width:`${comp.generic.bioavail}%`, height:"100%",
                         background:T.red, borderRadius:"4px 0 0 4px" }}/>
                     <motion.div
@@ -13384,7 +13390,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
       {/* Sticky header */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
-        background:`${T.bg}ee`, backdropFilter:"blur(16px)",
+        background:`${T.bg}ee`, backdropFilter:isMobile?"none":"blur(16px)",
         borderBottom:`1px solid ${T.border}`, padding:"13px 20px 10px",
       }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -13407,7 +13413,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
             initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
             transition={{ delay:.05, duration:.5, ease:[.22,1,.36,1] }}
             style={{ background:`linear-gradient(135deg, ${arch.glow}18 0%, ${T.glass} 100%)`,
-              backdropFilter:"blur(24px) saturate(200%)",
+              backdropFilter:isMobile?"none":"blur(24px) saturate(200%)",
               border:`1.5px solid ${arch.glow}44`, borderRadius:18,
               padding:"14px 16px", position:"relative", overflow:"hidden",
               boxShadow:`0 4px 32px ${arch.glow}22` }}>
@@ -13434,7 +13440,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
           <motion.div
             initial={{ opacity:0, scale:.85 }} animate={{ opacity:1, scale:1 }}
             transition={{ delay:.12, duration:.55, ease:[.22,1,.36,1] }}
-            style={{ background:T.glass, backdropFilter:"blur(20px)",
+            style={{ background:T.glass, backdropFilter:isMobile?"none":"blur(20px)",
               border:`1px solid ${T.border}`, borderRadius:18,
               display:"flex", flexDirection:"column",
               alignItems:"center", justifyContent:"center",
@@ -13457,7 +13463,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
             <motion.div key={stat.label}
               initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
               transition={{ delay:.18+i*.07, duration:.45 }}
-              style={{ background:T.glass, backdropFilter:"blur(16px)",
+              style={{ background:T.glass, backdropFilter:isMobile?"none":"blur(16px)",
                 border:`1px solid ${T.border}`, borderRadius:14,
                 padding:"10px 8px", textAlign:"center",
                 position:"relative", overflow:"hidden" }}>
@@ -13474,7 +13480,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
         <motion.div
           initial={{ opacity:0, x:-16 }} animate={{ opacity:1, x:0 }}
           transition={{ delay:.3, duration:.5 }}
-          style={{ background:T.glass, backdropFilter:"blur(20px)",
+          style={{ background:T.glass, backdropFilter:isMobile?"none":"blur(20px)",
             borderLeft:`3px solid ${arch.glow}`,
             border:`1px solid ${T.border}`,
             borderRadius:14, padding:"12px 16px", marginBottom:8,
@@ -13496,7 +13502,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
             <motion.div key={i}
               initial={{ opacity:0, y:14, scale:.96 }} animate={{ opacity:1, y:0, scale:1 }}
               transition={{ delay:.1+i*.08, duration:.42, ease:[.22,1,.36,1] }}
-              style={{ background:T.glass, backdropFilter:"blur(18px)",
+              style={{ background:T.glass, backdropFilter:isMobile?"none":"blur(18px)",
                 border:`1px solid ${T.border}`, borderRadius:14,
                 padding:"12px 12px",
                 boxShadow: i===0 ? `0 4px 20px ${arch.glow}18` : "none",
@@ -13782,7 +13788,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
     <Screen theme={theme} style={{ overflowY:"auto" }}>
       <div style={{
         position:"sticky", top:0, zIndex:50,
-        background:`${T.bg}ee`, backdropFilter:"blur(16px)",
+        background:`${T.bg}ee`, backdropFilter:isMobile?"none":"blur(16px)",
         borderBottom:`1px solid ${T.border}`, padding:"13px 20px 10px",
         display:"flex", alignItems:"center", justifyContent:"space-between",
       }}>
@@ -13827,7 +13833,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
               style={{
                 padding:"14px 12px",
                 background: selectedState===s.id ? `${s.color}22` : T.glass,
-                backdropFilter:"blur(12px)",
+                backdropFilter:isMobile?"none":"blur(12px)",
                 border:`1.5px solid ${selectedState===s.id ? s.color+"77" : T.border}`,
                 borderRadius:14, cursor:"pointer", textAlign:"left",
                 boxShadow: selectedState===s.id ? `0 6px 24px ${s.color}33` : "none",
@@ -14949,7 +14955,7 @@ function RVNVisionOverlay() {
           border: `1.5px solid ${ac}88`, boxShadow: `0 8px 32px ${ac}66, inset 0 1px 0 #ffffff44`,
           color: "#fff", fontSize: 22, fontWeight: 900, cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center",
-          backdropFilter: "blur(12px)",
+          backdropFilter:isMobile?"none":"blur(12px)",
         }}
         aria-label="Open RVN Vision">
         {biopal.open
@@ -14976,7 +14982,7 @@ function RVNVisionOverlay() {
               border: `1px solid ${T.border}`,
               borderRadius: 20,
               boxShadow: `0 32px 80px rgba(0,0,0,.45), 0 0 0 1px ${ac}22`,
-              backdropFilter: "blur(24px)",
+              backdropFilter:isMobile?"none":"blur(24px)",
               display: "flex", flexDirection: "column",
               maxHeight: "72vh",
               overflow: "hidden",
@@ -15036,7 +15042,7 @@ function RVNVisionOverlay() {
                     {[0,1,2].map(i => (
                       <motion.span key={i}
                         animate={{ y: [0, -5, 0] }}
-                        transition={{ duration: .6, delay: i * .18, repeat: Infinity, ease: "easeInOut" }}
+                        transition={{ duration: .6, delay: i * .18, repeat: isMobile?0:Infinity, ease: "easeInOut" }}
                         style={{
                           display: "inline-block",
                           width: 7, height: 7, borderRadius: "50%",
@@ -15061,7 +15067,7 @@ function RVNVisionOverlay() {
                   <motion.button key={a.label} whileTap={{ scale:.95 }}
                     onClick={() => { setDraft(a.prompt); }}
                     style={{ flexShrink:0, padding:"7px 13px", borderRadius:20, border:`1px solid ${T.border}`,
-                      background:T.glass, backdropFilter:"blur(8px)", cursor:"pointer",
+                      background:T.glass, backdropFilter:isMobile?"none":"blur(8px)", cursor:"pointer",
                       display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }}>
                     <span style={{ fontSize:14 }}>{a.icon}</span>
                     <span style={{ fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".04em" }}>{a.label}</span>
@@ -15880,7 +15886,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           <div style={{
             position:"absolute", inset:0, zIndex:8,
             display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-            background:"rgba(0,0,0,0.82)", backdropFilter:"blur(12px)",
+            background:"rgba(0,0,0,0.82)", backdropFilter:isMobile?"none":"blur(12px)",
           }}>
             <div style={{ fontSize:48, marginBottom:16 }}>📷</div>
             <div style={{ fontSize:16, fontWeight:900, color:"#fff", marginBottom:8, letterSpacing:".04em" }}>
@@ -15927,7 +15933,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         <div style={{
           position: "absolute", top: 14, left: 16, zIndex: 4, pointerEvents: "none",
           fontSize: 9, letterSpacing: ".22em", fontWeight: 800,
-          background: "rgba(0,0,0,0.55)", backdropFilter: "blur(8px)",
+          background: "rgba(0,0,0,0.55)", backdropFilter:isMobile?"none":"blur(8px)",
           color: "rgba(255,255,255,0.75)", padding: "5px 10px", borderRadius: 8,
           border: "1px solid rgba(255,255,255,0.12)",
         }}>
@@ -15980,7 +15986,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         {showPlayback && playbackUrl && (
           <div style={{
             position:"absolute", inset:0, zIndex:20,
-            background:"rgba(0,0,0,0.92)", backdropFilter:"blur(12px)",
+            background:"rgba(0,0,0,0.92)", backdropFilter:isMobile?"none":"blur(12px)",
             display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:16,
           }}>
             <div style={{ fontSize:10, letterSpacing:".2em", color:"rgba(255,255,255,0.5)", fontWeight:800 }}>SET PLAYBACK</div>
@@ -16036,7 +16042,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
                 background: "rgba(0,0,0,0.65)", borderRadius: 12,
                 padding: "10px 6px", textAlign: "center",
                 border: "1px solid rgba(255,255,255,0.15)",
-                backdropFilter: "blur(12px)",
+                backdropFilter:isMobile?"none":"blur(12px)",
               }}>
                 <div style={{ fontSize: 8, letterSpacing: ".18em", color: "rgba(255,255,255,0.5)", fontWeight: 800, marginBottom: 4 }}>{label}</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
@@ -20698,7 +20704,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
       {/* Sticky header */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
-        background:`${T.bg}ee`, backdropFilter:"blur(16px)",
+        background:`${T.bg}ee`, backdropFilter:isMobile?"none":"blur(16px)",
         borderBottom:`1px solid ${T.border}`,
         padding:"14px 20px",
       }}>
@@ -21886,7 +21892,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
       {/* Header */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
-        background:`${T.bg}f0`, backdropFilter:"blur(20px)",
+        background:`${T.bg}f0`, backdropFilter:isMobile?"none":"blur(20px)",
         borderBottom:`1px solid ${T.border}`,
         padding:"16px 22px 12px",
       }}>
@@ -21905,7 +21911,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               style={{
                 flexShrink:0, padding:"8px 10px",
                 background: hubTab===ht.id ? T.blue : T.glass,
-                backdropFilter:"blur(8px)",
+                backdropFilter:isMobile?"none":"blur(8px)",
                 border:`1px solid ${hubTab===ht.id ? T.blue : T.border}`,
                 borderRadius:9, cursor:"pointer",
                 fontSize:9, fontWeight:800, letterSpacing:".08em",
@@ -21977,7 +21983,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   style={{
                     flex:1, padding:"10px 6px",
                     background: mode===mId ? T[m.accentKey] : T.glass,
-                    backdropFilter:"blur(8px)",
+                    backdropFilter:isMobile?"none":"blur(8px)",
                     border:`1px solid ${mode===mId ? T[m.accentKey] : T.border}`,
                     borderRadius:10, cursor:"pointer",
                     fontSize:10, fontWeight:800, letterSpacing:".06em",
@@ -21998,7 +22004,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       style={{
                         padding:"6px 12px", borderRadius:20, whiteSpace:"nowrap",
                         background: tab===a.id ? a.glow : T.glass,
-                        backdropFilter:"blur(8px)",
+                        backdropFilter:isMobile?"none":"blur(8px)",
                         border:`1px solid ${tab===a.id ? a.glow : T.border}`,
                         cursor:"pointer", fontSize:10, fontWeight:700, letterSpacing:".06em",
                         color: tab===a.id ? (theme==="dark"?"#000":"#fff") : T.muted,
@@ -22674,7 +22680,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     style={{
                       padding:"14px 16px", textAlign:"left",
                       background: mode===mId ? `${T[m.accentKey]}18` : T.glass,
-                      backdropFilter:"blur(8px)",
+                      backdropFilter:isMobile?"none":"blur(8px)",
                       border:`1.5px solid ${mode===mId ? T[m.accentKey]+"66" : T.border}`,
                       borderRadius:12, cursor:"pointer",
                       boxShadow: mode===mId ? `0 4px 20px ${T[m.accentKey]}22` : "none",
@@ -22704,7 +22710,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     style={{
                       flex:1, padding:"12px",
                       background: theme===th ? T.blue : T.glass,
-                      backdropFilter:"blur(8px)",
+                      backdropFilter:isMobile?"none":"blur(8px)",
                       border:`1px solid ${theme===th ? T.blue : T.border}`,
                       borderRadius:10, cursor:"pointer",
                       fontSize:11, fontWeight:700, letterSpacing:".06em",
@@ -23835,7 +23841,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
           <div style={{ textAlign:"center", padding:"60px 20px" }}>
             <motion.div
               animate={{ rotate:360 }}
-              transition={{ duration:1.2, repeat:Infinity, ease:"linear" }}
+              transition={{ duration:1.2, repeat:isMobile?0:Infinity, ease:"linear" }}
               style={{ width:36, height:36, borderRadius:"50%", border:`3px solid #BF5AF240`,
                 borderTopColor:"#BF5AF2", margin:"0 auto 16px" }}/>
             <div style={{ fontSize:13, color:T.muted }}>Kailu is building your meal plan…</div>
@@ -23990,7 +23996,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
             <div style={{ textAlign:"center", padding:"24px" }}>
               <motion.div
                 animate={{ rotate:360 }}
-                transition={{ duration:1.2, repeat:Infinity, ease:"linear" }}
+                transition={{ duration:1.2, repeat:isMobile?0:Infinity, ease:"linear" }}
                 style={{ width:28, height:28, borderRadius:"50%", border:`3px solid #30D15840`,
                   borderTopColor:"#30D158", margin:"0 auto 10px" }}/>
               <div style={{ fontSize:12, color:T.muted }}>Building recipes from your ingredients…</div>
@@ -24914,7 +24920,7 @@ function WhatsNewScreen({ theme, onBack }) {
       {/* Header */}
       <div style={{
         position: "sticky", top: 0, zIndex: 50,
-        background: `${T.bg}f0`, backdropFilter: "blur(20px)",
+        background: `${T.bg}f0`, backdropFilter:isMobile?"none":"blur(20px)",
         borderBottom: `1px solid ${T.border}`,
         padding: "16px 22px 14px",
         display: "flex", alignItems: "center", gap: 14,
@@ -25791,7 +25797,7 @@ function RVNRoot() {
             style={{
               position: "fixed", bottom: 80, left: 16, right: 16, zIndex: 9999,
               background: theme === "dark" ? "rgba(14,15,34,0.97)" : "rgba(255,255,255,0.97)",
-              backdropFilter: "blur(20px)",
+              backdropFilter:isMobile?"none":"blur(20px)",
               border: `1px solid ${D[theme]?.blue}44`,
               borderRadius: 18,
               padding: "14px 16px",

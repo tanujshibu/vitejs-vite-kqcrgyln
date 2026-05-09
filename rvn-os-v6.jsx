@@ -8737,40 +8737,48 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── fire: 💪 silhouette — fist top, forearm diagonal, bicep dome left ──────────
+  // ── fire: 💪 emoji rendered large + colorized — soreness = muscle breakdown ───
   if (type === "fire") {
-    // Single path tracing the 💪 emoji silhouette:
-    // Start bottom-left (shoulder), up front of arm (bicep peak bulges left),
-    // across fist at top, down back of arm (tricep side), back to bottom
-    const arm = "M 88,172 C 72,164 54,144 48,114 C 42,88 50,60 66,42 C 76,32 86,22 96,20 C 108,18 124,20 132,30 C 140,40 140,58 134,76 C 128,94 126,116 126,136 C 124,150 120,162 114,172 C 106,178 96,178 88,172 Z";
-    // Fibers rise off the bicep peak area (left side, mid-height)
+    const filterId = "bicep-color";
+    // Fiber particles: positioned around where the bicep dome would be (left-center)
     const fibers = [
-      {x:50,  y:100, r:2.8, dur:"2.2s", delay:"0s"  },
-      {x:62,  y:76,  r:2.2, dur:"2.6s", delay:"0.5s" },
-      {x:58,  y:118, r:2.4, dur:"2.0s", delay:"0.9s" },
-      {x:70,  y:90,  r:2.0, dur:"2.4s", delay:"1.3s" },
-      {x:54,  y:60,  r:1.8, dur:"2.8s", delay:"0.7s" },
-      {x:72,  y:108, r:1.6, dur:"2.5s", delay:"1.6s" },
+      {x:62,  y:82,  r:2.8, dur:"2.2s", delay:"0s"  },
+      {x:50,  y:100, r:2.2, dur:"2.6s", delay:"0.5s" },
+      {x:72,  y:68,  r:2.4, dur:"2.0s", delay:"0.9s" },
+      {x:58,  y:115, r:2.0, dur:"2.4s", delay:"1.3s" },
+      {x:78,  y:95,  r:1.8, dur:"2.8s", delay:"0.7s" },
     ];
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {/* Warm aura behind the arm */}
-        <ellipse cx="100" cy="100" rx="68" ry="72" fill={color} opacity="0.10">
+        <defs>
+          {/* Colorize the emoji: desaturate to grey then tint with accent color */}
+          <filter id={filterId} colorInterpolationFilters="sRGB">
+            <feColorMatrix type="saturate" values="0"/>
+            <feColorMatrix type="matrix" result="tinted"
+              values={`${parseInt(color.slice(1,3),16)/128} 0 0 0 ${parseInt(color.slice(1,3),16)/255}
+                       0 ${parseInt(color.slice(3,5),16)/128} 0 0 ${parseInt(color.slice(3,5),16)/255}
+                       0 0 ${parseInt(color.slice(5,7),16)/128} 0 ${parseInt(color.slice(5,7),16)/255}
+                       0 0 0 1 0`}/>
+          </filter>
+        </defs>
+
+        {/* Warm aura */}
+        <ellipse cx="100" cy="105" rx="72" ry="72" fill={color} opacity="0.10">
           <animate attributeName="opacity" values="0.06;0.18;0.06" dur="2.4s" repeatCount="indefinite"/>
         </ellipse>
-        {/* Arm silhouette — breathes */}
-        <path d={arm} fill={color}>
+
+        {/* 💪 emoji at 130px — always the right shape, colored via filter */}
+        <text x="105" y="148" textAnchor="middle" fontSize="130"
+          filter={`url(#${filterId})`} style={{userSelect:"none"}}>
+          💪
           <animate attributeName="opacity" values="0.88;1;0.88" dur="2.4s" repeatCount="indefinite"/>
-        </path>
-        {/* Highlight sheen on bicep dome */}
-        <ellipse cx="58" cy="90" rx="11" ry="16" fill="white" opacity="0">
-          <animate attributeName="opacity" values="0.12;0.26;0.12" dur="2.4s" repeatCount="indefinite"/>
-        </ellipse>
-        {/* Fiber particles rising off the bicep peak */}
+        </text>
+
+        {/* Fiber particles rising off the bicep dome */}
         {fibers.map((f, i) => (
-          <circle key={i} cx={f.x} cy={f.y} r={f.r} fill="white">
-            <animate attributeName="opacity" values="0;0.80;0" dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
-            <animate attributeName="cy" values={`${f.y};${f.y-20};${f.y-42}`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+          <circle key={i} cx={f.x} cy={f.y} r={f.r} fill={color}>
+            <animate attributeName="opacity" values="0;0.85;0" dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+            <animate attributeName="cy" values={`${f.y};${f.y-22};${f.y-45}`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
             <animate attributeName="r" values={`${f.r};${f.r*0.6};0.2`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
           </circle>
         ))}

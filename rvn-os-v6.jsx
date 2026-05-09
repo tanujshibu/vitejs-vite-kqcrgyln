@@ -8737,44 +8737,55 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── fire: flexed bicep with fiber breakdown particles — soreness = muscle degrading ──
+  // ── fire: flexed arm silhouette — soreness = muscle breakdown ───────────────
+  // Built from composited shapes so it actually reads as an arm, not a blob
   if (type === "fire") {
-    // Properly rounded flexed bicep — curved sides, classic domed peak, rounded base
-    const bicep = "M 68,158 C 58,150 52,132 53,106 C 54,80 64,56 78,43 C 87,35 94,31 100,30 C 106,31 113,35 122,43 C 136,56 146,80 147,106 C 148,132 142,150 132,158 C 118,165 82,165 68,158 Z";
-    // Peak highlight arc — the bright dome on top of the muscle
-    const peakArc = "M 80,46 C 87,36 94,31 100,30 C 106,31 113,36 120,46";
-    // Fiber particles rise off the peak area — muscle fibers breaking down
+    // Fiber particles rise off the bicep peak
     const fibers = [
-      {x:88,  y:62,  r:2.8, dur:"2.2s", delay:"0s"  },
-      {x:100, y:44,  r:2.2, dur:"2.6s", delay:"0.4s" },
-      {x:113, y:60,  r:2.5, dur:"2.0s", delay:"0.8s" },
-      {x:93,  y:80,  r:2.0, dur:"2.4s", delay:"1.2s" },
-      {x:107, y:75,  r:1.8, dur:"2.8s", delay:"0.6s" },
-      {x:82,  y:92,  r:2.2, dur:"2.2s", delay:"1.6s" },
-      {x:118, y:88,  r:1.6, dur:"2.5s", delay:"1.0s" },
-      {x:100, y:62,  r:1.5, dur:"3.0s", delay:"1.9s" },
+      {x:82,  y:58,  r:2.8, dur:"2.2s", delay:"0s"  },
+      {x:94,  y:38,  r:2.2, dur:"2.6s", delay:"0.4s" },
+      {x:108, y:54,  r:2.5, dur:"2.0s", delay:"0.8s" },
+      {x:88,  y:74,  r:2.0, dur:"2.4s", delay:"1.2s" },
+      {x:102, y:68,  r:1.8, dur:"2.8s", delay:"0.6s" },
+      {x:75,  y:82,  r:2.2, dur:"2.2s", delay:"1.6s" },
+      {x:115, y:72,  r:1.6, dur:"2.5s", delay:"1.0s" },
     ];
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {/* Warm aura behind — breathes like heat */}
-        <ellipse cx="100" cy="98" rx="58" ry="72" fill={color} opacity="0.13">
-          <animate attributeName="opacity" values="0.08;0.20;0.08" dur="2.4s" repeatCount="indefinite"/>
-          <animate attributeName="ry" values="70;78;70" dur="2.4s" repeatCount="indefinite"/>
+        {/* Warm aura — breathes */}
+        <ellipse cx="102" cy="105" rx="70" ry="75" fill={color} opacity="0.10">
+          <animate attributeName="opacity" values="0.06;0.16;0.06" dur="2.4s" repeatCount="indefinite"/>
         </ellipse>
-        {/* Muscle body — rich fill that pulses */}
-        <path d={bicep} fill={color}>
-          <animate attributeName="opacity" values="0.80;1;0.80" dur="2.4s" repeatCount="indefinite"/>
-        </path>
-        {/* Peak highlight — glows brightest at the dome */}
-        <path d={peakArc} fill="none" stroke="white" strokeWidth="3" strokeLinecap="round">
-          <animate attributeName="opacity" values="0.45;0.85;0.45" dur="2.4s" repeatCount="indefinite"/>
-        </path>
-        {/* Fiber breakdown particles — drift upward and dissolve */}
+
+        {/* ── ARM SILHOUETTE (composited) ───────────────────────── */}
+        {/* Upper arm tube — vertical rounded rectangle */}
+        <rect x="78" y="60" width="48" height="108" rx="24" fill={color}>
+          <animate attributeName="opacity" values="0.88;1;0.88" dur="2.4s" repeatCount="indefinite"/>
+        </rect>
+        {/* Bicep peak — ellipse shifted LEFT so it clearly protrudes */}
+        <ellipse cx="86" cy="88" rx="36" ry="42" fill={color}>
+          <animate attributeName="opacity" values="0.88;1;0.88" dur="2.4s" repeatCount="indefinite"/>
+        </ellipse>
+        {/* Forearm — horizontal rounded rect going LEFT from elbow */}
+        <rect x="26" y="148" width="82" height="30" rx="15" fill={color}>
+          <animate attributeName="opacity" values="0.80;0.95;0.80" dur="2.4s" repeatCount="indefinite"/>
+        </rect>
+        {/* Elbow joint — circle that fills the corner gap */}
+        <circle cx="84" cy="162" r="22" fill={color}>
+          <animate attributeName="opacity" values="0.88;1;0.88" dur="2.4s" repeatCount="indefinite"/>
+        </circle>
+
+        {/* Peak highlight — white sheen on the bicep dome */}
+        <ellipse cx="80" cy="72" rx="14" ry="10" fill="white" opacity="0.18">
+          <animate attributeName="opacity" values="0.12;0.28;0.12" dur="2.4s" repeatCount="indefinite"/>
+        </ellipse>
+
+        {/* Fiber breakdown particles — rise and dissolve off the peak */}
         {fibers.map((f, i) => (
           <circle key={i} cx={f.x} cy={f.y} r={f.r} fill="white">
-            <animate attributeName="opacity" values="0;0.75;0" dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
-            <animate attributeName="cy" values={`${f.y};${f.y-20};${f.y-42}`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
-            <animate attributeName="r" values={`${f.r};${f.r*0.7};0.2`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0;0.80;0" dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+            <animate attributeName="cy" values={`${f.y};${f.y-22};${f.y-44}`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+            <animate attributeName="r" values={`${f.r};${f.r*0.6};0.3`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
           </circle>
         ))}
       </svg>

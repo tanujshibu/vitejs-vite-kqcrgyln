@@ -745,7 +745,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Side Shoulders","Obliques","Side Glutes","Outer Ribs"],
     bioScore:78,
     signature:"Shoulder-to-waist-to-hip ratio — the classic feminine silhouette.",
-    aiLine:  "Estrogen profile supports lateral delt hypertrophy. Core tensioning protocol active.",
+    aiLine:  "Your body is built for this shape. Shoulders wider, waist tighter — that's engineering, not luck.",
     narrative:[
       "The hourglass silhouette is created by widening the shoulders, defining the waist, and rounding the hips. These are three independently trainable variables.",
       "Lateral delt width is the most underutilized tool in female physique development. A 2cm addition to shoulder width creates 4x the visual waist-narrowing effect.",
@@ -769,7 +769,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Full Kinetic Chain","Fast-Twitch Type II","VO2 Max","Metabolic Rate"],
     bioScore:81,
     signature:"Low body fat, functional strength, and elite cardiovascular capacity.",
-    aiLine:  "Metabolic rate elevated. EPOC window open. Optimal conditions for body recomposition.",
+    aiLine:  "Your metabolism is running hot. Syncing your training to your body's cycle gets you more results from the same effort.",
     narrative:[
       "Athletic leanness is the product of simultaneous muscle building and fat loss — body recomposition. It requires precision nutrition timing, not just caloric restriction.",
       "Female athletes have a metabolic advantage in fat oxidation during sub-maximal exercise. This protocol exploits that advantage through specific intensity zones.",
@@ -793,7 +793,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Biceps","Triceps","Abs","Front Shoulders"],
     bioScore:72,
     signature:"Visible muscle definition without bulk — the lean sculpted aesthetic.",
-    aiLine:  "Slow-twitch endurance fibers primed. High-rep metabolic protocol initialized.",
+    aiLine:  "Your muscles are ready to show. What you put in today will be visible in the mirror in a few weeks.",
     narrative:[
       "Muscle tone is not a different type of muscle growth — it's low body fat revealing existing muscle. This protocol builds the right muscles and simultaneously optimizes fat oxidation.",
       "Higher rep ranges (15-20) with shorter rest periods elevate growth hormone more than heavy low-rep training in female physiology.",
@@ -818,7 +818,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Quadriceps","Hamstrings","Glutes","Inner Thighs"],
     bioScore:83,
     signature:"Strong legs you can see and feel in everything you do.",
-    aiLine:  "Lower body recruitment at 91%. Glute-quad co-activation pattern optimized.",
+    aiLine:  "Training your legs builds your whole body — not just your legs. It floods everything with growth signals.",
     narrative:[
       "Strong legs are the foundation of every movement your body makes. This protocol builds real lower body strength that translates outside the gym — stairs, runs, sports, everything gets easier.",
       "Squatting below parallel is non-negotiable here. Full-depth squats recruit three times more glute fiber than partial reps. We will build the mobility to get there if you are not there yet.",
@@ -842,7 +842,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Full Body","Metabolic Rate","Lean Tissue","Cardiovascular System"],
     bioScore:80,
     signature:"Less fat. More muscle. Same weight on the scale — and that is the point.",
-    aiLine:  "Simultaneous anabolic and catabolic signaling active. Recomp window: open.",
+    aiLine:  "You can drop fat and build muscle at the same time. Your body is set up for it — the protocol makes it happen.",
     narrative:[
       "Body recomposition means building muscle and losing fat at the same time. Most people are told it is impossible — it is not. It requires precision training and nutrition, but the results are the most dramatic transformation available.",
       "The scale is not your friend during recomp. Fat takes up more space than muscle by volume — you might drop a dress size while the number barely moves. Progress photos and measurements are the only honest tracker here.",
@@ -866,7 +866,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Biceps","Triceps","Lats","Rear Shoulders"],
     bioScore:75,
     signature:"Defined arms. A back worth showing off. Tank top season is always open.",
-    aiLine:  "Bicep peak angles optimized. Lat width protocol primed for tissue growth.",
+    aiLine:  "Arms and back are the muscles that change how every outfit fits. They respond fast — you'll see it quickly.",
     narrative:[
       "Defined arms and a strong back are the most requested upper body goals — and the most achievable. Arms respond incredibly fast to direct training because they are often completely undertrained.",
       "The back is the biggest canvas in the upper body. Building lat width creates the illusion of a smaller waist without touching the waist at all. Rows, pulldowns, and cables are your best tools here.",
@@ -890,7 +890,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Full Body","Compound Patterns","Glutes & Core","Metabolic Rate"],
     bioScore:82,
     signature:"Everything, every session. The most efficient path to total transformation.",
-    aiLine:  "Multi-joint recruitment maximal. Systemic anabolic signaling active across all planes.",
+    aiLine:  "Every session is quietly stacking. Fat dropping, muscle building — by week 24 the whole picture changes.",
     narrative:[
       "Full body training three times a week is scientifically the most effective protocol for body composition change. You hit each muscle twice as often as a split routine — faster results with less total gym time.",
       "Compound movements like squats, deadlifts, and presses recruit dozens of muscles at once. A full body session burns more calories, releases more growth hormone, and creates more metabolic stress than any isolation workout.",
@@ -1153,7 +1153,7 @@ const STORE_ARCHETYPES = [
   {
     id:"longevity", name:"Cellular Longevity", word:"VITALITY", sub:"BIOLOGICAL AGE REVERSAL", glow:"#30D158",
     bioScore:84, signature:"Operate 10 biological years younger than your calendar age.",
-    aiLine:"NAD+ depletion detected at 52% from peak. Mitochondrial restoration protocol available.",
+    aiLine:"Your body is aging slower than your calendar says it should. Every workout adds biological years back.",
     narrative:[
       "NAD+ levels decline approximately 50% per decade after 30. This single molecular change is responsible for the majority of what we call 'aging' — reduced energy, impaired repair, cognitive slowing.",
       "NMN supplementation directly restores NAD+ within hours of ingestion. Sirtuins activate. Mitochondria multiply. Cellular repair mechanisms return to a younger operating state.",
@@ -1169,7 +1169,7 @@ const STORE_ARCHETYPES = [
   {
     id:"skin", name:"Luminous Skin", word:"RADIANCE", sub:"DERMAL ARCHITECTURE", glow:"#BF5AF2",
     bioScore:78, signature:"Glass skin — the visual signal of optimal internal health.",
-    aiLine:"Collagen synthesis pathway analysis initiated. Dermal hydration markers below optimal.",
+    aiLine:"Your skin repairs and rebuilds during recovery. Sleep and training together make the biggest visible difference.",
     narrative:[
       "Skin quality is an internal job. The entire topical skincare industry addresses symptoms at the surface while the actual drivers — collagen synthesis rates, oxidative stress, glycation — operate from within.",
       "Marine collagen peptides absorbed orally appear directly in the dermis within 4 weeks, measurably increasing skin density, elasticity, and the luminosity that no serum can replicate.",
@@ -1185,7 +1185,7 @@ const STORE_ARCHETYPES = [
   {
     id:"cognitive", name:"Cognitive Edge", word:"CLARITY", sub:"NEURAL SUPREMACY", glow:"#5AC8FA",
     bioScore:87, signature:"The sharpest, fastest, most magnetic version of your mind.",
-    aiLine:"BDNF upregulation pathway available. Acetylcholine synthesis substrates detected as limiting factor.",
+    aiLine:"Your brain gets sharper after every workout. Focus, memory, and reaction time all improve within hours of training.",
     narrative:[
       "Cognitive performance degrades through the same biological mechanisms as physical performance — inflammation, mitochondrial dysfunction, poor cerebrovascular flow. The interventions overlap completely.",
       "Lion's Mane extract stimulates Nerve Growth Factor — the protein responsible for new neuron growth and maintenance of existing neural connections. This is not a stimulant. This is construction.",
@@ -1201,7 +1201,7 @@ const STORE_ARCHETYPES = [
   {
     id:"metabolic", name:"Metabolic Reset", word:"LEAN", sub:"FAT-BURNING ARCHITECTURE", glow:"#FF6B35",
     bioScore:83, signature:"Striations visible in side shoulders and upper chest. The fat-free signature.",
-    aiLine:"Insulin sensitivity analysis running. AMPK pathway shows suboptimal activation.",
+    aiLine:"Your body is ready to drop fat. It just needs the right structure — that's exactly what this protocol gives it.",
     narrative:[
       "Metabolic dysfunction is not a discipline problem. It's a cellular signaling problem. When insulin sensitivity degrades and AMPK pathway activation drops, fat loss becomes biochemically impaired regardless of effort.",
       "Berberine activates AMPK through the same mechanism as metformin — the most studied diabetes medication in history — at therapeutic doses available in a natural supplement.",
@@ -1217,7 +1217,7 @@ const STORE_ARCHETYPES = [
   {
     id:"fat_loss", name:"Fat Loss Protocol", word:"SHRED", sub:"PRECISION FAT MOBILIZATION", glow:"#FF6B35",
     bioScore:81, signature:"Visible vascularity. Striations in every major muscle group.",
-    aiLine:"AMPK pathway activation available. Lipolysis rate currently below clinical optimum.",
+    aiLine:"You're close. Your body knows how to burn fat — it just needs consistency and the right protocol to finish the job.",
     narrative:[
       "Fat loss is a hormonal event, not a caloric arithmetic problem. When insulin is chronically elevated and AMPK signaling is impaired, the body is biochemically locked out of using fat as fuel — regardless of deficit size.",
       "Berberine activates AMPK through the same mechanism as metformin, directly unlocking fatty acid oxidation. CLA reduces adipocyte storage capacity at the cellular level — not a stimulant, a structural shift.",
@@ -1233,7 +1233,7 @@ const STORE_ARCHETYPES = [
   {
     id:"muscle_build", name:"Muscle Builder", word:"MASS", sub:"HYPERTROPHY ARCHITECTURE", glow:"#FF4B2B",
     bioScore:85, signature:"Dense, powerful musculature. Size that commands immediate respect.",
-    aiLine:"Anabolic signaling window open. mTOR pathway ready for activation. Protein synthesis rate: suboptimal.",
+    aiLine:"Your muscles are ready to grow. Hit the food and the training consistently and the size comes — it's just biology.",
     narrative:[
       "Muscle growth is the result of mechanical tension, metabolic stress, and muscle damage — the three hypertrophy drivers. Nutrition determines whether the body has the raw materials to rebuild bigger after each session.",
       "Creatine monohydrate is the single most validated performance supplement in existence: 200+ peer-reviewed studies, consistent 8-12% strength increases, direct ATP recycling support during max-effort sets.",
@@ -8874,12 +8874,12 @@ const ONBOARDING_FACTS = {
     soreness: {
       stat: "72hrs", color: "#FF4B2B", visual: "timeline_dots", lottie: "fire",
       headline: "Soreness means you recovered poorly, not trained hard",
-      body: "DOMS peaks at 72hrs and is just inflammation. Elite athletes rarely get sore — their recovery is dialed.",
+      body: "Soreness is just inflammation — it doesn't mean you trained harder. The best athletes barely get sore because their recovery is that good.",
     },
     fog: {
       stat: "6×", color: "#BF5AF2", visual: "brain_pulse", lottie: "brain",
       headline: "Your brain is the muscle most people forget to recover",
-      body: "The CNS controls every rep and contraction. Optimize neural recovery and next session outputs 6× more.",
+      body: "Your brain drives every single rep. When it's not recovered, your body won't perform no matter how hard you push.",
     },
   },
   archetype: {
@@ -9530,7 +9530,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
   if (factData) return <FactFlash key="target-fact" data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
   return (
-    <Screen theme={theme} style={{ overflowY:"auto", overflow:"hidden" }}>
+    <Screen theme={theme} style={{ overflowY:"auto", overflowX:"hidden" }}>
       {/* Ambient glow — breathes */}
       <motion.div
         animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}

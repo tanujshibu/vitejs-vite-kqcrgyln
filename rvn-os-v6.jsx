@@ -524,7 +524,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Lats","Rear Shoulders","Outer Ribs","Upper Back"],
     bioScore:82,
     signature:"Shoulder-to-waist ratio dominance. The elite visual signature.",
-    aiLine:  "Your nervous system is ready. Your back muscles are primed to fire hard today.",
+    aiLine:  "Your back and shoulders are warmed up and ready. Today's a good day to push the weight.",
     narrative:[
       "The V-Taper is the #1 most noticeable physique change you can make. Wide shoulders and a narrow waist literally make you look bigger, stronger, and more athletic — even in a t-shirt.",
       "We're training your lats — the big muscles under your arms that create wing-like width. When they grow, your waist looks smaller even if it hasn't changed. That's the visual trick.",
@@ -548,7 +548,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Abs","Side Abs","Deep Core","Outer Ribs"],
     bioScore:76,
     signature:"Six-pack segmentation + oblique tie-in. The anatomy that stops rooms.",
-    aiLine:  "Subcutaneous oxidation active. Your lipolytic enzymes are elevated 18% above baseline.",
+    aiLine:  "Your body is actively burning fat right now. You just need to cut through the last layer covering your abs.",
     narrative:[
       "Abs are made in the kitchen AND the gym. You already have abs — the goal is burning the layer of fat covering them. This protocol hits both at the same time.",
       "The side ab muscles (obliques) are what give you that 'carved' look between your ribs and hip. Most people skip these. We don't.",
@@ -572,7 +572,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Chest","Quadriceps","Trapezius","Overall Muscle Density"],
     bioScore:88,
     signature:"The kind of mass that reads across a room. Presence protocol.",
-    aiLine:  "Muscle-building signals are high. Your body is primed for maximal mechanical tension.",
+    aiLine:  "Your body is ready to add real size. Everything is lined up — hit the weights and it'll show.",
     narrative:[
       "There's a difference between looking big and looking powerful. This protocol builds the kind of dense, heavy muscle that makes people move out of your way — not just gym selfie muscle.",
       "We're targeting the deepest muscle fibers — the ones that make muscles feel hard and look 3D rather than soft and flat. Heavy compound movements with controlled tempo are the only way to get there.",
@@ -596,7 +596,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Full Kinetic Chain","Fast-Twitch Fibers","Cardiovascular System","Neural Drive"],
     bioScore:91,
     signature:"Fast, imposing, capable. The physique that matches its own energy.",
-    aiLine:  "Explosive neural pathways fully recruited. Power output window is open.",
+    aiLine:  "You're built to be fast and strong at the same time. Most people pick one — you don't have to.",
     narrative:[
       "The Athletic Performance protocol is the synthesis of all physical attributes. Enough structural mass to command presence, low enough body fat to reveal every muscular line, and athletic output that justifies the aesthetic.",
       "Olympic lifting derivatives develop the explosive power that separates 'strong' from 'athletic' — the ability to produce maximum force in minimum time.",
@@ -621,7 +621,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Chest","Biceps","Triceps","Front Shoulders"],
     bioScore:79,
     signature:"The most visual muscles. Built for every shirt you own.",
-    aiLine:  "Pec fiber fast-twitch recruitment at 94%. Bicep peak genetics favor your current load.",
+    aiLine:  "Arms and chest show results faster than any other muscle. You'll notice the difference in the mirror first.",
     narrative:[
       "Chest and arms are the most noticed muscles in everyday life — and the most trainable for visible results in under 8 weeks. This protocol targets both pushing and pulling to create balanced, full-looking upper arms.",
       "The key to chest growth most people miss is the mind-muscle connection. If you feel it in your shoulders, you're doing it wrong. We give you specific cues to lock into the pec during every rep.",
@@ -645,7 +645,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Quadriceps","Chest","Back Muscles","Lower Back"],
     bioScore:90,
     signature:"Numbers on the bar. The only metric that matters.",
-    aiLine:  "CNS output optimized. Neural efficiency at 97%. Your 1RM is recalculating upward.",
+    aiLine:  "Your max lift is going up. Consistent heavy training is the only variable — and you're already on it.",
     narrative:[
       "Powerlifting is built around three lifts — squat, bench, deadlift. Every accessory movement in this protocol exists to make those three numbers go up. Nothing extra, nothing wasted.",
       "Heavy compound training recruits more muscle fibers in a single set than any machine ever built. The neural demand alone changes your body composition before your muscles visibly grow.",
@@ -669,7 +669,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Full Body (Metabolic)","Cardiovascular System","Fast-Twitch Type IIb"],
     bioScore:77,
     signature:"Strip the layer. Reveal what was always there.",
-    aiLine:  "AMPK pathway online. Lipolytic enzymes elevated. Fat mobilization window: OPEN.",
+    aiLine:  "Your body is in fat-burning mode right now. Keep the intensity up and it stays that way all day.",
     narrative:[
       "Fat loss is a hormonal game, not just a calorie game. The right training style keeps your metabolism elevated for 24+ hours after the session ends — this protocol does exactly that.",
       "HIIT combined with heavy compound work triggers more fat-burning hormones than steady-state cardio alone. We do both — strategically sequenced so one enhances the other.",
@@ -693,7 +693,7 @@ const GYM_ARCHETYPES = [
     muscles: ["Chest","Back","Core","Scapular Stabilizers","Triceps"],
     bioScore:85,
     signature:"No machines. No excuses. Just you and gravity.",
-    aiLine:  "Bodyweight relative strength index: above average. Skill-strength continuum engaged.",
+    aiLine:  "No machines, no excuses — and no ceiling either. The harder moves will always be there waiting for you.",
     narrative:[
       "Calisthenics builds a different kind of muscle — one that actually has to perform. Every exercise requires total body coordination, which fires more muscle fibers and burns more calories than isolated machine work.",
       "The progression in calisthenics is limitless. Once a regular push-up is easy, there are archer push-ups, then planche push-ups. Each level is harder than most gym exercises. Your ceiling doesn't exist.",
@@ -721,7 +721,7 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Glutes","Side Glutes","Hip Flexors","Hamstrings"],
     bioScore:84,
     signature:"Full, round glute development with hip-to-waist ratio dominance.",
-    aiLine:  "Glute fiber recruitment elevated. Hip hinge mechanics optimized for back muscles.",
+    aiLine:  "Your glutes are ready to grow. The right exercises will reshape you faster than you expect.",
     narrative:[
       "Glute architecture is the single highest-impact physique variable for the female form. Volume, roundness, and the gluteal shelf are each independently trainable.",
       "Hip thrust peak contraction outperforms squats for glutes activation by 40%. This protocol is sequenced to maximize glute-hamstring connection.",
@@ -8638,21 +8638,47 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── lightning: bold zigzag bolt — 200mg dose ────────────────────────────────
+  // ── lightning: dose-response curve — 200mg is the sweet spot, more ≠ more ───
+  // Curve draws itself: rises to peak at 200mg marker, then dips → shows diminishing returns
   if (type === "lightning") {
-    // Single stroked path = clean unambiguous bolt shape, no glow blob
+    const curve = "M 24,148 C 50,148 72,38 110,34 C 138,34 158,98 178,115";
+    const cLen = 230;
     return (
-      <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        <path d="M 120,18 L 86,96 L 114,96 L 80,182"
-          fill="none" stroke={color} strokeWidth="26" strokeLinecap="round" strokeLinejoin="round">
-          <animate attributeName="opacity" values="0.75;1;0.75" dur="1.3s" repeatCount="indefinite"/>
-          <animate attributeName="stroke-width" values="24;30;24" dur="1.3s" repeatCount="indefinite"/>
+      <svg viewBox="0 0 200 180" width="195" height="175" style={{overflow:"visible"}}>
+        {/* Axes */}
+        <line x1="20" y1="148" x2="182" y2="148" stroke={color} strokeWidth="1.5" opacity="0.18"/>
+        <line x1="20" y1="22"  x2="20"  y2="148" stroke={color} strokeWidth="1.5" opacity="0.18"/>
+        {/* Axis label */}
+        <text x="100" y="165" textAnchor="middle" fill={color} fontSize="9" fontWeight="600"
+          fontFamily="system-ui,sans-serif" opacity="0.5">CAFFEINE DOSE</text>
+        {/* Dose-response curve draws in */}
+        <path d={curve} fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray={cLen} strokeDashoffset={cLen}>
+          <animate attributeName="stroke-dashoffset" from={cLen} to="0" dur="1.4s" fill="freeze"/>
         </path>
-        {/* Inner highlight — thinner, brighter */}
-        <path d="M 120,18 L 86,96 L 114,96 L 80,182"
-          fill="none" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" opacity="0">
-          <animate attributeName="opacity" values="0;0.35;0" dur="1.3s" repeatCount="indefinite"/>
-        </path>
+        {/* 200mg peak dot — pulses after curve reaches it */}
+        <circle cx="110" cy="34" r="7" fill={color} opacity="0">
+          <animate attributeName="opacity" values="0;1" dur="0.2s" begin="0.85s" fill="freeze"/>
+          <animate attributeName="r" values="6;13;6" dur="1.8s" begin="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="1;0.55;1" dur="1.8s" begin="1.4s" repeatCount="indefinite"/>
+        </circle>
+        {/* Dotted guide line at 200mg */}
+        <line x1="110" y1="148" x2="110" y2="40" stroke={color} strokeWidth="1.2"
+          strokeDasharray="4 3" opacity="0">
+          <animate attributeName="opacity" values="0;0.4" dur="0.2s" begin="0.85s" fill="freeze"/>
+        </line>
+        {/* 200mg x-axis label */}
+        <text x="110" y="161" textAnchor="middle" fill={color} fontSize="9.5" fontWeight="700"
+          fontFamily="system-ui,sans-serif" opacity="0">
+          <animate attributeName="opacity" values="0;0.85" dur="0.2s" begin="0.85s" fill="freeze"/>
+          200mg
+        </text>
+        {/* SWEET SPOT label above peak */}
+        <text x="110" y="25" textAnchor="middle" fill={color} fontSize="9" fontWeight="700"
+          fontFamily="system-ui,sans-serif" opacity="0">
+          <animate attributeName="opacity" values="0;0.7" dur="0.2s" begin="1.0s" fill="freeze"/>
+          SWEET SPOT
+        </text>
       </svg>
     );
   }

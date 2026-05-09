@@ -8560,78 +8560,81 @@ const ONBOARDING_FACTS = {
 
 function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
+  // 3 seconds — fast enough to feel like a beat, not a read
   useEffect(() => {
-    const t = setTimeout(onContinue, 6500);
+    const t = setTimeout(onContinue, 3000);
     return () => clearTimeout(t);
   }, []);
   return (
     <motion.div
       initial={{ opacity:0 }} animate={{ opacity:1 }}
-      transition={{ duration:0.2 }}
+      transition={{ duration:0.12 }}
       onClick={onContinue}
       style={{
         position:"fixed", inset:0, zIndex:9999,
         background: T.bg,
         display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center",
-        padding:"32px 28px 60px", cursor:"pointer", overflow:"hidden",
+        padding:"0 36px 80px", cursor:"pointer", overflow:"hidden",
       }}>
-      {/* Color burst */}
+
+      {/* Deep color wash — makes it feel like its own world */}
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+        background:`radial-gradient(ellipse 100% 80% at 50% 40%, ${data.color}28, transparent 70%)` }}/>
+
+      {/* Color burst on enter */}
       <motion.div
-        initial={{ scale:0, opacity:0.6 }} animate={{ scale:20, opacity:0 }}
-        transition={{ duration:1.0, ease:[0.22,1,0.36,1] }}
-        style={{ position:"absolute", width:70, height:70, borderRadius:"50%", background:data.color, pointerEvents:"none" }}/>
-      {/* Glow */}
-      <div style={{ position:"absolute", inset:0, background:`radial-gradient(ellipse 65% 55% at 50% 38%, ${data.color}1A, transparent)`, pointerEvents:"none" }}/>
-      {/* Ring */}
+        initial={{ scale:0, opacity:0.55 }} animate={{ scale:28, opacity:0 }}
+        transition={{ duration:0.85, ease:[0.22,1,0.36,1] }}
+        style={{ position:"absolute", width:56, height:56, borderRadius:"50%",
+          background:data.color, pointerEvents:"none" }}/>
+
+      {/* Expanding ring */}
       <motion.div
-        initial={{ scale:0.3, opacity:0 }} animate={{ scale:1, opacity:0.12 }}
-        transition={{ delay:0.3, duration:0.9 }}
-        style={{ position:"absolute", width:300, height:300, borderRadius:"50%", border:`1px solid ${data.color}`, pointerEvents:"none" }}/>
-      {/* Animated visual */}
-      <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:0.1, duration:0.4 }}
-        style={{ marginBottom:16, display:"flex", alignItems:"center", justifyContent:"center" }}>
-        <FactVisual type={data.visual} color={data.color}/>
-      </motion.div>
-      {/* Stat */}
+        initial={{ scale:0.15, opacity:0.5 }} animate={{ scale:1.4, opacity:0 }}
+        transition={{ duration:1.6, ease:"easeOut" }}
+        style={{ position:"absolute", width:340, height:340, borderRadius:"50%",
+          border:`1.5px solid ${data.color}`, pointerEvents:"none" }}/>
+
+      {/* Second ring, offset */}
       <motion.div
-        initial={{ opacity:0, scale:0.55, y:12 }} animate={{ opacity:1, scale:1, y:0 }}
-        transition={{ delay:0.16, duration:0.48, ease:[0.22,1,0.36,1] }}
+        initial={{ scale:0.15, opacity:0.3 }} animate={{ scale:1.0, opacity:0 }}
+        transition={{ delay:0.2, duration:1.4, ease:"easeOut" }}
+        style={{ position:"absolute", width:240, height:240, borderRadius:"50%",
+          border:`1px solid ${data.color}`, pointerEvents:"none" }}/>
+
+      {/* THE STAT — takes up the whole moment */}
+      <motion.div
+        initial={{ opacity:0, scale:0.3, y:24 }} animate={{ opacity:1, scale:1, y:0 }}
+        transition={{ delay:0.06, duration:0.52, ease:[0.22,1,0.36,1] }}
         style={{
-          fontSize:68, fontWeight:900, color:data.color, letterSpacing:"-0.05em",
-          lineHeight:1, textAlign:"center", marginBottom:12,
-          textShadow:`0 0 40px ${data.color}66`,
+          fontSize:100, fontWeight:900, color:data.color,
+          letterSpacing:"-0.06em", lineHeight:1,
+          textAlign:"center", marginBottom:24,
+          textShadow:`0 0 80px ${data.color}99`,
         }}>
         {data.stat}
       </motion.div>
-      {/* Headline */}
+
+      {/* ONE punchy headline — that's all */}
       <motion.div
-        initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:0.3, duration:0.38 }}
-        style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-0.02em", textAlign:"center", marginBottom:10, lineHeight:1.25, maxWidth:280 }}>
+        initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:0.22, duration:0.4, ease:[0.22,1,0.36,1] }}
+        style={{
+          fontSize:22, fontWeight:900, color:T.text,
+          letterSpacing:"-0.025em", textAlign:"center",
+          lineHeight:1.25, maxWidth:260,
+        }}>
         {data.headline}
       </motion.div>
-      {/* Divider */}
-      <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
-        transition={{ delay:0.44, duration:0.32 }}
-        style={{ width:32, height:2, background:data.color, borderRadius:2, marginBottom:10, alignSelf:"center" }}/>
-      {/* Body — short, 2 sentences max */}
+
+      {/* Progress bar — 3 second sweep */}
       <motion.div
-        initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:0.5, duration:0.38 }}
-        style={{ fontSize:13.5, color:T.muted, textAlign:"center", lineHeight:1.6, maxWidth:270 }}>
-        {data.body}
-      </motion.div>
-      {/* Tap hint */}
-      <motion.div initial={{ opacity:0 }} animate={{ opacity:0.35 }} transition={{ delay:1.2 }}
-        style={{ position:"absolute", bottom:48, fontSize:9.5, color:T.faint, letterSpacing:".16em" }}>
-        TAP TO CONTINUE
-      </motion.div>
-      {/* Progress bar */}
-      <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
-        transition={{ duration:6.5, ease:"linear" }}
-        style={{ position:"absolute", bottom:0, left:0, right:0, height:3, background:data.color, transformOrigin:"left" }}/>
+        initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+        transition={{ duration:3.0, ease:"linear" }}
+        style={{ position:"absolute", bottom:0, left:0, right:0, height:3,
+          background:data.color, transformOrigin:"left",
+          boxShadow:`0 0 12px ${data.color}` }}/>
     </motion.div>
   );
 }
@@ -8657,11 +8660,12 @@ function StoryHook({ text, theme, accent, delay=0 }) {
   );
 }
 
-// ─── ONBOARDING TAP CARD — Cal AI black-select pattern ────────────────────────
-function OBCard({ option, selected, onPick, index = 0, theme }) {
+// ─── ONBOARDING TAP CARD — fills its container, big and simple ───────────────
+function OBCard({ option, selected, onPick, index = 0, theme, fill = false }) {
   const T = D[theme] || D.dark;
   const isSelected = selected === option.value;
   const isDark = theme === "dark";
+  const accentColor = option.color || T.blue;
   return (
     <motion.button
       initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
@@ -8669,40 +8673,45 @@ function OBCard({ option, selected, onPick, index = 0, theme }) {
       whileTap={{ scale:.97 }}
       onClick={() => onPick(option.value)}
       style={{
-        width:"100%", padding:"20px 22px",
-        background: isSelected ? (isDark ? "#ffffff" : "#000000") : T.glass,
+        width:"100%",
+        height: fill ? "100%" : "auto",
+        minHeight: 78,
+        padding:"0 22px",
+        background: isSelected
+          ? `linear-gradient(135deg,${accentColor}28,${accentColor}10)`
+          : T.glass,
         backdropFilter:isMobile?"none":"blur(16px)",
-        border:`1.5px solid ${isSelected ? (isDark?"#fff":"#000") : T.border}`,
-        borderRadius:18, cursor:"pointer",
+        border:`1.5px solid ${isSelected ? accentColor : T.border}`,
+        borderRadius:20, cursor:"pointer",
         display:"flex", alignItems:"center", gap:16,
         textAlign:"left", transition:"background .15s, border .15s",
+        boxShadow: isSelected ? `0 0 32px ${accentColor}33` : "none",
       }}>
       {option.icon && (
         <div style={{
-          width:46, height:46, borderRadius:14, flexShrink:0,
-          background: isSelected
-            ? (isDark ? "rgba(0,0,0,.1)" : "rgba(255,255,255,.1)")
-            : `${option.color || T.blue}18`,
-          display:"flex", alignItems:"center", justifyContent:"center", fontSize:22,
+          width:50, height:50, borderRadius:16, flexShrink:0,
+          background: isSelected ? `${accentColor}22` : `${accentColor}14`,
+          display:"flex", alignItems:"center", justifyContent:"center", fontSize:24,
         }}>{option.icon}</div>
       )}
       <div style={{ flex:1 }}>
-        <div style={{ fontSize:17, fontWeight:800, letterSpacing:"-.01em",
-          color: isSelected ? (isDark?"#000":"#fff") : T.text }}>
+        <div style={{ fontSize:18, fontWeight:800, letterSpacing:"-.01em",
+          color: isSelected ? accentColor : T.text }}>
           {option.label}
         </div>
         {option.sub && (
-          <div style={{ fontSize:12, marginTop:2, lineHeight:1.4,
-            color: isSelected ? (isDark?"rgba(0,0,0,.6)":"rgba(255,255,255,.6)") : T.faint }}>
+          <div style={{ fontSize:11, marginTop:3, lineHeight:1.4,
+            color: T.faint }}>
             {option.sub}
           </div>
         )}
       </div>
       {isSelected && (
-        <div style={{ width:24, height:24, borderRadius:"50%", flexShrink:0,
-          background: isDark?"#000":"#fff",
-          display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:12, color: isDark?"#fff":"#000" }}>✓</div>
+        <motion.div initial={{ scale:0 }} animate={{ scale:1 }}
+          style={{ width:26, height:26, borderRadius:"50%", flexShrink:0,
+            background: accentColor,
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:13, color:"#000", fontWeight:900 }}>✓</motion.div>
       )}
     </motion.button>
   );
@@ -8832,7 +8841,14 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                 boxShadow:`0 0 8px ${stepColor}99` }}/>
           </motion.div>
 
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>{children}</div>
+          {/* Fill remaining space — cards stretch to fill */}
+          <div style={{ flex:1, display:"flex", flexDirection:"column", gap:10 }}>
+            {React.Children.map(children, (child, idx) => (
+              <div key={idx} style={{ flex:1, display:"flex", flexDirection:"column" }}>
+                {child && React.cloneElement(child, { fill:true })}
+              </div>
+            ))}
+          </div>
         </motion.div>
       </Screen>
     );
@@ -8973,20 +8989,99 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
     </Screen>
   );
 
-  // ── Phase 0: Gender ────────────────────────────────────────────────────────
+  // ── Phase 0: Gender — two giant tiles ─────────────────────────────────────
   if (phase === 0) return (
-    <QWrap step={1} total={7}
-      headline="Let's start with your biology."
-      storyHook="Two people can follow the exact same plan and get completely different results. This is why."
-      onBackFn={() => setPhase(-1)}>
-      {[
-        { value:"male",   label:"Man",   sub:"Testosterone-optimized protocol", icon:"♂", color:"#2E5BFF" },
-        { value:"female", label:"Woman", sub:"Hormonal precision protocol",      icon:"♀", color:"#BF5AF2" },
-      ].map((opt, i) => (
-        <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
-          onPick={v => pick(setGender, v, ONBOARDING_FACTS.gender[v], 1)}/>
-      ))}
-    </QWrap>
+    <Screen theme={theme} style={{ overflow:"hidden" }}>
+      {/* Breathing glow */}
+      <motion.div
+        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
+        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0,
+          background:`radial-gradient(ellipse 90% 40% at 50% 0%, #2E5BFF1E, transparent 60%)` }}/>
+      {/* Giant step number */}
+      <motion.div animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+        style={{ position:"absolute", top:"-10px", right:"-8px", fontSize:180, fontWeight:900,
+          color:T.text, letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+          userSelect:"none", zIndex:0, transformOrigin:"top right" }}>01</motion.div>
+
+      {/* Back + dots */}
+      <div style={{ position:"relative", zIndex:1, padding:"18px 22px 0",
+        display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <BackBtn onBack={() => setPhase(-1)} theme={theme}/>
+        <div style={{ display:"flex", gap:5 }}>
+          {Array.from({ length:7 }, (_, i) => (
+            <div key={i} style={{ width:i===0?18:5, height:5, borderRadius:3, transition:"all .3s",
+              background:i===0?"#2E5BFF":T.border, boxShadow:i===0?"0 0 6px #2E5BFF":"none" }}/>
+          ))}
+        </div>
+      </div>
+
+      {/* Story + headline */}
+      <motion.div key="bio-q1" initial={{ opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
+        transition={{ duration:.38, ease:[.22,1,.36,1] }}
+        style={{ position:"relative", zIndex:1, padding:"20px 24px 14px" }}>
+        <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.1 }}
+          style={{ fontSize:12, color:T.muted, fontStyle:"italic", lineHeight:1.6,
+            marginBottom:12, borderLeft:"2px solid #2E5BFF88", paddingLeft:10 }}>
+          Two people can follow the exact same plan and get completely different results. This is why.
+        </motion.div>
+        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.18 }}>
+          <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em",
+            color:T.text, lineHeight:1.12 }}>Let's start with<br/>your biology.</div>
+          <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+            transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
+            style={{ height:2, width:40, background:"#2E5BFF", borderRadius:2,
+              marginTop:10, transformOrigin:"left", boxShadow:"0 0 8px #2E5BFF99" }}/>
+        </motion.div>
+      </motion.div>
+
+      {/* Two giant tiles */}
+      <div style={{ position:"relative", zIndex:1, flex:1, display:"flex",
+        flexDirection:"column", gap:12, padding:"4px 22px 52px" }}>
+        {[
+          { value:"male",   label:"Man",   icon:"♂", color:"#2E5BFF" },
+          { value:"female", label:"Woman", icon:"♀", color:"#BF5AF2" },
+        ].map((opt, i) => {
+          const isSel = picked === opt.value;
+          return (
+            <motion.button key={opt.value}
+              initial={{ opacity:0, y: i===0 ? -30 : 30 }} animate={{ opacity:1, y:0 }}
+              transition={{ delay:.26+i*.12, duration:.42, ease:[.22,1,.36,1] }}
+              whileTap={{ scale:.97 }}
+              onClick={() => pick(setGender, opt.value, ONBOARDING_FACTS.gender[opt.value], 1)}
+              style={{
+                flex:1, width:"100%",
+                background: isSel
+                  ? `linear-gradient(135deg,${opt.color}28,${opt.color}10)`
+                  : T.glass,
+                backdropFilter:isMobile?"none":"blur(20px)",
+                border:`2px solid ${isSel ? opt.color : T.border}`,
+                borderRadius:24, cursor:"pointer",
+                display:"flex", flexDirection:"column",
+                alignItems:"center", justifyContent:"center", gap:8,
+                boxShadow: isSel ? `0 0 50px ${opt.color}44, inset 0 0 0 1px ${opt.color}33` : "none",
+                transition:"all .2s",
+              }}>
+              <motion.div
+                animate={isSel ? { scale:[1,1.12,1] } : {}}
+                transition={{ duration:.4 }}
+                style={{ fontSize:52, lineHeight:1 }}>{opt.icon}</motion.div>
+              <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em",
+                color: isSel ? opt.color : T.text }}>{opt.label}</div>
+              {isSel && (
+                <motion.div initial={{ scale:0, opacity:0 }} animate={{ scale:1, opacity:1 }}
+                  style={{ width:26, height:26, borderRadius:"50%", background:opt.color,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    fontSize:13, color:"#000", fontWeight:900, marginTop:4 }}>✓</motion.div>
+              )}
+            </motion.button>
+          );
+        })}
+      </div>
+    </Screen>
   );
 
   // ── Phase 1: Training frequency ────────────────────────────────────────────

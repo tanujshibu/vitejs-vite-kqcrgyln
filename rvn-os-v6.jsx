@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, createContext, useContext, useReducer, Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
-import Lottie from "lottie-react";
+
 
 // ─── MOBILE PERFORMANCE FLAG ──────────────────────────────────────────────────
 // backdrop-filter blur + many simultaneous animations overwhelm mobile GPUs.
@@ -8488,380 +8488,273 @@ function FactVisual({ type, color: C }) {
   return null;
 }
 
-// ─── CUSTOM LOTTIE ANIMATIONS ─────────────────────────────────────────────────
-// Hand-coded Lottie JSON — fully on-brand, no external dependency, no paywall.
-// Each animation loops at 30fps and is designed for the dark cinematic FactFlash.
+// ─── FACT FLASH SVG ANIMATIONS ────────────────────────────────────────────────
+// Native SVG <animate> — no Lottie, no JSON parsing, zero runtime errors.
+// Each animation is designed to TELL THE STORY of the fact, not just decorate it.
 
-const LOTTIE_SLEEP = {
-  v:"5.5.7", fr:30, ip:0, op:120, w:200, h:200, nm:"sleep", ddd:0, assets:[],
-  layers:[
-    // Outer pulse ring 1
-    { ddd:0, ind:1, ty:4, nm:"ring1", sr:1, ks:{
-      o:{ a:1, k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[60]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[0]},{t:120,s:[60]}] },
-      r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-    }, ao:0, shapes:[{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[40,40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[160,160]},{t:120,s:[40,40]}]}},
-      {ty:"st",c:{a:0,k:[0.353,0.784,0.980,1]},o:{a:0,k:100},w:{a:0,k:1.5}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]}], ip:0, op:120, st:0 },
-    // Outer pulse ring 2 (offset)
-    { ddd:0, ind:2, ty:4, nm:"ring2", sr:1, ks:{
-      o:{ a:1, k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[60]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:90,s:[0]},{t:120,s:[30]}] },
-      r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-    }, ao:0, shapes:[{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[40,40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:90,s:[140,140]},{t:120,s:[40,40]}]}},
-      {ty:"st",c:{a:0,k:[0.353,0.784,0.980,1]},o:{a:0,k:100},w:{a:0,k:1}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]}], ip:0, op:120, st:0 },
-    // Moon core — crescent via two overlapping circles
-    { ddd:0, ind:3, ty:4, nm:"moon", sr:1, ks:{
-      o:{a:0,k:100}, r:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[-15]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[15]},{t:120,s:[-15]}]},
-      p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-    }, ao:0, shapes:[{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[54,54]}},
-      {ty:"fl",c:{a:0,k:[0.353,0.784,0.980,1]},o:{a:0,k:100}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]},{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[18,-16]},s:{a:0,k:[44,44]}},
-      {ty:"fl",c:{a:0,k:[0.067,0.067,0.067,1]},o:{a:0,k:100}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]}], ip:0, op:120, st:0 },
-    // Star 1
-    { ddd:0, ind:4, ty:4, nm:"star1", sr:1, ks:{
-      o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:20,s:[100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:50,s:[100]},{t:70,s:[0]}]},
-      r:{a:0,k:0}, p:{a:0,k:[138,62,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-    }, ao:0, shapes:[{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[8,8]}},
-      {ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]}], ip:0, op:120, st:0 },
-    // Star 2
-    { ddd:0, ind:5, ty:4, nm:"star2", sr:1, ks:{
-      o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:40,s:[80]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:70,s:[80]},{t:90,s:[0]}]},
-      r:{a:0,k:0}, p:{a:0,k:[148,80,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-    }, ao:0, shapes:[{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[5,5]}},
-      {ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]}], ip:0, op:120, st:0 },
-  ]
-};
+// FactAnimSVG — native SVG animations, zero external dependencies.
+// Each case is a visual metaphor that instantly communicates the fact's story.
+function FactAnimSVG({ type, color }) {
 
-const LOTTIE_BRAIN = {
-  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"brain", ddd:0, assets:[],
-  layers:[
-    // Neural pulse rings — 3 staggered rings from center
-    ...[0,1,2].map((i) => ({
-      ddd:0, ind:i+1, ty:4, nm:`pulse${i}`, sr:1, ks:{
-        o:{a:1,k:[
-          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20,s:[80]},
-          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20+45,s:[0]},
-          {t:90,s:[0]}
-        ]},
-        r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-      }, ao:0, shapes:[{ty:"gr",it:[
-        {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[
-          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20,s:[20,20]},
-          {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*20+45,s:[130,130]},
-          {t:90,s:[20,20]}
-        ]}},
-        {ty:"st",c:{a:0,k:[0.749,0.353,0.949,1]},o:{a:0,k:100},w:{a:0,k:1.5}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}], ip:0, op:90, st:0
-    })),
-    // 6 node dots around center (neural nodes)
-    ...[0,1,2,3,4,5].map((i) => {
-      const angle = (i/6)*Math.PI*2;
-      const r = 52;
-      const x = Math.round(100 + r*Math.cos(angle));
-      const y = Math.round(100 + r*Math.sin(angle));
-      return {
-        ddd:0, ind:i+10, ty:4, nm:`node${i}`, sr:1, ks:{
-          o:{a:1,k:[
-            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8,s:[30]},
-            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8+20,s:[100]},
-            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8+40,s:[30]},
-            {t:90,s:[30]}
-          ]},
-          r:{a:0,k:0}, p:{a:0,k:[x,y,0]}, a:{a:0,k:[0,0,0]},
-          s:{a:1,k:[
-            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8,s:[60,60,100]},
-            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:i*8+20,s:[120,120,100]},
-            {t:i*8+40,s:[60,60,100]}
-          ]}
-        }, ao:0, shapes:[{ty:"gr",it:[
-          {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[10,10]}},
-          {ty:"fl",c:{a:0,k:[0.749,0.353,0.949,1]},o:{a:0,k:100}},
-          {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-        ]}], ip:0, op:90, st:0
-      };
-    }),
-    // Center core dot
-    { ddd:0, ind:20, ty:4, nm:"core", sr:1, ks:{
-      o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[100,100,0]}, a:{a:0,k:[0,0,0]},
-      s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[100,100,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:45,s:[140,140,100]},{t:90,s:[100,100,100]}]}
-    }, ao:0, shapes:[{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[18,18]}},
-      {ty:"fl",c:{a:0,k:[0.749,0.353,0.949,1]},o:{a:0,k:100}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]}], ip:0, op:90, st:0 }
-  ]
-};
+  // ── split: 168h donut ring — tiny gold arc = 10 gym hours ────────────────────
+  if (type === "split") {
+    const r = 66, circ = Math.round(2 * Math.PI * r);
+    const arc = Math.round((10 / 168) * circ);
+    return (
+      <svg viewBox="0 0 200 200" width="190" height="190" style={{overflow:"visible"}}>
+        <circle cx="100" cy="100" r={r} fill="none" stroke={color} strokeWidth="14" opacity="0.12" transform="rotate(-90 100 100)"/>
+        <circle cx="100" cy="100" r={r} fill="none" stroke={color} strokeWidth="14"
+          strokeLinecap="round" strokeDasharray={`${arc} ${circ - arc}`} transform="rotate(-90 100 100)">
+          <animate attributeName="opacity" values="0;1" dur="0.4s" fill="freeze"/>
+          <animate attributeName="strokeWidth" values="12;20;12" dur="2.2s" begin="0.5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="100" cy={100 - r} r="8" fill={color} opacity="0">
+          <animate attributeName="opacity" values="0;0.9;0.5;0.9" keyTimes="0;0.2;0.6;1" dur="2s" begin="0.4s" repeatCount="indefinite"/>
+        </circle>
+        <text x="100" y="94" textAnchor="middle" fill={color} fontSize="20" fontWeight="800" fontFamily="system-ui,sans-serif">10h GYM</text>
+        <text x="100" y="114" textAnchor="middle" fill={color} fontSize="11" fontFamily="system-ui,sans-serif" opacity="0.5">of 168h week</text>
+      </svg>
+    );
+  }
 
-const LOTTIE_FIRE = {
-  v:"5.5.7", fr:30, ip:0, op:60, w:200, h:200, nm:"fire", ddd:0, assets:[],
-  layers:[
-    // 3 flame bars — inner glow, rising and shrinking
-    ...[0,1,2].map((i) => {
-      const x = 80 + i*20;
-      const baseH = [70, 100, 60][i];
-      const peakH = [110, 150, 95][i];
-      const delay = [0,8,4][i];
-      return {
-        ddd:0, ind:i+1, ty:4, nm:`flame${i}`, sr:1, ks:{
-          o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[x,100,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-        }, ao:0, shapes:[{ty:"gr",it:[
-          {ty:"rc",d:1,p:{a:0,k:[0,0]},s:{a:1,k:[
-            {i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:delay,s:[14, baseH]},
-            {i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:delay+30,s:[14, peakH]},
-            {t:delay+60,s:[14, baseH]}
-          ]},r:{a:0,k:6}},
-          {ty:"fl",c:{a:1,k:[
-            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[1,0.298,0.169,1]},
-            {i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[1,0.620,0.0,1]},
-            {t:60,s:[1,0.298,0.169,1]}
-          ]},o:{a:0,k:[{t:0,s:[100]}]}},
-          {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-        ]}], ip:0, op:60, st:0
-      };
-    }),
-    // Glow base
-    { ddd:0, ind:10, ty:4, nm:"glow", sr:1, ks:{
-      o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:30,s:[70]},{t:60,s:[40]}]},
-      r:{a:0,k:0}, p:{a:0,k:[100,145,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]}
-    }, ao:0, shapes:[{ty:"gr",it:[
-      {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[80,18]}},
-      {ty:"fl",c:{a:0,k:[1,0.4,0.18,1]},o:{a:0,k:100}},
-      {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-    ]}], ip:0, op:60, st:0 }
-  ]
-};
+  // ── muscle: synthesis curve draws itself, peak glows at 48h ──────────────────
+  if (type === "muscle") {
+    const path = "M 22,145 C 48,145 65,48 108,48 C 142,48 162,108 178,114";
+    const pLen = 240;
+    return (
+      <svg viewBox="0 0 200 175" width="195" height="170" style={{overflow:"visible"}}>
+        <line x1="18" y1="145" x2="182" y2="145" stroke={color} strokeWidth="1.5" opacity="0.15"/>
+        <path d={path} fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round"
+          strokeDasharray={pLen} strokeDashoffset={pLen} opacity="0.95">
+          <animate attributeName="stroke-dashoffset" from={pLen} to="0" dur="1.2s" fill="freeze"/>
+        </path>
+        <circle cx="108" cy="48" r="7" fill={color} opacity="0">
+          <animate attributeName="opacity" values="0;1" dur="0.2s" begin="0.88s" fill="freeze"/>
+          <animate attributeName="r" values="6;13;6" dur="1.8s" begin="1.2s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="108" cy="48" r="14" fill="none" stroke={color} strokeWidth="2" opacity="0">
+          <animate attributeName="opacity" values="0;0" dur="0.88s" fill="freeze"/>
+          <animate attributeName="opacity" values="0.5;0" dur="1.8s" begin="1.2s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="14;28;14" dur="1.8s" begin="1.2s" repeatCount="indefinite"/>
+        </circle>
+        <text x="108" y="34" textAnchor="middle" fill={color} fontSize="10" fontWeight="700" fontFamily="system-ui,sans-serif" opacity="0">
+          PEAK SYNTHESIS
+          <animate attributeName="opacity" values="0;0;0.9" keyTimes="0;0.75;1" dur="1.2s" fill="freeze"/>
+        </text>
+        <text x="22" y="161" textAnchor="middle" fill={color} fontSize="10" fontFamily="system-ui,sans-serif" opacity="0.3">GYM</text>
+        <text x="108" y="161" textAnchor="middle" fill={color} fontSize="10" fontWeight="700" fontFamily="system-ui,sans-serif" opacity="0.8">48H</text>
+        <text x="178" y="161" textAnchor="middle" fill={color} fontSize="10" fontFamily="system-ui,sans-serif" opacity="0.3">72H</text>
+      </svg>
+    );
+  }
 
-const LOTTIE_MUSCLE = {
-  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"muscle", ddd:0, assets:[],
-  layers:[
-    // 3 staggered growing bars — like protein synthesis over time
-    ...[0,1,2].map((i) => {
-      const x = [72,100,128][i];
-      const maxH = [80,120,96][i];
-      const delay = [20,0,12][i];
-      const col = i===1 ? [1,0.294,0.169,1] : [1,0.294,0.169,0.6];
-      return {
-        ddd:0, ind:i+1, ty:4, nm:`bar${i}`, sr:1, ks:{
-          o:{a:0,k:100}, r:{a:0,k:0}, p:{a:0,k:[x,120,0]}, a:{a:0,k:[0,0,maxH/2]}, s:{a:0,k:[100,100,100]}
-        }, ao:0, shapes:[{ty:"gr",it:[
-          {ty:"rc",d:1,p:{a:0,k:[0,0]},s:{a:1,k:[
-            {i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:delay,s:[16,0]},
-            {i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:delay+40,s:[16,maxH]},
-            {t:90,s:[16,maxH]}
-          ]},r:{a:0,k:5}},
-          {ty:"fl",c:{a:0,k:col},o:{a:0,k:100}},
-          {ty:"tr",p:{a:0,k:[0,-(maxH/2)]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-        ]}], ip:0, op:90, st:0
-      };
-    }),
-    // Dot markers under each bar instead of text (text layers need font embedding)
-    ...[72,100,128].map((x,i) => ({
-      ddd:0, ind:i+20, ty:4, nm:`dot${i}`, sr:1,
-      ks:{ o:{a:0,k:50}, r:{a:0,k:0}, p:{a:0,k:[x,148,0]}, a:{a:0,k:[0,0,0]}, s:{a:0,k:[100,100,100]} },
-      ao:0, shapes:[{ty:"gr",it:[
-        {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[5,5]}},
-        {ty:"fl",c:{a:0,k:[1,0.294,0.169,1]},o:{a:0,k:100}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}], ip:0, op:90, st:0
-    }))
-  ]
-};
+  // ── twobar: labeled horizontal bars — REST dominates GYM ─────────────────────
+  if (type === "twobar") {
+    return (
+      <svg viewBox="0 0 200 160" width="195" height="155" style={{overflow:"visible"}}>
+        <text x="12" y="61" fill={color} fontSize="13" fontWeight="700" fontFamily="system-ui,sans-serif" opacity="0.45">GYM</text>
+        <rect x="52" y="48" width="134" height="20" rx="10" fill={color} opacity="0.09"/>
+        <rect x="52" y="48" width="0" height="20" rx="10" fill={color} opacity="0.45">
+          <animate attributeName="width" from="0" to="45" dur="0.5s" begin="0.1s" fill="freeze"/>
+        </rect>
+        <text x="12" y="111" fill={color} fontSize="13" fontWeight="700" fontFamily="system-ui,sans-serif">REST</text>
+        <rect x="52" y="98" width="134" height="20" rx="10" fill={color} opacity="0.09"/>
+        <rect x="52" y="98" width="0" height="20" rx="10" fill={color}>
+          <animate attributeName="width" from="0" to="130" dur="1.0s" begin="0.4s" fill="freeze"/>
+          <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+        </rect>
+        <circle cx="182" cy="108" r="0" fill={color}>
+          <animate attributeName="r" from="0" to="6" dur="0.2s" begin="1.4s" fill="freeze"/>
+          <animate attributeName="r" values="5;10;5" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+        </circle>
+        <text x="52" y="83" fill={color} fontSize="9" fontFamily="system-ui,sans-serif" opacity="0.35">breaks muscle down</text>
+        <text x="52" y="133" fill={color} fontSize="9" fontFamily="system-ui,sans-serif" opacity="0.75">builds it back stronger ↑</text>
+      </svg>
+    );
+  }
 
-// ── Clock (caffeine high — 40min) ─────────────────────────────────────────────
-const LOTTIE_CLOCK = {
-  v:"5.5.7", fr:30, ip:0, op:120, w:200, h:200, nm:"clock", ddd:0, assets:[],
-  layers:[
-    // Face ring (dim)
-    { ddd:0,ind:1,ty:4,nm:"face",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[130,130]}},{ty:"st",c:{a:0,k:[1,0.624,0.039,0.25]},o:{a:0,k:100},w:{a:0,k:1.5}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:120,st:0},
-    // Face ring (pulsing bright)
-    { ddd:0,ind:2,ty:4,nm:"face_glow",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[20]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[70]},{t:120,s:[20]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[130,130]}},{ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:1.5}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:120,st:0},
-    // Tick marks at 12/3/6/9
-    ...[0,90,180,270].map((deg,i)=>{
-      const r=55, rad=deg*Math.PI/180;
-      return {ddd:0,ind:10+i,ty:4,nm:`t${i}`,sr:1,ks:{o:{a:0,k:50},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-        shapes:[{ty:"gr",it:[
-          {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0]],o:[[0,0],[0,0]],v:[[Math.round(r*Math.sin(rad)),Math.round(-r*Math.cos(rad))],[Math.round((r+10)*Math.sin(rad)),Math.round(-(r+10)*Math.cos(rad))]],c:false}}},
-          {ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:2.5},lc:2,lj:2},
-          {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-        ]}],ip:0,op:120,st:0};
-    }),
-    // Minute hand — full rotation
-    { ddd:0,ind:20,ty:4,nm:"min",sr:1,ks:{o:{a:0,k:100},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[0]},{t:120,s:[360]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0]],o:[[0,0],[0,0]],v:[[0,6],[0,-46]],c:false}}},
-        {ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:2.5},lc:2,lj:2},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:120,st:0},
-    // Hour hand — 1/4 rotation
-    { ddd:0,ind:21,ty:4,nm:"hr",sr:1,ks:{o:{a:0,k:100},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[90]},{t:120,s:[180]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0]],o:[[0,0],[0,0]],v:[[0,6],[0,-30]],c:false}}},
-        {ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:4},lc:2,lj:2},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:120,st:0},
-    // Center dot
-    { ddd:0,ind:22,ty:4,nm:"dot",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[10,10]}},{ty:"fl",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:120,st:0},
-  ]
-};
+  // ── sleep: battery drains → red 30% pulses = lost gains ──────────────────────
+  if (type === "sleep") {
+    return (
+      <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
+        <rect x="84" y="30" width="32" height="12" rx="5" fill={color} opacity="0.6"/>
+        <rect x="65" y="42" width="70" height="118" rx="9" fill="none" stroke={color} strokeWidth="3" opacity="0.8"/>
+        <rect x="69" y="46" width="62" height="110" rx="5" fill={color}>
+          <animate attributeName="opacity" values="0.38;0.38;0;0;0.38" keyTimes="0;0.18;0.48;0.52;1" dur="3.5s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="69" y="79" width="62" height="77" rx="5" fill={color}>
+          <animate attributeName="opacity" values="0;0;0;0.55;0.55;0" keyTimes="0;0.46;0.52;0.65;0.85;1" dur="3.5s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="69" y="46" width="62" height="32" rx="5" fill="#FF3B30">
+          <animate attributeName="opacity" values="0;0;0;0.95;0.45;0.95;0" keyTimes="0;0.46;0.52;0.65;0.76;0.86;1" dur="3.5s" repeatCount="indefinite"/>
+        </rect>
+        <text x="100" y="68" textAnchor="middle" fill="white" fontSize="13" fontWeight="800" fontFamily="system-ui,sans-serif">
+          −30%
+          <animate attributeName="opacity" values="0;0;0;1;0.3;1;0" keyTimes="0;0.46;0.52;0.65;0.76;0.86;1" dur="3.5s" repeatCount="indefinite"/>
+        </text>
+        <text x="100" y="178" textAnchor="middle" fill={color} fontSize="10" fontFamily="system-ui,sans-serif" opacity="0.5">gains lost to bad sleep</text>
+      </svg>
+    );
+  }
 
-// ── Lightning bolt (caffeine med — 200mg) ─────────────────────────────────────
-const LOTTIE_LIGHTNING = {
-  v:"5.5.7", fr:30, ip:0, op:60, w:200, h:200, nm:"lightning", ddd:0, assets:[],
-  layers:[
-    // Glow orb behind bolt
-    { ddd:0,ind:1,ty:4,nm:"glow",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[35]},{t:30,s:[0]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[80,80,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[150,150,100]},{t:30,s:[80,80,100]}]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[80,80]}},{ty:"fl",c:{a:0,k:[0.788,0.659,0.298,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:60,st:0},
-    // Bolt fill
-    { ddd:0,ind:2,ty:4,nm:"bolt",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[90,90,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[112,112,100]},{t:30,s:[90,90,100]}]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],o:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],v:[[8,-52],[28,-4],[10,-4],[-8,52],[-28,4],[-10,4]],c:true}}},
-        {ty:"fl",c:{a:0,k:[0.788,0.659,0.298,1]},o:{a:0,k:100}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:60,st:0},
-    // Bolt outline glow
-    { ddd:0,ind:3,ty:4,nm:"bolt_rim",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[100]},{t:30,s:[40]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],o:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],v:[[8,-52],[28,-4],[10,-4],[-8,52],[-28,4],[-10,4]],c:true}}},
-        {ty:"st",c:{a:0,k:[1,1,0.7,1]},o:{a:0,k:100},w:{a:0,k:1.5}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:60,st:0},
-  ]
-};
+  // ── clock: sweeping hands — caffeine 40 min before ───────────────────────────
+  if (type === "clock") {
+    const ticks = [0, 90, 180, 270].map((deg, i) => {
+      const rad = (deg - 90) * Math.PI / 180;
+      return { x1: 100 + 60*Math.cos(rad), y1: 100 + 60*Math.sin(rad),
+               x2: 100 + 72*Math.cos(rad), y2: 100 + 72*Math.sin(rad) };
+    });
+    return (
+      <svg viewBox="0 0 200 200" width="190" height="190" style={{overflow:"visible"}}>
+        <circle cx="100" cy="100" r="74" fill="none" stroke={color} strokeWidth="2" opacity="0.18"/>
+        <circle cx="100" cy="100" r="74" fill="none" stroke={color} strokeWidth="2" opacity="0">
+          <animate attributeName="opacity" values="0.08;0.5;0.08" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        {ticks.map((t, i) => (
+          <line key={i} x1={t.x1.toFixed(1)} y1={t.y1.toFixed(1)} x2={t.x2.toFixed(1)} y2={t.y2.toFixed(1)}
+            stroke={color} strokeWidth="3.5" strokeLinecap="round" opacity="0.55"/>
+        ))}
+        <line x1="100" y1="100" x2="100" y2="56" stroke={color} strokeWidth="5" strokeLinecap="round">
+          <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="8s" repeatCount="indefinite"/>
+        </line>
+        <line x1="100" y1="100" x2="100" y2="40" stroke={color} strokeWidth="2.5" strokeLinecap="round" opacity="0.7">
+          <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="2s" repeatCount="indefinite"/>
+        </line>
+        <circle cx="100" cy="100" r="6" fill={color}>
+          <animate attributeName="r" values="5;9;5" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        <text x="100" y="152" textAnchor="middle" fill={color} fontSize="11" fontWeight="600" fontFamily="system-ui,sans-serif" opacity="0.65">40 MIN BEFORE</text>
+      </svg>
+    );
+  }
 
-// ── Spinning reset arcs (caffeine low — 10 days) ──────────────────────────────
-const LOTTIE_RESET = {
-  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"reset", ddd:0, assets:[],
-  layers:[
-    // Outer spinning arc
-    { ddd:0,ind:1,ty:4,nm:"arc1",sr:1,ks:{o:{a:0,k:100},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[0]},{t:90,s:[360]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[120,120]}},
-        {ty:"st",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100},w:{a:0,k:8},lc:2,lj:2},
-        {ty:"tm",s:{a:0,k:0},e:{a:0,k:78},o:{a:0,k:0}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:90,st:0},
-    // Inner spinning arc (offset, dimmer)
-    { ddd:0,ind:2,ty:4,nm:"arc2",sr:1,ks:{o:{a:0,k:35},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[180]},{t:90,s:[540]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[82,82]}},
-        {ty:"st",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100},w:{a:0,k:5},lc:2,lj:2},
-        {ty:"tm",s:{a:0,k:10},e:{a:0,k:72},o:{a:0,k:0}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:90,st:0},
-    // Center pulsing dot
-    { ddd:0,ind:3,ty:4,nm:"dot",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[100,100,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:45,s:[130,130,100]},{t:90,s:[100,100,100]}]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[16,16]}},{ty:"fl",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:90,st:0},
-  ]
-};
+  // ── lightning: pulsing bolt — 200mg dose ─────────────────────────────────────
+  if (type === "lightning") {
+    return (
+      <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
+        <ellipse cx="100" cy="100" rx="50" ry="50" fill={color}>
+          <animate attributeName="rx" values="42;70;42" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="ry" values="42;70;42" dur="1.4s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.07;0.2;0.07" dur="1.4s" repeatCount="indefinite"/>
+        </ellipse>
+        <polygon points="108,30 130,90 108,90 92,170 70,106 94,106" fill={color}>
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="1.4s" repeatCount="indefinite"/>
+        </polygon>
+        <polygon points="108,30 130,90 108,90 92,170 70,106 94,106" fill="none" stroke={color} strokeWidth="2">
+          <animate attributeName="opacity" values="0.2;0.7;0.2" dur="1.4s" repeatCount="indefinite"/>
+        </polygon>
+      </svg>
+    );
+  }
 
-// ── Two bars flip (freq med — rest days do more) ───────────────────────────────
-const LOTTIE_TWOBAR = {
-  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"twobar", ddd:0, assets:[],
-  layers:[
-    // Track backgrounds
-    ...[75,125].map((x,i)=>({ddd:0,ind:i,ty:4,nm:`trk${i}`,sr:1,ks:{o:{a:0,k:12},r:{a:0,k:0},p:{a:0,k:[x,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"rc",d:1,p:{a:0,k:[0,-50]},s:{a:0,k:[26,100]},r:{a:0,k:5}},{ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:90,st:0})),
-    // GYM bar — shrinks from 90 to 28
-    { ddd:0,ind:10,ty:4,nm:"gym",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[75,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[0,-45]},{t:60,s:[0,-14]}]},
-         s:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[26,90]},{t:60,s:[26,28]}]},r:{a:0,k:5}},
-        {ty:"fl",c:{a:0,k:[0.788,0.659,0.298,0.45]},o:{a:0,k:100}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:90,st:0},
-    // REST bar — grows from 28 to 90
-    { ddd:0,ind:11,ty:4,nm:"rest",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[125,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[0,-14]},{t:60,s:[0,-45]}]},
-         s:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[26,28]},{t:60,s:[26,90]}]},r:{a:0,k:5}},
-        {ty:"fl",c:{a:0,k:[0.788,0.659,0.298,1]},o:{a:0,k:100}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:90,st:0},
-  ]
-};
+  // ── reset: counter-spinning arcs — tolerance resets in 10 days ───────────────
+  if (type === "reset") {
+    return (
+      <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
+        <circle cx="100" cy="100" r="64" fill="none" stroke={color} strokeWidth="10"
+          strokeLinecap="round" strokeDasharray="264 138">
+          <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="100" cy="100" r="42" fill="none" stroke={color} strokeWidth="6"
+          strokeLinecap="round" strokeDasharray="148 116" strokeDashoffset="74" opacity="0.4">
+          <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="1.8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="100" cy="100" r="9" fill={color}>
+          <animate attributeName="r" values="6;13;6" dur="2.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/>
+        </circle>
+        <text x="100" y="156" textAnchor="middle" fill={color} fontSize="11" fontWeight="600" fontFamily="system-ui,sans-serif" opacity="0.6">10 DAY RESET</text>
+      </svg>
+    );
+  }
 
-// ── Checkmark (freq low — 2 sessions done right) ──────────────────────────────
-const LOTTIE_CHECK = {
-  v:"5.5.7", fr:30, ip:0, op:75, w:200, h:200, nm:"check", ddd:0, assets:[],
-  layers:[
-    // Circle bg fades in
-    { ddd:0,ind:1,ty:4,nm:"bg",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[0]},{t:18,s:[18]},{t:75,s:[18]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:0,s:[0,0,100]},{t:18,s:[100,100,100]}]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[120,120]}},{ty:"fl",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:75,st:0},
-    // Checkmark draws in via trim path
-    { ddd:0,ind:2,ty:4,nm:"check",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0],[0,0]],o:[[0,0],[0,0],[0,0]],v:[[-38,2],[-10,32],[44,-34]],c:false}}},
-        {ty:"tm",s:{a:0,k:0},e:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:10,s:[0]},{t:40,s:[100]}]},o:{a:0,k:0}},
-        {ty:"st",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100},w:{a:0,k:7},lc:2,lj:2},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:75,st:0},
-    // Pulse ring after check
-    { ddd:0,ind:3,ty:4,nm:"pulse",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:40,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:43,s:[55]},{t:70,s:[0]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:40,s:[120,120]},{t:70,s:[190,190]}]}},
-        {ty:"st",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100},w:{a:0,k:2}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:75,st:0},
-  ]
-};
+  // ── brain: 6 neural nodes pulse — brain fog degrades signal strength ──────────
+  if (type === "brain") {
+    const angles = [0, 60, 120, 180, 240, 300];
+    const nr = 56;
+    return (
+      <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
+        {angles.map((deg, i) => {
+          const rad = (deg - 90) * Math.PI / 180;
+          const nx = (100 + nr * Math.cos(rad)).toFixed(1);
+          const ny = (100 + nr * Math.sin(rad)).toFixed(1);
+          return <line key={i} x1="100" y1="100" x2={nx} y2={ny} stroke={color} strokeWidth="1.5" opacity="0.12"/>;
+        })}
+        {[0, 1, 2].map(i => (
+          <circle key={i} cx="100" cy="100" r="10" fill="none" stroke={color} strokeWidth="1.5">
+            <animate attributeName="r" values="15;82;15" dur="3s" begin={`${i}s`} repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.55;0;0.55" dur="3s" begin={`${i}s`} repeatCount="indefinite"/>
+          </circle>
+        ))}
+        {angles.map((deg, i) => {
+          const rad = (deg - 90) * Math.PI / 180;
+          const nx = (100 + nr * Math.cos(rad)).toFixed(1);
+          const ny = (100 + nr * Math.sin(rad)).toFixed(1);
+          return (
+            <circle key={i} cx={nx} cy={ny} r="7" fill={color}>
+              <animate attributeName="opacity" values="0.28;1;0.28" dur="2s" begin={`${i * 0.33}s`} repeatCount="indefinite"/>
+              <animate attributeName="r" values="5;10;5" dur="2s" begin={`${i * 0.33}s`} repeatCount="indefinite"/>
+            </circle>
+          );
+        })}
+        <circle cx="100" cy="100" r="10" fill={color}>
+          <animate attributeName="r" values="8;15;8" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+        </circle>
+      </svg>
+    );
+  }
 
-// ── 168h split bar (gender male) ──────────────────────────────────────────────
-const LOTTIE_SPLIT = {
-  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"split168", ddd:0, assets:[],
-  layers:[
-    // Track backgrounds
-    ...[65,135].map((x,i)=>({ddd:0,ind:i,ty:4,nm:`trk${i}`,sr:1,ks:{o:{a:0,k:10},r:{a:0,k:0},p:{a:0,k:[x,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[{ty:"rc",d:1,p:{a:0,k:[0,i===0?-8:-55]},s:{a:0,k:[24,i===0?16:110]},r:{a:0,k:4}},{ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:90,st:0})),
-    // Gym bar — tiny (10hrs)
-    { ddd:0,ind:10,ty:4,nm:"gym",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[65,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:5,s:[0,0]},{t:30,s:[0,-8]}]},
-         s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:5,s:[24,0]},{t:30,s:[24,16]}]},r:{a:0,k:4}},
-        {ty:"fl",c:{a:0,k:[0.831,0.686,0.216,0.5]},o:{a:0,k:100}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:90,st:0},
-    // Life bar — dominant (158hrs)
-    { ddd:0,ind:11,ty:4,nm:"life",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[135,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
-      shapes:[{ty:"gr",it:[
-        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:15,s:[0,0]},{t:60,s:[0,-55]}]},
-         s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:15,s:[24,0]},{t:60,s:[24,110]}]},r:{a:0,k:4}},
-        {ty:"fl",c:{a:0,k:[0.831,0.686,0.216,1]},o:{a:0,k:100}},
-        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
-      ]}],ip:0,op:90,st:0},
-  ]
-};
+  // ── fire: 3 rising flames — 72h of inflammation ──────────────────────────────
+  if (type === "fire") {
+    return (
+      <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
+        <ellipse cx="100" cy="158" rx="54" ry="13" fill={color}>
+          <animate attributeName="opacity" values="0.18;0.48;0.18" dur="1.2s" repeatCount="indefinite"/>
+        </ellipse>
+        <rect x="62" y="82" width="22" height="72" rx="11" fill={color} opacity="0.52">
+          <animate attributeName="height" values="72;102;72" dur="1.1s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="82;52;82" dur="1.1s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="89" y="48" width="22" height="106" rx="11" fill={color} opacity="0.92">
+          <animate attributeName="height" values="106;136;106" dur="0.9s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="48;18;48" dur="0.9s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.8;1;0.8" dur="0.9s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="116" y="92" width="22" height="62" rx="11" fill={color} opacity="0.42">
+          <animate attributeName="height" values="62;88;62" dur="1.3s" repeatCount="indefinite"/>
+          <animate attributeName="y" values="92;66;92" dur="1.3s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    );
+  }
 
-const LOTTIE_MAP = {
-  sleep:     LOTTIE_SLEEP,
-  brain:     LOTTIE_BRAIN,
-  fire:      LOTTIE_FIRE,
-  muscle:    LOTTIE_MUSCLE,
-  clock:     LOTTIE_CLOCK,
-  lightning: LOTTIE_LIGHTNING,
-  reset:     LOTTIE_RESET,
-  twobar:    LOTTIE_TWOBAR,
-  check:     LOTTIE_CHECK,
-  split:     LOTTIE_SPLIT,
-};
+  // ── check: circle fills in + checkmark draws ─────────────────────────────────
+  if (type === "check") {
+    return (
+      <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
+        <circle cx="100" cy="100" r="0" fill={color} opacity="0.18">
+          <animate attributeName="r" from="0" to="64" dur="0.4s" fill="freeze"/>
+        </circle>
+        <circle cx="100" cy="100" r="0" fill="none" stroke={color} strokeWidth="3" opacity="0.55">
+          <animate attributeName="r" from="0" to="64" dur="0.4s" fill="freeze"/>
+        </circle>
+        <polyline points="60,100 88,130 140,66" fill="none" stroke={color} strokeWidth="9"
+          strokeLinecap="round" strokeLinejoin="round"
+          strokeDasharray="128" strokeDashoffset="128">
+          <animate attributeName="stroke-dashoffset" from="128" to="0" dur="0.5s" begin="0.35s" fill="freeze"/>
+        </polyline>
+        <circle cx="100" cy="100" r="64" fill="none" stroke={color} strokeWidth="3" opacity="0">
+          <animate attributeName="r" values="64;100" dur="0.9s" begin="0.85s" fill="freeze"/>
+          <animate attributeName="opacity" values="0.6;0" dur="0.9s" begin="0.85s" fill="freeze"/>
+        </circle>
+      </svg>
+    );
+  }
+
+  return null;
+}
 
 const ONBOARDING_FACTS = {
   gender: {
@@ -8956,7 +8849,7 @@ function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
   // 3 seconds — fast enough to feel like a beat, not a read
   useEffect(() => {
-    const t = setTimeout(onContinue, 3000);
+    const t = setTimeout(onContinue, 5000);
     return () => clearTimeout(t);
   }, []);
   return (
@@ -8997,15 +8890,14 @@ function FactFlash({ data, onContinue, theme }) {
         style={{ position:"absolute", width:240, height:240, borderRadius:"50%",
           border:`1px solid ${data.color}`, pointerEvents:"none" }}/>
 
-      {/* ANIMATED VISUAL — custom Lottie if key present, SVG fallback */}
+      {/* ANIMATED VISUAL */}
       <motion.div
         initial={{ opacity:0, scale:0.7, y:16 }} animate={{ opacity:1, scale:1, y:0 }}
         transition={{ delay:0.05, duration:0.45, ease:[0.22,1,0.36,1] }}
         style={{ marginBottom:20, display:"flex", alignItems:"center", justifyContent:"center",
-          filter:`drop-shadow(0 0 18px ${data.color}66)` }}>
-        {LOTTIE_MAP[data.lottie]
-          ? <Lottie animationData={LOTTIE_MAP[data.lottie]} loop autoplay
-              style={{ width:200, height:200 }}/>
+          filter:`drop-shadow(0 0 22px ${data.color}80)` }}>
+        {data.lottie
+          ? <FactAnimSVG type={data.lottie} color={data.color}/>
           : <FactVisual type={data.visual} color={data.color}/>
         }
       </motion.div>

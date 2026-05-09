@@ -8737,53 +8737,40 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── fire: flexed arm — upper arm vertical, forearm goes RIGHT, bicep dome LEFT ──
+  // ── fire: 💪 silhouette — fist top, forearm diagonal, bicep dome left ──────────
   if (type === "fire") {
+    // Single path tracing the 💪 emoji silhouette:
+    // Start bottom-left (shoulder), up front of arm (bicep peak bulges left),
+    // across fist at top, down back of arm (tricep side), back to bottom
+    const arm = "M 88,172 C 72,164 54,144 48,114 C 42,88 50,60 66,42 C 76,32 86,22 96,20 C 108,18 124,20 132,30 C 140,40 140,58 134,76 C 128,94 126,116 126,136 C 124,150 120,162 114,172 C 106,178 96,178 88,172 Z";
+    // Fibers rise off the bicep peak area (left side, mid-height)
     const fibers = [
-      {x:62,  y:60,  r:2.8, dur:"2.2s", delay:"0s"  },
-      {x:74,  y:40,  r:2.2, dur:"2.6s", delay:"0.5s" },
-      {x:90,  y:52,  r:2.5, dur:"2.0s", delay:"0.9s" },
-      {x:68,  y:80,  r:2.0, dur:"2.4s", delay:"1.3s" },
-      {x:84,  y:70,  r:1.8, dur:"2.8s", delay:"0.7s" },
-      {x:56,  y:88,  r:2.0, dur:"2.2s", delay:"1.7s" },
+      {x:50,  y:100, r:2.8, dur:"2.2s", delay:"0s"  },
+      {x:62,  y:76,  r:2.2, dur:"2.6s", delay:"0.5s" },
+      {x:58,  y:118, r:2.4, dur:"2.0s", delay:"0.9s" },
+      {x:70,  y:90,  r:2.0, dur:"2.4s", delay:"1.3s" },
+      {x:54,  y:60,  r:1.8, dur:"2.8s", delay:"0.7s" },
+      {x:72,  y:108, r:1.6, dur:"2.5s", delay:"1.6s" },
     ];
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {/* Warm aura */}
-        <ellipse cx="108" cy="105" rx="72" ry="72" fill={color} opacity="0.10">
+        {/* Warm aura behind the arm */}
+        <ellipse cx="100" cy="100" rx="68" ry="72" fill={color} opacity="0.10">
           <animate attributeName="opacity" values="0.06;0.18;0.06" dur="2.4s" repeatCount="indefinite"/>
         </ellipse>
-
-        {/* Upper arm — vertical pill, left side of canvas */}
-        <rect x="76" y="20" width="42" height="122" rx="21" fill={color}>
+        {/* Arm silhouette — breathes */}
+        <path d={arm} fill={color}>
           <animate attributeName="opacity" values="0.88;1;0.88" dur="2.4s" repeatCount="indefinite"/>
-        </rect>
-
-        {/* Bicep dome — ellipse shifted LEFT, creating the front peak */}
-        <ellipse cx="72" cy="68" rx="36" ry="42" fill={color}>
-          <animate attributeName="opacity" values="0.88;1;0.88" dur="2.4s" repeatCount="indefinite"/>
-        </ellipse>
-
-        {/* Elbow connector — bridges upper arm and forearm */}
-        <circle cx="96" cy="144" r="22" fill={color}>
-          <animate attributeName="opacity" values="0.88;1;0.88" dur="2.4s" repeatCount="indefinite"/>
-        </circle>
-
-        {/* Forearm — horizontal, goes RIGHT from elbow */}
-        <rect x="88" y="132" width="90" height="30" rx="15" fill={color}>
-          <animate attributeName="opacity" values="0.82;0.96;0.82" dur="2.4s" repeatCount="indefinite"/>
-        </rect>
-
+        </path>
         {/* Highlight sheen on bicep dome */}
-        <ellipse cx="64" cy="54" rx="13" ry="9" fill="white" opacity="0">
-          <animate attributeName="opacity" values="0.10;0.25;0.10" dur="2.4s" repeatCount="indefinite"/>
+        <ellipse cx="58" cy="90" rx="11" ry="16" fill="white" opacity="0">
+          <animate attributeName="opacity" values="0.12;0.26;0.12" dur="2.4s" repeatCount="indefinite"/>
         </ellipse>
-
         {/* Fiber particles rising off the bicep peak */}
         {fibers.map((f, i) => (
           <circle key={i} cx={f.x} cy={f.y} r={f.r} fill="white">
             <animate attributeName="opacity" values="0;0.80;0" dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
-            <animate attributeName="cy" values={`${f.y};${f.y-22};${f.y-44}`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
+            <animate attributeName="cy" values={`${f.y};${f.y-20};${f.y-42}`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
             <animate attributeName="r" values={`${f.r};${f.r*0.6};0.2`} dur={f.dur} begin={f.delay} repeatCount="indefinite"/>
           </circle>
         ))}

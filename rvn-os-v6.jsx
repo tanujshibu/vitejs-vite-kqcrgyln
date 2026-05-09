@@ -8636,14 +8636,66 @@ function FactFlash({ data, onContinue, theme }) {
   );
 }
 
+// ─── ONBOARDING TAP CARD — Cal AI black-select pattern ────────────────────────
+function OBCard({ option, selected, onPick, index = 0, theme }) {
+  const T = D[theme] || D.dark;
+  const isSelected = selected === option.value;
+  const isDark = theme === "dark";
+  return (
+    <motion.button
+      initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
+      transition={{ delay:.1 + index*.07, duration:.32, ease:[.22,1,.36,1] }}
+      whileTap={{ scale:.97 }}
+      onClick={() => onPick(option.value)}
+      style={{
+        width:"100%", padding:"20px 22px",
+        background: isSelected ? (isDark ? "#ffffff" : "#000000") : T.glass,
+        backdropFilter:isMobile?"none":"blur(16px)",
+        border:`1.5px solid ${isSelected ? (isDark?"#fff":"#000") : T.border}`,
+        borderRadius:18, cursor:"pointer",
+        display:"flex", alignItems:"center", gap:16,
+        textAlign:"left", transition:"background .15s, border .15s",
+      }}>
+      {option.icon && (
+        <div style={{
+          width:46, height:46, borderRadius:14, flexShrink:0,
+          background: isSelected
+            ? (isDark ? "rgba(0,0,0,.1)" : "rgba(255,255,255,.1)")
+            : `${option.color || T.blue}18`,
+          display:"flex", alignItems:"center", justifyContent:"center", fontSize:22,
+        }}>{option.icon}</div>
+      )}
+      <div style={{ flex:1 }}>
+        <div style={{ fontSize:17, fontWeight:800, letterSpacing:"-.01em",
+          color: isSelected ? (isDark?"#000":"#fff") : T.text }}>
+          {option.label}
+        </div>
+        {option.sub && (
+          <div style={{ fontSize:12, marginTop:2, lineHeight:1.4,
+            color: isSelected ? (isDark?"rgba(0,0,0,.6)":"rgba(255,255,255,.6)") : T.faint }}>
+            {option.sub}
+          </div>
+        )}
+      </div>
+      {isSelected && (
+        <div style={{ width:24, height:24, borderRadius:"50%", flexShrink:0,
+          background: isDark?"#000":"#fff",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:12, color: isDark?"#fff":"#000" }}>✓</div>
+      )}
+    </motion.button>
+  );
+}
+
 // ─── BIOLOGY STEP ─────────────────────────────────────────────────────────────
-// One question per screen with fact flash between each
 function BiologyStep({ mode, onSelect, onBack, theme }) {
   const T = D[theme] || D.dark;
   const M = OS_MODES[mode];
   const ac = T[M.accentKey];
-  // phases: 0=gender, 1=frequency, 2=caffeine, 3=bottleneck
-  const [phase, setPhase] = useState(0);
+
+  // phase -1 = hook screen, 0–3 = questions
+  const [phase,      setPhase]      = useState(-1);
+  const [picked,     setPicked]     = useState(null); // card highlight within phase
   const [gender,     setGender]     = useState(null);
   const [frequency,  setFrequency]  = useState(null);
   const [caffeine,   setCaffeine]   = useState(null);
@@ -8651,186 +8703,183 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   const [factData,   setFactData]   = useState(null);
   const afterFlash = useRef(null);
 
-  // Call flash(fact, callback) — shows fact screen, then fires callback when dismissed
-  function flash(fact, next) {
-    afterFlash.current = next;
-    setFactData(fact);
-  }
+  // Reset picked when phase changes
+  useEffect(() => { setPicked(null); }, [phase]);
 
-  // When factData clears, fire the pending callback
+  function flash(fact, next) { afterFlash.current = next; setFactData(fact); }
   useEffect(() => {
     if (!factData && afterFlash.current) {
-      const cb = afterFlash.current;
-      afterFlash.current = null;
-      cb();
+      const cb = afterFlash.current; afterFlash.current = null; cb();
     }
   }, [factData]);
 
   if (factData) return <FactFlash data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
-  // Shared question screen builder
-  function QuestionScreen({ stepNum, stepLabel, question, options, onPick, onBackFn }) {
+  // Shared question wrapper
+  function QWrap({ step, total=7, label, headline, sub, children, onBackFn }) {
     return (
       <Screen theme={theme}>
-        <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div style={{ padding:"16px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <BackBtn onBack={onBackFn} theme={theme}/>
           <RVNLogo size={30}/>
         </div>
-        <motion.div
-          key={`q-${stepNum}`}
+        <motion.div key={`bio-${step}`}
           initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
           transition={{ duration:.36, ease:[.22,1,.36,1] }}
-          style={{ flex:1, display:"flex", flexDirection:"column", padding:"24px 24px 48px" }}>
-          <StepProgress step={stepNum} total={5} label={stepLabel} accent={ac} theme={theme}/>
-          <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center" }}>
-            <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
-              style={{ marginBottom:36 }}>
-              <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.2 }}>
-                {question}
-              </div>
-            </motion.div>
-            <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-              {options.map((opt, i) => (
-                <motion.button key={opt.id}
-                  initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
-                  transition={{ delay:.15 + i*.08, duration:.32, ease:[.22,1,.36,1] }}
-                  whileTap={{ scale:.97 }}
-                  onClick={() => onPick(opt.id)}
-                  style={{
-                    width:"100%", padding:"20px 22px",
-                    background: T.glass, backdropFilter:isMobile?"none":"blur(16px)",
-                    border:`1.5px solid ${T.border}`,
-                    borderRadius:18, cursor:"pointer",
-                    display:"flex", alignItems:"center", justifyContent:"space-between",
-                    textAlign:"left", transition:"all .2s",
-                  }}>
-                  <div>
-                    <div style={{ fontSize:17, fontWeight:800, color:T.text, letterSpacing:"-.01em" }}>{opt.label}</div>
-                    {opt.sub && <div style={{ fontSize:12, color:T.faint, marginTop:3 }}>{opt.sub}</div>}
-                  </div>
-                  <div style={{
-                    width:32, height:32, borderRadius:"50%",
-                    background:`${opt.color}18`, border:`1.5px solid ${opt.color}55`,
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:14, color:opt.color, flexShrink:0,
-                  }}>→</div>
-                </motion.button>
-              ))}
+          style={{ flex:1, display:"flex", flexDirection:"column", padding:"20px 24px 48px" }}>
+          <StepProgress step={step} total={total} label={label} accent={ac} theme={theme}/>
+          <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
+            style={{ marginBottom:28, marginTop:18 }}>
+            <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.18 }}>
+              {headline}
             </div>
-          </div>
+            {sub && <div style={{ fontSize:13, color:T.muted, marginTop:6, lineHeight:1.5 }}>{sub}</div>}
+          </motion.div>
+          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>{children}</div>
         </motion.div>
       </Screen>
     );
   }
 
-  // Phase 0: Gender
-  if (phase === 0) return (
+  // Helper: pick with brief visual flash before FactFlash
+  function pick(setValue, value, fact, nextPhase) {
+    setPicked(value);
+    setValue(value);
+    setTimeout(() => flash(fact, () => setPhase(nextPhase)), 260);
+  }
+
+  // ── Phase -1: Hook screen ──────────────────────────────────────────────────
+  if (phase === -1) return (
     <Screen theme={theme}>
-      <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <BackBtn onBack={onBack} theme={theme}/>
-        <RVNLogo size={30}/>
-      </div>
-      <motion.div
-        initial={{ opacity:0 }} animate={{ opacity:1 }}
-        style={{ flex:1, display:"flex", flexDirection:"column", padding:"24px 24px 48px" }}>
-        <StepProgress step={1} total={5} label="BIOLOGICAL PROFILE" accent={ac} theme={theme}/>
-        <div style={{ flex:1, display:"flex", flexDirection:"column", justifyContent:"center" }}>
-          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
-            style={{ marginBottom:36 }}>
-            <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.025em", color:T.text, lineHeight:1.2 }}>
-              Let's start with your biology.
-            </div>
-            <div style={{ fontSize:14, color:T.muted, marginTop:8 }}>Your protocol is calibrated differently based on this.</div>
-          </motion.div>
-          <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-            {[
-              { id:"male",   label:"Man",   sub:"Testosterone-optimized protocol", color:"#2E5BFF", sym:"♂" },
-              { id:"female", label:"Woman", sub:"Hormonal precision protocol",      color:"#BF5AF2", sym:"♀" },
-            ].map((c, i) => (
-              <motion.button key={c.id}
-                initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
-                transition={{ delay:.15 + i*.1, duration:.32, ease:[.22,1,.36,1] }}
-                whileTap={{ scale:.97 }}
-                onClick={() => {
-                  setGender(c.id);
-                  flash(ONBOARDING_FACTS.gender[c.id], () => setPhase(1));
-                }}
-                style={{
-                  width:"100%", padding:"22px 22px",
-                  background: T.glass, backdropFilter:isMobile?"none":"blur(16px)",
-                  border:`1.5px solid ${T.border}`,
-                  borderRadius:18, cursor:"pointer",
-                  display:"flex", alignItems:"center", justifyContent:"space-between",
-                  textAlign:"left",
-                }}>
-                <div style={{ display:"flex", alignItems:"center", gap:16 }}>
-                  <div style={{
-                    width:44, height:44, borderRadius:"50%",
-                    background:`${c.color}18`, border:`1.5px solid ${c.color}55`,
-                    display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:20, color:c.color,
-                  }}>{c.sym}</div>
-                  <div>
-                    <div style={{ fontSize:17, fontWeight:800, color:T.text }}>{c.label}</div>
-                    <div style={{ fontSize:12, color:T.faint, marginTop:2 }}>{c.sub}</div>
-                  </div>
-                </div>
-                <div style={{ color:c.color, fontSize:18, opacity:0.7 }}>→</div>
-              </motion.button>
-            ))}
+      <div style={{ position:"absolute", inset:0, pointerEvents:"none",
+        background:`radial-gradient(ellipse 70% 45% at 50% 35%, ${ac}1E, transparent)` }}/>
+      <motion.div style={{ flex:1, display:"flex", flexDirection:"column",
+        alignItems:"center", justifyContent:"center", padding:"40px 28px 24px", gap:0 }}>
+
+        {/* Logo */}
+        <motion.div initial={{ opacity:0, scale:.7 }} animate={{ opacity:1, scale:1 }}
+          transition={{ duration:.55, ease:[.22,1,.36,1] }} style={{ marginBottom:28 }}>
+          <RVNLogo size={58} glow={ac}/>
+        </motion.div>
+
+        {/* Headline */}
+        <motion.div initial={{ opacity:0, y:22 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.22, duration:.5 }}
+          style={{ textAlign:"center", marginBottom:14 }}>
+          <div style={{ fontSize:36, fontWeight:900, letterSpacing:"-.03em",
+            color:T.text, lineHeight:1.08 }}>
+            Built around<br/>your biology.
           </div>
-        </div>
+          <div style={{ fontSize:14, color:T.muted, marginTop:12, lineHeight:1.6, maxWidth:290, margin:"12px auto 0" }}>
+            7 questions. Your exact protocol — not a template built for someone else.
+          </div>
+        </motion.div>
+
+        {/* Stats */}
+        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.5 }}
+          style={{ display:"flex", gap:32, marginTop:28, marginBottom:8 }}>
+          {[{n:"~90s",l:"to complete"},{n:"7",l:"questions"},{n:"1",l:"protocol for you"}].map(s => (
+            <div key={s.n} style={{ textAlign:"center" }}>
+              <div style={{ fontSize:22, fontWeight:900, color:ac, letterSpacing:"-.02em" }}>{s.n}</div>
+              <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em", marginTop:3, fontWeight:700 }}>
+                {s.l.toUpperCase()}
+              </div>
+            </div>
+          ))}
+        </motion.div>
+      </motion.div>
+
+      {/* CTA pinned to bottom */}
+      <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:.62 }}
+        style={{ padding:"0 24px 52px" }}>
+        <ShimmerCTA label="Let's build mine  →" onClick={() => setPhase(0)} theme={theme} color={ac}/>
+        {onBack && (
+          <div style={{ textAlign:"center", marginTop:14 }}>
+            <button onClick={onBack}
+              style={{ background:"none", border:"none", cursor:"pointer",
+                fontSize:12, color:T.faint, letterSpacing:".04em" }}>
+              ← Back to home
+            </button>
+          </div>
+        )}
       </motion.div>
     </Screen>
   );
 
-  // Phase 1: Training frequency
-  if (phase === 1) return QuestionScreen({
-    stepNum: 1, stepLabel: "TRAINING HABITS",
-    question: "How often do you currently train?",
-    onBackFn: () => setPhase(0),
-    options: [
-      { id:"high", label:"5 or more times a week", sub:"High frequency", color:"#FF4B2B" },
-      { id:"med",  label:"3 to 4 times a week",    sub:"Moderate frequency", color:"#C9A84C" },
-      { id:"low",  label:"1 to 2 times a week",    sub:"Getting started", color:"#30D158" },
-    ],
-    onPick: (id) => {
-      setFrequency(id);
-      flash(ONBOARDING_FACTS.frequency[id], () => setPhase(2));
-    },
-  });
+  // ── Phase 0: Gender ────────────────────────────────────────────────────────
+  if (phase === 0) return (
+    <QWrap step={1} total={7} label="BIOLOGICAL PROFILE"
+      headline="Let's start with your biology."
+      sub="Your protocol is calibrated differently based on this."
+      onBackFn={() => setPhase(-1)}>
+      {[
+        { value:"male",   label:"Man",   sub:"Testosterone-optimized protocol", icon:"♂", color:"#2E5BFF" },
+        { value:"female", label:"Woman", sub:"Hormonal precision protocol",      icon:"♀", color:"#BF5AF2" },
+      ].map((opt, i) => (
+        <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
+          onPick={v => pick(setGender, v, ONBOARDING_FACTS.gender[v], 1)}/>
+      ))}
+    </QWrap>
+  );
 
-  // Phase 2: Caffeine sensitivity
-  if (phase === 2) return QuestionScreen({
-    stepNum: 1, stepLabel: "STIMULANT PROFILE",
-    question: "How sensitive are you to caffeine?",
-    onBackFn: () => setPhase(1),
-    options: [
-      { id:"high", label:"Very sensitive", sub:"Jittery on even one coffee", color:"#FF4B2B" },
-      { id:"med",  label:"Normal tolerance", sub:"Standard reaction to caffeine", color:"#C9A84C" },
-      { id:"low",  label:"High tolerance", sub:"3+ cups and barely feel it", color:"#30D158" },
-    ],
-    onPick: (id) => {
-      setCaffeine(id);
-      flash(ONBOARDING_FACTS.caffeine[id], () => setPhase(3));
-    },
-  });
+  // ── Phase 1: Training frequency ────────────────────────────────────────────
+  if (phase === 1) return (
+    <QWrap step={2} total={7} label="TRAINING HABITS"
+      headline="How often do you currently train?"
+      onBackFn={() => setPhase(0)}>
+      {[
+        { value:"high", label:"5+ times a week",    sub:"High frequency athlete",      icon:"🔥", color:"#FF4B2B" },
+        { value:"med",  label:"3–4 times a week",   sub:"Consistent training block",   icon:"⚡", color:"#C9A84C" },
+        { value:"low",  label:"1–2 times a week",   sub:"Building the foundation",     icon:"🌱", color:"#30D158" },
+      ].map((opt, i) => (
+        <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
+          onPick={v => pick(setFrequency, v, ONBOARDING_FACTS.frequency[v], 2)}/>
+      ))}
+    </QWrap>
+  );
 
-  // Phase 3: Recovery bottleneck
-  if (phase === 3) return QuestionScreen({
-    stepNum: 1, stepLabel: "RECOVERY PROFILE",
-    question: "What kills your recovery most?",
-    onBackFn: () => setPhase(2),
-    options: [
-      { id:"sleep",    label:"Sleep quality", sub:"I don't sleep well or long enough", color:"#5AC8FA" },
-      { id:"soreness", label:"Muscle soreness", sub:"Still sore before my next session", color:"#FF4B2B" },
-      { id:"fog",      label:"Mental fog", sub:"Brain is slow the day after training", color:"#BF5AF2" },
-    ],
-    onPick: (id) => {
-      setBottleneck(id);
-      flash(ONBOARDING_FACTS.bottleneck[id], () => onSelect({ gender, frequency, caffeine, bottleneck: id }));
-    },
-  });
+  // ── Phase 2: Caffeine ──────────────────────────────────────────────────────
+  if (phase === 2) return (
+    <QWrap step={3} total={7} label="STIMULANT PROFILE"
+      headline="How sensitive are you to caffeine?"
+      sub="This shapes your pre-workout and timing protocol."
+      onBackFn={() => setPhase(1)}>
+      {[
+        { value:"high", label:"Very sensitive",  sub:"Jittery on even one coffee",     icon:"😬", color:"#FF4B2B" },
+        { value:"med",  label:"Normal tolerance",sub:"Standard reaction to caffeine",  icon:"☕", color:"#C9A84C" },
+        { value:"low",  label:"High tolerance",  sub:"3+ cups and barely feel it",     icon:"⚡", color:"#30D158" },
+      ].map((opt, i) => (
+        <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
+          onPick={v => pick(setCaffeine, v, ONBOARDING_FACTS.caffeine[v], 3)}/>
+      ))}
+    </QWrap>
+  );
+
+  // ── Phase 3: Recovery bottleneck ──────────────────────────────────────────
+  if (phase === 3) return (
+    <QWrap step={4} total={7} label="RECOVERY PROFILE"
+      headline="What limits your recovery most?"
+      sub="Your protocol targets this first."
+      onBackFn={() => setPhase(2)}>
+      {[
+        { value:"sleep",    label:"Sleep quality",  sub:"I don't sleep well or long enough",  icon:"😴", color:"#5AC8FA" },
+        { value:"soreness", label:"Muscle soreness",sub:"Still sore before my next session",   icon:"💪", color:"#FF4B2B" },
+        { value:"fog",      label:"Mental fog",     sub:"Brain is slow the day after training", icon:"🧠", color:"#BF5AF2" },
+      ].map((opt, i) => (
+        <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
+          onPick={v => {
+            // last biology question → flash then hand off to parent
+            setPicked(v);
+            setBottleneck(v);
+            setTimeout(() => flash(
+              ONBOARDING_FACTS.bottleneck[v],
+              () => onSelect({ gender, frequency, caffeine, bottleneck: v })
+            ), 260);
+          }}/>
+      ))}
+    </QWrap>
+  );
 
   return null;
 }
@@ -8844,6 +8893,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
   ? (biology?.gender==="female" ? FEMALE_GYM_ARCHETYPES : GYM_ARCHETYPES)
   : STORE_ARCHETYPES;
   const [hovered, setHovered] = useState(null);
+  const [picked,  setPicked]  = useState(null);
   const [factData, setFactData] = useState(null);
   const afterFlash = useRef(null);
 
@@ -8871,43 +8921,69 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
           <div style={{ fontSize:13, color:T.muted, marginTop:4 }}>Select your primary protocol</div>
         </motion.div>
 
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
-          {archetypes.map((arch, i) => (
-            <motion.button key={arch.id}
-              {...FX.stagger(i,.1)}
-              whileHover={{ scale:1.04, rotateY:-4, rotateX:2, z:24 }}
-              whileTap={{ scale:.95 }}
-              onHoverStart={() => setHovered(arch.id)}
-              onHoverEnd={() => setHovered(null)}
-              onClick={() => {
-                const fact = ONBOARDING_FACTS.archetype[arch.id] || ONBOARDING_FACTS.archetype.default;
-                flash(fact, () => onSelect(arch.id));
-              }}
-              style={{
-                background: hovered===arch.id
-                  ? `linear-gradient(145deg,${arch.glow}22,${T.glass})`
-                  : T.glass,
-                backdropFilter:isMobile?"none":"blur(20px)",
-                border: `1.5px solid ${hovered===arch.id ? arch.glow+"66" : T.border}`,
-                borderRadius:20, padding:"18px 14px 16px",
-                cursor:"pointer", textAlign:"left",
-                boxShadow: hovered===arch.id ? `0 10px 40px ${arch.glow}33` : "none",
-                transition:"all .22s ease", perspective:800,
-              }}>
-              <div style={{ height:88, display:"flex", alignItems:"center", justifyContent:"center", marginBottom:10 }}>
-                <BioAvatar archetypeId={arch.id} theme={theme} active={hovered===arch.id} glow={arch.glow} size={50} gender={biology?.gender}/>
-              </div>
-              <Pill label={arch.word} color={arch.glow} theme={theme}/>
-              <div style={{ fontSize:15, fontWeight:800, color:T.text, marginTop:7, letterSpacing:"-.01em" }}>{arch.name}</div>
-              <div style={{ fontSize:9.5, color:T.faint, marginTop:2, letterSpacing:".04em", lineHeight:1.4 }}>{arch.sub}</div>
-              {hovered===arch.id && (
-                <motion.div initial={{ opacity:0, height:0 }} animate={{ opacity:1, height:"auto" }}
-                  style={{ marginTop:8, fontSize:10, color:arch.glow, lineHeight:1.5 }}>
-                  {arch.aiLine}
-                </motion.div>
-              )}
-            </motion.button>
-          ))}
+        <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+          {archetypes.map((arch, i) => {
+            const isSelected = picked === arch.id;
+            const isHovered  = hovered === arch.id;
+            const isActive   = isSelected || isHovered;
+            return (
+              <motion.button key={arch.id}
+                initial={{ opacity:0, x:28 }}
+                animate={{ opacity:1, x:0 }}
+                transition={{ delay:.08 + i*.07, duration:.32, ease:[.22,1,.36,1] }}
+                whileTap={{ scale:.98 }}
+                onHoverStart={() => setHovered(arch.id)}
+                onHoverEnd={() => setHovered(null)}
+                onClick={() => {
+                  setPicked(arch.id);
+                  const fact = ONBOARDING_FACTS.archetype[arch.id] || ONBOARDING_FACTS.archetype.default;
+                  setTimeout(() => flash(fact, () => onSelect(arch.id)), 260);
+                }}
+                style={{
+                  width:"100%",
+                  background: isActive
+                    ? `linear-gradient(120deg,${arch.glow}18,${arch.glow}08)`
+                    : T.glass,
+                  backdropFilter:isMobile?"none":"blur(20px)",
+                  border: `1.5px solid ${isActive ? arch.glow+"88" : T.border}`,
+                  borderRadius:20, padding:"16px 18px",
+                  cursor:"pointer", textAlign:"left",
+                  boxShadow: isActive ? `0 6px 32px ${arch.glow}28` : "none",
+                  transition:"all .2s ease",
+                  display:"flex", alignItems:"center", gap:16,
+                }}>
+                {/* Left: avatar */}
+                <div style={{ flexShrink:0 }}>
+                  <BioAvatar archetypeId={arch.id} theme={theme} active={isActive} glow={arch.glow} size={44} gender={biology?.gender}/>
+                </div>
+                {/* Center: text */}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
+                    <div style={{ fontSize:15, fontWeight:800, color:T.text, letterSpacing:"-.01em" }}>{arch.name}</div>
+                    <Pill label={arch.word} color={arch.glow} theme={theme}/>
+                  </div>
+                  <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", lineHeight:1.4 }}>{arch.sub}</div>
+                  {isActive && (
+                    <motion.div initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }}
+                      transition={{ duration:.2 }}
+                      style={{ fontSize:10.5, color:arch.glow, marginTop:5, lineHeight:1.45, fontWeight:500 }}>
+                      {arch.aiLine}
+                    </motion.div>
+                  )}
+                </div>
+                {/* Right: checkmark */}
+                <motion.div
+                  animate={{ opacity: isSelected ? 1 : 0, scale: isSelected ? 1 : 0.5 }}
+                  transition={{ duration:.18 }}
+                  style={{
+                    width:26, height:26, borderRadius:"50%",
+                    background: arch.glow,
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                    flexShrink:0, fontSize:13, color:"#000", fontWeight:900,
+                  }}>✓</motion.div>
+              </motion.button>
+            );
+          })}
         </div>
       </div>
     </Screen>
@@ -8972,23 +9048,6 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
     }
   }
 
-  const insight = useMemo(() => {
-    if (!isGym) {
-      if (sel==="sleep" && val < 6) return { text:"Sleep debt critical. Recovery protocol is your highest-ROI intervention.", color:"#FF4B2B" };
-      if (sel==="stress" && val > 7) return { text:"High cortisol detected. Adaptogen protocol will be prioritized.", color:"#FF4B2B" };
-      return { text:"Baseline captured. Protocol precision: calibrated.", color:"#00FFAB" };
-    }
-    if (sel==="bw") {
-      const bwKg = Math.round(val * 0.4536);
-      return { text:`At ${val}lbs (${bwKg}kg) your precision protein target will be calculated after strength baseline. Awaiting lifts.`, color:ac };
-    }
-    if (sel==="bench") {
-      if (val > 275) return { text:"Elite-tier. Neural drive optimized. Protocol targets advanced hypertrophy.", color:"#00FFAB" };
-      if (val > 185) return { text:"Advanced baseline. Protocol targets strength-hypertrophy hybrid.", color:"#D4AF37" };
-      return { text:"Building phase. Neural adaptations will drive 40%+ strength gains in 12 weeks.", color:"#2E5BFF" };
-    }
-    return { text:"Baseline logged. Protocol calibrated to your current output capacity.", color:"#00FFAB" };
-  }, [sel, val, isGym]);
 
   if (factData) return <FactFlash key="perf-fact" data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
@@ -9073,46 +9132,6 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
             </div>
           </div>
         </div>
-
-        {/* Bio insight */}
-        <motion.div
-          initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.3 }}>
-          <GlassCard theme={theme} glow={insight.color}
-            style={{ padding:"12px 16px", marginBottom:18 }}>
-            <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:4 }}>
-              KAILU BIO-INSIGHT
-            </div>
-            <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.55 }}>
-              <span style={{ color:insight.color, fontWeight:700 }}>◈ </span>
-              {insight.text}
-            </div>
-          </GlassCard>
-        </motion.div>
-
-        {/* Surgical Defaults — skip unnecessary input, hit < 120s onboarding target */}
-        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.5 }}
-          style={{ marginBottom:12, textAlign:"center" }}>
-          <button
-            onClick={() => {
-              const defaults = Object.fromEntries(metrics.map(m => [m.id, m.default]));
-              setVals(defaults);
-              track("Surgical Defaults Applied", { mode, archetypeId, step: "performance" });
-              const fact = buildPerfFact(defaults);
-              flash(fact, () => onSubmit({ metric:sel, value:defaults[sel], all:defaults }));
-            }}
-            style={{
-              background: "transparent",
-              border: `1px solid ${T.borderHi}`,
-              borderRadius: 8, padding: "7px 18px",
-              fontSize: 9.5, fontWeight: 700, letterSpacing: ".1em",
-              color: T.muted, cursor: "pointer",
-            }}>
-            ⚡ USE SURGICAL DEFAULTS  (fastest)
-          </button>
-          <div style={{ fontSize: 8.5, color: T.faint, marginTop: 4 }}>
-            Pre-fills population averages. You can update any time in settings.
-          </div>
-        </motion.div>
 
         <ShimmerCTA label="Confirm Baseline  →" onClick={() => {
           const fact = buildPerfFact(vals);

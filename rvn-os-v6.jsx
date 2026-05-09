@@ -8680,17 +8680,190 @@ const LOTTIE_MUSCLE = {
   ]
 };
 
+// ── Clock (caffeine high — 40min) ─────────────────────────────────────────────
+const LOTTIE_CLOCK = {
+  v:"5.5.7", fr:30, ip:0, op:120, w:200, h:200, nm:"clock", ddd:0, assets:[],
+  layers:[
+    // Face ring (dim)
+    { ddd:0,ind:1,ty:4,nm:"face",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[130,130]}},{ty:"st",c:{a:0,k:[1,0.624,0.039,0.25]},o:{a:0,k:100},w:{a:0,k:1.5}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:120,st:0},
+    // Face ring (pulsing bright)
+    { ddd:0,ind:2,ty:4,nm:"face_glow",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[20]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:60,s:[70]},{t:120,s:[20]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[130,130]}},{ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:1.5}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:120,st:0},
+    // Tick marks at 12/3/6/9
+    ...[0,90,180,270].map((deg,i)=>{
+      const r=55, rad=deg*Math.PI/180;
+      return {ddd:0,ind:10+i,ty:4,nm:`t${i}`,sr:1,ks:{o:{a:0,k:50},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+        shapes:[{ty:"gr",it:[
+          {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0]],o:[[0,0],[0,0]],v:[[Math.round(r*Math.sin(rad)),Math.round(-r*Math.cos(rad))],[Math.round((r+10)*Math.sin(rad)),Math.round(-(r+10)*Math.cos(rad))]],c:false}}},
+          {ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:2.5},lc:2,lj:2},
+          {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+        ]}],ip:0,op:120,st:0};
+    }),
+    // Minute hand — full rotation
+    { ddd:0,ind:20,ty:4,nm:"min",sr:1,ks:{o:{a:0,k:100},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[0]},{t:120,s:[360]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0]],o:[[0,0],[0,0]],v:[[0,6],[0,-46]],c:false}}},
+        {ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:2.5},lc:2,lj:2},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:120,st:0},
+    // Hour hand — 1/4 rotation
+    { ddd:0,ind:21,ty:4,nm:"hr",sr:1,ks:{o:{a:0,k:100},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[90]},{t:120,s:[180]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0]],o:[[0,0],[0,0]],v:[[0,6],[0,-30]],c:false}}},
+        {ty:"st",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100},w:{a:0,k:4},lc:2,lj:2},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:120,st:0},
+    // Center dot
+    { ddd:0,ind:22,ty:4,nm:"dot",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[10,10]}},{ty:"fl",c:{a:0,k:[1,0.624,0.039,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:120,st:0},
+  ]
+};
+
+// ── Lightning bolt (caffeine med — 200mg) ─────────────────────────────────────
+const LOTTIE_LIGHTNING = {
+  v:"5.5.7", fr:30, ip:0, op:60, w:200, h:200, nm:"lightning", ddd:0, assets:[],
+  layers:[
+    // Glow orb behind bolt
+    { ddd:0,ind:1,ty:4,nm:"glow",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[35]},{t:30,s:[0]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[80,80,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[150,150,100]},{t:30,s:[80,80,100]}]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[80,80]}},{ty:"fl",c:{a:0,k:[0.788,0.659,0.298,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:60,st:0},
+    // Bolt fill
+    { ddd:0,ind:2,ty:4,nm:"bolt",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[90,90,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[112,112,100]},{t:30,s:[90,90,100]}]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],o:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],v:[[8,-52],[28,-4],[10,-4],[-8,52],[-28,4],[-10,4]],c:true}}},
+        {ty:"fl",c:{a:0,k:[0.788,0.659,0.298,1]},o:{a:0,k:100}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:60,st:0},
+    // Bolt outline glow
+    { ddd:0,ind:3,ty:4,nm:"bolt_rim",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[40]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:15,s:[100]},{t:30,s:[40]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],o:[[0,0],[0,0],[0,0],[0,0],[0,0],[0,0]],v:[[8,-52],[28,-4],[10,-4],[-8,52],[-28,4],[-10,4]],c:true}}},
+        {ty:"st",c:{a:0,k:[1,1,0.7,1]},o:{a:0,k:100},w:{a:0,k:1.5}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:60,st:0},
+  ]
+};
+
+// ── Spinning reset arcs (caffeine low — 10 days) ──────────────────────────────
+const LOTTIE_RESET = {
+  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"reset", ddd:0, assets:[],
+  layers:[
+    // Outer spinning arc
+    { ddd:0,ind:1,ty:4,nm:"arc1",sr:1,ks:{o:{a:0,k:100},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[0]},{t:90,s:[360]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[120,120]}},
+        {ty:"st",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100},w:{a:0,k:8},lc:2,lj:2},
+        {ty:"tm",s:{a:0,k:0},e:{a:0,k:78},o:{a:0,k:0}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:90,st:0},
+    // Inner spinning arc (offset, dimmer)
+    { ddd:0,ind:2,ty:4,nm:"arc2",sr:1,ks:{o:{a:0,k:35},r:{a:1,k:[{i:{x:[1],y:[1]},o:{x:[0],y:[0]},t:0,s:[180]},{t:90,s:[540]}]},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[82,82]}},
+        {ty:"st",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100},w:{a:0,k:5},lc:2,lj:2},
+        {ty:"tm",s:{a:0,k:10},e:{a:0,k:72},o:{a:0,k:0}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:90,st:0},
+    // Center pulsing dot
+    { ddd:0,ind:3,ty:4,nm:"dot",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[100,100,100]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:45,s:[130,130,100]},{t:90,s:[100,100,100]}]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[16,16]}},{ty:"fl",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:90,st:0},
+  ]
+};
+
+// ── Two bars flip (freq med — rest days do more) ───────────────────────────────
+const LOTTIE_TWOBAR = {
+  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"twobar", ddd:0, assets:[],
+  layers:[
+    // Track backgrounds
+    ...[75,125].map((x,i)=>({ddd:0,ind:i,ty:4,nm:`trk${i}`,sr:1,ks:{o:{a:0,k:12},r:{a:0,k:0},p:{a:0,k:[x,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"rc",d:1,p:{a:0,k:[0,-50]},s:{a:0,k:[26,100]},r:{a:0,k:5}},{ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:90,st:0})),
+    // GYM bar — shrinks from 90 to 28
+    { ddd:0,ind:10,ty:4,nm:"gym",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[75,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[0,-45]},{t:60,s:[0,-14]}]},
+         s:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[26,90]},{t:60,s:[26,28]}]},r:{a:0,k:5}},
+        {ty:"fl",c:{a:0,k:[0.788,0.659,0.298,0.45]},o:{a:0,k:100}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:90,st:0},
+    // REST bar — grows from 28 to 90
+    { ddd:0,ind:11,ty:4,nm:"rest",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[125,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[0,-14]},{t:60,s:[0,-45]}]},
+         s:{a:1,k:[{i:{x:[.42],y:[1]},o:{x:[.58],y:[0]},t:0,s:[26,28]},{t:60,s:[26,90]}]},r:{a:0,k:5}},
+        {ty:"fl",c:{a:0,k:[0.788,0.659,0.298,1]},o:{a:0,k:100}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:90,st:0},
+  ]
+};
+
+// ── Checkmark (freq low — 2 sessions done right) ──────────────────────────────
+const LOTTIE_CHECK = {
+  v:"5.5.7", fr:30, ip:0, op:75, w:200, h:200, nm:"check", ddd:0, assets:[],
+  layers:[
+    // Circle bg fades in
+    { ddd:0,ind:1,ty:4,nm:"bg",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:0,s:[0]},{t:18,s:[18]},{t:75,s:[18]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:0,s:[0,0,100]},{t:18,s:[100,100,100]}]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"el",p:{a:0,k:[0,0]},s:{a:0,k:[120,120]}},{ty:"fl",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:75,st:0},
+    // Checkmark draws in via trim path
+    { ddd:0,ind:2,ty:4,nm:"check",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"sh",ks:{a:0,k:{i:[[0,0],[0,0],[0,0]],o:[[0,0],[0,0],[0,0]],v:[[-38,2],[-10,32],[44,-34]],c:false}}},
+        {ty:"tm",s:{a:0,k:0},e:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:10,s:[0]},{t:40,s:[100]}]},o:{a:0,k:0}},
+        {ty:"st",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100},w:{a:0,k:7},lc:2,lj:2},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:75,st:0},
+    // Pulse ring after check
+    { ddd:0,ind:3,ty:4,nm:"pulse",sr:1,ks:{o:{a:1,k:[{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:40,s:[0]},{i:{x:[.667],y:[1]},o:{x:[.333],y:[0]},t:43,s:[55]},{t:70,s:[0]}]},r:{a:0,k:0},p:{a:0,k:[100,100,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"el",p:{a:0,k:[0,0]},s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:40,s:[120,120]},{t:70,s:[190,190]}]}},
+        {ty:"st",c:{a:0,k:[0.188,0.820,0.345,1]},o:{a:0,k:100},w:{a:0,k:2}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:75,st:0},
+  ]
+};
+
+// ── 168h split bar (gender male) ──────────────────────────────────────────────
+const LOTTIE_SPLIT = {
+  v:"5.5.7", fr:30, ip:0, op:90, w:200, h:200, nm:"split168", ddd:0, assets:[],
+  layers:[
+    // Track backgrounds
+    ...[65,135].map((x,i)=>({ddd:0,ind:i,ty:4,nm:`trk${i}`,sr:1,ks:{o:{a:0,k:10},r:{a:0,k:0},p:{a:0,k:[x,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[{ty:"rc",d:1,p:{a:0,k:[0,i===0?-8:-55]},s:{a:0,k:[24,i===0?16:110]},r:{a:0,k:4}},{ty:"fl",c:{a:0,k:[1,1,1,1]},o:{a:0,k:100}},{ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}]}],ip:0,op:90,st:0})),
+    // Gym bar — tiny (10hrs)
+    { ddd:0,ind:10,ty:4,nm:"gym",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[65,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:5,s:[0,0]},{t:30,s:[0,-8]}]},
+         s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:5,s:[24,0]},{t:30,s:[24,16]}]},r:{a:0,k:4}},
+        {ty:"fl",c:{a:0,k:[0.831,0.686,0.216,0.5]},o:{a:0,k:100}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:90,st:0},
+    // Life bar — dominant (158hrs)
+    { ddd:0,ind:11,ty:4,nm:"life",sr:1,ks:{o:{a:0,k:100},r:{a:0,k:0},p:{a:0,k:[135,138,0]},a:{a:0,k:[0,0,0]},s:{a:0,k:[100,100,100]}},ao:0,
+      shapes:[{ty:"gr",it:[
+        {ty:"rc",d:1,p:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:15,s:[0,0]},{t:60,s:[0,-55]}]},
+         s:{a:1,k:[{i:{x:[.22],y:[1]},o:{x:[.78],y:[0]},t:15,s:[24,0]},{t:60,s:[24,110]}]},r:{a:0,k:4}},
+        {ty:"fl",c:{a:0,k:[0.831,0.686,0.216,1]},o:{a:0,k:100}},
+        {ty:"tr",p:{a:0,k:[0,0]},a:{a:0,k:[0,0]},s:{a:0,k:[100,100]},r:{a:0,k:0},o:{a:0,k:100}}
+      ]}],ip:0,op:90,st:0},
+  ]
+};
+
 const LOTTIE_MAP = {
-  sleep:    LOTTIE_SLEEP,
-  brain:    LOTTIE_BRAIN,
-  fire:     LOTTIE_FIRE,
-  muscle:   LOTTIE_MUSCLE,
+  sleep:     LOTTIE_SLEEP,
+  brain:     LOTTIE_BRAIN,
+  fire:      LOTTIE_FIRE,
+  muscle:    LOTTIE_MUSCLE,
+  clock:     LOTTIE_CLOCK,
+  lightning: LOTTIE_LIGHTNING,
+  reset:     LOTTIE_RESET,
+  twobar:    LOTTIE_TWOBAR,
+  check:     LOTTIE_CHECK,
+  split:     LOTTIE_SPLIT,
 };
 
 const ONBOARDING_FACTS = {
   gender: {
     male: {
-      stat: "168", color: "#D4AF37", visual: "bar_compare",
+      stat: "168", color: "#D4AF37", visual: "bar_compare", lottie: "split",
       headline: "Only 10 of these hours are gym. The rest decide your results.",
       body: "10 gym hours is 6% of your week. Sleep, food, and recovery own the other 94%. Your protocol addresses all of it.",
     },
@@ -8707,29 +8880,29 @@ const ONBOARDING_FACTS = {
       body: "Protein synthesis stays elevated 48hrs after training. Hit too soon and you interrupt it.",
     },
     med: {
-      stat: "Rest days", color: "#C9A84C", visual: "two_bars",
+      stat: "Rest days", color: "#C9A84C", visual: "two_bars", lottie: "twobar",
       headline: "Are doing more work than your gym days",
       body: "Muscles don't grow during training — they grow during rest. Your off days are building you.",
     },
     low: {
-      stat: "2 sessions", color: "#30D158", visual: "bar_compare",
+      stat: "2 sessions", color: "#30D158", visual: "bar_compare", lottie: "check",
       headline: "Done right, beats 5 done wrong. Every time.",
       body: "Two sessions with real progression outperforms daily training with poor recovery.",
     },
   },
   caffeine: {
     high: {
-      stat: "40min", color: "#FF9F0A", visual: "clock",
+      stat: "40min", color: "#FF9F0A", visual: "clock", lottie: "clock",
       headline: "You've been timing your pre-workout wrong",
       body: "Caffeine peaks 30–45min after you take it. You should be warming up before it kicks in.",
     },
     med: {
-      stat: "200mg", color: "#C9A84C", visual: "gauge",
+      stat: "200mg", color: "#C9A84C", visual: "gauge", lottie: "lightning",
       headline: "More caffeine doesn't mean more performance",
       body: "200mg maxes out training output. Most pre-workouts have double — that's anxiety, not energy.",
     },
     low: {
-      stat: "10 days", color: "#30D158", visual: "calendar_dots",
+      stat: "10 days", color: "#30D158", visual: "calendar_dots", lottie: "reset",
       headline: "Your next pre-workout will feel like the first time",
       body: "A 10-day reset returns your receptors to baseline. We'll cycle this in.",
     },

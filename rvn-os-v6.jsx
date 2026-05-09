@@ -8678,44 +8678,53 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── brain: smiley face that goes foggy — brain fog = cognitive decline ────────
-  // Face starts clear and bright → eyes droop → smile flattens → haze drifts in
+  // ── brain: neutral face + fog → smile emerges, fog lifts ────────────────────
+  // Starts foggy/dim with straight mouth → smile curves in, face brightens, fog fades
   if (type === "brain") {
-    // Fog particles — small dots that drift in and fade
+    // Fog particles scattered around face, visible at start, fade as smile arrives
     const fogDots = [
-      {cx:68,cy:72,r:5,delay:"1.2s"},{cx:138,cy:65,r:4,delay:"1.5s"},
-      {cx:55,cy:115,r:6,delay:"1.8s"},{cx:148,cy:120,r:4,delay:"2.0s"},
-      {cx:80,cy:155,r:5,delay:"1.4s"},{cx:125,cy:150,r:6,delay:"1.7s"},
-      {cx:100,cy:46,r:4,delay:"2.1s"},{cx:62,cy:142,r:3,delay:"1.9s"},
+      {cx:66,cy:70,r:6},{cx:140,cy:63,r:5},
+      {cx:52,cy:118,r:7},{cx:150,cy:122,r:5},
+      {cx:78,cy:157,r:6},{cx:126,cy:153,r:7},
+      {cx:100,cy:44,r:5},{cx:60,cy:143,r:4},
     ];
+    // Cycle: 0→1.2s = straight face + fog, 1.8→3.2s = smile in + fog out, 3.8→5s = hold smile, 5s = reset
+    const dur = "5s";
+    // Mouth: both states use Q bezier so SMIL interpolates smoothly
+    // straight: Q ctrl at same y as endpoints = flat line
+    // smile: Q ctrl dips down to y=148 = deep classic arc
+    const mouthFlat  = "M 72,120 Q 100,120 128,120";
+    const mouthSmile = "M 72,116 Q 100,148 128,116";
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {/* Face outline */}
+        {/* Face outline — dim in fog, brightens with smile */}
         <circle cx="100" cy="100" r="65" fill="none" stroke={color} strokeWidth="3">
-          <animate attributeName="opacity" values="0.9;0.35;0.9" dur="3s" begin="1.0s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.35;0.35;0.9;0.9;0.35" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
         </circle>
-        {/* Left eye — starts bright, droops dim */}
+        {/* Left eye — dim + droopy in fog, perks up with smile */}
         <circle cx="78" cy="88" r="8" fill={color}>
-          <animate attributeName="opacity" values="1;1;0.3;0.3" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
-          <animate attributeName="cy" values="88;88;93;93" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.28;0.28;1;1;0.28" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
+          <animate attributeName="cy" values="92;92;88;88;92" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
         </circle>
         {/* Right eye */}
         <circle cx="122" cy="88" r="8" fill={color}>
-          <animate attributeName="opacity" values="1;1;0.3;0.3" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
-          <animate attributeName="cy" values="88;88;93;93" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.28;0.28;1;1;0.28" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
+          <animate attributeName="cy" values="92;92;88;88;92" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
         </circle>
-        {/* Smile — arc that flattens to a straight line then droops */}
-        <path d="M 72,118 Q 100,140 128,118" fill="none" stroke={color} strokeWidth="4.5" strokeLinecap="round">
+        {/* Mouth — flat neutral → deep classic smile arc */}
+        <path fill="none" stroke={color} strokeWidth="5" strokeLinecap="round">
           <animate attributeName="d"
-            values="M 72,118 Q 100,140 128,118;M 72,118 Q 100,140 128,118;M 72,120 Q 100,120 128,120;M 72,120 Q 100,128 128,120"
-            keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="1;1;0.55;0.55" keyTimes="0;0.3;0.6;1" dur="3s" repeatCount="indefinite"/>
+            values={`${mouthFlat};${mouthFlat};${mouthSmile};${mouthSmile};${mouthFlat}`}
+            keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.55;0.55;1;1;0.55" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
         </path>
-        {/* Fog particles drift in after face dims */}
+        {/* Fog particles — fully visible at start, fade as smile comes in */}
         {fogDots.map((d, i) => (
-          <circle key={i} cx={d.cx} cy={d.cy} r={d.r} fill={color} opacity="0">
-            <animate attributeName="opacity" values="0;0.35;0" dur="2s" begin={d.delay} repeatCount="indefinite"/>
-            <animate attributeName="cy" values={`${d.cy};${d.cy - 8};${d.cy}`} dur="2s" begin={d.delay} repeatCount="indefinite"/>
+          <circle key={i} cx={d.cx} cy={d.cy} r={d.r} fill={color}>
+            <animate attributeName="opacity"
+              values="0.38;0.38;0;0;0.38" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
+            <animate attributeName="cy"
+              values={`${d.cy};${d.cy - 6};${d.cy - 12};${d.cy - 18};${d.cy}`} dur={dur} repeatCount="indefinite"/>
           </circle>
         ))}
       </svg>

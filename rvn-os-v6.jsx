@@ -520,10 +520,10 @@ const GYM_ARCHETYPES = [
     word:    "WIDTH",
     sub:     "APEX SILHOUETTE",
     glow:    "#2E5BFF",
-    muscles: ["Latissimus Dorsi","Posterior Deltoids","Serratus Anterior","Teres Major"],
+    muscles: ["Lats","Rear Shoulders","Outer Ribs","Upper Back"],
     bioScore:82,
     signature:"Shoulder-to-waist ratio dominance. The elite visual signature.",
-    aiLine:  "Your CNS is primed for posterior chain loading. Lats fire at maximum recruitment today.",
+    aiLine:  "Your nervous system is ready. Your back muscles are primed to fire hard today.",
     narrative:[
       "The V-Taper is the #1 most noticeable physique change you can make. Wide shoulders and a narrow waist literally make you look bigger, stronger, and more athletic — even in a t-shirt.",
       "We're training your lats — the big muscles under your arms that create wing-like width. When they grow, your waist looks smaller even if it hasn't changed. That's the visual trick.",
@@ -544,7 +544,7 @@ const GYM_ARCHETYPES = [
     word:    "DEFINITION",
     sub:     "CARVED MIDSECTION",
     glow:    "#D4AF37",
-    muscles: ["Rectus Abdominis","External Obliques","TVA","Serratus Anterior"],
+    muscles: ["Abs","Side Abs","Deep Core","Outer Ribs"],
     bioScore:76,
     signature:"Six-pack segmentation + oblique tie-in. The anatomy that stops rooms.",
     aiLine:  "Subcutaneous oxidation active. Your lipolytic enzymes are elevated 18% above baseline.",
@@ -555,10 +555,10 @@ const GYM_ARCHETYPES = [
     ],
     cardio:  { type:"Sprint Intervals", desc:"8×200m @ 90% effort, 90s rest", why:"Maximum EPOC response — 36hr post-session fat oxidation elevation" },
     exercises:[
-      { name:"Ab Wheel Rollout",              sets:"4×12",  cue:"Hollow body — ribs down, pelvis posteriorly tilted", ytq:"ab+wheel+rollout", rest:90  },
-      { name:"Hanging Leg Raise (Weighted)",  sets:"4×10",  cue:"Posterior pelvic tilt at peak — don't just lift legs", ytq:"hanging+leg+raise+weighted", rest:120 },
+      { name:"Ab Wheel Rollout",              sets:"4×12",  cue:"Hollow body — ribs down, pelvis tucked under", ytq:"ab+wheel+rollout", rest:90  },
+      { name:"Hanging Leg Raise (Weighted)",  sets:"4×10",  cue:"Tuck your hips at the top — don't just lift legs", ytq:"hanging+leg+raise+weighted", rest:120 },
       { name:"Cable Woodchop (High to Low)",  sets:"3×15ea",cue:"Rotate from obliques — arms are just levers",         ytq:"cable+woodchop+obliques", rest:90 },
-      { name:"Stomach Vacuum Hold",           sets:"5×25s", cue:"TVA contraction — pull navel to spine, breathe",     ytq:"stomach+vacuum+technique", rest:60  },
+      { name:"Stomach Vacuum Hold",           sets:"5×25s", cue:"deep core squeeze — pull navel to spine, breathe",     ytq:"stomach+vacuum+technique", rest:60  },
       { name:"Decline Weighted Crunch",       sets:"4×15",  cue:"Slow 3-second eccentric — time under tension",       ytq:"decline+weighted+crunch", rest:90  },
     ],
   },
@@ -568,10 +568,10 @@ const GYM_ARCHETYPES = [
     word:    "DENSITY",
     sub:     "RAW STRUCTURAL POWER",
     glow:    "#FF4B2B",
-    muscles: ["Pectoralis Major","Quadriceps","Trapezius","Overall Myofibrillar Density"],
+    muscles: ["Chest","Quadriceps","Trapezius","Overall Muscle Density"],
     bioScore:88,
     signature:"The kind of mass that reads across a room. Presence protocol.",
-    aiLine:  "Myofibrillar synthesis markers elevated. Your body is primed for maximal mechanical tension.",
+    aiLine:  "Muscle-building signals are high. Your body is primed for maximal mechanical tension.",
     narrative:[
       "There's a difference between looking big and looking powerful. This protocol builds the kind of dense, heavy muscle that makes people move out of your way — not just gym selfie muscle.",
       "We're targeting the deepest muscle fibers — the ones that make muscles feel hard and look 3D rather than soft and flat. Heavy compound movements with controlled tempo are the only way to get there.",
@@ -617,7 +617,7 @@ const GYM_ARCHETYPES = [
     word:    "PUMP",
     sub:     "UPPER BODY PUSH-PULL",
     glow:    "#FF9F0A",
-    muscles: ["Pectoralis Major","Biceps Brachii","Triceps Brachii","Front Deltoid"],
+    muscles: ["Chest","Biceps","Triceps","Front Shoulders"],
     bioScore:79,
     signature:"The most visual muscles. Built for every shirt you own.",
     aiLine:  "Pec fiber fast-twitch recruitment at 94%. Bicep peak genetics favor your current load.",
@@ -632,7 +632,7 @@ const GYM_ARCHETYPES = [
       { name:"Incline Dumbbell Fly",          sets:"4×12", cue:"Big arc, feel the stretch — don't just squeeze at top", ytq:"incline+dumbbell+fly",       rest:90  },
       { name:"EZ-Bar Preacher Curl",          sets:"4×12", cue:"Full stretch at bottom — don't let it drop dead",       ytq:"preacher+curl+form",         rest:90  },
       { name:"Overhead Tricep Extension",     sets:"4×15", cue:"Elbows in, reach back — long head gets a full stretch", ytq:"overhead+tricep+extension",  rest:75  },
-      { name:"Cable Hammer Curl (Rope)",      sets:"3×15", cue:"Neutral grip, slow eccentric — brachialis growth",      ytq:"cable+hammer+curl",          rest:60  },
+      { name:"Cable Hammer Curl (Rope)",      sets:"3×15", cue:"Neutral grip, slow eccentric — arm thickness",      ytq:"cable+hammer+curl",          rest:60  },
     ],
   },
   {
@@ -641,7 +641,7 @@ const GYM_ARCHETYPES = [
     word:    "STRENGTH",
     sub:     "TOTAL STRENGTH MAXIMIZED",
     glow:    "#BF5AF2",
-    muscles: ["Quadriceps","Pectoralis Major","Posterior Chain","Spinal Erectors"],
+    muscles: ["Quadriceps","Chest","Back Muscles","Lower Back"],
     bioScore:90,
     signature:"Numbers on the bar. The only metric that matters.",
     aiLine:  "CNS output optimized. Neural efficiency at 97%. Your 1RM is recalculating upward.",
@@ -650,7 +650,7 @@ const GYM_ARCHETYPES = [
       "Heavy compound training recruits more muscle fibers in a single set than any machine ever built. The neural demand alone changes your body composition before your muscles visibly grow.",
       "Creatine phosphate is the fuel source for max 1-3 rep efforts. Loading your muscles with creatine monohydrate is non-negotiable for this protocol. 5g daily. That's all it takes.",
     ],
-    cardio:  { type:"Prowler Push (Moderate)", desc:"5×20m moderate load, 3-min rest", why:"Leg drive stimulus without spinal load — keeps the posterior chain fresh for primary lifts" },
+    cardio:  { type:"Prowler Push (Moderate)", desc:"5×20m moderate load, 3-min rest", why:"Leg drive stimulus without spinal load — keeps the back muscles fresh for primary lifts" },
     exercises:[
       { name:"Competition Squat (Low Bar)",   sets:"5×3",  cue:"Brace before you breathe — belt doesn't replace a brace", ytq:"low+bar+squat+powerlifting", rest:300 },
       { name:"Paused Bench Press",            sets:"5×5",  cue:"1s pause on chest — removes leg drive, pure pressing strength", ytq:"paused+bench+press",     rest:240 },
@@ -717,16 +717,16 @@ const FEMALE_GYM_ARCHETYPES = [
     word:    "CURVES",
     sub:     "POSTERIOR DOMINANCE",
     glow:    "#FF4B2B",
-    muscles: ["Gluteus Maximus","Gluteus Medius","Hip Flexors","Hamstrings"],
+    muscles: ["Glutes","Side Glutes","Hip Flexors","Hamstrings"],
     bioScore:84,
     signature:"Full, round glute development with hip-to-waist ratio dominance.",
-    aiLine:  "Glute fiber recruitment elevated. Hip hinge mechanics optimized for posterior chain.",
+    aiLine:  "Glute fiber recruitment elevated. Hip hinge mechanics optimized for back muscles.",
     narrative:[
       "Glute architecture is the single highest-impact physique variable for the female form. Volume, roundness, and the gluteal shelf are each independently trainable.",
-      "Hip thrust peak contraction outperforms squats for gluteus maximus activation by 40%. This protocol is sequenced to maximize glute-hamstring tie-in.",
+      "Hip thrust peak contraction outperforms squats for glutes activation by 40%. This protocol is sequenced to maximize glute-hamstring connection.",
       "Collagen peptides pre-workout support connective tissue remodeling in the hip complex — directly relevant to both performance and aesthetic outcomes.",
     ],
-    cardio:  { type:"StairMaster Glute Focus", desc:"25 min, lean forward, drive through heel", why:"Direct posterior chain engagement with zero quad bias" },
+    cardio:  { type:"StairMaster Glute Focus", desc:"25 min, lean forward, drive through heel", why:"Direct back muscles engagement with zero quad bias" },
     exercises:[
       { name:"Barbell Hip Thrust",            sets:"5x10", cue:"Drive hips through full extension — squeeze hard at top", ytq:"barbell+hip+thrust+form", rest:90 },
       { name:"Romanian Deadlift",             sets:"4x10", cue:"Push hips back, feel hamstring stretch — not a back exercise", ytq:"rdl+form+glutes", rest:90 },
@@ -741,7 +741,7 @@ const FEMALE_GYM_ARCHETYPES = [
     word:    "SHAPE",
     sub:     "SHOULDER WIDTH · DEFINED WAIST",
     glow:    "#D4AF37",
-    muscles: ["Lateral Deltoids","Obliques","Gluteus Medius","Serratus Anterior"],
+    muscles: ["Side Shoulders","Obliques","Side Glutes","Outer Ribs"],
     bioScore:78,
     signature:"Shoulder-to-waist-to-hip ratio — the classic feminine silhouette.",
     aiLine:  "Estrogen profile supports lateral delt hypertrophy. Core tensioning protocol active.",
@@ -789,7 +789,7 @@ const FEMALE_GYM_ARCHETYPES = [
     word:    "DEFINITION",
     sub:     "SCULPTED LEAN MUSCLE",
     glow:    "#2E5BFF",
-    muscles: ["Biceps","Triceps","Rectus Abdominis","Medial Deltoids"],
+    muscles: ["Biceps","Triceps","Abs","Front Shoulders"],
     bioScore:72,
     signature:"Visible muscle definition without bulk — the lean sculpted aesthetic.",
     aiLine:  "Slow-twitch endurance fibers primed. High-rep metabolic protocol initialized.",
@@ -802,7 +802,7 @@ const FEMALE_GYM_ARCHETYPES = [
     exercises:[
       { name:"Cable Curl (21s method)",       sets:"3x21", cue:"7 bottom half, 7 top half, 7 full — constant tension", ytq:"cable+curl+21s", rest:75 },
       { name:"Tricep Overhead Extension",     sets:"4x15", cue:"Elbows in, stretch at bottom — long head stretch", ytq:"tricep+overhead+extension", rest:60 },
-      { name:"Plank with Hip Dip",            sets:"3x20ea",cue:"Slow rotation — oblique + TVA activation", ytq:"plank+hip+dip", rest:45 },
+      { name:"Plank with Hip Dip",            sets:"3x20ea",cue:"Slow rotation — oblique + deep core squeeze", ytq:"plank+hip+dip", rest:45 },
       { name:"Lateral Raise (Light/High Rep)",sets:"3x20", cue:"No momentum — feel the burn through full range", ytq:"lateral+raise+high+rep", rest:45 },
       { name:"Glute Bridge Pulse",            sets:"3x30", cue:"Small pulses at peak — isometric hold variation", ytq:"glute+bridge+pulse", rest:45 },
     ],
@@ -814,7 +814,7 @@ const FEMALE_GYM_ARCHETYPES = [
     word:    "POWER",
     sub:     "LEGS & GLUTES STRENGTH",
     glow:    "#BF5AF2",
-    muscles: ["Quadriceps","Hamstrings","Gluteus Maximus","Adductors"],
+    muscles: ["Quadriceps","Hamstrings","Glutes","Inner Thighs"],
     bioScore:83,
     signature:"Strong legs you can see and feel in everything you do.",
     aiLine:  "Lower body recruitment at 91%. Glute-quad co-activation pattern optimized.",
@@ -823,7 +823,7 @@ const FEMALE_GYM_ARCHETYPES = [
       "Squatting below parallel is non-negotiable here. Full-depth squats recruit three times more glute fiber than partial reps. We will build the mobility to get there if you are not there yet.",
       "Protein timing matters most after leg day — the quadriceps and glutes are the largest muscle groups in the body. They need more raw material to rebuild. Hit 30g or more within 30 minutes of finishing.",
     ],
-    cardio:  { type:"StairMaster (High Resistance)", desc:"20 min, leaning slightly forward", why:"Posterior chain activation without quad overload — keeps hips fresh for strength work" },
+    cardio:  { type:"StairMaster (High Resistance)", desc:"20 min, leaning slightly forward", why:"Back muscles activation without quad overload — keeps hips fresh for strength work" },
     exercises:[
       { name:"Back Squat",                    sets:"5×6",  cue:"Chest up, knees track toes — below parallel required",     ytq:"back+squat+form+women",      rest:180 },
       { name:"Walking Dumbbell Lunge",        sets:"4×12ea",cue:"Long stride — front knee stays behind your toe",          ytq:"walking+lunge+form",         rest:90  },
@@ -862,7 +862,7 @@ const FEMALE_GYM_ARCHETYPES = [
     word:    "DEFINITION",
     sub:     "UPPER BODY STRENGTH",
     glow:    "#5AC8FA",
-    muscles: ["Biceps Brachii","Triceps Brachii","Latissimus Dorsi","Rear Deltoid"],
+    muscles: ["Biceps","Triceps","Lats","Rear Shoulders"],
     bioScore:75,
     signature:"Defined arms. A back worth showing off. Tank top season is always open.",
     aiLine:  "Bicep peak angles optimized. Lat width protocol primed for tissue growth.",
@@ -914,7 +914,7 @@ const EXERCISE_BANK = {
     { name:"Face Pull",              sets:"4x20",   cue:"Pull to forehead — rear delt and rotator cuff",      ytq:"face+pull+form",                rest:45  },
     { name:"EZ Bar Curl",            sets:"3x12",   cue:"Full extension at bottom — no cheating",             ytq:"ez+bar+curl",                   rest:60  },
     { name:"Tricep Pushdown",        sets:"3x15",   cue:"Elbows pinned — isolate the tricep",                 ytq:"tricep+pushdown+form",          rest:60  },
-    { name:"Hammer Curl",            sets:"3x12",   cue:"Neutral grip — brachialis development",              ytq:"hammer+curl+brachialis",        rest:60  },
+    { name:"Hammer Curl",            sets:"3x12",   cue:"Neutral grip — arm thickness",              ytq:"hammer+curl+arm muscle",        rest:60  },
   ],
   abs: [
     { name:"Hanging Leg Raise",      sets:"4x12",   cue:"Control descent — slow eccentric",                   ytq:"hanging+leg+raise",             rest:75  },
@@ -947,8 +947,8 @@ const EXERCISE_BANK = {
   hourglass: [
     { name:"Upright Row Wide Grip",  sets:"4x15",   cue:"Wide grip targets lateral delts — lead with elbows",ytq:"upright+row+lateral+delt",      rest:60  },
     { name:"Cable Wood Chop",        sets:"3x15ea", cue:"Diagonal pull — oblique sling activation",           ytq:"cable+wood+chop",               rest:60  },
-    { name:"Seated Row Wide Grip",   sets:"4x12",   cue:"Squeeze rhomboids — counters shoulder rounding",     ytq:"seated+row+wide+grip",          rest:75  },
-    { name:"Vacuum Hold",            sets:"3x30s",  cue:"Exhale fully draw navel to spine — TVA activation",  ytq:"stomach+vacuum+exercise",       rest:30  },
+    { name:"Seated Row Wide Grip",   sets:"4x12",   cue:"Squeeze shoulder blades — counters shoulder rounding",     ytq:"seated+row+wide+grip",          rest:75  },
+    { name:"Vacuum Hold",            sets:"3x30s",  cue:"Exhale fully draw navel to spine — deep core squeeze",  ytq:"stomach+vacuum+exercise",       rest:30  },
     { name:"DB Arnold Press",        sets:"3x12",   cue:"Rotate on the way up — full delt recruitment",       ytq:"arnold+press+form",             rest:90  },
   ],
   lean_athlete: [
@@ -971,10 +971,10 @@ const EXERCISE_BANK = {
     { name:"Cable Crossover Low",    sets:"3x15",   cue:"Angle upward — hits upper chest fibers",             ytq:"cable+crossover+upper+chest",   rest:60  },
     { name:"Concentration Curl",     sets:"3x12ea", cue:"Elbow on knee — pure isolation, full supination",    ytq:"concentration+curl+form",       rest:60  },
     { name:"Rope Pushdown",          sets:"3x15",   cue:"Spread rope at bottom — lateral head activation",    ytq:"rope+tricep+pushdown",          rest:45  },
-    { name:"Reverse Curl",           sets:"3x15",   cue:"Overhand grip — brachialis and brachioradialis",     ytq:"reverse+curl+brachialis",       rest:45  },
+    { name:"Reverse Curl",           sets:"3x15",   cue:"Overhand grip — forearm and upper arm",     ytq:"reverse+curl+arm muscle",       rest:45  },
   ],
   powerlifter: [
-    { name:"Box Squat",              sets:"4x5",    cue:"Sit back to box, explode up — posterior chain drive", ytq:"box+squat+technique",           rest:240 },
+    { name:"Box Squat",              sets:"4x5",    cue:"Sit back to box, explode up — back muscles drive", ytq:"box+squat+technique",           rest:240 },
     { name:"Board Press",            sets:"4x5",    cue:"Partial ROM — builds lockout strength",              ytq:"board+press+technique",         rest:180 },
     { name:"Good Morning",           sets:"3x10",   cue:"Hinge at hips, soft knee — erector stretch",         ytq:"good+morning+exercise",         rest:120 },
     { name:"Leg Press (High Foot)",  sets:"4x12",   cue:"High foot placement — glute and hamstring dominant", ytq:"high+foot+leg+press",           rest:120 },
@@ -1014,7 +1014,7 @@ const EXERCISE_BANK = {
     { name:"DB Curl",                sets:"3x15",   cue:"Supinate at the top — full bicep contraction",        ytq:"dumbbell+curl+form",            rest:45  },
     { name:"Cable Row (Rope)",       sets:"3x15",   cue:"Separate the rope at the end — rear delt activation", ytq:"cable+row+rope+attachment",     rest:60  },
     { name:"Overhead Tricep (Cable)",sets:"3x15",   cue:"Elbows in, reach back — long head stretch",           ytq:"overhead+tricep+cable",         rest:45  },
-    { name:"Band Pull-Apart",        sets:"3x25",   cue:"Full extension, slow — rear delt and rhomboid",       ytq:"band+pull+apart+form",          rest:30  },
+    { name:"Band Pull-Apart",        sets:"3x25",   cue:"Full extension, slow — shoulder blades",       ytq:"band+pull+apart+form",          rest:30  },
   ],
   full_body_f: [
     { name:"Goblet Squat",           sets:"3x15",   cue:"Elbows to thighs at depth — full hip flexion",        ytq:"goblet+squat+form",             rest:75  },
@@ -1032,7 +1032,7 @@ const PROTEIN_MULTIPLIER = {
   abs:          1.6,   // cut-phase protein sparing
   density:      2.2,   // maximum hypertrophy phase
   athletic:     1.9,   // performance + rapid recovery
-  glutes:       1.8,   // posterior chain hypertrophy
+  glutes:       1.8,   // back muscles hypertrophy
   hourglass:    1.6,   // recomposition protocol
   lean_athlete: 1.9,   // recomp + athletic output
   tone_define:  1.5,   // lean phase, moderate hypertrophy
@@ -1199,7 +1199,7 @@ const STORE_ARCHETYPES = [
   },
   {
     id:"metabolic", name:"Metabolic Reset", word:"LEAN", sub:"FAT-BURNING ARCHITECTURE", glow:"#FF6B35",
-    bioScore:83, signature:"Striations visible in lateral deltoids and upper chest. The fat-free signature.",
+    bioScore:83, signature:"Striations visible in side shoulders and upper chest. The fat-free signature.",
     aiLine:"Insulin sensitivity analysis running. AMPK pathway shows suboptimal activation.",
     narrative:[
       "Metabolic dysfunction is not a discipline problem. It's a cellular signaling problem. When insulin sensitivity degrades and AMPK pathway activation drops, fat loss becomes biochemically impaired regardless of effort.",
@@ -1376,7 +1376,7 @@ const INVENTORY = {
     glutes: [
       { id:"g_pump",  name:"Glute Complex Formula",    brand:"ChargedSupps",  price:44.99, stock:5, active:true, tag:"Glute Pump",   tagColor:"#FF4B2B", bioNeed:"Blood Flow",         reason:"L-arginine + citrulline gives maximum hip-thrust pump and nutrient delivery to glute tissue." },
       { id:"g_coll",  name:"Marine Collagen 5000",     brand:"Thorne",        price:54.99, stock:4, active:true, tag:"Tissue",       tagColor:"#D4AF37", bioNeed:"Connective Tissue",  reason:"Glute-hamstring tie-in requires dense connective tissue. Collagen peptides directly build this." },
-      { id:"g_elyte", name:"Electrolyte Complex",      brand:"Thorne",        price:38.99, stock:8, active:true, tag:"Recovery",     tagColor:"#30D158", bioNeed:"Contraction Force",  reason:"Optimal Na/K/Mg ratio for peak posterior chain contraction and reduced cramping." },
+      { id:"g_elyte", name:"Electrolyte Complex",      brand:"Thorne",        price:38.99, stock:8, active:true, tag:"Recovery",     tagColor:"#30D158", bioNeed:"Contraction Force",  reason:"Optimal Na/K/Mg ratio for peak back muscles contraction and reduced cramping." },
     ],
     hourglass: [
       { id:"h_mag",   name:"Magnesium Glycinate 400",  brand:"Thorne",        price:36.99, stock:6, active:true, tag:"Cortisol",     tagColor:"#D4AF37", bioNeed:"Waist Definition",   reason:"Cortisol drives water retention around the midsection. Magnesium suppresses it at the source." },
@@ -3020,7 +3020,7 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
         {/* Lat wings — defining the V-taper */}
         <path d="M27,46 Q12,55 10,78 L18,84 Q20,64 29,53Z" fill="#2A0806" opacity=".55"/>
         <path d="M73,46 Q88,55 90,78 L82,84 Q80,64 71,53Z" fill="#2A0806" opacity=".55"/>
-        {/* Serratus grooves */}
+        {/* Outer Ribs grooves */}
         <path d="M22,78 Q26,82 30,80" stroke="#3A0A06" strokeWidth=".8" fill="none" opacity=".6"/>
         <path d="M22,86 Q26,90 30,88" stroke="#3A0A06" strokeWidth=".8" fill="none" opacity=".6"/>
         <path d="M78,78 Q74,82 70,80" stroke="#3A0A06" strokeWidth=".8" fill="none" opacity=".6"/>
@@ -3423,7 +3423,7 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
       hud:[{x:2,y:72,t:"LAT\u00b7WIDTH",a:"end"},{x:98,y:72,t:"+14%\u00b7WIDER",a:"start"}],
     },
     abs: {
-      label:"CORE DEF", region:"ANTERIOR CORE",
+      label:"CORE DEF", region:"CORE",
       shell:"M33,50 Q22,58 20,78 L22,124 L78,124 L80,78 Q78,58 67,50 Q58,42 50,42 Q42,42 33,50Z",
       head:{ cx:50, cy:28, rx:12, ry:14 },
       fibers:[
@@ -3441,7 +3441,7 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
         {d:"M38,76 L62,76 L62,84 L38,84Z",o:.24},
         {d:"M38,92 L62,92 L62,100 L38,100Z",o:.22},
       ],
-      hud:[{x:4,y:80,t:"TVA\u00b7DEPTH",a:"end"},{x:96,y:80,t:"6-PACK\u00b7DEF",a:"start"}],
+      hud:[{x:4,y:80,t:"Deep Core\u00b7DEPTH",a:"end"},{x:96,y:80,t:"6-PACK\u00b7DEF",a:"start"}],
     },
     density: {
       label:"MASS", region:"FULL UPPER BODY",
@@ -3487,7 +3487,7 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
       hud:[{x:4,y:90,t:"CNS\u00b7OUTPUT",a:"end"},{x:96,y:90,t:"VO2\u00b7MAX",a:"start"}],
     },
     glutes: {
-      label:"GLUTE ARCH", region:"POSTERIOR CHAIN",
+      label:"GLUTE ARCH", region:"BACK & GLUTES",
       shell:"M28,52 Q16,60 16,82 L18,110 Q22,140 50,150 Q78,140 82,110 L84,82 Q84,60 72,52 Q60,42 50,42 Q40,42 28,52Z",
       head:{ cx:50, cy:28, rx:11, ry:13 },
       fibers:[
@@ -21806,6 +21806,24 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   const [rolesAdding, setRolesAdding] = useState(false);
   const [pinForm, setPinForm] = useState({ current:"", next:"", confirm:"" });
   const [pinMsg, setPinMsg] = useState(null);
+  const [themePref, setThemePref] = useState(() => {
+    try { return localStorage.getItem("rvn_theme_pref") || "auto"; } catch { return "auto"; }
+  });
+
+  // Apply theme preference
+  React.useEffect(() => {
+    try { localStorage.setItem("rvn_theme_pref", themePref); } catch {}
+    if (themePref === "dark")  { onThemeChange("dark");  return; }
+    if (themePref === "light") { onThemeChange("light"); return; }
+    // Auto: dark after 8pm, light during the day
+    const applyAuto = () => {
+      const h = new Date().getHours();
+      onThemeChange(h >= 20 || h < 7 ? "dark" : "light");
+    };
+    applyAuto();
+    const iv = setInterval(applyAuto, 60 * 1000);
+    return () => clearInterval(iv);
+  }, [themePref]);
 
   // Mock analytics
   const analytics = {
@@ -22549,6 +22567,52 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
         {hubTab === "settings" && (
           <motion.div key="settings" {...FX.up}>
+            {/* Appearance */}
+            <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
+              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+                APPEARANCE
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                {[
+                  { id:"dark",  label:"Always Dark",  icon:"🌙" },
+                  { id:"light", label:"Always Light",  icon:"☀️" },
+                  { id:"auto",  label:"Auto (by time of day)", icon:"🕐", sub:"Dark after 8 PM · Light from 7 AM" },
+                ].map(opt => {
+                  const active = themePref === opt.id;
+                  return (
+                    <motion.button key={opt.id} whileTap={{ scale:.97 }}
+                      onClick={() => setThemePref(opt.id)}
+                      style={{
+                        display:"flex", alignItems:"center", gap:12,
+                        padding:"10px 12px", borderRadius:11, border:"none", cursor:"pointer",
+                        background: active ? `${T.blue}22` : T.glass,
+                        outline: active ? `1.5px solid ${T.blue}` : `1px solid ${T.border}`,
+                        textAlign:"left",
+                      }}>
+                      <span style={{ fontSize:18 }}>{opt.icon}</span>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:700, color: active ? T.blue : T.text }}>
+                          {opt.label}
+                        </div>
+                        {opt.sub && (
+                          <div style={{ fontSize:10, color:T.muted, marginTop:1 }}>{opt.sub}</div>
+                        )}
+                      </div>
+                      <div style={{
+                        width:18, height:18, borderRadius:"50%",
+                        border:`2px solid ${active ? T.blue : T.border}`,
+                        background: active ? T.blue : "transparent",
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                        flexShrink:0,
+                      }}>
+                        {active && <div style={{ width:7, height:7, borderRadius:"50%", background:theme==="dark"?"#000":"#fff" }}/>}
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </GlassCard>
+
             {/* Store name */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
               <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:7 }}>

@@ -1065,12 +1065,18 @@ function calcHypertrophyScore(perfData) {
   const benchRatio = bench / bw;
   const squatRatio = squat / bw;
   let score = 58;
-  if (benchRatio >= 1.5) score += 16;
-  else if (benchRatio >= 1.0) score += 9;
-  else if (benchRatio >= 0.75) score += 4;
-  if (squatRatio >= 2.0) score += 16;
-  else if (squatRatio >= 1.5) score += 10;
-  else if (squatRatio >= 1.0) score += 5;
+  // Bench: elite raw competitive = 2.5x+, advanced = 2.0x, intermediate = 1.5x, beginner = 1.0x
+  if      (benchRatio >= 2.5) score += 20;
+  else if (benchRatio >= 2.0) score += 16;
+  else if (benchRatio >= 1.5) score += 11;
+  else if (benchRatio >= 1.0) score += 6;
+  else if (benchRatio >= 0.75) score += 2;
+  // Squat: elite raw = 3.0x+, competitive = 2.5x, advanced = 2.0x, intermediate = 1.5x
+  if      (squatRatio >= 3.0) score += 20;
+  else if (squatRatio >= 2.5) score += 16;
+  else if (squatRatio >= 2.0) score += 12;
+  else if (squatRatio >= 1.5) score += 7;
+  else if (squatRatio >= 1.0) score += 3;
   return Math.min(score, 98);
 }
 
@@ -9649,9 +9655,9 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
   const isGym = mode==="gym";
 
   const metrics = isGym
-    ? [{ id:"bw",    label:"Body Weight",             unit:"lbs", min:80,  max:400, step:1, default:175, note:null },
-       { id:"bench", label:"Bench Press (1 Rep Max)", unit:"lbs", min:45,  max:505, step:5, default:135, note:"Enter the maximum weight you can lift for one rep" },
-       { id:"squat", label:"Squat (1 Rep Max)",        unit:"lbs", min:45,  max:605, step:5, default:185, note:"Enter the maximum weight you can squat for one rep" }]
+    ? [{ id:"bw",    label:"Body Weight",             unit:"lbs", min:80,  max:500, step:1, default:175, note:null },
+       { id:"bench", label:"Bench Press (1 Rep Max)", unit:"lbs", min:45,  max:700, step:5, default:135, note:"Enter the maximum weight you can lift for one rep" },
+       { id:"squat", label:"Squat (1 Rep Max)",        unit:"lbs", min:45,  max:900, step:5, default:185, note:"Enter the maximum weight you can squat for one rep" }]
     : [{ id:"age",   label:"Age",                unit:"yrs", min:18, max:75,  step:1, default:32  },
        { id:"sleep", label:"Avg. Sleep Quality", unit:"hrs", min:3,  max:10,  step:.5,default:6.5 },
        { id:"stress",label:"Stress Level",        unit:"/10", min:1,  max:10,  step:1, default:6   }];
@@ -9674,16 +9680,24 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
 
   function buildPerfFact(allVals) {
     if (isGym) {
-      const bw = allVals.bw || 175;
+      const bw    = allVals.bw    || 175;
       const bench = allVals.bench || 135;
-      const proteinTarget = Math.round(bw * 0.4536 * 1.8);
-      const ratio = (bench / bw).toFixed(2);
-      const percentile = bench > 275 ? "top 5%" : bench > 185 ? "top 30%" : bench > 135 ? "top 55%" : "top 80%";
+      const squat = allVals.squat || 185;
+      const bwKg  = bw * 0.4536;
+      // Heavier lifters and higher strength ratios = higher protein demand
+      const benchRatio = bench / bw;
+      const squatRatio = squat / bw;
+      const isElite    = benchRatio >= 2.0 || squatRatio >= 2.5;
+      const isAdvanced = benchRatio >= 1.5 || squatRatio >= 2.0;
+      const multiplier = isElite ? 2.2 : isAdvanced ? 2.0 : 1.8;
+      const proteinTarget = Math.round(bwKg * multiplier);
+      const perMeal = Math.round(proteinTarget / 4);
+      const level = isElite ? "elite" : isAdvanced ? "advanced" : "optimal";
       return {
         stat: `${proteinTarget}g`,
         icon: "⬡",
         headline: `Your daily protein target — starting today`,
-        body: `At ${bw}lbs your optimal protein intake is ${proteinTarget}g/day. The average person eats ~65g. That gap explains 80% of failed physique transformations. Your protocol fixes this.`,
+        body: `At ${bw}lbs with your strength level, your ${level} protein intake is ${proteinTarget}g/day (${multiplier}g per kg). That's ~${perMeal}g per meal across 4 meals. The average person eats ~65g total — that gap explains most failed transformations.`,
         color: "#2E5BFF",
       };
     } else {

@@ -7015,6 +7015,281 @@ function SplashScreen({ onDone, theme }) {
   );
 }
 
+// ─── LANDING PHONE MOCKUP CAROUSEL ──────────────────────────────────────────
+function LandingPhoneMockup({ ac, theme }) {
+  const [slide, setSlide] = React.useState(0);
+  const [animKey, setAnimKey] = React.useState(0);
+  const slides = ["train","fuel","sleep","progress"];
+  const labels = ["TRAIN","FUEL","SLEEP","PROGRESS"];
+
+  React.useEffect(() => {
+    const iv = setInterval(() => {
+      setSlide(s => (s + 1) % 4);
+      setAnimKey(k => k + 1);
+    }, 2800);
+    return () => clearInterval(iv);
+  }, []);
+
+  // Mini screen content for each slide
+  const gold = "#C9A84C";
+  const screens = {
+    train: (
+      <div style={{ padding:"10px 10px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:7 }}>
+        {/* header */}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+          <span style={{ fontSize:8, fontWeight:900, color:gold, letterSpacing:".1em" }}>⚡ TRAIN</span>
+          <span style={{ fontSize:7, color:"#ff6b35", fontWeight:700 }}>🔥 7 STREAK</span>
+        </div>
+        {/* progress bar */}
+        <div style={{ height:2, background:"#222", borderRadius:1 }}>
+          <motion.div key={animKey+"t"} initial={{ width:0 }} animate={{ width:"65%" }} transition={{ duration:1.2, ease:"easeOut" }}
+            style={{ height:"100%", background:gold, borderRadius:1 }}/>
+        </div>
+        {/* bio ring row */}
+        <div style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 8px", background:"#111", borderRadius:8 }}>
+          <svg width="32" height="32" viewBox="0 0 32 32">
+            <circle cx="16" cy="16" r="13" fill="none" stroke="#222" strokeWidth="3"/>
+            <motion.circle key={animKey+"r"} cx="16" cy="16" r="13" fill="none" stroke={gold} strokeWidth="3"
+              strokeDasharray={81.7} strokeDashoffset={81.7*0.18} strokeLinecap="round"
+              initial={{ strokeDashoffset:81.7 }} animate={{ strokeDashoffset:81.7*0.18 }}
+              transform="rotate(-90 16 16)" transition={{ duration:1.4, ease:"easeOut" }}/>
+            <text x="16" y="20" textAnchor="middle" fill={gold} fontSize="9" fontWeight="900">82</text>
+          </svg>
+          <div>
+            <div style={{ fontSize:7, color:"#666", letterSpacing:".08em" }}>TARGET</div>
+            <div style={{ fontSize:8, color:"#fff", fontWeight:700 }}>Chest · Triceps</div>
+          </div>
+        </div>
+        {/* exercises */}
+        {[
+          { name:"Bench Press", sets:"4×8", weight:"185lb", done:[true,true,true,false] },
+          { name:"Incline DB",  sets:"3×10", weight:"65lb",  done:[true,false,false] },
+        ].map((ex, ei) => (
+          <div key={ei} style={{ padding:"7px 8px", background:"#111", borderRadius:8 }}>
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+              <span style={{ fontSize:8, color:"#fff", fontWeight:700 }}>{ex.name}</span>
+              <span style={{ fontSize:7, color:gold }}>{ex.sets} @ {ex.weight}</span>
+            </div>
+            <div style={{ display:"flex", gap:4 }}>
+              {ex.done.map((d, di) => (
+                <motion.div key={di} initial={{ scale:0 }} animate={{ scale:1 }}
+                  transition={{ delay: animKey > 0 ? 0 : 0.6 + ei*0.3 + di*0.15 }}
+                  style={{ width:12, height:12, borderRadius:"50%",
+                    background: d ? gold : "transparent",
+                    border:`1.5px solid ${d ? gold : "#444"}`,
+                    display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  {d && <span style={{ fontSize:7, color:"#000" }}>✓</span>}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+
+    fuel: (
+      <div style={{ padding:"10px 10px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:8 }}>
+        <div style={{ fontSize:8, fontWeight:900, color:gold, letterSpacing:".1em" }}>🍽️ FUEL</div>
+        {/* calorie ring */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:10 }}>
+          <svg width="52" height="52" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="22" fill="none" stroke="#222" strokeWidth="4"/>
+            <motion.circle key={animKey+"c"} cx="26" cy="26" r="22" fill="none" stroke={gold} strokeWidth="4"
+              strokeDasharray={138.2} strokeLinecap="round"
+              initial={{ strokeDashoffset:138.2 }} animate={{ strokeDashoffset:138.2*0.23 }}
+              transform="rotate(-90 26 26)" transition={{ duration:1.3, ease:"easeOut" }}/>
+            <text x="26" y="23" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="900">1847</text>
+            <text x="26" y="33" textAnchor="middle" fill="#666" fontSize="6">/ 2400</text>
+          </svg>
+          <div>
+            <div style={{ fontSize:7, color:"#666" }}>kcal today</div>
+            <div style={{ fontSize:8, color:"#30D158", fontWeight:700 }}>On track ✓</div>
+          </div>
+        </div>
+        {/* macro bars */}
+        {[
+          { label:"PROTEIN", val:156, goal:180, color:"#0A84FF" },
+          { label:"CARBS",   val:142, goal:250, color:"#FF9F0A" },
+          { label:"FATS",    val:45,  goal:70,  color:"#FF453A"  },
+        ].map((m, mi) => (
+          <div key={mi}>
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
+              <span style={{ fontSize:7, color:"#888", letterSpacing:".08em" }}>{m.label}</span>
+              <span style={{ fontSize:7, color:m.color, fontWeight:700 }}>{m.val}g / {m.goal}g</span>
+            </div>
+            <div style={{ height:4, background:"#1a1a1a", borderRadius:2 }}>
+              <motion.div key={animKey+"m"+mi}
+                initial={{ width:0 }} animate={{ width:`${(m.val/m.goal)*100}%` }}
+                transition={{ duration:1.1, delay:mi*0.15, ease:"easeOut" }}
+                style={{ height:"100%", background:m.color, borderRadius:2 }}/>
+            </div>
+          </div>
+        ))}
+      </div>
+    ),
+
+    sleep: (
+      <div style={{ padding:"10px 10px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:8 }}>
+        <div style={{ fontSize:8, fontWeight:900, color:"#BF5AF2", letterSpacing:".1em" }}>◑ SLEEP</div>
+        {/* big score */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <svg width="70" height="70" viewBox="0 0 70 70">
+            <circle cx="35" cy="35" r="30" fill="none" stroke="#1a1a1a" strokeWidth="5"/>
+            <motion.circle key={animKey+"sl"} cx="35" cy="35" r="30" fill="none" stroke="#BF5AF2" strokeWidth="5"
+              strokeDasharray={188.5} strokeLinecap="round"
+              initial={{ strokeDashoffset:188.5 }} animate={{ strokeDashoffset:188.5*0.15 }}
+              transform="rotate(-90 35 35)" transition={{ duration:1.5, ease:"easeOut" }}/>
+            <text x="35" y="32" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="900">7.4h</text>
+            <text x="35" y="44" textAnchor="middle" fill="#BF5AF2" fontSize="7" fontWeight="700">RECOVERY</text>
+          </svg>
+        </div>
+        {/* sleep stages */}
+        {[
+          { label:"Deep Sleep", val:"2.1h", pct:85, color:"#BF5AF2" },
+          { label:"REM",        val:"1.8h", pct:72, color:"#5E5CE6" },
+          { label:"Light",      val:"3.5h", pct:60, color:"#636366" },
+        ].map((s, si) => (
+          <div key={si}>
+            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:2 }}>
+              <span style={{ fontSize:7, color:"#888" }}>{s.label}</span>
+              <span style={{ fontSize:7, color:s.color, fontWeight:700 }}>{s.val}</span>
+            </div>
+            <div style={{ height:3, background:"#1a1a1a", borderRadius:2 }}>
+              <motion.div key={animKey+"s"+si}
+                initial={{ width:0 }} animate={{ width:`${s.pct}%` }}
+                transition={{ duration:1.0, delay:si*0.12, ease:"easeOut" }}
+                style={{ height:"100%", background:s.color, borderRadius:2 }}/>
+            </div>
+          </div>
+        ))}
+        <div style={{ padding:"6px 8px", background:"#1a1a1a", borderRadius:8, textAlign:"center" }}>
+          <span style={{ fontSize:7, color:"#30D158", fontWeight:700 }}>✓ Recovery score: 84 — GOOD</span>
+        </div>
+      </div>
+    ),
+
+    progress: (
+      <div style={{ padding:"10px 10px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:7 }}>
+        <div style={{ fontSize:8, fontWeight:900, color:gold, letterSpacing:".1em" }}>📈 PROGRESS</div>
+        {/* weight stat */}
+        <div style={{ display:"flex", justifyContent:"space-between", padding:"7px 8px", background:"#111", borderRadius:8 }}>
+          <div>
+            <div style={{ fontSize:7, color:"#666" }}>Body Weight</div>
+            <div style={{ fontSize:14, color:"#fff", fontWeight:900 }}>78.4<span style={{ fontSize:8, color:"#888" }}>kg</span></div>
+          </div>
+          <div style={{ textAlign:"right" }}>
+            <div style={{ fontSize:7, color:"#666" }}>4 weeks</div>
+            <div style={{ fontSize:11, color:"#30D158", fontWeight:800 }}>↑ +2.1kg</div>
+          </div>
+        </div>
+        {/* mini chart */}
+        <div style={{ flex:1, padding:"6px 8px", background:"#111", borderRadius:8, position:"relative", overflow:"hidden" }}>
+          <div style={{ fontSize:7, color:"#666", marginBottom:4 }}>8-week trend</div>
+          <svg width="100%" height="60" viewBox="0 0 120 60" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={gold} stopOpacity="0.3"/>
+                <stop offset="100%" stopColor={gold} stopOpacity="0"/>
+              </linearGradient>
+            </defs>
+            <motion.path key={animKey+"p"}
+              d="M0,50 L17,46 L34,44 L51,40 L68,36 L85,28 L102,20 L120,14"
+              fill="none" stroke={gold} strokeWidth="2" strokeLinecap="round"
+              initial={{ pathLength:0, opacity:0 }} animate={{ pathLength:1, opacity:1 }}
+              transition={{ duration:1.6, ease:"easeOut" }}/>
+            <motion.path key={animKey+"f"}
+              d="M0,50 L17,46 L34,44 L51,40 L68,36 L85,28 L102,20 L120,14 L120,60 L0,60 Z"
+              fill="url(#chartGrad)"
+              initial={{ opacity:0 }} animate={{ opacity:1 }}
+              transition={{ duration:1.6, delay:0.4 }}/>
+          </svg>
+        </div>
+        {/* bio score */}
+        <div style={{ display:"flex", justifyContent:"space-between", padding:"6px 8px", background:"#111", borderRadius:8 }}>
+          <span style={{ fontSize:7, color:"#666" }}>Bio Score</span>
+          <span style={{ fontSize:8, color:gold, fontWeight:900 }}>82 ↑ +8 this month</span>
+        </div>
+      </div>
+    ),
+  };
+
+  return (
+    <div style={{ position:"relative", display:"flex", flexDirection:"column", alignItems:"center" }}>
+      {/* iPhone frame */}
+      <div style={{
+        width:180, height:360,
+        borderRadius:36,
+        background:"#1a1a1a",
+        border:"1.5px solid #333",
+        boxShadow:`0 32px 64px rgba(0,0,0,0.45), 0 0 0 1px #000, inset 0 0 0 1px #2a2a2a, 0 0 40px ${ac}22`,
+        position:"relative", overflow:"hidden",
+        display:"flex", flexDirection:"column",
+      }}>
+        {/* Side buttons */}
+        <div style={{ position:"absolute", left:-2, top:70, width:2, height:22, background:"#333", borderRadius:"2px 0 0 2px" }}/>
+        <div style={{ position:"absolute", left:-2, top:100, width:2, height:32, background:"#333", borderRadius:"2px 0 0 2px" }}/>
+        <div style={{ position:"absolute", left:-2, top:140, width:2, height:32, background:"#333", borderRadius:"2px 0 0 2px" }}/>
+        <div style={{ position:"absolute", right:-2, top:90, width:2, height:44, background:"#333", borderRadius:"0 2px 2px 0" }}/>
+        {/* Dynamic Island */}
+        <div style={{
+          position:"absolute", top:10, left:"50%", transform:"translateX(-50%)",
+          width:60, height:12, background:"#000",
+          borderRadius:8, zIndex:10,
+        }}/>
+        {/* Status bar */}
+        <div style={{
+          height:28, background:"#0A0A0A", paddingTop:4,
+          display:"flex", alignItems:"center", justifyContent:"space-between",
+          padding:"0 14px", flexShrink:0, zIndex:5,
+        }}>
+          <span style={{ fontSize:7, color:"#fff", fontWeight:700 }}>9:41</span>
+          <div style={{ display:"flex", gap:3, alignItems:"center" }}>
+            <span style={{ fontSize:7, color:"#fff" }}>●●●</span>
+            <span style={{ fontSize:7, color:"#fff" }}>▲</span>
+            <span style={{ fontSize:7, color:"#fff" }}>▌▌▌</span>
+          </div>
+        </div>
+        {/* Screen content with AnimatePresence */}
+        <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
+          <AnimatePresence mode="wait">
+            <motion.div key={slide}
+              initial={{ opacity:0, y:12 }}
+              animate={{ opacity:1, y:0 }}
+              exit={{ opacity:0, y:-12 }}
+              transition={{ duration:0.35, ease:[.22,1,.36,1] }}
+              style={{ position:"absolute", inset:0 }}>
+              {screens[slides[slide]]}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        {/* Bottom home indicator */}
+        <div style={{
+          height:20, background:"#0A0A0A", display:"flex",
+          alignItems:"center", justifyContent:"center", flexShrink:0,
+        }}>
+          <div style={{ width:40, height:3, background:"#444", borderRadius:2 }}/>
+        </div>
+      </div>
+
+      {/* Slide indicator dots */}
+      <div style={{ display:"flex", gap:6, marginTop:12 }}>
+        {slides.map((_, i) => (
+          <div key={i} style={{
+            width: i === slide ? 16 : 5, height:5,
+            borderRadius:3, transition:"all .3s",
+            background: i === slide ? ac : "#ccc5",
+          }}/>
+        ))}
+      </div>
+
+      {/* Slide label */}
+      <div style={{ marginTop:6, fontSize:9, fontWeight:700, color:ac, letterSpacing:".12em" }}>
+        {labels[slide]}
+      </div>
+    </div>
+  );
+}
+
 // ─── LANDING / HERO ───────────────────────────────────────────────────────────
 function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChange, onThemeToggle, modeLockedBy, location, onNfcTap, onGhostBar, onSignIn, onSurgical, onWearables }) {
   const T = D[theme];
@@ -7094,62 +7369,73 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
           }}>···</motion.button>
       </div>
 
-      {/* Hero — centered, breathing room */}
+      {/* Hero — phone mockup upper, headline + CTA lower (Cal AI layout) */}
       <div style={{
         flex:1, display:"flex", flexDirection:"column",
-        alignItems:"center", justifyContent:"center",
-        padding:"0 32px 60px", position:"relative", zIndex:10,
+        alignItems:"center", justifyContent:"space-between",
+        padding:"8px 32px 32px", position:"relative", zIndex:10,
       }}>
-        {/* Hero words */}
-        <div style={{ textAlign:"center", marginBottom:24 }}>
-          {words.map((word, i) => (
-            <motion.div key={word}
-              initial={{ opacity:0, y:36, filter:"blur(10px)" }}
-              animate={{ opacity:1, y:0,  filter:"blur(0px)"  }}
-              transition={{ delay:.18+i*.13, duration:.65, ease:[.22,1,.36,1] }}
-              style={{
-                fontSize:"clamp(44px, 15vw, 68px)", fontWeight:900,
-                lineHeight:.96, letterSpacing:"-.03em",
-                color: i===1 ? ac : T.text,
-                textShadow: i===1 && theme==="dark" ? `0 0 60px ${ac}44` : "none",
-              }}>
-              {word}
-            </motion.div>
-          ))}
-        </div>
 
-        {/* Single clean tagline */}
+        {/* ── Phone mockup carousel ── */}
         <motion.div
-          initial={{ opacity:0 }} animate={{ opacity:1 }}
-          transition={{ delay:.62, duration:.5 }}
-          style={{ marginBottom:52, textAlign:"center", maxWidth:260 }}>
-          <div style={{ fontSize:14, color:T.muted, lineHeight:1.55, fontWeight:400 }}>
-            Your training program, built around you.
+          initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.2, duration:.7, ease:[.22,1,.36,1] }}
+          style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", width:"100%" }}>
+          <LandingPhoneMockup ac={ac} theme={theme}/>
+        </motion.div>
+
+        {/* ── Bottom: headline + tagline + CTA ── */}
+        <div style={{ width:"100%", maxWidth:360 }}>
+          {/* Headline */}
+          <div style={{ textAlign:"center", marginBottom:10 }}>
+            {words.map((word, i) => (
+              <motion.div key={word}
+                initial={{ opacity:0, y:20 }}
+                animate={{ opacity:1, y:0 }}
+                transition={{ delay:.5+i*.1, duration:.5, ease:[.22,1,.36,1] }}
+                style={{
+                  fontSize:"clamp(36px, 11vw, 52px)", fontWeight:900,
+                  lineHeight:.96, letterSpacing:"-.03em",
+                  color: i===1 ? ac : T.text,
+                  textShadow: i===1 && theme==="dark" ? `0 0 48px ${ac}44` : "none",
+                }}>
+                {word}
+              </motion.div>
+            ))}
           </div>
-        </motion.div>
 
-        {/* Primary CTA */}
-        <motion.div
-          initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
-          transition={{ delay:.78 }}
-          style={{ width:"100%", maxWidth:320 }}>
-          <ShimmerCTA label="Create My Plan  →" onClick={onBegin} theme={theme} color={ac} icon={M.icon}/>
-        </motion.div>
+          {/* Tagline */}
+          <motion.div
+            initial={{ opacity:0 }} animate={{ opacity:1 }}
+            transition={{ delay:.82, duration:.4 }}
+            style={{ textAlign:"center", marginBottom:24 }}>
+            <div style={{ fontSize:14, color:T.muted, lineHeight:1.5, fontWeight:400 }}>
+              Built for who you're becoming.
+            </div>
+          </motion.div>
 
-        {/* Sign in — subtle, below CTA */}
-        <motion.div
-          initial={{ opacity:0 }} animate={{ opacity:1 }}
-          transition={{ delay:.92 }}
-          style={{ marginTop:18, display:"flex", alignItems:"center", gap:6 }}>
-          <span style={{ fontSize:12, color:T.faint }}>Already have an account?</span>
-          <button onClick={onSignIn}
-            style={{
-              background:"transparent", border:"none", cursor:"pointer",
-              fontSize:12, fontWeight:800, color:ac, letterSpacing:".06em", padding:"4px 6px",
-            }}>
-            Sign in →
-          </button>
-        </motion.div>
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+            transition={{ delay:.92 }}>
+            <ShimmerCTA label="Create My Plan  →" onClick={onBegin} theme={theme} color={ac} icon={M.icon}/>
+          </motion.div>
+
+          {/* Sign in */}
+          <motion.div
+            initial={{ opacity:0 }} animate={{ opacity:1 }}
+            transition={{ delay:1.05 }}
+            style={{ marginTop:14, display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+            <span style={{ fontSize:12, color:T.faint }}>Already have an account?</span>
+            <button onClick={onSignIn}
+              style={{
+                background:"transparent", border:"none", cursor:"pointer",
+                fontSize:12, fontWeight:800, color:ac, letterSpacing:".06em", padding:"4px 6px",
+              }}>
+              Sign in →
+            </button>
+          </motion.div>
+        </div>
       </div>
     </Screen>
   );

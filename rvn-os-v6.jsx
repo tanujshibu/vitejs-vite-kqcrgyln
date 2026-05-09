@@ -8827,97 +8827,100 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
         background:`radial-gradient(ellipse 100% 55% at 50% 35%, ${ac}22, transparent 70%)` }}/>
 
-      {/* ── HERO: body scan visual ── */}
-      <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ duration:.6 }}
-        style={{ position:"relative", height:300, width:"100%", overflow:"hidden" }}>
+      {/* ── HERO: teased protocol card ── */}
+      <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+        transition={{ duration:.6, ease:[.22,1,.36,1] }}
+        style={{ padding:"20px 22px 0" }}>
 
-        {/* Body SVG — motion-capture skeleton style */}
-        <svg viewBox="0 0 160 280" style={{ position:"absolute", left:"50%",
-          transform:"translateX(-50%)", height:"100%", opacity:.9 }}>
-          <defs>
-            <filter id="glow-ob">
-              <feGaussianBlur stdDeviation="3" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          {/* head */}
-          <circle cx="80" cy="28" r="16" fill="none" stroke={ac} strokeWidth="1.5" filter="url(#glow-ob)"/>
-          {/* neck */}
-          <line x1="80" y1="44" x2="80" y2="58" stroke={ac} strokeWidth="1.5"/>
-          {/* shoulders */}
-          <line x1="44" y1="68" x2="116" y2="68" stroke={ac} strokeWidth="1.5" filter="url(#glow-ob)"/>
-          {/* torso */}
-          <line x1="80" y1="58" x2="80" y2="148" stroke={ac} strokeWidth="1.5"/>
-          {/* left arm upper */}
-          <line x1="44" y1="68" x2="28" y2="110" stroke={ac} strokeWidth="1.5"/>
-          {/* left arm lower */}
-          <line x1="28" y1="110" x2="20" y2="150" stroke={ac} strokeWidth="1.5"/>
-          {/* right arm upper */}
-          <line x1="116" y1="68" x2="132" y2="110" stroke={ac} strokeWidth="1.5"/>
-          {/* right arm lower */}
-          <line x1="132" y1="110" x2="140" y2="150" stroke={ac} strokeWidth="1.5"/>
-          {/* hips */}
-          <line x1="58" y1="148" x2="102" y2="148" stroke={ac} strokeWidth="1.5" filter="url(#glow-ob)"/>
-          {/* left leg upper */}
-          <line x1="58" y1="148" x2="52" y2="210" stroke={ac} strokeWidth="1.5"/>
-          {/* left leg lower */}
-          <line x1="52" y1="210" x2="48" y2="272" stroke={ac} strokeWidth="1.5"/>
-          {/* right leg upper */}
-          <line x1="102" y1="148" x2="108" y2="210" stroke={ac} strokeWidth="1.5"/>
-          {/* right leg lower */}
-          <line x1="108" y1="210" x2="112" y2="272" stroke={ac} strokeWidth="1.5"/>
-          {/* joint dots */}
-          {[[80,28],[44,68],[116,68],[28,110],[132,110],[20,150],[140,150],[58,148],[102,148],[52,210],[108,210]].map(([x,y],i) => (
-            <circle key={i} cx={x} cy={y} r="3.5" fill={ac} filter="url(#glow-ob)"/>
-          ))}
-        </svg>
+        {/* Card */}
+        <div style={{
+          background: theme==="dark" ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.04)",
+          backdropFilter: isMobile?"none":"blur(20px)",
+          border: `1px solid ${ac}44`,
+          borderRadius: 24,
+          padding: "22px 20px 18px",
+          boxShadow: `0 24px 60px ${ac}1A, inset 0 0 0 1px ${ac}22`,
+          position: "relative", overflow:"hidden",
+        }}>
 
-        {/* Animated scan line */}
-        <motion.div
-          animate={{ top:["5%","95%","5%"] }}
-          transition={{ duration:3.2, repeat:Infinity, ease:"easeInOut" }}
-          style={{ position:"absolute", left:0, right:0, height:2, pointerEvents:"none",
-            background:`linear-gradient(90deg,transparent 0%,${ac}99 40%,${ac} 50%,${ac}99 60%,transparent 100%)`,
-            boxShadow:`0 0 12px ${ac}88` }}/>
+          {/* Shimmer sweep */}
+          <motion.div
+            animate={{ x:["-100%","200%"] }}
+            transition={{ duration:2.4, repeat:Infinity, repeatDelay:1.8, ease:"easeInOut" }}
+            style={{ position:"absolute", inset:0, pointerEvents:"none",
+              background:`linear-gradient(105deg, transparent 40%, ${ac}18 50%, transparent 60%)` }}/>
 
-        {/* Floating data chips */}
-        {[
-          { label:"PROTEIN", val:"185g", x:"72%", y:"14%", delay:.4 },
-          { label:"KCAL",    val:"2,840", x:"0%",  y:"30%", delay:.6 },
-          { label:"RECOVERY",val:"Score", x:"68%", y:"52%", delay:.8 },
-          { label:"SESSIONS",val:"4×/wk", x:"2%",  y:"65%", delay:1.0 },
-        ].map(chip => (
-          <motion.div key={chip.label}
-            initial={{ opacity:0, scale:.7 }} animate={{ opacity:1, scale:1 }}
-            transition={{ delay:chip.delay, duration:.4, ease:[.22,1,.36,1] }}
-            style={{ position:"absolute", left:chip.x, top:chip.y,
-              background: theme==="dark" ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)",
-              backdropFilter:isMobile?"none":"blur(12px)",
-              border:`1px solid ${ac}44`,
-              borderRadius:10, padding:"6px 10px", minWidth:72 }}>
-            <div style={{ fontSize:7.5, fontWeight:700, color:ac, letterSpacing:".1em" }}>{chip.label}</div>
-            <div style={{ fontSize:15, fontWeight:900, color:T.text, letterSpacing:"-.01em" }}>{chip.val}</div>
-          </motion.div>
-        ))}
+          {/* Card header */}
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+              <motion.div animate={{ opacity:[1,.4,1] }} transition={{ duration:1.6, repeat:Infinity }}
+                style={{ width:8, height:8, borderRadius:"50%", background:ac }}/>
+              <div style={{ fontSize:9, fontWeight:800, letterSpacing:".16em", color:ac }}>
+                YOUR PROTOCOL
+              </div>
+            </div>
+            <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em" }}>LOCKED</div>
+          </div>
+
+          {/* 2×2 metric grid */}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
+            {[
+              { label:"DAILY PROTEIN", val:"— — g" },
+              { label:"DAILY CALORIES", val:"—,— — —" },
+              { label:"WEEKLY SESSIONS", val:"— ×/wk" },
+              { label:"BIO SCORE", val:"— — . —" },
+            ].map((m, i) => (
+              <motion.div key={m.label}
+                initial={{ opacity:0 }} animate={{ opacity:1 }}
+                transition={{ delay:.2 + i*.1 }}
+                style={{
+                  background: theme==="dark" ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.04)",
+                  borderRadius:14, padding:"12px 14px",
+                  border:`1px solid ${T.border}`,
+                }}>
+                <div style={{ fontSize:8, fontWeight:700, letterSpacing:".1em", color:T.faint, marginBottom:6 }}>
+                  {m.label}
+                </div>
+                <div style={{
+                  fontSize:20, fontWeight:900, color:T.text,
+                  filter:"blur(5px)", userSelect:"none", letterSpacing:"-.01em",
+                }}>{m.val}</div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Bottom bar */}
+          <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:12,
+            display:"flex", alignItems:"center", gap:8 }}>
+            <div style={{ flex:1, height:6, borderRadius:3,
+              background: theme==="dark" ? "rgba(255,255,255,.08)" : "rgba(0,0,0,.06)", overflow:"hidden" }}>
+              <motion.div animate={{ width:["0%","65%"] }} transition={{ delay:.8, duration:1.2, ease:[.22,1,.36,1] }}
+                style={{ height:"100%", background:`linear-gradient(90deg,${ac},${ac}88)`,
+                  borderRadius:3, boxShadow:`0 0 8px ${ac}` }}/>
+            </div>
+            <div style={{ fontSize:9, fontWeight:700, color:ac, letterSpacing:".08em" }}>BUILDING...</div>
+          </div>
+        </div>
       </motion.div>
 
       {/* Text */}
-      <motion.div initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:.3, duration:.55, ease:[.22,1,.36,1] }}
-        style={{ padding:"20px 28px 0" }}>
+      <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+        transition={{ delay:.35, duration:.5, ease:[.22,1,.36,1] }}
+        style={{ padding:"22px 26px 0" }}>
         <div style={{ fontSize:34, fontWeight:900, letterSpacing:"-.03em",
-          color:T.text, lineHeight:1.08, marginBottom:12 }}>
+          color:T.text, lineHeight:1.08, marginBottom:10 }}>
           The best version of your body isn't behind you.
         </div>
-        <div style={{ fontSize:14, color:T.muted, lineHeight:1.7, maxWidth:310 }}>
+        <div style={{ fontSize:14, color:T.muted, lineHeight:1.65 }}>
           Most people just never find out what it looks like.
         </div>
       </motion.div>
 
-      {/* CTA */}
+      {/* Spacer + CTA */}
+      <div style={{ flex:1 }}/>
       <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
         transition={{ delay:.6 }}
-        style={{ padding:"20px 24px 52px", marginTop:"auto" }}>
+        style={{ padding:"16px 24px 52px" }}>
         <ShimmerCTA label="Build my protocol  →" onClick={() => setPhase(0)} theme={theme} color={ac}/>
         {onBack && (
           <div style={{ textAlign:"center", marginTop:14 }}>

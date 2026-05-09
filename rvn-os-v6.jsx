@@ -8603,25 +8603,34 @@ function FactFlash({ data, onContinue, theme }) {
         style={{ position:"absolute", width:240, height:240, borderRadius:"50%",
           border:`1px solid ${data.color}`, pointerEvents:"none" }}/>
 
-      {/* THE STAT — takes up the whole moment */}
+      {/* ANIMATED VISUAL — the gif-like moment */}
       <motion.div
-        initial={{ opacity:0, scale:0.3, y:24 }} animate={{ opacity:1, scale:1, y:0 }}
-        transition={{ delay:0.06, duration:0.52, ease:[0.22,1,0.36,1] }}
+        initial={{ opacity:0, scale:0.7, y:16 }} animate={{ opacity:1, scale:1, y:0 }}
+        transition={{ delay:0.05, duration:0.45, ease:[0.22,1,0.36,1] }}
+        style={{ marginBottom:20, display:"flex", alignItems:"center", justifyContent:"center",
+          filter:`drop-shadow(0 0 18px ${data.color}66)` }}>
+        <FactVisual type={data.visual} color={data.color}/>
+      </motion.div>
+
+      {/* THE STAT */}
+      <motion.div
+        initial={{ opacity:0, scale:0.35, y:24 }} animate={{ opacity:1, scale:1, y:0 }}
+        transition={{ delay:0.18, duration:0.5, ease:[0.22,1,0.36,1] }}
         style={{
-          fontSize:100, fontWeight:900, color:data.color,
+          fontSize:88, fontWeight:900, color:data.color,
           letterSpacing:"-0.06em", lineHeight:1,
-          textAlign:"center", marginBottom:24,
+          textAlign:"center", marginBottom:18,
           textShadow:`0 0 80px ${data.color}99`,
         }}>
         {data.stat}
       </motion.div>
 
-      {/* ONE punchy headline — that's all */}
+      {/* ONE punchy headline */}
       <motion.div
         initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:0.22, duration:0.4, ease:[0.22,1,0.36,1] }}
+        transition={{ delay:0.3, duration:0.38, ease:[0.22,1,0.36,1] }}
         style={{
-          fontSize:22, fontWeight:900, color:T.text,
+          fontSize:21, fontWeight:900, color:T.text,
           letterSpacing:"-0.025em", textAlign:"center",
           lineHeight:1.25, maxWidth:260,
         }}>

@@ -1,52 +1,51 @@
 import React, { useState, useEffect, useRef, useMemo, createContext, useContext, useReducer, Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
-import {
-  Dumbbell, BarChart2, Utensils, TrendingUp, Target, Trophy, Users, Scale,
-  Flame, Zap, Brain, Moon, Sun, Clock, MessageCircle, BookOpen, FileText, Lock,
-  Heart, Leaf, Coffee, AlertCircle, CheckCircle, RefreshCw, Key, Bike, Monitor,
-  Activity, Droplets, Circle, Ban, Wheat,
-} from "lucide-react";
-
-// ─── ICON SYSTEM ─────────────────────────────────────────────────────────────
-const ICON_MAP = {
-  dumbbell:    Dumbbell,
-  barChart:    BarChart2,
-  utensils:    Utensils,
-  trendingUp:  TrendingUp,
-  target:      Target,
-  trophy:      Trophy,
-  users:       Users,
-  scale:       Scale,
-  flame:       Flame,
-  zap:         Zap,
-  brain:       Brain,
-  moon:        Moon,
-  sun:         Sun,
-  clock:       Clock,
-  message:     MessageCircle,
-  book:        BookOpen,
-  file:        FileText,
-  lock:        Lock,
-  heart:       Heart,
-  leaf:        Leaf,
-  coffee:      Coffee,
-  alert:       AlertCircle,
-  check:       CheckCircle,
-  refresh:     RefreshCw,
-  key:         Key,
-  bike:        Bike,
-  monitor:     Monitor,
-  activity:    Activity,
-  droplets:    Droplets,
-  circle:      Circle,
-  ban:         Ban,
-  wheat:       Wheat,
+// ─── ICON SYSTEM (inline SVG — no external dependency) ───────────────────────
+const SVG_PATHS = {
+  dumbbell:   "M6 8h2m8 0h2M7 12h10M6 8v4m10-4v4M2 10h4m12 0h4M2 10v.5m0-.5v.5M18 10v.5",
+  barChart:   "M18 20V10M12 20V4M6 20v-6",
+  utensils:   "M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h1v5a1 1 0 0 0 2 0v-5h1a2 2 0 0 0 2-2",
+  trendingUp: "M22 7 13.5 15.5 8.5 10.5 2 17M22 7h-5m5 0v5",
+  target:     "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0-6a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-1.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM12 2v2m0 16v2M2 12h2m16 0h2",
+  trophy:     "M6 9H3.5a2.5 2.5 0 0 0 0 5H6m12-5h2.5a2.5 2.5 0 0 1 0 5H18M6 9V3h12v6a6 6 0 0 1-12 0zm0 5a6 6 0 0 0 12 0M8 21h8m-4-7v7",
+  users:      "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2m8-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm7 2a4 4 0 0 0-4-4m8 10v-2a4 4 0 0 0-3-3.87",
+  scale:      "M16 16h6m-6 0-4-8-4 8m6 0H2m14 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M2 16a2 2 0 1 0 4 0 2 2 0 0 0-4 0M12 4v4m0-4a1 1 0 0 1 0-2 1 1 0 0 1 0 2z",
+  flame:      "M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z",
+  zap:        "M13 2 3 14h9l-1 8 10-12h-9l1-8z",
+  brain:      "M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18a4 4 0 1 0 7.967-1.517 4 4 0 0 0 .556-6.588 4 4 0 0 0-2.526-5.77A3 3 0 1 0 12 5zm0 0v13",
+  moon:       "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z",
+  sun:        "M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 5a7 7 0 1 0 0 14A7 7 0 0 0 12 5z",
+  clock:      "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0-14v4l3 3",
+  message:    "M7.9 20A9 9 0 1 0 4 16.1L2 22z",
+  book:       "M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zm20 0h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z",
+  file:       "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm0 0v6h6M16 13H8m8 4H8m2-8H8",
+  lock:       "M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM7 11V7a5 5 0 0 1 10 0v4",
+  heart:      "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z",
+  leaf:       "M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12",
+  coffee:     "M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zm4-7v3M10 1v3m4-3v3",
+  alert:      "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zm0-7v-5m0 8v.01",
+  check:      "M22 11.08V12a10 10 0 1 1-5.93-9.14M22 4 12 14.01l-3-3",
+  refresh:    "M23 4v6h-6M1 20v-6h6m15.364-6A9 9 0 0 0 3.515 9.515M.636 14.485A9 9 0 0 0 20.485 18.485",
+  key:        "M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4",
+  bike:       "M5.5 17a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm13 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM5.5 14.5h5l3-6H8M15 14.5l-1.5-3",
+  monitor:    "M20 3H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM8 21h8m-4-3v3",
+  activity:   "M22 12h-4l-3 9L9 3l-3 9H2",
+  droplets:   "M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5S12 4 12 2C9.3 7 6 10 5 14c-1 2.5.5 4 1 5a7 7 0 0 0 6 3z",
+  circle:     "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z",
+  ban:        "M18.364 18.364A9 9 0 1 0 5.636 5.636a9 9 0 0 0 12.728 12.728zM5.636 5.636 18.364 18.364",
+  wheat:      "M11 5a5.5 5.5 0 0 0 5.5 5.5M11 5V2m0 3a5.5 5.5 0 0 1-5.5 5.5M11 5c0 3 2 5.5 2 9m-7-3.5C5.5 14 8 16 8 19m10-9.5C18.5 12 16 14 16 17M8 19H5m3 0h3m1-8v3m0 5h3m-3 0v3",
 };
-function LI({ n, size = 15, color, style = {} }) {
-  const C = ICON_MAP[n];
-  if (!C) return <span style={{ fontSize: size * .9, lineHeight:1 }}>{n}</span>;
-  return <C size={size} color={color} strokeWidth={1.75} style={{ display:"block", flexShrink:0, ...style }} />;
+function LI({ n, size = 15, color = "currentColor", style = {} }) {
+  const d = SVG_PATHS[n];
+  if (!d) return <span style={{ fontSize: size * .85, lineHeight:1, display:"block" }}>{n}</span>;
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+      stroke={color} strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"
+      style={{ display:"block", flexShrink:0, ...style }}>
+      <path d={d}/>
+    </svg>
+  );
 }
 
 

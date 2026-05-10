@@ -11570,6 +11570,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [comparison,      setComparison]      = useState(null);
   const [editMode,        setEditMode]        = useState(false);
   const [customExercises, setCustomExercises] = useState(null);
+  const [igImportOpen,    setIgImportOpen]    = useState(false);
+  const [igLink,          setIgLink]          = useState("");
+  const [igExercises,     setIgExercises]     = useState([]); // manually entered after paste
+  const [igStep,          setIgStep]          = useState("paste"); // "paste" | "build"
+  const [igHandle,        setIgHandle]        = useState("");
   // Velocity data collected from VBT camera during session
   const [velocityLog, setVelocityLog] = useState([]);
   // Session count — used for archetype evolution detection
@@ -12023,7 +12028,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     }
   };
 
-  const exercises = customExercises || arch.exercises;
+  const exercises = customExercises || [];
   const totalSets = exercises.reduce((s,ex) => s + parseInt(ex.sets), 0);
   const doneSets  = Object.values(setsDone).filter(Boolean).length;
   const progress  = totalSets > 0 ? (doneSets/totalSets)*100 : 0;
@@ -12558,43 +12563,86 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   Your first workout is<br/>ready to go.
                 </div>
                 <div style={{ fontSize:13, color:T.muted, marginBottom:16, lineHeight:1.5 }}>
-                  Follow the program below, log each set with the <strong style={{ color:T.text }}>+</strong> button, and hit LOG WORKOUT when done. Kailu will track your progress automatically.
-                </div>
-                <div style={{ display:"flex", gap:8 }}>
-                  <motion.button whileTap={{ scale:.97 }} onClick={() => setQuickLogOpen(true)}
-                    style={{
-                      flex:1, padding:"12px", borderRadius:13,
-                      background:arch.glow, border:"none", color:"#fff",
-                      fontSize:12, fontWeight:800, cursor:"pointer",
-                    }}>
-                    + Log My First Set
-                  </motion.button>
-                  <motion.button whileTap={{ scale:.97 }} onClick={() => setTemplatesOpen(true)}
-                    style={{
-                      flex:1, padding:"12px", borderRadius:13,
-                      background:`${arch.glow}18`, border:`1px solid ${arch.glow}40`,
-                      color:arch.glow, fontSize:12, fontWeight:800, cursor:"pointer",
-                    }}>
-                    📋 Use Template
-                  </motion.button>
+                  Select your workout below, tap each set as you complete it, and hit LOG WORKOUT when done.
                 </div>
               </div>
             </motion.div>
           );
         })()}
 
-        {/* Exercises */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8, marginTop:14 }}>
-          <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em" }}>
-            STRENGTH PROTOCOL  ·  {exercises.length} EXERCISES
-          </div>
-          <motion.button whileTap={{ scale:.86 }} onClick={() => setEditMode(true)}
-            style={{ fontSize:9, fontWeight:800, color:arch.glow,
-              background:arch.glow+"18", border:"1px solid "+arch.glow+"44",
-              borderRadius:7, padding:"5px 11px", cursor:"pointer", letterSpacing:".07em" }}>
-            CUSTOMIZE ✶
-          </motion.button>
-        </div>
+        {/* ── Workout setup / exercise list ─────────────────────────────── */}
+        {customExercises === null ? (
+          /* No workout selected yet — show three setup options */
+          <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} style={{ marginTop:14 }}>
+            <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", marginBottom:10 }}>
+              TODAY'S WORKOUT
+            </div>
+            {[
+              {
+                icon:"zap", label:"Use My Protocol",
+                sub:`${arch.exercises.length} exercises from your ${arch.label} plan`,
+                action: () => setCustomExercises(arch.exercises.map((e,i) => ({ ...e, _uid:`p_${i}` }))),
+              },
+              {
+                icon:"dumbbell", label:"Build Custom",
+                sub:"Pick your own exercises from the bank",
+                action: () => setEditMode(true),
+              },
+              {
+                icon:"trendingUp", label:"Import from Instagram",
+                sub:"Paste a workout link or Reel",
+                action: () => { setIgStep("paste"); setIgLink(""); setIgExercises([]); setIgHandle(""); setIgImportOpen(true); },
+              },
+            ].map((opt, i) => (
+              <motion.button key={opt.label}
+                initial={{ opacity:0, x:16 }} animate={{ opacity:1, x:0 }}
+                transition={{ delay:.06 + i*.07 }}
+                whileTap={{ scale:.97 }}
+                onClick={opt.action}
+                style={{
+                  width:"100%", marginBottom:10, padding:"16px 18px",
+                  background:T.glass, backdropFilter:isMobile?"none":"blur(12px)",
+                  border:`1.5px solid ${T.border}`, borderRadius:16,
+                  cursor:"pointer", display:"flex", alignItems:"center", gap:14, textAlign:"left",
+                }}>
+                <div style={{
+                  width:42, height:42, borderRadius:13, flexShrink:0,
+                  background:`${arch.glow}18`, border:`1px solid ${arch.glow}33`,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                }}>
+                  <LI n={opt.icon} size={20} color={arch.glow}/>
+                </div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{opt.label}</div>
+                  <div style={{ fontSize:11, color:T.muted, marginTop:2 }}>{opt.sub}</div>
+                </div>
+                <div style={{ fontSize:18, color:T.muted }}>›</div>
+              </motion.button>
+            ))}
+          </motion.div>
+        ) : (
+          <>
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8, marginTop:14 }}>
+              <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em" }}>
+                STRENGTH PROTOCOL  ·  {exercises.length} EXERCISES
+              </div>
+              <div style={{ display:"flex", gap:6 }}>
+                <motion.button whileTap={{ scale:.86 }} onClick={() => setCustomExercises(null)}
+                  style={{ fontSize:9, fontWeight:800, color:T.muted,
+                    background:T.glass, border:"1px solid "+T.border,
+                    borderRadius:7, padding:"5px 10px", cursor:"pointer", letterSpacing:".06em" }}>
+                  CHANGE
+                </motion.button>
+                <motion.button whileTap={{ scale:.86 }} onClick={() => setEditMode(true)}
+                  style={{ fontSize:9, fontWeight:800, color:arch.glow,
+                    background:arch.glow+"18", border:"1px solid "+arch.glow+"44",
+                    borderRadius:7, padding:"5px 11px", cursor:"pointer", letterSpacing:".07em" }}>
+                  CUSTOMIZE ✶
+                </motion.button>
+              </div>
+            </div>
+          </>
+        )}
 
         {exercises.map((ex, exIdx) => {
           const numSets = parseInt(ex.sets);
@@ -14020,25 +14068,190 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         )}
       </AnimatePresence>
 
+      {/* ── IG IMPORT SHEET ───────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {igImportOpen && (
+          <>
+            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+              onClick={() => setIgImportOpen(false)}
+              style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:170 }}/>
+            <motion.div
+              initial={{ y:"100%" }} animate={{ y:0 }} exit={{ y:"100%" }}
+              transition={{ type:"spring", stiffness:360, damping:34 }}
+              style={{
+                position:"fixed", bottom:0, left:0, right:0, zIndex:180,
+                background: theme==="dark" ? "#1A1A1C" : "#F2F2F7",
+                borderRadius:"24px 24px 0 0",
+                padding:"16px 20px 44px",
+                boxShadow:"0 -6px 40px rgba(0,0,0,0.35)",
+                maxHeight:"90vh", overflowY:"auto",
+              }}>
+              <div style={{ width:36, height:4, borderRadius:2, background:T.border, margin:"0 auto 18px" }}/>
+              <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:18 }}>
+                <div style={{
+                  width:36, height:36, borderRadius:11,
+                  background:arch.glow+"22", border:`1px solid ${arch.glow}44`,
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                }}>
+                  <LI n="trendingUp" size={16} color={arch.glow}/>
+                </div>
+                <div>
+                  <div style={{ fontSize:15, fontWeight:900, color:T.text }}>Import from Instagram</div>
+                  <div style={{ fontSize:10, color:T.muted }}>Paste a workout post or Reel link</div>
+                </div>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {igStep === "paste" ? (
+                  <motion.div key="paste" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
+                    <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
+                      INSTAGRAM LINK
+                    </div>
+                    <input
+                      autoFocus
+                      value={igLink}
+                      onChange={e => setIgLink(e.target.value)}
+                      placeholder="https://www.instagram.com/p/..."
+                      style={{
+                        width:"100%", padding:"13px 16px", borderRadius:13,
+                        background:T.glass, border:`1.5px solid ${igLink.includes("instagram.com") ? arch.glow+"88" : T.border}`,
+                        color:T.text, fontSize:13, outline:"none", boxSizing:"border-box",
+                      }}/>
+                    {igLink.includes("instagram.com") && (
+                      <motion.div initial={{ opacity:0, y:4 }} animate={{ opacity:1, y:0 }}
+                        style={{ marginTop:8, padding:"9px 12px", borderRadius:10,
+                          background:arch.glow+"12", border:`1px solid ${arch.glow}33`,
+                          fontSize:11, color:arch.glow, fontWeight:700 }}>
+                        ✓ Instagram link detected
+                        {(() => {
+                          const m = igLink.match(/instagram\.com\/(?:p|reel)\/[^/]+\/?/) || igLink.match(/instagram\.com\/([^/?]+)/);
+                          const handle = m ? (igLink.match(/@?([a-zA-Z0-9_.]+)/) || [])[1] || "" : "";
+                          if (handle) setTimeout(() => setIgHandle(handle), 0);
+                          return handle ? ` · @${handle}` : "";
+                        })()}
+                      </motion.div>
+                    )}
+                    <div style={{ marginTop:14, padding:"12px 14px", borderRadius:12,
+                      background:T.glass, border:`1px solid ${T.border}` }}>
+                      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:4 }}>
+                        HOW IT WORKS
+                      </div>
+                      <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>
+                        Instagram doesn't allow direct data access, so after pasting the link you'll enter the exercises yourself — we'll save them as your workout for today.
+                      </div>
+                    </div>
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={() => {
+                        if (!igLink.includes("instagram.com")) return;
+                        setIgExercises([{ name:"", sets:"3", reps:"10", _uid:"ig_0" }]);
+                        setIgStep("build");
+                      }}
+                      style={{
+                        width:"100%", marginTop:14, padding:"15px",
+                        background: igLink.includes("instagram.com")
+                          ? `linear-gradient(90deg, ${arch.glow}dd, ${arch.glow})`
+                          : T.glass,
+                        border:`1px solid ${igLink.includes("instagram.com") ? "transparent" : T.border}`,
+                        borderRadius:12, fontSize:13, fontWeight:900,
+                        color: igLink.includes("instagram.com") ? "#000" : T.faint,
+                        cursor: igLink.includes("instagram.com") ? "pointer" : "default",
+                        letterSpacing:".04em", transition:"all .18s",
+                        boxShadow: igLink.includes("instagram.com") ? `0 4px 20px ${arch.glow}44` : "none",
+                      }}>
+                      CONTINUE  ›
+                    </motion.button>
+                  </motion.div>
+                ) : (
+                  <motion.div key="build" initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0 }}>
+                    <div style={{ fontSize:11, color:T.muted, marginBottom:14, lineHeight:1.5 }}>
+                      Enter the exercises from the post{igHandle ? ` by @${igHandle}` : ""}:
+                    </div>
+                    {igExercises.map((ex, idx) => (
+                      <div key={ex._uid} style={{ display:"flex", gap:8, marginBottom:8, alignItems:"center" }}>
+                        <input
+                          value={ex.name}
+                          onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, name:e.target.value } : x))}
+                          placeholder={`Exercise ${idx+1} (e.g. Bench Press)`}
+                          style={{
+                            flex:2, padding:"11px 13px", borderRadius:11,
+                            background:T.glass, border:`1px solid ${T.border}`,
+                            color:T.text, fontSize:12, outline:"none",
+                          }}/>
+                        <input
+                          value={ex.sets}
+                          onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, sets:e.target.value } : x))}
+                          placeholder="Sets"
+                          style={{
+                            width:52, padding:"11px 8px", borderRadius:11, textAlign:"center",
+                            background:T.glass, border:`1px solid ${T.border}`,
+                            color:arch.glow, fontSize:12, outline:"none", fontWeight:800,
+                          }}/>
+                        <input
+                          value={ex.reps}
+                          onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, reps:e.target.value } : x))}
+                          placeholder="Reps"
+                          style={{
+                            width:52, padding:"11px 8px", borderRadius:11, textAlign:"center",
+                            background:T.glass, border:`1px solid ${T.border}`,
+                            color:arch.glow, fontSize:12, outline:"none", fontWeight:800,
+                          }}/>
+                        {igExercises.length > 1 && (
+                          <motion.button whileTap={{ scale:.8 }}
+                            onClick={() => setIgExercises(l => l.filter((_,i) => i !== idx))}
+                            style={{ width:32, height:32, borderRadius:9, flexShrink:0,
+                              background:T.red+"18", border:"1px solid "+T.red+"33",
+                              cursor:"pointer", fontSize:14, color:T.red }}>
+                            ✕
+                          </motion.button>
+                        )}
+                      </div>
+                    ))}
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={() => setIgExercises(l => [...l, { name:"", sets:"3", reps:"10", _uid:`ig_${Date.now()}` }])}
+                      style={{ width:"100%", padding:"10px", borderRadius:11, marginBottom:14,
+                        background:"transparent", border:`1.5px dashed ${arch.glow}55`,
+                        cursor:"pointer", fontSize:12, fontWeight:800, color:arch.glow }}>
+                      + Add Exercise
+                    </motion.button>
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={() => {
+                        const filled = igExercises.filter(e => e.name.trim());
+                        if (!filled.length) return;
+                        const mapped = filled.map((e, i) => ({
+                          name: e.name.trim(),
+                          sets: `${e.sets || 3}x${e.reps || 10}`,
+                          cue:  `From @${igHandle || "Instagram"} workout`,
+                          rest: 90,
+                          ytq:  e.name.trim() + " exercise form",
+                          _uid: `ig_save_${i}`,
+                        }));
+                        setCustomExercises(mapped);
+                        setIgImportOpen(false);
+                      }}
+                      style={{
+                        width:"100%", padding:"15px",
+                        background:`linear-gradient(90deg, ${arch.glow}dd, ${arch.glow})`,
+                        border:"none", borderRadius:12, fontSize:13, fontWeight:900,
+                        color:"#000", cursor:"pointer", letterSpacing:".04em",
+                        boxShadow:`0 4px 20px ${arch.glow}44`,
+                      }}>
+                      SAVE AS TODAY'S WORKOUT  ✶
+                    </motion.button>
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={() => setIgStep("paste")}
+                      style={{ width:"100%", padding:"12px", marginTop:8, background:"transparent",
+                        border:"none", cursor:"pointer", fontSize:12, color:T.muted }}>
+                      ← Back
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
       {/* ── QUICK-LOG BOTTOM SHEET ─────────────────────────────────────────── */}
-      {/* FAB trigger */}
-      {!quickLogOpen && !settingsOpen && (
-        <motion.button
-          whileTap={{ scale:.95 }}
-          onClick={() => setQuickLogOpen(true)}
-          style={{
-            position:"fixed", bottom:90, right:20, zIndex:150,
-            width:52, height:52, borderRadius:26,
-            background: arch.glow,
-            border:"none", color:"#fff",
-            fontSize:24, fontWeight:300,
-            display:"flex", alignItems:"center", justifyContent:"center",
-            cursor:"pointer",
-            boxShadow:`0 4px 20px ${arch.glow}60, 0 2px 8px rgba(0,0,0,0.3)`,
-          }}>
-          +
-        </motion.button>
-      )}
 
       <AnimatePresence>
         {quickLogOpen && (

@@ -13071,10 +13071,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         {activeGymTab === "fuel" && (() => {
           const mg = profile.macroGoals || { protein:180, carbs:250, fats:70 };
           const mt = profile.macroToday || { protein:0, carbs:0, fats:0 };
+          const calToday = Math.round((mt.protein||0)*4 + (mt.carbs||0)*4 + (mt.fats||0)*9);
+          const calGoal  = mg.calories || Math.round((mg.protein||180)*4 + (mg.carbs||250)*4 + (mg.fats||70)*9);
           const macros = [
-            { label:"PROTEIN", current:mt.protein||0, goal:mg.protein||180, color:arch.glow, unit:"g" },
-            { label:"CARBS",   current:mt.carbs||0,   goal:mg.carbs||250,   color:T.blue,    unit:"g" },
-            { label:"FATS",    current:mt.fats||0,    goal:mg.fats||70,     color:"#FF9F0A", unit:"g" },
+            { label:"CALORIES", current:calToday,      goal:calGoal,         color:"#FF6B6B", unit:"kcal" },
+            { label:"PROTEIN",  current:mt.protein||0, goal:mg.protein||180, color:arch.glow, unit:"g" },
+            { label:"CARBS",    current:mt.carbs||0,   goal:mg.carbs||250,   color:T.blue,    unit:"g" },
+            { label:"FATS",     current:mt.fats||0,    goal:mg.fats||70,     color:"#FF9F0A", unit:"g" },
           ];
 
           // Macro auto-tuning check
@@ -13173,7 +13176,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     padding:"10px 0", borderBottom: i < Math.min(customMeals.length,4)-1 ? `1px solid ${T.border}` : "none" }}>
                     <div>
                       <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{meal.emoji} {meal.name}</div>
-                      <div style={{ fontSize:10, color:T.muted }}>{meal.p}g P · {meal.c}g C · {meal.f}g F</div>
+                      <div style={{ fontSize:10, color:T.muted }}>{meal.p}g P · {meal.c}g C · {meal.f}g F · <span style={{ color:"#FF6B6B" }}>{meal.cal || Math.round((meal.p||0)*4+(meal.c||0)*4+(meal.f||0)*9)} kcal</span></div>
                     </div>
                     <motion.button whileTap={{ scale:.96 }} onClick={() => logCustomMeal(meal)}
                       style={{ padding:"7px 14px", borderRadius:10, background:`${arch.glow}18`,
@@ -13210,10 +13213,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             {(() => {
               const mg = profile.macroGoals;
               const mt = profile.macroToday;
+              const calTodayEdit = Math.round((mt.protein||0)*4 + (mt.carbs||0)*4 + (mt.fats||0)*9);
+              const calGoalEdit  = mg.calories || Math.round((mg.protein||180)*4 + (mg.carbs||250)*4 + (mg.fats||70)*9);
               const macros = [
-                { label:"PROTEIN", current:mt.protein, goal:mg.protein, color:arch.glow, unit:"g", key:"protein" },
-                { label:"CARBS",   current:mt.carbs,   goal:mg.carbs,   color:T.blue,    unit:"g", key:"carbs"   },
-                { label:"FATS",    current:mt.fats,    goal:mg.fats,    color:"#FF9F0A", unit:"g", key:"fats"    },
+                { label:"CALORIES", current:calTodayEdit, goal:calGoalEdit, color:"#FF6B6B", unit:"kcal", key:"calories", readOnly:true },
+                { label:"PROTEIN",  current:mt.protein,   goal:mg.protein,  color:arch.glow, unit:"g",    key:"protein" },
+                { label:"CARBS",    current:mt.carbs,     goal:mg.carbs,    color:T.blue,    unit:"g",    key:"carbs"   },
+                { label:"FATS",     current:mt.fats,      goal:mg.fats,     color:"#FF9F0A", unit:"g",    key:"fats"    },
               ];
               return (
                 <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.28 }} style={{ marginBottom:10 }}>
@@ -13227,6 +13233,18 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     </div>
                     {editingMacros ? (
                       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+                        {/* Calories — read-only computed row */}
+                        <div>
+                          <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:4 }}>CALORIES <span style={{ fontWeight:500 }}>(auto-calculated)</span></div>
+                          <div style={{ display:"flex", gap:8 }}>
+                            <div style={{ flex:1, padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`, background:T.glass, textAlign:"center", fontSize:14, fontWeight:700, color:"#FF6B6B" }}>
+                              {Math.round(((draftMacros?.today?.protein||mt.protein||0)*4) + ((draftMacros?.today?.carbs||mt.carbs||0)*4) + ((draftMacros?.today?.fats||mt.fats||0)*9))} kcal
+                            </div>
+                            <div style={{ flex:1, padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`, background:T.glass, textAlign:"center", fontSize:14, fontWeight:700, color:T.faint }}>
+                              {Math.round(((draftMacros?.goals?.protein||mg.protein||0)*4) + ((draftMacros?.goals?.carbs||mg.carbs||0)*4) + ((draftMacros?.goals?.fats||mg.fats||0)*9))} goal
+                            </div>
+                          </div>
+                        </div>
                         {["protein","carbs","fats"].map(k => (
                           <div key={k}>
                             <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:4 }}>{k.toUpperCase()}</div>
@@ -13276,12 +13294,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                           <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:8 }}>QUICK LOG</div>
                           <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                             {[
-                              { label:"🍗 Chicken",  p:30, c:0,  f:3  },
-                              { label:"🥚 2 Eggs",   p:12, c:0,  f:10 },
-                              { label:"🥛 Shake",    p:25, c:5,  f:3  },
-                              { label:"🍚 Rice cup", p:4,  c:45, f:0  },
-                              { label:"🥑 Avocado",  p:2,  c:9,  f:15 },
-                              { label:"🐟 Salmon",   p:34, c:0,  f:12 },
+                              { label:"🍗 Chicken",  p:30, c:0,  f:3,  cal:185 },
+                              { label:"🥚 2 Eggs",   p:12, c:0,  f:10, cal:140 },
+                              { label:"🥛 Shake",    p:25, c:5,  f:3,  cal:147 },
+                              { label:"🍚 Rice cup", p:4,  c:45, f:0,  cal:196 },
+                              { label:"🥑 Avocado",  p:2,  c:9,  f:15, cal:173 },
+                              { label:"🐟 Salmon",   p:34, c:0,  f:12, cal:236 },
                             ].map(food => (
                               <button key={food.label}
                                 onClick={() => {
@@ -15461,6 +15479,37 @@ const FOOD_PRODUCT_DB = [
   { match:/mcchicken|mc\s*chicken/i,                       name:"McChicken",              p:14,  c:40,  f:10,  cal:410 },
   { match:/big\s*mac/i,                                    name:"Big Mac",                p:25,  c:43,  f:30,  cal:540 },
   { match:/subway.*6.*inch|6.*inch.*subway/i,              name:"Subway 6\" (est)",       p:22,  c:46,  f:5,   cal:330 },
+  // ── Kombucha — per bottle (most brands ~16oz / 480ml) ───────────────────────
+  // Important: kombucha calories come almost entirely from sugar (carbs), not protein/fat
+  { match:/gt.?s.*synergy|synergy.*gt.?s/i,               name:"GT's Synergy Kombucha (16oz)",     p:0, c:16, f:0, cal:70  },
+  { match:/gt.?s.*kombucha|gt.*living\s*foods/i,          name:"GT's Kombucha (16oz)",             p:0, c:12, f:0, cal:50  },
+  { match:/health.?ade.*kombucha/i,                        name:"Health-Ade Kombucha (16oz)",       p:0, c:14, f:0, cal:60  },
+  { match:/brew\s*dr.*kombucha/i,                          name:"Brew Dr. Kombucha (14oz)",         p:0, c:16, f:0, cal:70  },
+  { match:/humm.*kombucha/i,                               name:"Humm Kombucha (14oz)",             p:0, c:14, f:0, cal:60  },
+  { match:/remedy.*kombucha/i,                             name:"Remedy Kombucha (8.5oz)",          p:0, c:1,  f:0, cal:5   },
+  { match:/\bkombucha\b/i,                                 name:"Kombucha (generic 16oz)",          p:0, c:14, f:0, cal:60  },
+  // ── Energy drinks ────────────────────────────────────────────────────────────
+  { match:/celsius/i,                                      name:"Celsius (12oz)",                   p:0, c:2,  f:0, cal:10  },
+  { match:/bang\s*energy/i,                                name:"Bang Energy (16oz)",               p:0, c:0,  f:0, cal:0   },
+  { match:/red\s*bull.*sugar\s*free|sugar\s*free.*red\s*bull/i, name:"Red Bull Sugar Free (8.4oz)", p:0, c:3,  f:0, cal:15  },
+  { match:/red\s*bull/i,                                   name:"Red Bull (8.4oz)",                 p:1, c:28, f:0, cal:110 },
+  { match:/monster.*ultra|ultra.*monster/i,                name:"Monster Ultra (16oz)",             p:0, c:3,  f:0, cal:15  },
+  { match:/\bmonster\b/i,                                  name:"Monster Energy (16oz)",            p:2, c:54, f:0, cal:210 },
+  { match:/liquid\s*iv/i,                                  name:"Liquid I.V. (1 stick)",            p:0, c:11, f:0, cal:45  },
+  { match:/prime.*hydration/i,                             name:"Prime Hydration (16.9oz)",         p:0, c:2,  f:0, cal:25  },
+  // ── Other common drinks ───────────────────────────────────────────────────────
+  { match:/gatorade/i,                                     name:"Gatorade (32oz)",                  p:0, c:54, f:0, cal:200 },
+  { match:/coconut\s*water/i,                              name:"Coconut Water (11oz)",             p:0, c:15, f:0, cal:60  },
+  { match:/orange\s*juice|oj\b/i,                          name:"Orange Juice (8oz)",               p:2, c:26, f:0, cal:110 },
+  { match:/whole\s*milk/i,                                 name:"Whole Milk (8oz)",                 p:8, c:12, f:8, cal:150 },
+  { match:/skim\s*milk|non.?fat.*milk/i,                   name:"Skim Milk (8oz)",                  p:8, c:12, f:0, cal:80  },
+  { match:/oat\s*milk/i,                                   name:"Oat Milk (8oz)",                   p:3, c:16, f:5, cal:120 },
+  { match:/almond\s*milk/i,                                name:"Almond Milk (8oz)",                p:1, c:1,  f:3, cal:30  },
+  { match:/latte.*oat|oat.*latte/i,                        name:"Oat Milk Latte (12oz)",            p:5, c:22, f:5, cal:150 },
+  { match:/latte.*almond|almond.*latte/i,                  name:"Almond Milk Latte (12oz)",         p:5, c:10, f:5, cal:100 },
+  { match:/latte/i,                                        name:"Latte (12oz, 2% milk)",             p:8, c:15, f:5, cal:140 },
+  { match:/cold\s*brew.*cream|cream.*cold\s*brew/i,        name:"Cold Brew with Cream (12oz)",      p:1, c:6,  f:6, cal:80  },
+  { match:/cold\s*brew/i,                                  name:"Cold Brew (12oz, black)",           p:1, c:3,  f:0, cal:15  },
 ];
 
 // Find a product in the DB — partial fuzzy match
@@ -15477,9 +15526,14 @@ async function lookupFoodViaClaude(foodText) {
   if (typeof window === "undefined") return null;
   const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
   if (!base) return null;
-  const system = `You are a precise nutrition database. The user describes a food item. Return ONLY valid JSON in this exact format, no other text:
+  const system = `You are a precise nutrition database. The user describes a food or drink item. Return ONLY valid JSON in this exact format, no other text:
 {"p":PROTEIN_GRAMS,"c":CARB_GRAMS,"f":FAT_GRAMS,"cal":CALORIES,"name":"CANONICAL_FOOD_NAME"}
-Use the most accurate real-world values available. For restaurant items (fast food, chains), use the official published nutrition data — not generic estimates. For example: Chick-fil-A Spicy Deluxe Sandwich = {"p":39,"c":50,"f":19,"cal":520,"name":"CFA Spicy Deluxe Sandwich"}. Never underestimate fats or overestimate protein. Never return null or refuse — always give your best accurate estimate.`;
+CRITICAL RULES:
+- Use the most accurate real-world label values. For branded products (bars, shakes, drinks), use the exact label data — not estimates.
+- For DRINKS and BEVERAGES: calories almost always come from sugar/carbs, not protein or fat. A kombucha, juice, sports drink, energy drink, or latte will have significant carbs — do not return 0 carbs for any sweetened drink. GT's Synergy kombucha = {"p":0,"c":16,"f":0,"cal":70}. Celsius = {"p":0,"c":2,"f":0,"cal":10}. Gatorade (32oz) = {"p":0,"c":54,"f":0,"cal":200}.
+- For restaurant items, use official published nutrition data. Chick-fil-A Spicy Deluxe = {"p":39,"c":50,"f":19,"cal":520}.
+- Never underestimate fats or overestimate protein. Never return null — always give your best accurate estimate.
+- Calories must match macros: cal ≈ (p×4) + (c×4) + (f×9). Never return mismatched numbers.`;
   try {
     const res = await fetch(base, {
       method:"POST", headers:{"Content-Type":"application/json"},

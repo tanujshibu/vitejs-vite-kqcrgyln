@@ -9702,12 +9702,13 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       storyHook="Most people drink coffee wrong for the gym. Not too much — just at the wrong time."
       onBackFn={() => setPhase(1)}>
       {[
-        { value:"high", label:"Very sensitive",  sub:"Jittery on even one coffee",     icon:"😬", color:"#FF4B2B" },
-        { value:"med",  label:"Normal tolerance",sub:"Standard reaction to caffeine",  icon:"☕", color:"#C9A84C" },
-        { value:"low",  label:"High tolerance",  sub:"3+ cups and barely feel it",     icon:"⚡", color:"#30D158" },
+        { value:"high", label:"Very sensitive",   sub:"Jittery on even one coffee",       icon:"😬", color:"#FF4B2B" },
+        { value:"med",  label:"Normal tolerance", sub:"Standard reaction to caffeine",    icon:"☕", color:"#C9A84C" },
+        { value:"low",  label:"High tolerance",   sub:"3+ cups and barely feel it",       icon:"⚡", color:"#30D158" },
+        { value:"none", label:"I don't use caffeine", sub:"No coffee, tea, or pre-workout", icon:"🚫", color:"#8E8E93" },
       ].map((opt, i) => (
         <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
-          onPick={v => pick(setCaffeine, v, ONBOARDING_FACTS.caffeine[v], 3)}/>
+          onPick={v => pick(setCaffeine, v, ONBOARDING_FACTS.caffeine[v] || ONBOARDING_FACTS.caffeine.med, 3)}/>
       ))}
     </QWrap>
   );
@@ -9719,9 +9720,10 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       storyHook="Everyone says they just need to work harder. That's almost never the real issue."
       onBackFn={() => setPhase(2)}>
       {[
-        { value:"sleep",    label:"Sleep quality",  sub:"I don't sleep well or long enough",  icon:"😴", color:"#5AC8FA" },
-        { value:"soreness", label:"Muscle soreness",sub:"Still sore before my next session",   icon:"💪", color:"#FF4B2B" },
-        { value:"fog",      label:"Mental fog",     sub:"Brain is slow the day after training", icon:"🧠", color:"#BF5AF2" },
+        { value:"sleep",    label:"Sleep quality",     sub:"I don't sleep well or long enough",   icon:"😴", color:"#5AC8FA" },
+        { value:"soreness", label:"Muscle soreness",   sub:"Still sore before my next session",    icon:"💪", color:"#FF4B2B" },
+        { value:"fog",      label:"Mental fog",        sub:"Brain is slow the day after training",  icon:"🧠", color:"#BF5AF2" },
+        { value:"none",     label:"I recover well",    sub:"No real issues — just want to optimize", icon:"✅", color:"#30D158" },
       ].map((opt, i) => (
         <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
           onPick={v => {
@@ -9729,7 +9731,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
             setPicked(v);
             setBottleneck(v);
             setTimeout(() => flash(
-              ONBOARDING_FACTS.bottleneck[v],
+              ONBOARDING_FACTS.bottleneck[v] || ONBOARDING_FACTS.bottleneck.soreness,
               () => onSelect({ gender, frequency, caffeine, bottleneck: v })
             ), 260);
           }}/>
@@ -9934,10 +9936,10 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
       const proteinTarget = Math.round(bwKg * multiplier);
       const perMeal = Math.round(proteinTarget / 4);
       return {
-        stat: `${proteinTarget}g`,
+        stat: `${multiplier}g/kg`,
         icon: "⬡",
-        headline: `Your daily protein target — starting today`,
-        body: `At ${bw}lbs (${bwKg}kg), your ${level}-level protein target is ${proteinTarget}g/day — ${multiplier}g per kg of bodyweight. That's ~${perMeal}g across 4 meals. The average person eats ~65g total. That gap is where transformations are won or lost.`,
+        headline: `Your protein multiplier — ${level} tier`,
+        body: `At ${bw}lbs (${bwKg}kg), your ${level}-level protocol uses ${multiplier}g of protein per kg of bodyweight — putting your target around ${proteinTarget}g/day. That's ~${perMeal}g per meal across 4 meals. The average person eats ~65g total. That gap is where transformations are won or lost.`,
         color: "#2E5BFF",
       };
     } else {
@@ -10151,11 +10153,14 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
   const ac = T.blue;
   const bw = perfData?.all?.bw || 175;
 
-  // Current phase: 0=goal, 1=activity, 2=trainingDays, 3=diet, 4=age
+  // Current phase: 0=goal, 1=activity, 2=diet (training days derived from biology.frequency)
   const [phase,         setPhase]         = useState(0);
   const [goalFocus,     setGoalFocus]     = useState(null);
   const [activityLevel, setActivityLevel] = useState(null);
-  const [trainingDays,  setTrainingDays]  = useState(null);
+  // Derive training days from biology frequency so we don't re-ask
+  const trainingDays = biology?.frequency === "high" ? 5
+                     : biology?.frequency === "low"  ? 3
+                     : 4; // med = 4 days
   const [dietType,      setDietType]      = useState(null);
   const [age,           setAge]           = useState(24);
 
@@ -10341,7 +10346,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 
   // ── Phase 0: Primary Goal ──────────────────────────────────────────────────
   if (phase === 0) return (
-    <QScreen step={4} total={7} headline="What's your primary goal?"
+    <QScreen step={4} total={6} headline="What's your primary goal?"
       storyHook="Be honest here. The protocol can only take you where you actually want to go."
       onBackFn={onBack}>
       <TapCards selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
@@ -10354,73 +10359,23 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 
   // ── Phase 1: Activity Level ────────────────────────────────────────────────
   if (phase === 1) return (
-    <QScreen step={5} total={7} headline="How active are you outside the gym?"
+    <QScreen step={5} total={6} headline="How active are you outside the gym?"
       storyHook="The gym is only part of the picture. What you do outside it matters just as much."
       onBackFn={() => advance(0)}>
-      <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(2); }} options={[
-        { value:"sedentary", icon:"🪑", label:"Mostly Sitting",     sub:"Desk job, minimal walking",          color:"#5AC8FA" },
+      <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(3); }} options={[
+        { value:"sedentary", icon:"🪑", label:"Mostly Sitting",     sub:"Desk job, minimal walking",           color:"#5AC8FA" },
         { value:"light",     icon:"🚶", label:"Lightly Active",      sub:"Some walking, on your feet part-time", color:"#30D158" },
         { value:"moderate",  icon:"🚴", label:"Moderately Active",   sub:"Physical job or daily movement",       color:"#D4AF37" },
-        { value:"active",    icon:"⚡", label:"Very Active",         sub:"On your feet all day, labor work",      color:"#FF4B2B" },
+        { value:"active",    icon:"⚡", label:"Very Active",         sub:"On your feet all day, labor work",     color:"#FF4B2B" },
       ]}/>
-    </QScreen>
-  );
-
-  // ── Phase 2: Training Days ─────────────────────────────────────────────────
-  if (phase === 2) return (
-    <QScreen step={6} total={7} headline="How many days do you train per week?"
-      storyHook="Not what you wish you could do. What you'll actually show up and do."
-      onBackFn={() => advance(1)}>
-      <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-        {[
-          { d:2, label:"2 days", sub:"2×/week — Building the habit" },
-          { d:3, label:"3 days", sub:"3×/week — Classic push/pull/legs" },
-          { d:4, label:"4 days", sub:"4×/week — Upper/lower split" },
-          { d:5, label:"5 days", sub:"5×/week — Dedicated training block" },
-          { d:6, label:"6 days", sub:"6×/week — High frequency athlete" },
-        ].map((item, i) => {
-          const isSelected = trainingDays === item.d;
-          return (
-            <motion.button key={item.d}
-              initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
-              transition={{ delay:.1 + i*.06, duration:.3, ease:[.22,1,.36,1] }}
-              whileTap={{ scale:.97 }}
-              onClick={() => { setTrainingDays(item.d); setTimeout(() => advance(3), 180); }}
-              style={{
-                width:"100%", padding:"18px 22px",
-                background: isSelected ? (theme==="dark"?"#ffffff":"#000000") : T.glass,
-                border:`1.5px solid ${isSelected?(theme==="dark"?"#fff":"#000"):T.border}`,
-                borderRadius:16, cursor:"pointer",
-                display:"flex", alignItems:"center", justifyContent:"space-between",
-                textAlign:"left", transition:"all .15s",
-              }}>
-              <div>
-                <div style={{ fontSize:17, fontWeight:800,
-                  color:isSelected?(theme==="dark"?"#000":"#fff"):T.text }}>
-                  {item.label}
-                </div>
-                <div style={{ fontSize:12, color:isSelected?(theme==="dark"?"#00000088":"#ffffff88"):T.faint, marginTop:2 }}>
-                  {item.sub}
-                </div>
-              </div>
-              {isSelected && (
-                <div style={{ width:22, height:22, borderRadius:"50%",
-                  background:theme==="dark"?"#000":"#fff",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:12, color:theme==="dark"?"#fff":"#000" }}>✓</div>
-              )}
-            </motion.button>
-          );
-        })}
-      </div>
     </QScreen>
   );
 
   // ── Phase 3: Diet Style ────────────────────────────────────────────────────
   if (phase === 3) return (
-    <QScreen step={7} total={7} headline="Last one. What's your diet style?"
+    <QScreen step={6} total={6} headline="Last one. What's your diet style?"
       storyHook="The best diet is the one you'll actually stick to. Pick the one that's actually you."
-      onBackFn={() => advance(2)}>
+      onBackFn={() => advance(1)}>
       <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
         { value:"standard",  icon:"🥩", label:"Standard",    sub:"Balanced macros — the default protocol",   color:"#D4AF37" },
         { value:"highcarb",  icon:"🍚", label:"High Carb",   sub:"Performance-focused, carb-forward fueling", color:"#FF9F0A" },
@@ -10562,6 +10517,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
   const [showPw,     setShowPw]     = useState(false);
   const [pwErr,      setPwErr]      = useState("");
   const [signingUp,  setSigningUp]  = useState(false);
+  const [tosAgree,   setTosAgree]   = useState(false);
   const [gymCode,    setGymCode]    = useState("");
   const [gymInfo,    setGymInfo]    = useState(null);  // { id, name, tier } if valid
   const [gymChecking,setGymChecking] = useState(false);
@@ -10612,7 +10568,8 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
   };
 
 
-  const startScan = () => { setPhase(1); setTimeout(() => setPhase(2), 2600); };
+  // Skip animation phase — go straight to form
+  const startSetup = () => { setPhase(1); setTimeout(() => setPhase(2), 1200); };
 
   return (
     <Screen theme={theme}>
@@ -10621,13 +10578,13 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
         <RVNLogo size={30}/>
       </div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", padding:"16px 24px 36px" }}>
-        <StepProgress step={5} total={5} label="MY VAULT" accent={ac} theme={theme}/>
+        <StepProgress step={5} total={5} label="ACCOUNT" accent={ac} theme={theme}/>
         <motion.div {...FX.up} style={{ marginTop:24, textAlign:"center", marginBottom:28 }}>
           <div style={{ fontSize:30, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
-            Secure Your<br/>Bio-Identity
+            Save Your<br/>Protocol
           </div>
           <div style={{ fontSize:13, color:T.muted, marginTop:6 }}>
-            {phase<2 ? "Biometric registration in progress" : "Identity confirmed — welcome to the OS"}
+            {phase<2 ? "Creating your secure account" : "Account ready — welcome to the OS"}
           </div>
         </motion.div>
 
@@ -10636,7 +10593,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
         {phase===0 && (
           <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.3 }}
             style={{ marginTop:28, width:"100%", maxWidth:310 }}>
-            <ShimmerCTA label="Initialize Iris Scan  ◉" onClick={startScan} theme={theme} color={ac}/>
+            <ShimmerCTA label="Set Up My Account  →" onClick={startSetup} theme={theme} color={ac}/>
           </motion.div>
         )}
 
@@ -10645,7 +10602,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             style={{ marginTop:24, textAlign:"center", display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
             <AITyping theme={theme}/>
             <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".16em", animation:"os_pulse 1s ease-in-out infinite" }}>
-              READING BIOMETRIC SIGNATURE
+              SETTING UP YOUR ACCOUNT
             </div>
           </motion.div>
         )}
@@ -10658,10 +10615,10 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             </div>
 
             <div style={{ textAlign:"center", marginBottom:20 }}>
-              <Pill label="◉  BIO-VAULT UNLOCKED" color={T.green} theme={theme}/>
+              <Pill label="◉  ACCOUNT READY" color={T.green} theme={theme}/>
               <div style={{ fontSize:11, color:T.muted, marginTop:8, lineHeight:1.6 }}>
-                Your encrypted biometric profile is active.<br/>
-                Enter your details to personalize your vault.
+                Your profile is set up and ready.<br/>
+                Enter your details to save your protocol.
               </div>
             </div>
 
@@ -10670,10 +10627,11 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
               style={{ padding:"14px 16px", marginBottom:10,
                 border:`1px solid ${ac}44`, boxShadow:`0 0 16px ${ac}18` }}>
               <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
-                VAULT ALIAS
+                YOUR NAME <span style={{ color:T.red }}>*</span>
               </div>
               <input value={name} onChange={e => setName(e.target.value)}
                 placeholder="Enter your name"
+                autoComplete="name"
                 style={{ width:"100%", fontSize:17, fontWeight:600 }}/>
             </GlassCard>
 
@@ -10753,12 +10711,30 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
               </GlassCard>
             </div>
 
+            {/* ToS + Privacy consent */}
+            <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:14,
+              padding:"10px 12px", background:T.glass, borderRadius:10, border:`1px solid ${T.border}` }}>
+              <input type="checkbox" id="rvn_tos" checked={tosAgree} onChange={e => setTosAgree(e.target.checked)}
+                style={{ marginTop:2, accentColor:ac, width:16, height:16, flexShrink:0, cursor:"pointer" }}/>
+              <label htmlFor="rvn_tos" style={{ fontSize:10.5, color:T.muted, lineHeight:1.6, cursor:"pointer" }}>
+                I agree to the{" "}
+                <span style={{ color:ac, textDecoration:"underline" }}
+                  onClick={e => { e.preventDefault(); window.open("https://rvnos.com/terms","_blank"); }}>
+                  Terms of Service
+                </span>{" "}and{" "}
+                <span style={{ color:ac, textDecoration:"underline" }}
+                  onClick={e => { e.preventDefault(); window.open("https://rvnos.com/privacy","_blank"); }}>
+                  Privacy Policy
+                </span>
+              </label>
+            </div>
+
             {/* Primary CTA */}
             <ShimmerCTA
-              label={signingUp ? "Creating Vault…" : name.trim() ? `Secure My Vault, ${name.split(" ")[0]}  →` : "Secure My Vault  →"}
+              label={signingUp ? "Creating Account…" : name.trim() ? `Save My Protocol, ${name.split(" ")[0]}  →` : "Save My Protocol  →"}
               onClick={() => !signingUp && handleCreateAccount()}
               theme={theme} color={ac}
-              disabled={signingUp || !name.trim() || !email.trim() || password.length < 8}/>
+              disabled={signingUp || !name.trim() || !email.trim() || password.length < 8 || !tosAgree}/>
 
 
             {/* Signup / Account link — minimalist, high-end */}
@@ -10776,7 +10752,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                   padding:"11px 24px", cursor:"pointer", width:"100%",
                   fontSize:12, fontWeight:700, color:T.muted, letterSpacing:".06em",
                 }}>
-                Create a Bio-Vault Account
+                Create Your Account
               </motion.button>
               <div style={{ fontSize:9.5, color:T.faint, marginTop:8, lineHeight:1.6 }}>
                 Save your protocol. Track progress. Sync across devices.
@@ -10785,14 +10761,14 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
           </motion.div>
         )}
 
-        {/* Phase 3 — Bio-Vault account creation */}
+        {/* Phase 3 — sign-in to existing account */}
         {phase===3 && (
           <motion.div
             initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
             exit={{ opacity:0, x:-40 }} transition={{ duration:.38, ease:[.22,1,.36,1] }}
             style={{ width:"100%", maxWidth:340, marginTop:16 }}>
 
-            {/* Back to vault */}
+            {/* Back */}
             <motion.button whileTap={{ scale:.96 }} onClick={() => setPhase(2)}
               style={{ background:"none", border:"none", cursor:"pointer",
                 display:"flex", alignItems:"center", gap:6,
@@ -10805,18 +10781,18 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                 <div style={{ textAlign:"center", marginBottom:22 }}>
                   <div style={{ fontSize:26, fontWeight:900, color:T.text,
                     letterSpacing:"-.02em" }}>Create Your<br/>
-                    <span style={{ color:ac }}>Bio-Vault</span>
+                    <span style={{ color:ac }}>Account</span>
                   </div>
                   <div style={{ fontSize:11, color:T.muted, marginTop:6 }}>
-                    Encrypted. Biometric-locked. Yours forever.
+                    Secure. Private. Yours forever.
                   </div>
                 </div>
 
-                {/* Vault account fields */}
+                {/* Account fields */}
                 {[
-                  { label:"FULL NAME",      val:vaultName,  set:setVaultName,  ph:"Your name",           type:"text"     },
-                  { label:"EMAIL ADDRESS",  val:vaultEmail, set:setVaultEmail, ph:"name@email.com",       type:"email"    },
-                  { label:"VAULT PASSWORD", val:vaultPass,  set:setVaultPass,  ph:"Min. 8 characters",    type:"password" },
+                  { label:"FULL NAME",      val:vaultName,  set:setVaultName,  ph:"Your name",        type:"text"     },
+                  { label:"EMAIL ADDRESS",  val:vaultEmail, set:setVaultEmail, ph:"name@email.com",    type:"email"    },
+                  { label:"PASSWORD",       val:vaultPass,  set:setVaultPass,  ph:"Min. 8 characters", type:"password" },
                 ].map(f => (
                   <GlassCard key={f.label} theme={theme}
                     style={{ padding:"12px 16px", marginBottom:10,
@@ -10835,7 +10811,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                   background:T.glass, borderRadius:12, border:`1px solid ${T.border}` }}>
                   {[
                     "\u25c9  Protocol saved & synced across devices",
-                    "\u25c9  Biometric profile encrypted in vault",
+                    "\u25c9  Profile saved & secured",
                     "\u25c9  Progress tracked over 6-month timeline",
                     "\u25c9  Early access to new RVN OS features",
                   ].map(line => (
@@ -10846,7 +10822,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
 
                 <ShimmerCTA
                   label={vaultName&&vaultEmail&&vaultPass.length>=8
-                    ? "Activate Bio-Vault  →" : "Complete all fields"}
+                    ? "Create Account  →" : "Complete all fields"}
                   onClick={() => {
                     if (vaultName&&vaultEmail&&vaultPass.length>=8) setVaultDone(true);
                   }}
@@ -10875,7 +10851,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                 </div>
                 <div style={{ fontSize:12, color:T.muted, lineHeight:1.7, marginBottom:24 }}>
                   Welcome, {vaultName.split(" ")[0]}.<br/>
-                  Your Bio-Vault is encrypted and live.
+                  Your account is active.
                 </div>
                 <ShimmerCTA
                   label="Continue to Protocol  →"
@@ -17533,7 +17509,7 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
   const tryLookup = () => {
     const p = rvnFindProfile(query);
     if (p) doSignIn(p);
-    else setErr("No Bio-Vault found for that ID. Create one below.");
+    else setErr("No account found for that ID. Create one below.");
   };
 
   return (
@@ -17615,7 +17591,7 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
 
           <div style={{ marginTop:12 }}>
             <ShimmerCTA
-              label={scanning ? "Reading Signature…" : "Unlock Bio-Vault  ◉"}
+              label={scanning ? "Reading Signature…" : "Sign In  →"}
               onClick={() => !scanning && tryLookup()}
               theme={theme} color={ac}
               disabled={scanning || !query.trim()}/>
@@ -19852,7 +19828,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
             )}
 
             <ShimmerCTA
-              label={busy ? "Verifying…" : "Unlock Bio-Vault  ◉"}
+              label={busy ? "Verifying…" : "Sign In  →"}
               onClick={() => !busy && handleSignIn()}
               theme={theme} color={ac}
               disabled={busy || !password.trim()}/>

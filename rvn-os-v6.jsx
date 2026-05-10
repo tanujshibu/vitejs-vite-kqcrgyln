@@ -1,6 +1,53 @@
 import React, { useState, useEffect, useRef, useMemo, createContext, useContext, useReducer, Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
+import {
+  Dumbbell, BarChart2, Utensils, TrendingUp, Target, Trophy, Users, Scale,
+  Flame, Zap, Brain, Moon, Sun, Clock, MessageCircle, BookOpen, FileText, Lock,
+  Heart, Leaf, Coffee, AlertCircle, CheckCircle, RefreshCw, Key, Bike, Monitor,
+  Activity, Droplets, Circle, Ban, Wheat,
+} from "lucide-react";
+
+// ─── ICON SYSTEM ─────────────────────────────────────────────────────────────
+const ICON_MAP = {
+  dumbbell:    Dumbbell,
+  barChart:    BarChart2,
+  utensils:    Utensils,
+  trendingUp:  TrendingUp,
+  target:      Target,
+  trophy:      Trophy,
+  users:       Users,
+  scale:       Scale,
+  flame:       Flame,
+  zap:         Zap,
+  brain:       Brain,
+  moon:        Moon,
+  sun:         Sun,
+  clock:       Clock,
+  message:     MessageCircle,
+  book:        BookOpen,
+  file:        FileText,
+  lock:        Lock,
+  heart:       Heart,
+  leaf:        Leaf,
+  coffee:      Coffee,
+  alert:       AlertCircle,
+  check:       CheckCircle,
+  refresh:     RefreshCw,
+  key:         Key,
+  bike:        Bike,
+  monitor:     Monitor,
+  activity:    Activity,
+  droplets:    Droplets,
+  circle:      Circle,
+  ban:         Ban,
+  wheat:       Wheat,
+};
+function LI({ n, size = 15, color, style = {} }) {
+  const C = ICON_MAP[n];
+  if (!C) return <span style={{ fontSize: size * .9, lineHeight:1 }}>{n}</span>;
+  return <C size={size} color={color} strokeWidth={1.75} style={{ display:"block", flexShrink:0, ...style }} />;
+}
 
 
 // ─── MOBILE PERFORMANCE FLAG ──────────────────────────────────────────────────
@@ -6309,12 +6356,12 @@ function ABBioComparison({ archetypeId, theme, color }) {
                           Enter data from Apple Health, Garmin, Whoop, or any wearable. Kailu uses this to personalize every response.
                         </div>
                         {[
-                          { key:"steps",    label:"STEPS TODAY",     unit:"steps", icon:"👟", placeholder:"e.g. 8500"    },
-                          { key:"sleepHrs", label:"LAST NIGHT (hrs)", unit:"h",    icon:"😴", placeholder:"e.g. 7.5"     },
-                          { key:"hrv",      label:"HRV",              unit:"ms",   icon:"💗", placeholder:"e.g. 62"      },
-                        ].map(({ key, label, unit, icon, placeholder }) => (
+                          { key:"steps",    label:"STEPS TODAY",     unit:"steps", icon:"activity", color:T.blue,    placeholder:"e.g. 8500" },
+                          { key:"sleepHrs", label:"LAST NIGHT (hrs)", unit:"h",    icon:"moon",     color:T.purple, placeholder:"e.g. 7.5"  },
+                          { key:"hrv",      label:"HRV",              unit:"ms",   icon:"heart",    color:"#FF3B30",placeholder:"e.g. 62"   },
+                        ].map(({ key, label, unit, icon, color, placeholder }) => (
                           <div key={key} style={{ display:"flex", alignItems:"center", gap:10 }}>
-                            <div style={{ fontSize:18 }}>{icon}</div>
+                            <div style={{ display:"flex" }}><LI n={icon} size={18} color={color}/></div>
                             <div style={{ flex:1 }}>
                               <div style={{ fontSize:9, fontWeight:700, color:T.faint, letterSpacing:".07em", marginBottom:3 }}>{label}</div>
                               <div style={{ display:"flex", gap:6, alignItems:"center" }}>
@@ -6342,12 +6389,12 @@ function ABBioComparison({ archetypeId, theme, color }) {
                         {hd.lastSync ? (
                           <div style={{ display:"flex", gap:8 }}>
                             {[
-                              { icon:"👟", label:"STEPS",   val: hd.steps?.toLocaleString() || "—", color:T.blue  },
-                              { icon:"😴", label:"SLEEP",   val: hd.sleepHrs ? `${hd.sleepHrs}h` : "—", color:T.purple },
-                              { icon:"💗", label:"HRV",     val: hd.hrv ? `${hd.hrv}ms` : "—",    color:"#FF3B30" },
+                              { icon:"activity", label:"STEPS", val: hd.steps?.toLocaleString() || "—", color:T.blue  },
+                              { icon:"moon",     label:"SLEEP", val: hd.sleepHrs ? `${hd.sleepHrs}h` : "—", color:T.purple },
+                              { icon:"heart",    label:"HRV",   val: hd.hrv ? `${hd.hrv}ms` : "—",    color:"#FF3B30" },
                             ].map(({ icon, label, val, color }) => (
                               <div key={label} style={{ flex:1, textAlign:"center", padding:"10px 6px", background:T.glass, borderRadius:10 }}>
-                                <div style={{ fontSize:16 }}>{icon}</div>
+                                <div style={{ display:"flex", justifyContent:"center", marginBottom:2 }}><LI n={icon} size={16} color={color}/></div>
                                 <div style={{ fontSize:14, fontWeight:900, color }}>{val}</div>
                                 <div style={{ fontSize:8, color:T.faint, letterSpacing:".07em" }}>{label}</div>
                               </div>
@@ -9285,8 +9332,10 @@ function OBCard({ option, selected, onPick, index = 0, theme, fill = false }) {
         <div style={{
           width:50, height:50, borderRadius:16, flexShrink:0,
           background: isSelected ? `${accentColor}22` : `${accentColor}14`,
-          display:"flex", alignItems:"center", justifyContent:"center", fontSize:24,
-        }}>{option.icon}</div>
+          display:"flex", alignItems:"center", justifyContent:"center",
+        }}>
+          <LI n={option.icon} size={22} color={isSelected ? accentColor : accentColor+"bb"} />
+        </div>
       )}
       <div style={{ flex:1 }}>
         <div style={{ fontSize:18, fontWeight:800, letterSpacing:"-.01em",
@@ -9685,9 +9734,9 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       storyHook="Most people think more sessions = more results. It's almost never true."
       onBackFn={() => setPhase(0)}>
       {[
-        { value:"high", label:"5+ times a week",    sub:"High frequency athlete",      icon:"🔥", color:"#FF4B2B" },
-        { value:"med",  label:"3–4 times a week",   sub:"Consistent training block",   icon:"⚡", color:"#C9A84C" },
-        { value:"low",  label:"1–2 times a week",   sub:"Building the foundation",     icon:"🌱", color:"#30D158" },
+        { value:"high", label:"5+ times a week",    sub:"High frequency athlete",      icon:"flame",    color:"#FF4B2B" },
+        { value:"med",  label:"3–4 times a week",   sub:"Consistent training block",   icon:"zap",      color:"#C9A84C" },
+        { value:"low",  label:"1–2 times a week",   sub:"Building the foundation",     icon:"leaf",     color:"#30D158" },
       ].map((opt, i) => (
         <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
           onPick={v => pick(setFrequency, v, ONBOARDING_FACTS.frequency[v], 2)}/>
@@ -9702,10 +9751,10 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       storyHook="Most people drink coffee wrong for the gym. Not too much — just at the wrong time."
       onBackFn={() => setPhase(1)}>
       {[
-        { value:"high", label:"Very sensitive",   sub:"Jittery on even one coffee",       icon:"😬", color:"#FF4B2B" },
-        { value:"med",  label:"Normal tolerance", sub:"Standard reaction to caffeine",    icon:"☕", color:"#C9A84C" },
-        { value:"low",  label:"High tolerance",   sub:"3+ cups and barely feel it",       icon:"⚡", color:"#30D158" },
-        { value:"none", label:"I don't use caffeine", sub:"No coffee, tea, or pre-workout", icon:"🚫", color:"#8E8E93" },
+        { value:"high", label:"Very sensitive",      sub:"Jittery on even one coffee",         icon:"alert",    color:"#FF4B2B" },
+        { value:"med",  label:"Normal tolerance",   sub:"Standard reaction to caffeine",      icon:"coffee",   color:"#C9A84C" },
+        { value:"low",  label:"High tolerance",     sub:"3+ cups and barely feel it",         icon:"zap",      color:"#30D158" },
+        { value:"none", label:"I don't use caffeine", sub:"No coffee, tea, or pre-workout",   icon:"ban",      color:"#8E8E93" },
       ].map((opt, i) => (
         <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
           onPick={v => pick(setCaffeine, v, ONBOARDING_FACTS.caffeine[v] || ONBOARDING_FACTS.caffeine.med, 3)}/>
@@ -9720,10 +9769,10 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       storyHook="Everyone says they just need to work harder. That's almost never the real issue."
       onBackFn={() => setPhase(2)}>
       {[
-        { value:"sleep",    label:"Sleep quality",     sub:"I don't sleep well or long enough",   icon:"😴", color:"#5AC8FA" },
-        { value:"soreness", label:"Muscle soreness",   sub:"Still sore before my next session",    icon:"💪", color:"#FF4B2B" },
-        { value:"fog",      label:"Mental fog",        sub:"Brain is slow the day after training",  icon:"🧠", color:"#BF5AF2" },
-        { value:"none",     label:"I recover well",    sub:"No real issues — just want to optimize", icon:"✅", color:"#30D158" },
+        { value:"sleep",    label:"Sleep quality",     sub:"I don't sleep well or long enough",      icon:"moon",     color:"#5AC8FA" },
+        { value:"soreness", label:"Muscle soreness",   sub:"Still sore before my next session",     icon:"dumbbell", color:"#FF4B2B" },
+        { value:"fog",      label:"Mental fog",        sub:"Brain is slow the day after training",   icon:"brain",    color:"#BF5AF2" },
+        { value:"none",     label:"I recover well",    sub:"No real issues — just want to optimize", icon:"check",    color:"#30D158" },
       ].map((opt, i) => (
         <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
           onPick={v => {
@@ -10350,9 +10399,9 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
       storyHook="Be honest here. The protocol can only take you where you actually want to go."
       onBackFn={onBack}>
       <TapCards selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
-        { value:"muscle", icon:"💪", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#2E5BFF" },
-        { value:"fat",    icon:"🔥", label:"Lose Fat",     sub:"Burn fat while preserving lean muscle",   color:"#FF4B2B" },
-        { value:"recomp", icon:"⚖️", label:"Body Recomp",  sub:"Simultaneously build muscle and lose fat", color:"#D4AF37" },
+        { value:"muscle", icon:"dumbbell", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#2E5BFF" },
+        { value:"fat",    icon:"flame",    label:"Lose Fat",     sub:"Burn fat while preserving lean muscle",   color:"#FF4B2B" },
+        { value:"recomp", icon:"scale",    label:"Body Recomp",  sub:"Simultaneously build muscle and lose fat", color:"#D4AF37" },
       ]}/>
     </QScreen>
   );
@@ -10363,10 +10412,10 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
       storyHook="The gym is only part of the picture. What you do outside it matters just as much."
       onBackFn={() => advance(0)}>
       <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(3); }} options={[
-        { value:"sedentary", icon:"🪑", label:"Mostly Sitting",     sub:"Desk job, minimal walking",           color:"#5AC8FA" },
-        { value:"light",     icon:"🚶", label:"Lightly Active",      sub:"Some walking, on your feet part-time", color:"#30D158" },
-        { value:"moderate",  icon:"🚴", label:"Moderately Active",   sub:"Physical job or daily movement",       color:"#D4AF37" },
-        { value:"active",    icon:"⚡", label:"Very Active",         sub:"On your feet all day, labor work",     color:"#FF4B2B" },
+        { value:"sedentary", icon:"monitor",  label:"Mostly Sitting",    sub:"Desk job, minimal walking",           color:"#5AC8FA" },
+        { value:"light",     icon:"activity", label:"Lightly Active",     sub:"Some walking, on your feet part-time", color:"#30D158" },
+        { value:"moderate",  icon:"bike",     label:"Moderately Active",  sub:"Physical job or daily movement",       color:"#D4AF37" },
+        { value:"active",    icon:"zap",      label:"Very Active",        sub:"On your feet all day, labor work",     color:"#FF4B2B" },
       ]}/>
     </QScreen>
   );
@@ -10377,10 +10426,10 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
       storyHook="The best diet is the one you'll actually stick to. Pick the one that's actually you."
       onBackFn={() => advance(1)}>
       <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
-        { value:"standard",  icon:"🥩", label:"Standard",    sub:"Balanced macros — the default protocol",   color:"#D4AF37" },
-        { value:"highcarb",  icon:"🍚", label:"High Carb",   sub:"Performance-focused, carb-forward fueling", color:"#FF9F0A" },
-        { value:"plant",     icon:"🥦", label:"Plant-Based", sub:"Vegan/vegetarian — protein sources optimized", color:"#30D158" },
-        { value:"keto",      icon:"🥑", label:"Keto / Low Carb", sub:"Fat-dominant, insulin management",      color:"#5AC8FA" },
+        { value:"standard",  icon:"utensils", label:"Standard",        sub:"Balanced macros — the default protocol",      color:"#D4AF37" },
+        { value:"highcarb",  icon:"wheat",    label:"High Carb",       sub:"Performance-focused, carb-forward fueling",   color:"#FF9F0A" },
+        { value:"plant",     icon:"leaf",     label:"Plant-Based",     sub:"Vegan/vegetarian — protein sources optimized", color:"#30D158" },
+        { value:"keto",      icon:"droplets", label:"Keto / Low Carb", sub:"Fat-dominant, insulin management",             color:"#5AC8FA" },
       ]}/>
     </QScreen>
   );
@@ -10916,9 +10965,9 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
 
   // Personal stat cards
   const stats = [
-    { label:"DAILY PROTEIN",  value:`${proteinTarget}g`,   icon:"⚡", color:ac },
-    { label:"CALORIE TARGET", value:`${calorieTarget}`,    icon:"🔥", color:"#FF9F0A" },
-    { label:"TRAINING FREQ",  value:freqLabel,              icon:"💪", color:"#30D158" },
+    { label:"DAILY PROTEIN",  value:`${proteinTarget}g`,   icon:"zap",      color:ac },
+    { label:"CALORIE TARGET", value:`${calorieTarget}`,    icon:"flame",    color:"#FF9F0A" },
+    { label:"TRAINING FREQ",  value:freqLabel,              icon:"dumbbell", color:"#30D158" },
     { label:"BIO SCORE",      value:`${bioScore}`,          icon:"◈",  color:arch?.glow || ac },
   ];
 
@@ -11102,7 +11151,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
                           background:T.glass, border:`1px solid ${T.border}`,
                           borderRadius:14, padding:"12px 14px",
                         }}>
-                        <div style={{ fontSize:16, marginBottom:4 }}>{s.icon}</div>
+                        <div style={{ marginBottom:6 }}><LI n={s.icon} size={18} color={s.color}/></div>
                         <div style={{ fontSize:18, fontWeight:900, color:s.color, letterSpacing:"-.01em" }}>
                           {s.value}
                         </div>
@@ -12242,10 +12291,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         <div style={{ display:"flex", borderRadius:14, overflow:"hidden",
           background:T.glass, border:`1px solid ${T.border}`, marginBottom:2 }}>
           {[
-            { id:"train",    icon:"⚡", label:"TRAIN"    },
-            { id:"stats",    icon:"📊", label:"STATS"    },
-            { id:"fuel",     icon:"🍽️", label:"FUEL"     },
-            { id:"progress", icon:"📈", label:"PROGRESS" },
+            { id:"train",    icon:"dumbbell",   label:"TRAIN"    },
+            { id:"stats",    icon:"barChart",   label:"STATS"    },
+            { id:"fuel",     icon:"utensils",   label:"FUEL"     },
+            { id:"progress", icon:"trendingUp", label:"PROGRESS" },
           ].map((t, i) => (
             <motion.button key={t.id} whileTap={{ scale:.97 }}
               onClick={() => setActiveGymTab(t.id)}
@@ -12256,7 +12305,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 fontSize:8, fontWeight:900, letterSpacing:".07em",
                 display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:2,
               }}>
-              <span style={{ fontSize:13, lineHeight:1 }}>{t.icon}</span>
+              <LI n={t.icon} size={13} color={activeGymTab === t.id ? "#fff" : undefined}/>
               {t.label}
             </motion.button>
           ))}
@@ -13067,12 +13116,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>HEALTH DATA</div>
                     <div style={{ display:"flex", justifyContent:"space-around" }}>
                       {[
-                        { icon:"👟", label:"STEPS",  val:hd2.steps?.toLocaleString()||"—", color:T.blue   },
-                        { icon:"😴", label:"SLEEP",  val:hd2.sleepHrs ? `${hd2.sleepHrs}h`:"—", color:T.purple },
-                        { icon:"💗", label:"HRV",    val:hd2.hrv ? `${hd2.hrv}ms`:"—",    color:"#FF3B30" },
+                        { icon:"activity", label:"STEPS", val:hd2.steps?.toLocaleString()||"—", color:T.blue   },
+                        { icon:"moon",     label:"SLEEP", val:hd2.sleepHrs ? `${hd2.sleepHrs}h`:"—", color:T.purple },
+                        { icon:"heart",    label:"HRV",   val:hd2.hrv ? `${hd2.hrv}ms`:"—",    color:"#FF3B30" },
                       ].map(item => (
                         <div key={item.label} style={{ textAlign:"center" }}>
-                          <div style={{ fontSize:22, marginBottom:4 }}>{item.icon}</div>
+                          <div style={{ display:"flex", justifyContent:"center", marginBottom:6 }}>
+                            <LI n={item.icon} size={20} color={item.color}/>
+                          </div>
                           <div style={{ fontSize:16, fontWeight:900, color:item.color }}>{item.val}</div>
                           <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>{item.label}</div>
                         </div>
@@ -13712,17 +13763,19 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               {/* Quick links */}
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
                 {[
-                  { icon:"📊", label:"Workout History", sub:"Sessions & PR charts", action: onWorkoutHistory, color:"#30D158" },
-                  { icon:"⚖️", label:"Body Weight",     sub:"Weight log & trend",   action: onBodyWeight,    color:"#2E5BFF" },
-                  { icon:"👥", label:"Buddy System",    sub:"Training partners",     action: onBuddy,         color:"#FF9F0A" },
-                  { icon:"🏆", label:"Group Workout",   sub:"Train with others",     action: onGroupWorkout,  color:"#BF5AF2" },
+                  { icon:"barChart",  label:"Workout History", sub:"Sessions & PR charts", action: onWorkoutHistory, color:"#30D158" },
+                  { icon:"scale",     label:"Body Weight",     sub:"Weight log & trend",   action: onBodyWeight,    color:"#2E5BFF" },
+                  { icon:"users",     label:"Buddy System",    sub:"Training partners",     action: onBuddy,         color:"#FF9F0A" },
+                  { icon:"trophy",    label:"Group Workout",   sub:"Train with others",     action: onGroupWorkout,  color:"#BF5AF2" },
                 ].map(item => (
                   <motion.button key={item.label} whileTap={{ scale:.97 }}
                     onClick={() => item.action && item.action()}
                     style={{ padding:"16px 12px", borderRadius:18, cursor:"pointer",
                       background:`${item.color}12`, border:`1px solid ${item.color}30`,
                       textAlign:"center" }}>
-                    <div style={{ fontSize:24, marginBottom:6 }}>{item.icon}</div>
+                    <div style={{ display:"flex", justifyContent:"center", marginBottom:8 }}>
+                      <LI n={item.icon} size={22} color={item.color}/>
+                    </div>
                     <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{item.label}</div>
                     <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>{item.sub}</div>
                   </motion.button>
@@ -16423,7 +16476,7 @@ function RVNVisionOverlay() {
             {biopal.messages.length === 0 && (
               <div style={{ display:"flex", gap:8, overflowX:"auto", padding:"0 16px 10px", WebkitOverflowScrolling:"touch" }}>
                 {[
-                  { icon:"🔄", label:"Swap exercise", prompt:"My [joint/muscle] is bothering me. Swap out [exercise] for something safer that still hits the same muscle." },
+                  { icon:"refresh", label:"Swap exercise", prompt:"My [joint/muscle] is bothering me. Swap out [exercise] for something safer that still hits the same muscle." },
                   { icon:"◈", label:"Rebalance macros", prompt:"I'm behind on my macros today. Rebalance my remaining calories across protein, carbs, and fat." },
                   { icon:"◉", label:"Recovery session", prompt:"Plan me a 25-minute mobility and recovery session for today." },
                   { icon:"▲", label:"Shopping list", prompt:"I'm short on my macro goals. Build me a shopping list of 5-8 whole foods that will close the gap." },
@@ -16434,7 +16487,7 @@ function RVNVisionOverlay() {
                     style={{ flexShrink:0, padding:"7px 13px", borderRadius:20, border:`1px solid ${T.border}`,
                       background:T.glass, backdropFilter:isMobile?"none":"blur(8px)", cursor:"pointer",
                       display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }}>
-                    <span style={{ fontSize:14 }}>{a.icon}</span>
+                    <LI n={a.icon} size={13} color={T.muted}/>
                     <span style={{ fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".04em" }}>{a.label}</span>
                   </motion.button>
                 ))}
@@ -22236,15 +22289,15 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
             HOW CALORIE TRACKING WORKS
           </div>
           {[
-            { icon:"🔵", label:"Label Calories",           desc:"What the nutrition label shows — the starting point." },
-            { icon:"⚡", label:"Hidden Calories",           desc:"Digestion cost, inflammation load, nutrient absorption loss — things labels never show." },
-            { icon:"🎯", label:"Effective Calorie Intake",  desc:"Your true metabolic cost. Surgical Vision calculates this using your macros, ingredients & wearable strain data." },
+            { icon:"circle",  color:"#5AC8FA", label:"Label Calories",          desc:"What the nutrition label shows — the starting point." },
+            { icon:"zap",     color:"#FF9F0A", label:"Hidden Calories",          desc:"Digestion cost, inflammation load, nutrient absorption loss — things labels never show." },
+            { icon:"target",  color:"#30D158", label:"Effective Calorie Intake", desc:"Your true metabolic cost. Surgical Vision calculates this using your macros, ingredients & wearable strain data." },
           ].map(item => (
             <div key={item.label} style={{
               display:"flex", gap:12, alignItems:"flex-start",
               padding:"10px 0", borderBottom:`1px solid ${T.border}`,
             }}>
-              <span style={{ fontSize:18 }}>{item.icon}</span>
+              <div style={{ marginTop:2 }}><LI n={item.icon} size={18} color={item.color}/></div>
               <div>
                 <div style={{ fontSize:12, fontWeight:800, color:T.text, marginBottom:2 }}>{item.label}</div>
                 <div style={{ fontSize:10.5, color:T.faint, lineHeight:1.5 }}>{item.desc}</div>
@@ -23176,15 +23229,15 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   const hubTabs = [
     { id:"overview",   label:"OVERVIEW",   icon:"◉" },
     { id:"inventory",  label:"INVENTORY",  icon:"◈" },
-    { id:"roster",     label:"ROSTER",     icon:"👥" },
-    { id:"coach",      label:"COACH",      icon:"🎯" },
+    { id:"roster",     label:"ROSTER",     icon:"users" },
+    { id:"coach",      label:"COACH",      icon:"target" },
     { id:"qr",         label:"QR ONBOARD", icon:"⬡" },
     { id:"nfc",        label:"NFC TAGS",   icon:"⬡" },
     { id:"export",     label:"EXPORT",     icon:"↗" },
-    { id:"roles",      label:"ROLES",      icon:"🔑" },
+    { id:"roles",      label:"ROLES",      icon:"key" },
     { id:"brands",     label:"BRANDS",     icon:"◇" },
     { id:"stories",    label:"STORIES",    icon:"★" },
-    { id:"challenges", label:"CHALLENGES", icon:"🏆" },
+    { id:"challenges", label:"CHALLENGES", icon:"trophy" },
     { id:"settings",   label:"SETTINGS",   icon:"⚙" },
   ];
   const [activeBrands, setActiveBrands] = useState({...DEFAULT_ACTIVE_BRANDS});
@@ -23302,7 +23355,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 display:"flex", alignItems:"center", justifyContent:"center", gap:4,
                 whiteSpace:"nowrap",
               }}>
-              {ht.icon} {ht.label}
+              <LI n={ht.icon} size={10} color={hubTab===ht.id ? (theme==="dark"?"#000":"#fff") : undefined}/> {ht.label}
             </motion.button>
           ))}
         </div>
@@ -23913,9 +23966,9 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 {[
-                  { id:"dark",  label:"Always Dark",  icon:"🌙" },
-                  { id:"light", label:"Always Light",  icon:"☀️" },
-                  { id:"auto",  label:"Auto (by time of day)", icon:"🕐", sub:"Dark after 8 PM · Light from 7 AM" },
+                  { id:"dark",  label:"Always Dark",          icon:"moon",  sub:null },
+                  { id:"light", label:"Always Light",         icon:"sun",   sub:null },
+                  { id:"auto",  label:"Auto (by time of day)", icon:"clock", sub:"Dark after 8 PM · Light from 7 AM" },
                 ].map(opt => {
                   const active = themePref === opt.id;
                   return (
@@ -23928,7 +23981,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         outline: active ? `1.5px solid ${T.blue}` : `1px solid ${T.border}`,
                         textAlign:"left",
                       }}>
-                      <span style={{ fontSize:18 }}>{opt.icon}</span>
+                      <LI n={opt.icon} size={18} color={active ? T.blue : T.muted}/>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:700, color: active ? T.blue : T.text }}>
                           {opt.label}
@@ -24158,10 +24211,10 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 {[
-                  { icon:"💬", label:"Contact Support", sub:"Get help from the RVN team", action:() => window.open("mailto:support@rvnos.com","_blank") },
-                  { icon:"📖", label:"Help & FAQ", sub:"Guides, tips, and how-tos", action:() => window.open("https://rvnos.com/help","_blank") },
-                  { icon:"📝", label:"Terms of Service", sub:"Legal & usage policy", action:() => window.open("https://rvnos.com/terms","_blank") },
-                  { icon:"🔒", label:"Privacy Policy", sub:"How we handle your data", action:() => window.open("https://rvnos.com/privacy","_blank") },
+                  { icon:"message", label:"Contact Support", sub:"Get help from the RVN team", action:() => window.open("mailto:support@rvnos.com","_blank") },
+                  { icon:"book",    label:"Help & FAQ",       sub:"Guides, tips, and how-tos", action:() => window.open("https://rvnos.com/help","_blank") },
+                  { icon:"file",    label:"Terms of Service", sub:"Legal & usage policy",       action:() => window.open("https://rvnos.com/terms","_blank") },
+                  { icon:"lock",    label:"Privacy Policy",   sub:"How we handle your data",    action:() => window.open("https://rvnos.com/privacy","_blank") },
                 ].map((item, i) => (
                   <motion.button key={i} whileTap={{ scale:.97 }} onClick={item.action}
                     style={{
@@ -24169,7 +24222,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       padding:"10px 12px", borderRadius:11, border:`1px solid ${T.border}`,
                       background:T.glass, cursor:"pointer", textAlign:"left",
                     }}>
-                    <span style={{ fontSize:18 }}>{item.icon}</span>
+                    <LI n={item.icon} size={18} color={T.muted}/>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{item.label}</div>
                       <div style={{ fontSize:10, color:T.muted, marginTop:1 }}>{item.sub}</div>

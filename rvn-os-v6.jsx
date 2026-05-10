@@ -11308,9 +11308,7 @@ function BioGraph({ moa, arch, theme }) {
 // ─── AGILE PROTOCOL EDITOR ────────────────────────────────────────────────────
 function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
   const T = D[theme] || D.dark;
-  const [exList, setExList] = useState(() =>
-    exercises.map((e, i) => ({ ...e, _uid: i+"_"+e.name }))
-  );
+  const [exList, setExList] = useState([]);
   const [bankOpen, setBankOpen] = useState(false);
   const bank = (EXERCISE_BANK[arch.id] || [])
     .filter(b => !exList.some(e => e.name === b.name));
@@ -11353,6 +11351,38 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
       </div>
 
       <div style={{ flex:1, overflowY:"auto", padding:"12px 18px 16px" }}>
+
+        {/* Auto-populate CTA — shown only when list is empty */}
+        {exList.length === 0 && (
+          <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} style={{ marginBottom:16 }}>
+            <motion.button whileTap={{ scale:.97 }}
+              onClick={() => setExList(exercises.map((e, i) => ({ ...e, _uid: i+"_"+e.name })))}
+              style={{
+                width:"100%", padding:"16px 18px",
+                background:`linear-gradient(135deg, ${arch.glow}22, ${arch.glow}0D)`,
+                border:`1.5px solid ${arch.glow}55`,
+                borderRadius:14, cursor:"pointer", textAlign:"left",
+                display:"flex", alignItems:"center", gap:14,
+              }}>
+              <div style={{
+                width:40, height:40, borderRadius:11,
+                background:arch.glow+"22", border:`1px solid ${arch.glow}44`,
+                display:"flex", alignItems:"center", justifyContent:"center",
+                fontSize:18, flexShrink:0,
+              }}>⚡</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:900, color:arch.glow, letterSpacing:".02em" }}>
+                  Auto-Generate My Workout
+                </div>
+                <div style={{ fontSize:10, color:T.muted, marginTop:2, lineHeight:1.4 }}>
+                  Build from your {arch.label} protocol · {exercises.length} exercises
+                </div>
+              </div>
+              <div style={{ fontSize:18, color:arch.glow }}>›</div>
+            </motion.button>
+          </motion.div>
+        )}
+
         {exList.map((ex, idx) => {
           const parts   = ex.sets.split("x");
           const numSets = parseInt(parts[0]);

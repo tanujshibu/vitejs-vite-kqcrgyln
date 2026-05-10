@@ -10364,8 +10364,10 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
                   ? (theme==="dark" ? "#00000018" : "#ffffff18")
                   : `${opt.color || ac}18`,
                 display:"flex", alignItems:"center", justifyContent:"center",
-                fontSize:20,
-              }}>{opt.icon}</div>
+              }}>
+                <LI n={opt.icon} size={22}
+                  color={isSelected ? (theme==="dark" ? "#000" : "#fff") : (opt.color || ac)} />
+              </div>
               <div style={{ flex:1 }}>
                 <div style={{
                   fontSize:17, fontWeight:800,

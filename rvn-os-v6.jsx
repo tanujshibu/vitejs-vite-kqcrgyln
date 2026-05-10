@@ -24121,6 +24121,35 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               </div>
             </GlassCard>
 
+            {/* Contact + Support */}
+            <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
+              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+                SUPPORT
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+                {[
+                  { icon:"💬", label:"Contact Support", sub:"Get help from the RVN team", action:() => window.open("mailto:support@rvnos.com","_blank") },
+                  { icon:"📖", label:"Help & FAQ", sub:"Guides, tips, and how-tos", action:() => window.open("https://rvnos.com/help","_blank") },
+                  { icon:"📝", label:"Terms of Service", sub:"Legal & usage policy", action:() => window.open("https://rvnos.com/terms","_blank") },
+                  { icon:"🔒", label:"Privacy Policy", sub:"How we handle your data", action:() => window.open("https://rvnos.com/privacy","_blank") },
+                ].map((item, i) => (
+                  <motion.button key={i} whileTap={{ scale:.97 }} onClick={item.action}
+                    style={{
+                      display:"flex", alignItems:"center", gap:12,
+                      padding:"10px 12px", borderRadius:11, border:`1px solid ${T.border}`,
+                      background:T.glass, cursor:"pointer", textAlign:"left",
+                    }}>
+                    <span style={{ fontSize:18 }}>{item.icon}</span>
+                    <div style={{ flex:1 }}>
+                      <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{item.label}</div>
+                      <div style={{ fontSize:10, color:T.muted, marginTop:1 }}>{item.sub}</div>
+                    </div>
+                    <span style={{ fontSize:12, color:T.faint }}>›</span>
+                  </motion.button>
+                ))}
+              </div>
+            </GlassCard>
+
             <GlassCard theme={theme} style={{ padding:"12px 16px", textAlign:"center" }}>
               <div style={{ fontSize:10, color:T.faint, letterSpacing:".1em" }}>
                 RVN OS · v{OS_VERSION} · BUILD {OS_BUILD}
@@ -24794,6 +24823,8 @@ function PRSparkline({ sessions, lift, color, theme }) {
 // ─── STREAK HEATMAP ───────────────────────────────────────────────────────────
 function StreakHeatmap({ theme, accentColor }) {
   const T = D[theme];
+  const ac = accentColor;
+
   // Load workout dates from localStorage
   const workoutDates = (() => {
     try {
@@ -24810,44 +24841,161 @@ function StreakHeatmap({ theme, accentColor }) {
     const dateStr = d.toISOString().split("T")[0];
     const hasWorkout = workoutDates.has(dateStr);
     const isToday = i === 27;
-    return { dateStr, hasWorkout, isToday, dayLabel: ["S","M","T","W","T","F","S"][d.getDay()] };
+    const isFuture = d > today;
+    return { dateStr, hasWorkout, isToday, isFuture, dayOfWeek: d.getDay(), dateNum: d.getDate(), month: d.getMonth() };
   });
 
-  const weekLabels = ["S","M","T","W","T","F","S"];
+  // Count streak
+  let streak = 0;
+  for (let i = 27; i >= 0; i--) {
+    if (days[i].hasWorkout) streak++;
+    else if (i < 27) break;
+  }
+
+  const totalWorkouts = days.filter(d => d.hasWorkout).length;
+  const weekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Month range for header
+  const firstDay = days[0];
+  const lastDay = days[27];
+  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthLabel = firstDay.month === lastDay.month
+    ? `${monthNames[lastDay.month]}`
+    : `${monthNames[firstDay.month]} – ${monthNames[lastDay.month]}`;
 
   return (
-    <div>
-      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
-        28-DAY CONSISTENCY
+    <div style={{
+      background: theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+      borderRadius: 20,
+      border: `1px solid ${T.border}`,
+      padding: "16px 16px 14px",
+      overflow: "hidden",
+      position: "relative",
+    }}>
+      {/* Subtle glow accent */}
+      <div style={{
+        position:"absolute", top:-30, right:-30, width:120, height:120,
+        borderRadius:"50%", background:`${ac}18`, filter:"blur(30px)", pointerEvents:"none",
+      }}/>
+
+      {/* Header row */}
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14, position:"relative" }}>
+        <div>
+          <div style={{ fontSize:11, fontWeight:900, color:T.text, letterSpacing:".08em", textTransform:"uppercase" }}>
+            Consistency
+          </div>
+          <div style={{ fontSize:9.5, color:T.muted, marginTop:1, letterSpacing:".04em" }}>
+            {monthLabel} · 28 days
+          </div>
+        </div>
+        <div style={{ display:"flex", gap:10, alignItems:"center" }}>
+          {streak > 0 && (
+            <div style={{
+              display:"flex", alignItems:"center", gap:4,
+              background:`${ac}20`, border:`1px solid ${ac}40`,
+              borderRadius:20, padding:"4px 10px",
+            }}>
+              <span style={{ fontSize:12 }}>🔥</span>
+              <span style={{ fontSize:11, fontWeight:900, color:ac }}>{streak}</span>
+              <span style={{ fontSize:9, color:ac, opacity:.8 }}>streak</span>
+            </div>
+          )}
+          <div style={{
+            display:"flex", alignItems:"center", gap:4,
+            background:`${T.glass}`, border:`1px solid ${T.border}`,
+            borderRadius:20, padding:"4px 10px",
+          }}>
+            <span style={{ fontSize:11, fontWeight:900, color:T.text }}>{totalWorkouts}</span>
+            <span style={{ fontSize:9, color:T.muted }}>sessions</span>
+          </div>
+        </div>
       </div>
-      {/* Day-of-week labels */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:3, marginBottom:3 }}>
+
+      {/* Day-of-week column headers */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:4, marginBottom:6 }}>
         {weekLabels.map((l, i) => (
-          <div key={i} style={{ fontSize:7, color:T.faint, textAlign:"center", letterSpacing:".06em" }}>{l}</div>
+          <div key={i} style={{
+            fontSize:8.5, fontWeight:700, color: days[27].dayOfWeek === i ? ac : T.faint,
+            textAlign:"center", letterSpacing:".04em", textTransform:"uppercase",
+          }}>
+            {l}
+          </div>
         ))}
       </div>
+
       {/* 4-week grid: 4 rows of 7 */}
-      {[0, 1, 2, 3].map(week => (
-        <div key={week} style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:3, marginBottom:3 }}>
-          {days.slice(week * 7, week * 7 + 7).map((d, i) => (
-            <div key={i} style={{
-              aspectRatio:"1", borderRadius:3,
-              background: d.hasWorkout
-                ? accentColor
-                : d.isToday
-                  ? `${accentColor}30`
-                  : T.glass,
-              border: d.isToday ? `1px solid ${accentColor}60` : `1px solid ${T.border}`,
-              opacity: d.hasWorkout ? 1 : 0.7,
-            }}/>
-          ))}
+      <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
+        {[0, 1, 2, 3].map(week => (
+          <div key={week} style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:4 }}>
+            {days.slice(week * 7, week * 7 + 7).map((d, i) => (
+              <div key={i} style={{
+                position:"relative",
+                borderRadius: 10,
+                paddingTop:"80%",
+                background: d.hasWorkout
+                  ? `linear-gradient(135deg, ${ac}, ${ac}cc)`
+                  : d.isToday
+                    ? `${ac}18`
+                    : d.isFuture
+                      ? "transparent"
+                      : T.glass,
+                border: d.isToday
+                  ? `1.5px solid ${ac}80`
+                  : d.hasWorkout
+                    ? `1px solid ${ac}60`
+                    : `1px solid ${T.border}`,
+                boxShadow: d.hasWorkout ? `0 2px 8px ${ac}40` : "none",
+                opacity: d.isFuture ? 0.25 : 1,
+                transition:"transform .15s",
+                cursor: d.hasWorkout ? "default" : "default",
+              }}>
+                <div style={{
+                  position:"absolute", inset:0,
+                  display:"flex", flexDirection:"column",
+                  alignItems:"center", justifyContent:"center", gap:1,
+                }}>
+                  <div style={{
+                    fontSize: 10,
+                    fontWeight: d.isToday ? 900 : d.hasWorkout ? 800 : 600,
+                    color: d.hasWorkout ? "#fff" : d.isToday ? ac : T.muted,
+                    lineHeight:1,
+                  }}>
+                    {d.dateNum}
+                  </div>
+                  {d.hasWorkout && (
+                    <div style={{ width:4, height:4, borderRadius:"50%", background:"rgba(255,255,255,0.7)" }}/>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div style={{ display:"flex", alignItems:"center", gap:12, marginTop:12, justifyContent:"flex-end" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+          <div style={{
+            width:12, height:12, borderRadius:4,
+            background:`linear-gradient(135deg, ${ac}, ${ac}cc)`,
+            boxShadow:`0 2px 6px ${ac}50`,
+          }}/>
+          <span style={{ fontSize:9, color:T.muted, fontWeight:600 }}>Workout</span>
         </div>
-      ))}
-      <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:6 }}>
-        <div style={{ width:10, height:10, borderRadius:2, background:accentColor }}/>
-        <span style={{ fontSize:9, color:T.faint }}>Workout logged</span>
-        <div style={{ width:10, height:10, borderRadius:2, background:T.glass, border:`1px solid ${T.border}` }}/>
-        <span style={{ fontSize:9, color:T.faint }}>Rest day</span>
+        <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+          <div style={{
+            width:12, height:12, borderRadius:4,
+            background:T.glass, border:`1px solid ${T.border}`,
+          }}/>
+          <span style={{ fontSize:9, color:T.muted, fontWeight:600 }}>Rest</span>
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:5 }}>
+          <div style={{
+            width:12, height:12, borderRadius:4,
+            border:`1.5px solid ${ac}80`, background:`${ac}18`,
+          }}/>
+          <span style={{ fontSize:9, color:T.muted, fontWeight:600 }}>Today</span>
+        </div>
       </div>
     </div>
   );
@@ -27404,20 +27552,6 @@ function RVNRoot() {
         )}
       </AnimatePresence>
 
-      {/* Bug Report — hidden on landing so new users never see it */}
-      {screen !== "landing" && (
-        <div style={{
-          position: "fixed", bottom: 90, left: 16, zIndex: 8888,
-          display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6,
-        }}>
-          <BugReportButton
-            email={user?.email || ""}
-            screen={screen}
-            stateSnapshot={{ screen, mode, archetypeId, userId: user?.id }}
-            theme={theme}
-          />
-        </div>
-      )}
     </>
   );
 }

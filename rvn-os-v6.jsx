@@ -24418,6 +24418,48 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               </div>
             </GlassCard>
 
+            {/* Demo Bypass */}
+            <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12, border:`1px solid #D4AF3744` }}>
+              <div style={{ fontSize:9.5, fontWeight:700, color:"#D4AF37", letterSpacing:".12em", marginBottom:4 }}>
+                DEMO MODE
+              </div>
+              <div style={{ fontSize:10, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
+                Loads a fully seeded investor demo profile — bypasses login and fills all screens with realistic data. Use this to walk investors or reviewers through the app.
+              </div>
+              <motion.button whileTap={{ scale:.97 }}
+                onClick={() => {
+                  localStorage.setItem("rvn_dev_bypass", "true");
+                  window.location.reload();
+                }}
+                style={{
+                  width:"100%", padding:"13px",
+                  background:"linear-gradient(135deg, #D4AF37cc, #D4AF37)",
+                  border:"none", borderRadius:11, cursor:"pointer",
+                  fontSize:12, fontWeight:900, color:"#000", letterSpacing:".06em",
+                  boxShadow:"0 4px 18px #D4AF3744",
+                }}>
+                ⚡ LAUNCH DEMO MODE
+              </motion.button>
+              {localStorage.getItem("rvn_dev_bypass") === "true" && (
+                <motion.button whileTap={{ scale:.97 }}
+                  onClick={() => {
+                    localStorage.removeItem("rvn_dev_bypass");
+                    localStorage.removeItem("rvn_profile");
+                    localStorage.removeItem("rvn_workouts");
+                    localStorage.removeItem("rvn_bodyweight");
+                    window.location.reload();
+                  }}
+                  style={{
+                    width:"100%", marginTop:8, padding:"10px",
+                    background:"transparent", border:`1px solid ${T.border}`,
+                    borderRadius:11, cursor:"pointer",
+                    fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".05em",
+                  }}>
+                  ✕ EXIT DEMO MODE
+                </motion.button>
+              )}
+            </GlassCard>
+
             {/* Contact + Support */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
               <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>

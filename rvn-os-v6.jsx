@@ -11766,6 +11766,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [igHandle,        setIgHandle]        = useState("");
   const [igLoading,       setIgLoading]       = useState(false);
   const [igCaption,       setIgCaption]       = useState("");
+  const [igLoadingMode,   setIgLoadingMode]   = useState("reading"); // "reading"|"transcribing"
   const [igTitle,         setIgTitle]         = useState("");
   const [igError,         setIgError]         = useState("");
   // Velocity data collected from VBT camera during session
@@ -14435,10 +14436,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       }}>
                       ANALYZE WITH AI  ›
                     </motion.button>
-                    <button onClick={() => { setIgCaption(""); setIgStep("caption"); }}
+                    <button onClick={() => { setIgCaption(""); setIgLoadingMode("reading"); setIgStep("caption"); }}
                       style={{ width:"100%", padding:"11px", marginTop:8, background:"transparent",
                         border:"none", cursor:"pointer", fontSize:12, color:T.muted }}>
-                      Paste caption manually instead
+                      Upload video or paste caption instead
                     </button>
                   </motion.div>
                 )}
@@ -14455,43 +14456,121 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         borderTopColor:arch.glow,
                         margin:"0 auto 18px" }}/>
                     <div style={{ fontSize:13, fontWeight:700, color:T.text, marginBottom:6 }}>
-                      Reading post...
+                      {igLoadingMode === "transcribing" ? "Transcribing audio..." : "Reading post..."}
                     </div>
                     <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.6 }}>
-                      AI is extracting exercises,<br/>sets & reps from the caption
+                      {igLoadingMode === "transcribing"
+                        ? <>Groq Whisper is listening to your Reel,<br/>then AI extracts the exercises</>
+                        : <>AI is extracting exercises,<br/>sets &amp; reps from the caption</>
+                      }
                     </div>
                   </motion.div>
                 )}
 
-                {/* ── STEP: paste caption fallback ── */}
+                {/* ── STEP: paste caption / upload video fallback ── */}
                 {igStep === "caption" && (
                   <motion.div key="caption" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
-                    <div style={{ marginBottom:12, padding:"10px 12px", borderRadius:10,
-                      background:"#FF9F0A18", border:"1px solid #FF9F0A33",
-                      fontSize:11.5, color:"#FF9F0A", lineHeight:1.6 }}>
-                      Instagram blocked automatic reading. Paste the post caption or description below — AI will extract the exercises from it.
+
+                    {/* Video upload option */}
+                    <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
+                      OPTION 1 — UPLOAD THE REEL
                     </div>
-                    <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:8 }}>
-                      POST CAPTION
+                    <label style={{
+                      display:"flex", flexDirection:"column", alignItems:"center",
+                      gap:8, padding:"18px 14px", borderRadius:13, cursor:"pointer",
+                      background:arch.glow+"0c", border:`2px dashed ${arch.glow}44`,
+                      transition:"border-color .15s",
+                    }}>
+                      <input type="file" accept="video/*,audio/*" style={{ display:"none" }}
+                        onChange={async e => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 25 * 1024 * 1024) {
+                            setIgError("Video is too large (max 25MB). Try a shorter clip or paste the caption.");
+                            return;
+                          }
+                          setIgError("");
+                          setIgLoadingMode("transcribing");
+                          setIgStep("loading");
+                          setIgLoading(true);
+                          try {
+                            const fd = new FormData();
+                            fd.append("video", file);
+                            fd.append("mode", "workout");
+                            const res = await fetch(
+                              `${SUPABASE_URL}/functions/v1/parse-ig-workout`,
+                              {
+                                method: "POST",
+                                headers: { "Authorization": `Bearer ${SUPABASE_ANON}` },
+                                body: fd,
+                              }
+                            );
+                            const data = await res.json();
+                            if (data.success && data.exercises?.length) {
+                              setIgTitle(data.title || "");
+                              setIgExercises(data.exercises.map((ex, i) => ({
+                                name:  ex.name || "",
+                                sets:  String(ex.sets || 3),
+                                reps:  String(ex.reps || "10"),
+                                notes: ex.notes || "",
+                                _uid: `ig_${i}_${Date.now()}`,
+                              })));
+                              setIgStep("review");
+                            } else {
+                              setIgStep("caption");
+                              setIgError(data.error || "Couldn't extract exercises from the audio. Try pasting the caption below.");
+                            }
+                          } catch {
+                            setIgStep("caption");
+                            setIgError("Upload failed. Check your connection and try again.");
+                          } finally {
+                            setIgLoading(false);
+                            setIgLoadingMode("reading");
+                          }
+                        }}
+                      />
+                      <span style={{ fontSize:22 }}>📲</span>
+                      <span style={{ fontSize:12, fontWeight:800, color:arch.glow, letterSpacing:".02em" }}>
+                        Choose video file
+                      </span>
+                      <span style={{ fontSize:10.5, color:T.muted, textAlign:"center", lineHeight:1.55 }}>
+                        Save the Reel from Instagram → upload here.<br/>
+                        AI transcribes the audio and extracts your workout. Max 25MB.
+                      </span>
+                    </label>
+
+                    {/* Divider */}
+                    <div style={{ display:"flex", alignItems:"center", gap:10, margin:"14px 0" }}>
+                      <div style={{ flex:1, height:1, background:T.border }}/>
+                      <span style={{ fontSize:10, color:T.muted, fontWeight:700, letterSpacing:".06em" }}>OR</span>
+                      <div style={{ flex:1, height:1, background:T.border }}/>
+                    </div>
+
+                    {/* Caption paste option */}
+                    <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
+                      OPTION 2 — PASTE CAPTION
                     </div>
                     <textarea
-                      autoFocus value={igCaption}
+                      value={igCaption}
                       onChange={e => { setIgCaption(e.target.value); setIgError(""); }}
                       placeholder="Paste the workout caption here, e.g. '4x10 Bench Press, 3x12 Incline DB, 3x15 Cable Fly...'"
-                      rows={5}
+                      rows={4}
                       style={{
                         width:"100%", padding:"13px", borderRadius:13, resize:"vertical",
                         background:T.glass, border:`1.5px solid ${igCaption.length > 10 ? arch.glow+"66" : T.border}`,
                         color:T.text, fontSize:12, outline:"none", boxSizing:"border-box",
                         lineHeight:1.6, fontFamily:"inherit",
                       }}/>
+
                     {igError && (
-                      <div style={{ marginTop:8, fontSize:12, color:T.red }}>{igError}</div>
+                      <div style={{ marginTop:8, fontSize:12, color:T.red, lineHeight:1.5 }}>{igError}</div>
                     )}
+
                     <motion.button whileTap={{ scale:.97 }}
                       onClick={async () => {
                         if (igCaption.trim().length < 10) return;
                         setIgError("");
+                        setIgLoadingMode("reading");
                         setIgStep("loading");
                         setIgLoading(true);
                         try {
@@ -14529,7 +14608,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         }
                       }}
                       style={{
-                        width:"100%", marginTop:12, padding:"15px",
+                        width:"100%", marginTop:10, padding:"14px",
                         background: igCaption.trim().length > 10
                           ? `linear-gradient(90deg, ${arch.glow}dd, ${arch.glow})`
                           : T.glass,

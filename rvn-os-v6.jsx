@@ -2897,12 +2897,21 @@ function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient
   if (topGradient) {
     return (
       <div style={{ position:"fixed", inset:0, background:T.bg }}>
-        {/* Non-scrolling gradient backdrop — stays fixed as content scrolls */}
+        {/* Non-scrolling gradient backdrop — full inset so CSS gradient fades
+             naturally; no rectangular edge visible against the bg.
+             Slow breathing animation makes it feel alive (not a static block). */}
         <div style={{
-          position:"absolute", top:0, left:0, right:0, height:"42%",
+          position:"absolute", inset:0,
           pointerEvents:"none", zIndex:0,
           background: topGradient,
+          animation: isMobile ? "none" : "rvnGlowBreath 8s ease-in-out infinite",
         }}/>
+        <style>{`
+          @keyframes rvnGlowBreath {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.75; transform: scale(1.04); }
+          }
+        `}</style>
         {/* Scrolling content — transparent so gradient shows through at top */}
         <motion.div {...FX.page}
           ref={refProp}
@@ -7808,8 +7817,10 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
   return (
     <Screen theme={theme}
       topGradient={theme==="dark"
-        ? `linear-gradient(175deg, rgba(255,107,53,0.22) 0%, rgba(191,90,242,0.13) 50%, transparent 100%)`
-        : `linear-gradient(175deg, rgba(255,107,53,0.15) 0%, rgba(191,90,242,0.09) 50%, transparent 100%)`
+        ? `radial-gradient(ellipse 80% 50% at 10% 0%, rgba(255,107,53,0.28) 0%, transparent 70%),
+           radial-gradient(ellipse 80% 50% at 90% 0%, rgba(191,90,242,0.22) 0%, transparent 70%)`
+        : `radial-gradient(ellipse 80% 50% at 10% 0%, rgba(255,107,53,0.18) 0%, transparent 70%),
+           radial-gradient(ellipse 80% 50% at 90% 0%, rgba(191,90,242,0.14) 0%, transparent 70%)`
       }>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
@@ -11154,8 +11165,10 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }}
       topGradient={theme==="dark"
-        ? `linear-gradient(175deg, rgba(255,107,53,0.20) 0%, rgba(191,90,242,0.12) 45%, transparent 100%)`
-        : `linear-gradient(175deg, rgba(255,107,53,0.13) 0%, rgba(191,90,242,0.08) 45%, transparent 100%)`
+        ? `radial-gradient(ellipse 90% 55% at 15% 0%, rgba(255,107,53,0.24) 0%, transparent 70%),
+           radial-gradient(ellipse 90% 55% at 85% 0%, rgba(191,90,242,0.18) 0%, transparent 70%)`
+        : `radial-gradient(ellipse 90% 55% at 15% 0%, rgba(255,107,53,0.15) 0%, transparent 70%),
+           radial-gradient(ellipse 90% 55% at 85% 0%, rgba(191,90,242,0.11) 0%, transparent 70%)`
       }>
 
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
@@ -12242,8 +12255,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const ppDaysUntilUnlock = ppLocked ? (7 - ppDaysSinceLast) : 0;
 
   const _gymGradient = theme === "dark"
-    ? `linear-gradient(175deg, rgba(255,107,53,0.30) 0%, rgba(191,90,242,0.17) 45%, transparent 100%)`
-    : `linear-gradient(175deg, rgba(255,107,53,0.20) 0%, rgba(191,90,242,0.11) 45%, transparent 100%)`;
+    ? `radial-gradient(ellipse 90% 55% at 10% 0%, rgba(255,107,53,0.32) 0%, transparent 65%),
+       radial-gradient(ellipse 90% 55% at 90% 0%, rgba(191,90,242,0.24) 0%, transparent 65%)`
+    : `radial-gradient(ellipse 90% 55% at 10% 0%, rgba(255,107,53,0.20) 0%, transparent 65%),
+       radial-gradient(ellipse 90% 55% at 90% 0%, rgba(191,90,242,0.14) 0%, transparent 65%)`;
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }} topGradient={_gymGradient}

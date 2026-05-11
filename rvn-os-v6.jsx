@@ -247,78 +247,78 @@ const FONT_LABEL = `"SF Pro Display","SF Compact Display","Helvetica Neue Conden
 const FONT_SERIF = FONT_SANS;
 const FONT_WORD  = FONT_SANS;
 
-// ─── DESIGN TOKENS ── "Performance OS" Depth Palette 2026 ────────────────────
+// ─── DESIGN TOKENS ── Pure neutral base — accent color is the ONLY color ──────
 const D = {
   dark: {
     id: "dark",
-    // "Onyx Stealth" — Obsidian base with Deep Navy depth layers
-    bg:        "#0A0A0B",          // Obsidian — never pure black
-    bgDeep:    "#060608",
-    bgMid:     "#0D0D14",          // Deep Navy tint for depth planes
-    bgBlur:    "rgba(6,6,8,0.88)", // Frosted pane base
-    // Glassmorphism — 20px blur panels feel "floating"
-    glass:     "rgba(255,255,255,0.05)",
-    glassMid:  "rgba(255,255,255,0.09)",
-    glassHi:   "rgba(255,255,255,0.14)",
-    // 1px inner border — "Precision-Engineered" feel
-    border:    "rgba(255,255,255,0.09)",
-    borderHi:  "rgba(255,255,255,0.22)",
-    borderInner:"rgba(255,255,255,0.06)",
-    text:      "#F2F4FF",          // Cool white — not harsh pure #FFF
-    dim:       "rgba(210,215,255,0.65)",
-    muted:     "rgba(180,185,230,0.40)",
-    faint:     "rgba(150,160,210,0.20)",
-    // Mode-Aware Liquid Accents
-    blue:      "#0A84FF",          // Electric Cobalt — CNS/Gym power
-    gold:      "#C8A94A",          // Bio-Liquid Gold — premium purity
-    green:     "#30D158",          // Vitality Mint — enzymatic freshness
-    red:       "#FF453A",          // Thermal Ember — blood flow/recovery
+    // Pure black base — no tints, no navy, nothing competing with accent color
+    bg:        "#000000",          // True black — same as Instagram dark
+    bgDeep:    "#000000",
+    bgMid:     "#0D0D0D",          // One step above black, zero tint
+    bgBlur:    "rgba(0,0,0,0.92)",
+    // Cards: #1C1C1E on #000000 — same elevation Apple Health uses, visible without border
+    glass:     "#1C1C1E",             // Solid card surface, clearly above pure black
+    glassMid:  "#2C2C2E",             // Second elevation level
+    glassHi:   "#3A3A3C",             // Third elevation — modals, popovers
+    border:    "rgba(255,255,255,0.08)",
+    borderHi:  "rgba(255,255,255,0.16)",
+    borderInner:"rgba(255,255,255,0.04)",
+    // Pure white text hierarchy — no blue cast
+    text:      "#FFFFFF",
+    dim:       "rgba(255,255,255,0.60)",
+    muted:     "rgba(255,255,255,0.38)",
+    faint:     "rgba(255,255,255,0.20)",
+    // System accent colors — only used for semantic states, never decoration
+    blue:      "#0A84FF",
+    gold:      "#C8A94A",
+    green:     "#30D158",
+    red:       "#FF453A",
     purple:    "#BF5AF2",
     teal:      "#64D2FF",
     orange:    "#FF9F0A",
-    card:      "#13131C",          // Elevated card surface — above bg
-    ghost:     "rgba(150,160,210,0.10)",
-    scanline:  "rgba(255,255,255,0.014)",
-    // iOS-grade shadow system — real depth, not neon glow
-    shadow:    "0 4px 24px rgba(0,0,0,0.52), 0 1px 4px rgba(0,0,0,0.32)",
-    shadowSm:  "0 2px 10px rgba(0,0,0,0.40)",
-    shadowLg:  "0 8px 40px rgba(0,0,0,0.64), 0 2px 8px rgba(0,0,0,0.44)",
-    // Navy depth gradient overlays
-    navyBlur:  "radial-gradient(ellipse 90% 60% at 50% 50%, #0D1A3A22 0%, transparent 70%)",
+    // Card surface: Apple's systemBackground elevated — pure neutral
+    card:      "#1C1C1E",
+    ghost:     "rgba(255,255,255,0.06)",
+    scanline:  "rgba(0,0,0,0)",
+    shadow:    "0 4px 24px rgba(0,0,0,0.60), 0 1px 4px rgba(0,0,0,0.40)",
+    shadowSm:  "0 2px 10px rgba(0,0,0,0.50)",
+    shadowLg:  "0 8px 40px rgba(0,0,0,0.70), 0 2px 8px rgba(0,0,0,0.50)",
+    navyBlur:  "none",
   },
   light: {
     id: "light",
-    // "Clinical Steel" — surgical-grade, medical authority
-    bg:        "#F5F7FA",          // Surgical Steel — more medical than white
+    // Pure white base — same Instagram logic applied to light mode
+    bg:        "#FAFAFA",          // Instagram's exact light bg
     bgDeep:    "#FFFFFF",
-    bgMid:     "#EDF0F5",
-    bgBlur:    "rgba(245,247,250,0.92)",
-    glass:     "rgba(255,255,255,0.72)",
-    glassMid:  "rgba(255,255,255,0.88)",
-    glassHi:   "rgba(255,255,255,0.97)",
-    border:    "rgba(0,0,50,0.07)",
-    borderHi:  "rgba(0,0,50,0.16)",
-    borderInner:"rgba(255,255,255,0.85)",
-    text:      "#0D0F1A",
-    dim:       "rgba(13,15,26,0.62)",
-    muted:     "rgba(13,15,26,0.40)",
-    faint:     "rgba(13,15,26,0.20)",
-    // Mode-Aware — same hues, calibrated for bright bg
-    blue:      "#007AFF",          // Electric Cobalt (light-safe)
-    gold:      "#A07820",          // Bio-Liquid Gold (light-safe)
-    green:     "#34C759",          // Vitality Mint (light-safe)
-    red:       "#FF3B30",          // Thermal Ember (light-safe)
+    bgMid:     "#F2F2F7",          // Apple's grouped table background
+    bgBlur:    "rgba(250,250,250,0.94)",
+    // #FFFFFF card on #FAFAFA bg — pure white card, visible without any border
+    glass:     "#FFFFFF",
+    glassMid:  "#F2F2F7",
+    glassHi:   "#FFFFFF",
+    border:    "rgba(0,0,0,0.06)",
+    borderHi:  "rgba(0,0,0,0.12)",
+    borderInner:"rgba(255,255,255,0.80)",
+    // Pure black text hierarchy — no blue cast
+    text:      "#000000",
+    dim:       "rgba(0,0,0,0.60)",
+    muted:     "rgba(0,0,0,0.38)",
+    faint:     "rgba(0,0,0,0.20)",
+    // System accent colors — light-mode safe
+    blue:      "#007AFF",
+    gold:      "#A07820",
+    green:     "#34C759",
+    red:       "#FF3B30",
     purple:    "#7B3FC0",
     teal:      "#32ADE6",
     orange:    "#FF9500",
-    card:      "#FFFFFF",          // Pure white card surface
-    ghost:     "rgba(13,15,26,0.05)",
-    scanline:  "rgba(0,0,0,0.0)",
-    // iOS-grade shadow system — diffused real-world depth (Apple doesn't use neon glow)
-    shadow:    "0 2px 12px rgba(0,0,0,0.09), 0 0 0 0.5px rgba(0,0,0,0.05)",
-    shadowSm:  "0 1px 5px rgba(0,0,0,0.07), 0 0 0 0.5px rgba(0,0,0,0.04)",
-    shadowLg:  "0 8px 32px rgba(0,0,0,0.13), 0 2px 8px rgba(0,0,0,0.07)",
-    navyBlur:  "radial-gradient(ellipse 90% 60% at 50% 50%, #1A45E01A 0%, transparent 70%)",
+    card:      "#FFFFFF",
+    ghost:     "rgba(0,0,0,0.04)",
+    scanline:  "rgba(0,0,0,0)",
+    shadow:    "0 2px 12px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04)",
+    shadowSm:  "0 1px 5px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.03)",
+    shadowLg:  "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)",
+    navyBlur:  "none",
   },
 };
 
@@ -1822,7 +1822,7 @@ if (typeof OS_MODES !== "undefined" && !OS_MODES.personal) {
 // plus scaffolding for the Bio-Pal layer (Phase 3) and NFC context (Phase 4).
 const INITIAL_ENV_STATE = {
   // ─── OS Config (was in RVNVision) ───
-  theme:      "light",          // "light" | "dark"
+  theme:      "dark",           // "light" | "dark"
   storeName:  "",               // set by Manager Hub
 
   // ─── Mode & context awareness ───
@@ -2468,22 +2468,22 @@ function NfcAutoLeaveTimer({ ac, T, onLeave }) {
 }
 
 // ─── GLASS CARD ────────────────────────────────────────────────────────────────
+// Solid elevation card — bg contrast does the work, no blur/border needed
 function GlassCard({ children, theme, glow, style={}, onClick }) {
   const T = D[theme];
+  const isDark = theme === "dark";
   return (
     <div onClick={onClick}
       style={{
-        background: glow
-          ? `linear-gradient(135deg, ${glow}09 0%, ${T.glass} 100%)`
-          : T.glass,
-        backdropFilter: isMobile ? "none" : "blur(20px) saturate(160%)",
-        WebkitBackdropFilter: isMobile ? "none" : "blur(20px) saturate(160%)",
-        // Single border — neutral so cards don't fight for attention
-        border:`1px solid ${T.border}`,
+        // Solid card — #1C1C1E on black, #FFF on #FAFAFA. Clean, no tricks.
+        background: T.glass,
         borderRadius:16,
+        // Only show a faint border on light mode (cards need separation from white bg)
+        border: isDark ? "none" : `1px solid ${T.border}`,
+        // Subtle glow shadow only when archetype color is present
         boxShadow: glow
-          ? `0 8px 32px ${glow}14, 0 1px 4px rgba(0,0,0,.18), inset 0 1px 0 ${T.borderHi}`
-          : `0 4px 20px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.10), inset 0 1px 0 ${T.borderHi}`,
+          ? `0 4px 24px ${glow}18`
+          : isDark ? "none" : T.shadow,
         ...style,
       }}>
       {children}
@@ -7619,10 +7619,11 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
 
   return (
     <Screen theme={theme}>
-      {/* Ambient background */}
+      {/* Top bleed — archetype color fades from top edge into pure black, like Health/IG */}
       <div style={{
-        position:"absolute", inset:0, pointerEvents:"none",
-        background: M.bgGradient(T),
+        position:"absolute", top:0, left:0, right:0, height:"45%",
+        pointerEvents:"none",
+        background:`linear-gradient(to bottom, ${ac}28 0%, ${ac}0C 40%, transparent 100%)`,
       }}/>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
@@ -10966,12 +10967,11 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto", position:"relative" }}>
-      {/* Background glow */}
+      {/* Top bleed — same treatment as main hub */}
       <div style={{
-        position:"absolute", inset:0, pointerEvents:"none",
-        background: theme==="dark"
-          ? `radial-gradient(ellipse 80% 50% at 50% 0%, ${ac}18 0%, transparent 70%)`
-          : `radial-gradient(ellipse 80% 50% at 50% 0%, ${ac}10 0%, transparent 70%)`,
+        position:"absolute", top:0, left:0, right:0, height:"50%",
+        pointerEvents:"none",
+        background:`linear-gradient(to bottom, ${ac}30 0%, ${ac}0A 45%, transparent 100%)`,
       }}/>
 
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
@@ -23405,7 +23405,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   const [pinForm, setPinForm] = useState({ current:"", next:"", confirm:"" });
   const [pinMsg, setPinMsg] = useState(null);
   const [themePref, setThemePref] = useState(() => {
-    try { return localStorage.getItem("rvn_theme_pref") || "auto"; } catch { return "auto"; }
+    try { return localStorage.getItem("rvn_theme_pref") || "dark"; } catch { return "dark"; }
   });
 
   // Apply theme preference

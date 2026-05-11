@@ -2492,56 +2492,191 @@ function GlassCard({ children, theme, glow, style={}, onClick }) {
 }
 
 // ─── FUEL TAB SUB-COMPONENTS (extracted to avoid hooks-in-IIFE violation) ──────
-function FuelRecipeScanner({ theme, T, arch, callClaudeAPI }) {
-  const [recipeUrl, setRecipeUrl] = React.useState("");
-  const [recipeMacros, setRecipeMacros] = React.useState(null);
-  const [recipeScan, setRecipeScan] = React.useState(false);
+function FuelRecipeScanner({ theme, T, arch }) {
+  const [url,         setUrl]         = React.useState("");
+  const [caption,     setCaption]     = React.useState("");
+  const [step,        setStep]        = React.useState("input"); // input|loading|caption|result
+  const [macros,      setMacros]      = React.useState(null);
+  const [error,       setError]       = React.useState("");
+
+  const ac = arch.glow;
+
+  const callEdge = async (payload) => {
+    const res = await fetch(
+      `${SUPABASE_URL}/functions/v1/parse-ig-workout`,
+      {
+        method: "POST",
+        headers: { "Content-Type":"application/json", "Authorization":`Bearer ${SUPABASE_ANON}` },
+        body: JSON.stringify({ ...payload, mode: "food" }),
+      }
+    );
+    return res.json();
+  };
+
+  const analyze = async (payload) => {
+    setStep("loading");
+    setError("");
+    try {
+      const data = await callEdge(payload);
+      if (data.success && data.calories > 0) {
+        // cache result
+        try { localStorage.setItem("rvn_rscan_" + btoa(payload.url || payload.caption || "").slice(0,16), JSON.stringify(data)); } catch {}
+        setMacros(data);
+        setStep("result");
+      } else if (data.needsCaption) {
+        setCaption("");
+        setStep("caption");
+      } else {
+        setStep("input");
+        setError(data.error || "Couldn't extract nutrition info.");
+      }
+    } catch {
+      setStep("input");
+      setError("Network error. Try again.");
+    }
+  };
+
+  const isValidUrl = url.includes(".") && url.startsWith("http");
+
   return (
     <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
-      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
+      <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
         RECIPE SCANNER
       </div>
-      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
-        <input value={recipeUrl} onChange={e => setRecipeUrl(e.target.value)}
-          placeholder="Paste recipe link (Instagram, TikTok, YouTube, blog)"
-          style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
-            color:T.text, fontSize:16, outline:"none" }}/>
-        <motion.button whileTap={{ scale:.96 }}
-          onClick={async () => {
-            if (!recipeUrl.trim()) return;
-            setRecipeScan(true);
-            try {
-              const resp = await callClaudeAPI({
-                system: "Estimate nutritional info for the recipe at the URL. Return ONLY valid JSON.",
-                user: `Given this recipe URL: ${recipeUrl}, estimate the nutritional info per serving as JSON: {name, calories, protein, carbs, fat, servings}. Return ONLY valid JSON.`,
-                history: [],
-                maxTokens: 350,
-                model: "claude-haiku-4-5-20251001",
-              });
-              const text = resp?.content?.[0]?.text || "{}";
-              try {
-                const macros = JSON.parse(text);
-                setRecipeMacros(macros);
-                const cacheKey = "rvn_rscan_" + btoa(recipeUrl).slice(0,12);
-                try { localStorage.setItem(cacheKey, JSON.stringify(macros)); } catch {}
-              } catch {}
-            } catch (e) {
-              console.error(e);
-            }
-            setRecipeScan(false);
-          }}
-          style={{ padding:"10px 16px", borderRadius:10, background:arch.glow, color:"#fff",
-            border:"none", fontSize:11, fontWeight:700, cursor:"pointer" }}>
-          {recipeScan ? "..." : "SCAN"}
-        </motion.button>
-      </div>
-      {recipeMacros && (
-        <div style={{ background:T.glass, borderRadius:12, padding:"12px", display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8 }}>
-          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>CAL</div><div style={{ fontSize:14, fontWeight:900, color:arch.glow }}>{recipeMacros.calories}</div></div>
-          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>P</div><div style={{ fontSize:14, fontWeight:900, color:"#30D158" }}>{recipeMacros.protein}g</div></div>
-          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>C</div><div style={{ fontSize:14, fontWeight:900, color:T.blue }}>{recipeMacros.carbs}g</div></div>
-          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>F</div><div style={{ fontSize:14, fontWeight:900, color:"#FF9F0A" }}>{recipeMacros.fat}g</div></div>
+
+      {step === "input" && (
+        <>
+          <div style={{ display:"flex", gap:8, marginBottom:8 }}>
+            <input value={url} onChange={e => { setUrl(e.target.value); setError(""); }}
+              placeholder="Paste link — Instagram, TikTok, any recipe site"
+              style={{ flex:1, padding:"11px 13px", borderRadius:11, background:T.glass,
+                border:`1px solid ${isValidUrl ? ac+"66" : T.border}`,
+                color:T.text, fontSize:13, outline:"none" }}/>
+            <motion.button whileTap={{ scale:.95 }}
+              onClick={() => { if (isValidUrl) analyze({ url }); }}
+              style={{ padding:"11px 16px", borderRadius:11,
+                background: isValidUrl ? ac : T.glass,
+                border:`1px solid ${isValidUrl ? "transparent" : T.border}`,
+                color: isValidUrl ? "#fff" : T.faint,
+                fontSize:11, fontWeight:800, cursor: isValidUrl ? "pointer" : "default",
+                whiteSpace:"nowrap" }}>
+              SCAN
+            </motion.button>
+          </div>
+          {error && <div style={{ fontSize:11.5, color:T.red, marginBottom:8 }}>{error}</div>}
+          <button onClick={() => { setCaption(""); setStep("caption"); }}
+            style={{ background:"none", border:"none", cursor:"pointer",
+              fontSize:11.5, color:T.muted, padding:0 }}>
+            Paste caption/ingredients instead →
+          </button>
+        </>
+      )}
+
+      {step === "loading" && (
+        <div style={{ textAlign:"center", padding:"18px 0" }}>
+          <motion.div
+            animate={{ rotate:360 }} transition={{ duration:1, repeat:Infinity, ease:"linear" }}
+            style={{ width:28, height:28, borderRadius:"50%",
+              border:`2.5px solid ${ac}33`, borderTopColor:ac, margin:"0 auto 10px" }}/>
+          <div style={{ fontSize:12, color:T.muted }}>Reading post & estimating macros...</div>
         </div>
+      )}
+
+      {step === "caption" && (
+        <>
+          <div style={{ fontSize:11.5, color:"#FF9F0A", marginBottom:10, lineHeight:1.6,
+            padding:"8px 10px", borderRadius:9, background:"#FF9F0A12", border:"1px solid #FF9F0A30" }}>
+            Paste the recipe caption or ingredient list below
+          </div>
+          <textarea value={caption} onChange={e => { setCaption(e.target.value); setError(""); }}
+            placeholder="e.g. 200g chicken breast, 150g rice, 1 tbsp olive oil, broccoli..."
+            rows={4}
+            style={{ width:"100%", padding:"11px", borderRadius:11, resize:"vertical",
+              background:T.glass, border:`1.5px solid ${caption.length > 10 ? ac+"66" : T.border}`,
+              color:T.text, fontSize:12, outline:"none", boxSizing:"border-box",
+              lineHeight:1.6, fontFamily:"inherit" }}/>
+          {error && <div style={{ fontSize:11.5, color:T.red, margin:"6px 0" }}>{error}</div>}
+          <div style={{ display:"flex", gap:8, marginTop:10 }}>
+            <button onClick={() => setStep("input")}
+              style={{ flex:1, padding:"10px", borderRadius:10, background:"none",
+                border:`1px solid ${T.border}`, color:T.muted, fontSize:12, cursor:"pointer" }}>
+              ← Back
+            </button>
+            <motion.button whileTap={{ scale:.97 }}
+              onClick={() => { if (caption.trim().length > 10) analyze({ caption }); }}
+              style={{ flex:2, padding:"10px", borderRadius:10,
+                background: caption.trim().length > 10 ? ac : T.glass,
+                border: "none", color: caption.trim().length > 10 ? "#fff" : T.faint,
+                fontSize:12, fontWeight:800, cursor: caption.trim().length > 10 ? "pointer" : "default" }}>
+              EXTRACT MACROS
+            </motion.button>
+          </div>
+        </>
+      )}
+
+      {step === "result" && macros && (
+        <>
+          {macros.name && (
+            <div style={{ fontSize:13, fontWeight:800, color:T.text, marginBottom:10 }}>
+              {macros.name}
+              {macros.servings && macros.servings > 1 && (
+                <span style={{ fontSize:11, color:T.muted, fontWeight:500 }}> · {macros.servings} servings</span>
+              )}
+            </div>
+          )}
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8, marginBottom:12 }}>
+            {[
+              { label:"CAL",     value:macros.calories,          color:ac          },
+              { label:"PROTEIN", value:`${macros.protein}g`,     color:"#30D158"   },
+              { label:"CARBS",   value:`${macros.carbs}g`,       color:"#0A84FF"   },
+              { label:"FAT",     value:`${macros.fat}g`,         color:"#FF9F0A"   },
+            ].map(s => (
+              <div key={s.label} style={{ background:T.glass, borderRadius:10, padding:"10px 8px", textAlign:"center" }}>
+                <div style={{ fontSize:9.5, color:T.faint, fontWeight:700, letterSpacing:".04em", marginBottom:4 }}>{s.label}</div>
+                <div style={{ fontSize:15, fontWeight:900, color:s.color }}>{s.value}</div>
+              </div>
+            ))}
+          </div>
+          {macros.fiber > 0 && (
+            <div style={{ fontSize:11, color:T.muted, marginBottom:10 }}>
+              Fiber: {macros.fiber}g per serving
+            </div>
+          )}
+          {macros.notes && (
+            <div style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.5,
+              padding:"8px 10px", borderRadius:9, background:T.glass }}>
+              💬 {macros.notes}
+            </div>
+          )}
+          <div style={{ display:"flex", gap:8 }}>
+            <button onClick={() => { setStep("input"); setUrl(""); setCaption(""); setMacros(null); }}
+              style={{ flex:1, padding:"10px", borderRadius:10, background:"none",
+                border:`1px solid ${T.border}`, color:T.muted, fontSize:12, cursor:"pointer" }}>
+              Scan another
+            </button>
+            <motion.button whileTap={{ scale:.97 }}
+              onClick={() => {
+                // Log macros to today's food log
+                try {
+                  const today = new Date().toISOString().slice(0,10);
+                  const log = JSON.parse(localStorage.getItem("rvn_macro_log") || "{}");
+                  if (!log[today]) log[today] = { protein:0, carbs:0, fats:0, calories:0, items:[] };
+                  log[today].protein   += macros.protein  || 0;
+                  log[today].carbs     += macros.carbs    || 0;
+                  log[today].fats      += macros.fat      || 0;
+                  log[today].calories  += macros.calories || 0;
+                  log[today].items.push({ name: macros.name || "Recipe", time: new Date().toLocaleTimeString() });
+                  localStorage.setItem("rvn_macro_log", JSON.stringify(log));
+                } catch {}
+                setStep("input"); setUrl(""); setCaption(""); setMacros(null);
+              }}
+              style={{ flex:2, padding:"10px", borderRadius:10,
+                background: ac, border:"none", color:"#fff",
+                fontSize:12, fontWeight:800, cursor:"pointer" }}>
+              + Log to Today's Macros
+            </motion.button>
+          </div>
+        </>
       )}
     </GlassCard>
   );
@@ -11590,9 +11725,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [customExercises, setCustomExercises] = useState(null);
   const [igImportOpen,    setIgImportOpen]    = useState(false);
   const [igLink,          setIgLink]          = useState("");
-  const [igExercises,     setIgExercises]     = useState([]); // manually entered after paste
-  const [igStep,          setIgStep]          = useState("paste"); // "paste" | "build"
+  const [igExercises,     setIgExercises]     = useState([]);
+  const [igStep,          setIgStep]          = useState("paste"); // "paste"|"loading"|"caption"|"review"
   const [igHandle,        setIgHandle]        = useState("");
+  const [igLoading,       setIgLoading]       = useState(false);
+  const [igCaption,       setIgCaption]       = useState("");
+  const [igTitle,         setIgTitle]         = useState("");
+  const [igError,         setIgError]         = useState("");
   // Velocity data collected from VBT camera during session
   const [velocityLog, setVelocityLog] = useState([]);
   // Session count — used for archetype evolution detection
@@ -13345,7 +13484,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </motion.button>
 
               {/* Recipe Scanner */}
-              <FuelRecipeScanner theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI}/>
+              <FuelRecipeScanner theme={theme} T={T} arch={arch}/>
 
               {/* Restaurant Mode */}
               <FuelRestaurantMode theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI} profile={profile}/>
@@ -14132,7 +14271,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         {igImportOpen && (
           <>
             <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
-              onClick={() => setIgImportOpen(false)}
+              onClick={() => !igLoading && setIgImportOpen(false)}
               style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:170 }}/>
             <motion.div
               initial={{ y:"100%" }} animate={{ y:0 }} exit={{ y:"100%" }}
@@ -14156,20 +14295,22 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 </div>
                 <div>
                   <div style={{ fontSize:15, fontWeight:900, color:T.text }}>Import from Instagram</div>
-                  <div style={{ fontSize:11.5, color:T.muted }}>Paste a workout post or Reel link</div>
+                  <div style={{ fontSize:11.5, color:T.muted }}>
+                    {igStep==="loading" ? "Reading post..." : igStep==="review" ? (igTitle || "Exercises extracted") : "Paste a workout post or Reel link"}
+                  </div>
                 </div>
               </div>
 
               <AnimatePresence mode="wait">
-                {igStep === "paste" ? (
+
+                {/* ── STEP: paste URL ── */}
+                {igStep === "paste" && (
                   <motion.div key="paste" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
                     <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:8 }}>
                       INSTAGRAM LINK
                     </div>
-                    <input
-                      autoFocus
-                      value={igLink}
-                      onChange={e => setIgLink(e.target.value)}
+                    <input autoFocus value={igLink}
+                      onChange={e => { setIgLink(e.target.value); setIgError(""); }}
                       placeholder="https://www.instagram.com/p/..."
                       style={{
                         width:"100%", padding:"13px 16px", borderRadius:13,
@@ -14182,28 +14323,53 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                           background:arch.glow+"12", border:`1px solid ${arch.glow}33`,
                           fontSize:11, color:arch.glow, fontWeight:700 }}>
                         ✓ Instagram link detected
-                        {(() => {
-                          const m = igLink.match(/instagram\.com\/(?:p|reel)\/[^/]+\/?/) || igLink.match(/instagram\.com\/([^/?]+)/);
-                          const handle = m ? (igLink.match(/@?([a-zA-Z0-9_.]+)/) || [])[1] || "" : "";
-                          if (handle) setTimeout(() => setIgHandle(handle), 0);
-                          return handle ? ` · @${handle}` : "";
-                        })()}
                       </motion.div>
                     )}
-                    <div style={{ marginTop:14, padding:"12px 14px", borderRadius:12,
-                      background:T.glass, border:`1px solid ${T.border}` }}>
-                      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".02em", marginBottom:4 }}>
-                        HOW IT WORKS
-                      </div>
-                      <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>
-                        Instagram doesn't allow direct data access, so after pasting the link you'll enter the exercises yourself — we'll save them as your workout for today.
-                      </div>
-                    </div>
+                    {igError && (
+                      <div style={{ marginTop:8, fontSize:12, color:T.red, lineHeight:1.5 }}>{igError}</div>
+                    )}
                     <motion.button whileTap={{ scale:.97 }}
-                      onClick={() => {
+                      onClick={async () => {
                         if (!igLink.includes("instagram.com")) return;
-                        setIgExercises([{ name:"", sets:"3", reps:"10", _uid:"ig_0" }]);
-                        setIgStep("build");
+                        setIgError("");
+                        setIgStep("loading");
+                        setIgLoading(true);
+                        try {
+                          const res = await fetch(
+                            `${SUPABASE_URL}/functions/v1/parse-ig-workout`,
+                            {
+                              method:"POST",
+                              headers:{
+                                "Content-Type":"application/json",
+                                "Authorization":`Bearer ${SUPABASE_ANON}`,
+                              },
+                              body: JSON.stringify({ url: igLink }),
+                            }
+                          );
+                          const data = await res.json();
+                          if (data.success && data.exercises?.length) {
+                            setIgTitle(data.title || "");
+                            setIgExercises(data.exercises.map((e, i) => ({
+                              name:  e.name || "",
+                              sets:  String(e.sets || 3),
+                              reps:  String(e.reps || "10"),
+                              notes: e.notes || "",
+                              _uid: `ig_${i}_${Date.now()}`,
+                            })));
+                            setIgStep("review");
+                          } else if (data.needsCaption) {
+                            setIgCaption("");
+                            setIgStep("caption");
+                          } else {
+                            setIgStep("paste");
+                            setIgError(data.error || "Couldn't read the post. Try pasting the caption instead.");
+                          }
+                        } catch {
+                          setIgStep("paste");
+                          setIgError("Network error. Check your connection and try again.");
+                        } finally {
+                          setIgLoading(false);
+                        }
                       }}
                       style={{
                         width:"100%", marginTop:14, padding:"15px",
@@ -14217,56 +14383,176 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         letterSpacing:".04em", transition:"all .18s",
                         boxShadow: igLink.includes("instagram.com") ? `0 4px 20px ${arch.glow}44` : "none",
                       }}>
-                      CONTINUE  ›
+                      ANALYZE WITH AI  ›
                     </motion.button>
+                    <button onClick={() => { setIgCaption(""); setIgStep("caption"); }}
+                      style={{ width:"100%", padding:"11px", marginTop:8, background:"transparent",
+                        border:"none", cursor:"pointer", fontSize:12, color:T.muted }}>
+                      Paste caption manually instead
+                    </button>
                   </motion.div>
-                ) : (
-                  <motion.div key="build" initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0 }}>
-                    <div style={{ fontSize:11, color:T.muted, marginBottom:14, lineHeight:1.5 }}>
-                      Enter the exercises from the post{igHandle ? ` by @${igHandle}` : ""}:
+                )}
+
+                {/* ── STEP: loading ── */}
+                {igStep === "loading" && (
+                  <motion.div key="loading" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+                    style={{ textAlign:"center", padding:"32px 0 24px" }}>
+                    <motion.div
+                      animate={{ rotate:360 }}
+                      transition={{ duration:1, repeat:Infinity, ease:"linear" }}
+                      style={{ width:36, height:36, borderRadius:"50%",
+                        border:`3px solid ${arch.glow}33`,
+                        borderTopColor:arch.glow,
+                        margin:"0 auto 18px" }}/>
+                    <div style={{ fontSize:13, fontWeight:700, color:T.text, marginBottom:6 }}>
+                      Reading post...
+                    </div>
+                    <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.6 }}>
+                      AI is extracting exercises,<br/>sets & reps from the caption
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* ── STEP: paste caption fallback ── */}
+                {igStep === "caption" && (
+                  <motion.div key="caption" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
+                    <div style={{ marginBottom:12, padding:"10px 12px", borderRadius:10,
+                      background:"#FF9F0A18", border:"1px solid #FF9F0A33",
+                      fontSize:11.5, color:"#FF9F0A", lineHeight:1.6 }}>
+                      Instagram blocked automatic reading. Paste the post caption or description below — AI will extract the exercises from it.
+                    </div>
+                    <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:8 }}>
+                      POST CAPTION
+                    </div>
+                    <textarea
+                      autoFocus value={igCaption}
+                      onChange={e => { setIgCaption(e.target.value); setIgError(""); }}
+                      placeholder="Paste the workout caption here, e.g. '4x10 Bench Press, 3x12 Incline DB, 3x15 Cable Fly...'"
+                      rows={5}
+                      style={{
+                        width:"100%", padding:"13px", borderRadius:13, resize:"vertical",
+                        background:T.glass, border:`1.5px solid ${igCaption.length > 10 ? arch.glow+"66" : T.border}`,
+                        color:T.text, fontSize:12, outline:"none", boxSizing:"border-box",
+                        lineHeight:1.6, fontFamily:"inherit",
+                      }}/>
+                    {igError && (
+                      <div style={{ marginTop:8, fontSize:12, color:T.red }}>{igError}</div>
+                    )}
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={async () => {
+                        if (igCaption.trim().length < 10) return;
+                        setIgError("");
+                        setIgStep("loading");
+                        setIgLoading(true);
+                        try {
+                          const res = await fetch(
+                            `${SUPABASE_URL}/functions/v1/parse-ig-workout`,
+                            {
+                              method:"POST",
+                              headers:{
+                                "Content-Type":"application/json",
+                                "Authorization":`Bearer ${SUPABASE_ANON}`,
+                              },
+                              body: JSON.stringify({ caption: igCaption }),
+                            }
+                          );
+                          const data = await res.json();
+                          if (data.success && data.exercises?.length) {
+                            setIgTitle(data.title || "");
+                            setIgExercises(data.exercises.map((e, i) => ({
+                              name: e.name || "",
+                              sets: String(e.sets || 3),
+                              reps: String(e.reps || "10"),
+                              notes: e.notes || "",
+                              _uid: `ig_${i}_${Date.now()}`,
+                            })));
+                            setIgStep("review");
+                          } else {
+                            setIgStep("caption");
+                            setIgError("Couldn't find exercises in that text. Try adding more detail.");
+                          }
+                        } catch {
+                          setIgStep("caption");
+                          setIgError("Network error. Try again.");
+                        } finally {
+                          setIgLoading(false);
+                        }
+                      }}
+                      style={{
+                        width:"100%", marginTop:12, padding:"15px",
+                        background: igCaption.trim().length > 10
+                          ? `linear-gradient(90deg, ${arch.glow}dd, ${arch.glow})`
+                          : T.glass,
+                        border:`1px solid ${igCaption.trim().length > 10 ? "transparent" : T.border}`,
+                        borderRadius:12, fontSize:13, fontWeight:900,
+                        color: igCaption.trim().length > 10 ? "#000" : T.faint,
+                        cursor: igCaption.trim().length > 10 ? "pointer" : "default",
+                        letterSpacing:".04em",
+                      }}>
+                      EXTRACT EXERCISES  ›
+                    </motion.button>
+                    <button onClick={() => setIgStep("paste")}
+                      style={{ width:"100%", padding:"11px", marginTop:8, background:"transparent",
+                        border:"none", cursor:"pointer", fontSize:12, color:T.muted }}>
+                      ← Back
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* ── STEP: review / edit AI-extracted exercises ── */}
+                {igStep === "review" && (
+                  <motion.div key="review" initial={{ opacity:0, x:16 }} animate={{ opacity:1, x:0 }} exit={{ opacity:0 }}>
+                    <div style={{ marginBottom:12, padding:"10px 12px", borderRadius:10,
+                      background:arch.glow+"14", border:`1px solid ${arch.glow}33`,
+                      fontSize:11.5, color:arch.glow, fontWeight:600, lineHeight:1.6 }}>
+                      ✦ AI extracted {igExercises.length} exercise{igExercises.length !== 1 ? "s" : ""}. Review and edit before saving.
                     </div>
                     {igExercises.map((ex, idx) => (
-                      <div key={ex._uid} style={{ display:"flex", gap:8, marginBottom:8, alignItems:"center" }}>
-                        <input
-                          value={ex.name}
-                          onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, name:e.target.value } : x))}
-                          placeholder={`Exercise ${idx+1} (e.g. Bench Press)`}
-                          style={{
-                            flex:2, padding:"11px 13px", borderRadius:11,
-                            background:T.glass, border:`1px solid ${T.border}`,
-                            color:T.text, fontSize:12, outline:"none",
-                          }}/>
-                        <input
-                          value={ex.sets}
-                          onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, sets:e.target.value } : x))}
-                          placeholder="Sets"
-                          style={{
-                            width:52, padding:"11px 8px", borderRadius:11, textAlign:"center",
-                            background:T.glass, border:`1px solid ${T.border}`,
-                            color:arch.glow, fontSize:12, outline:"none", fontWeight:800,
-                          }}/>
-                        <input
-                          value={ex.reps}
-                          onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, reps:e.target.value } : x))}
-                          placeholder="Reps"
-                          style={{
-                            width:52, padding:"11px 8px", borderRadius:11, textAlign:"center",
-                            background:T.glass, border:`1px solid ${T.border}`,
-                            color:arch.glow, fontSize:12, outline:"none", fontWeight:800,
-                          }}/>
-                        {igExercises.length > 1 && (
-                          <motion.button whileTap={{ scale:.8 }}
-                            onClick={() => setIgExercises(l => l.filter((_,i) => i !== idx))}
-                            style={{ width:32, height:32, borderRadius:9, flexShrink:0,
-                              background:T.red+"18", border:"1px solid "+T.red+"33",
-                              cursor:"pointer", fontSize:14, color:T.red }}>
-                            ✕
-                          </motion.button>
+                      <div key={ex._uid} style={{ marginBottom:8 }}>
+                        <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+                          <input value={ex.name}
+                            onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, name:e.target.value } : x))}
+                            placeholder={`Exercise ${idx+1}`}
+                            style={{
+                              flex:2, padding:"11px 13px", borderRadius:11,
+                              background:T.glass, border:`1px solid ${T.border}`,
+                              color:T.text, fontSize:12, outline:"none",
+                            }}/>
+                          <input value={ex.sets}
+                            onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, sets:e.target.value } : x))}
+                            placeholder="Sets"
+                            style={{
+                              width:48, padding:"11px 6px", borderRadius:11, textAlign:"center",
+                              background:T.glass, border:`1px solid ${T.border}`,
+                              color:arch.glow, fontSize:12, outline:"none", fontWeight:800,
+                            }}/>
+                          <input value={ex.reps}
+                            onChange={e => setIgExercises(l => l.map((x,i) => i===idx ? { ...x, reps:e.target.value } : x))}
+                            placeholder="Reps"
+                            style={{
+                              width:52, padding:"11px 6px", borderRadius:11, textAlign:"center",
+                              background:T.glass, border:`1px solid ${T.border}`,
+                              color:arch.glow, fontSize:12, outline:"none", fontWeight:800,
+                            }}/>
+                          {igExercises.length > 1 && (
+                            <motion.button whileTap={{ scale:.8 }}
+                              onClick={() => setIgExercises(l => l.filter((_,i) => i !== idx))}
+                              style={{ width:30, height:30, borderRadius:8, flexShrink:0,
+                                background:T.red+"18", border:"1px solid "+T.red+"33",
+                                cursor:"pointer", fontSize:13, color:T.red }}>
+                              ✕
+                            </motion.button>
+                          )}
+                        </div>
+                        {ex.notes && (
+                          <div style={{ fontSize:10.5, color:T.muted, marginTop:3, paddingLeft:4 }}>
+                            💬 {ex.notes}
+                          </div>
                         )}
                       </div>
                     ))}
                     <motion.button whileTap={{ scale:.97 }}
-                      onClick={() => setIgExercises(l => [...l, { name:"", sets:"3", reps:"10", _uid:`ig_${Date.now()}` }])}
+                      onClick={() => setIgExercises(l => [...l, { name:"", sets:"3", reps:"10", notes:"", _uid:`ig_${Date.now()}` }])}
                       style={{ width:"100%", padding:"10px", borderRadius:11, marginBottom:14,
                         background:"transparent", border:`1.5px dashed ${arch.glow}55`,
                         cursor:"pointer", fontSize:12, fontWeight:800, color:arch.glow }}>
@@ -14279,7 +14565,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         const mapped = filled.map((e, i) => ({
                           name: e.name.trim(),
                           sets: `${e.sets || 3}x${e.reps || 10}`,
-                          cue:  `From @${igHandle || "Instagram"} workout`,
+                          cue:  e.notes || `From @${igHandle || "Instagram"} workout`,
                           rest: 90,
                           ytq:  e.name.trim() + " exercise form",
                           _uid: `ig_save_${i}`,
@@ -14296,14 +14582,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       }}>
                       SAVE AS TODAY'S WORKOUT  ✶
                     </motion.button>
-                    <motion.button whileTap={{ scale:.97 }}
-                      onClick={() => setIgStep("paste")}
-                      style={{ width:"100%", padding:"12px", marginTop:8, background:"transparent",
+                    <button onClick={() => setIgStep("paste")}
+                      style={{ width:"100%", padding:"11px", marginTop:8, background:"transparent",
                         border:"none", cursor:"pointer", fontSize:12, color:T.muted }}>
-                      ← Back
-                    </motion.button>
+                      ← Start over
+                    </button>
                   </motion.div>
                 )}
+
               </AnimatePresence>
             </motion.div>
           </>

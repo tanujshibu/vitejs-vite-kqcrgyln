@@ -7774,13 +7774,13 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
 
   return (
     <Screen theme={theme}>
-      {/* Top bleed — fixed so content scrolls over it, like Apple Health */}
+      {/* Top bleed — subtle color wash at top edge */}
       <div style={{
-        position:"fixed", top:0, left:0, right:0, height:"32%",
-        pointerEvents:"none", zIndex:0,
+        position:"absolute", top:0, left:0, right:0, height:220,
+        pointerEvents:"none", zIndex:1,
         background: theme==="dark"
-          ? `linear-gradient(175deg, rgba(255,107,53,0.14) 0%, rgba(191,90,242,0.09) 45%, transparent 100%)`
-          : `linear-gradient(175deg, rgba(255,107,53,0.10) 0%, rgba(191,90,242,0.07) 45%, transparent 100%)`,
+          ? `linear-gradient(175deg, rgba(255,107,53,0.18) 0%, rgba(191,90,242,0.11) 50%, transparent 100%)`
+          : `linear-gradient(175deg, rgba(255,107,53,0.13) 0%, rgba(191,90,242,0.08) 50%, transparent 100%)`,
       }}/>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 

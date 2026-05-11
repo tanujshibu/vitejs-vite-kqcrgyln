@@ -7623,7 +7623,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
       <div style={{
         position:"absolute", top:0, left:0, right:0, height:"45%",
         pointerEvents:"none",
-        background:`linear-gradient(to bottom, ${ac}28 0%, ${ac}0C 40%, transparent 100%)`,
+        background:`linear-gradient(to bottom, ${ac}${theme==="dark"?"28":"3A"} 0%, ${ac}${theme==="dark"?"0C":"14"} 40%, transparent 100%)`,
       }}/>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
@@ -10971,7 +10971,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
       <div style={{
         position:"absolute", top:0, left:0, right:0, height:"50%",
         pointerEvents:"none",
-        background:`linear-gradient(to bottom, ${ac}30 0%, ${ac}0A 45%, transparent 100%)`,
+        background:`linear-gradient(to bottom, ${ac}${theme==="dark"?"30":"40"} 0%, ${ac}${theme==="dark"?"0A":"16"} 45%, transparent 100%)`,
       }}/>
 
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
@@ -12285,28 +12285,34 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           </div>
         </div>
 
-        {/* ── Tab navigation ─────────────────────────────────────────────── */}
-        <div style={{ display:"flex", borderRadius:14, overflow:"hidden",
-          background:T.glass, border:`1px solid ${T.border}`, marginBottom:2 }}>
+        {/* ── Tab navigation — iOS style: no box, just color change on active ── */}
+        <div style={{ display:"flex", marginBottom:2,
+          borderBottom:`1px solid ${T.border}` }}>
           {[
             { id:"train",    icon:"dumbbell",   label:"TRAIN"    },
             { id:"stats",    icon:"barChart",   label:"STATS"    },
             { id:"fuel",     icon:"utensils",   label:"FUEL"     },
             { id:"progress", icon:"trendingUp", label:"PROGRESS" },
-          ].map((t, i) => (
-            <motion.button key={t.id} whileTap={{ scale:.97 }}
-              onClick={() => setActiveGymTab(t.id)}
-              style={{
-                flex:1, padding:"12px 2px", minHeight:44, border:"none", cursor:"pointer",
-                background: activeGymTab === t.id ? arch.glow : "transparent",
-                color: activeGymTab === t.id ? "#fff" : T.muted,
-                fontSize:11, fontWeight:900, letterSpacing:".02em",
-                display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:2,
-              }}>
-              <LI n={t.icon} size={13} color={activeGymTab === t.id ? "#fff" : undefined}/>
-              {t.label}
-            </motion.button>
-          ))}
+          ].map((t) => {
+            const isActive = activeGymTab === t.id;
+            return (
+              <motion.button key={t.id} whileTap={{ scale:.97 }}
+                onClick={() => setActiveGymTab(t.id)}
+                style={{
+                  flex:1, padding:"10px 2px 11px", border:"none", cursor:"pointer",
+                  background:"transparent",
+                  color: isActive ? ac : T.muted,
+                  fontSize:10, fontWeight: isActive ? 700 : 500, letterSpacing:".02em",
+                  display:"flex", flexDirection:"column", alignItems:"center", gap:3,
+                  borderBottom: isActive ? `2px solid ${ac}` : "2px solid transparent",
+                  marginBottom:"-1px",
+                  transition:"color .15s, border-color .15s",
+                }}>
+                <LI n={t.icon} size={14} color={isActive ? ac : T.muted}/>
+                {t.label}
+              </motion.button>
+            );
+          })}
         </div>
 
       {/* Streak bar — NFC tap registers attendance, no manual button */}

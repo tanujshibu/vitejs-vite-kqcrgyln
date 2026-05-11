@@ -1824,6 +1824,7 @@ const INITIAL_ENV_STATE = {
   // ─── OS Config (was in RVNVision) ───
   theme:      "dark",           // "light" | "dark"
   storeName:  "",               // set by Manager Hub
+  accentColor: null,            // null = use archetype default; "#hex" = user override
 
   // ─── Mode & context awareness ───
   mode:         "personal",     // "personal" | "gym" | "store" | "smoothie"
@@ -1872,6 +1873,7 @@ const EnvActions = {
   // config
   SET_THEME:        "SET_THEME",
   SET_STORE_NAME:   "SET_STORE_NAME",
+  SET_ACCENT_COLOR: "SET_ACCENT_COLOR",   // { color: "#hex" | null }  null = use archetype default
 
   // mode
   SET_MODE:         "SET_MODE",               // { mode, lockedBy? }
@@ -1917,6 +1919,8 @@ function envReducer(state, action) {
     }
     case EnvActions.SET_STORE_NAME:
       return { ...state, storeName: action.storeName };
+    case EnvActions.SET_ACCENT_COLOR:
+      return { ...state, accentColor: action.color ?? null };
 
     // ── Mode & context ─────────────────────────────
     case EnvActions.SET_MODE:
@@ -2072,16 +2076,31 @@ const EnvContext = createContext(null);
 function EnvProvider({ children, initialOverrides }) {
   const [state, dispatch] = useReducer(
     envReducer,
-    initialOverrides
-      ? { ...INITIAL_ENV_STATE, ...initialOverrides }
-      : INITIAL_ENV_STATE
+    (() => {
+      // Load persisted accent color from localStorage
+      let savedAccent = null;
+      try { savedAccent = localStorage.getItem("rvn_accent_color") || null; } catch {}
+      const base = initialOverrides
+        ? { ...INITIAL_ENV_STATE, ...initialOverrides }
+        : INITIAL_ENV_STATE;
+      return { ...base, accentColor: savedAccent };
+    })()
   );
+
+  // Persist accent color whenever it changes
+  useEffect(() => {
+    try {
+      if (state.accentColor) localStorage.setItem("rvn_accent_color", state.accentColor);
+      else localStorage.removeItem("rvn_accent_color");
+    } catch {}
+  }, [state.accentColor]);
 
   // Memoise convenience action creators so screens don't recreate closures.
   const api = useMemo(() => ({
     setTheme:       (theme)      => dispatch({ type: EnvActions.SET_THEME,       theme }),
     toggleTheme:    ()           => dispatch({ type: EnvActions.SET_THEME,       theme: (t) => t === "dark" ? "light" : "dark" }),
     setStoreName:   (storeName)  => dispatch({ type: EnvActions.SET_STORE_NAME,  storeName }),
+    setAccentColor: (color)      => dispatch({ type: EnvActions.SET_ACCENT_COLOR, color }),
 
     setMode:        (mode, lockedBy) => dispatch({ type: EnvActions.SET_MODE,    mode, lockedBy }),
     nfcTap:         (mode, location) => dispatch({ type: EnvActions.NFC_TAP,     mode, location }),
@@ -11745,8 +11764,11 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
 
 function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelog, onSupplements, onMorningBrief, onWorkoutHistory, onBodyWeight, onMealPlan, onBuddy, onGroupWorkout, theme, biology, themePref="dark", onThemePrefChange }) {
   const T = D[theme];
+  const { state: envState, setAccentColor } = useEnv();
   const _allArch = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
-  const arch = _allArch.find(a=>a.id===archetypeId) || GYM_ARCHETYPES[0];
+  const _archRaw = _allArch.find(a=>a.id===archetypeId) || GYM_ARCHETYPES[0];
+  // Apply user's accent override — if set, all arch.glow refs pick it up automatically
+  const arch = envState.accentColor ? { ..._archRaw, glow: envState.accentColor } : _archRaw;
   const ac = arch?.glow || "#0A84FF";
   const products = (inventory?.gym?.[archetypeId] || []).filter(p=>p.active);
   const [logged,   setLogged]   = useState(false);
@@ -16945,7 +16967,9 @@ function RVNVisionOverlay() {
   if (_onboardScreens.includes(screen)) return null;
   const T = D[theme];
   const M = (typeof OS_MODES !== "undefined" && OS_MODES[mode]) ? OS_MODES[mode] : null;
-  const ac = M ? T[M.accentKey] : T.blue;
+  const _acBase = M ? T[M.accentKey] : T.blue;
+  // Respect user's accent color override (from Settings)
+  const ac = state.accentColor || _acBase;
   const persona = RVN_VISION_PERSONAS[mode] || RVN_VISION_PERSONAS.personal;
 
   const [draft, setDraft] = useState("");
@@ -23858,6 +23882,7 @@ function AnalyticsBar({ label, value, max, color, theme }) {
 // ─── MANAGER HUB ─────────────────────────────────────────────────────────────
 function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, onModeChange, onThemeChange, onBack }) {
   const T = D[theme];
+  const { state: envState, setAccentColor } = useEnv();
   const archetypeMap = {
     gym:   GYM_ARCHETYPES,
     store: STORE_ARCHETYPES,
@@ -24701,6 +24726,61 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     </motion.button>
                   );
                 })}
+              </div>
+            </GlassCard>
+
+            {/* Accent Color */}
+            <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:4 }}>
+                ACCENT COLOR
+              </div>
+              <div style={{ fontSize:11, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
+                Override your protocol's default color. Affects buttons, highlights, and the AI assistant.
+              </div>
+              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                {(() => {
+                  // Derive the current archetype's natural glow color for the "Protocol" swatch
+                  const _allA = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES, ...STORE_ARCHETYPES];
+                  const _protocolGlow = _allA.find(a => a.id === envState.archetypeId)?.glow || "#0A84FF";
+                  return [
+                  { color: null,      label: "Protocol",  swatch: _protocolGlow },
+                  { color: "#0A84FF", label: "Blue",      swatch: "#0A84FF" },
+                  { color: "#BF5AF2", label: "Purple",    swatch: "#BF5AF2" },
+                  { color: "#30D158", label: "Green",     swatch: "#30D158" },
+                  { color: "#FF6B35", label: "Orange",    swatch: "#FF6B35" },
+                  { color: "#FF375F", label: "Pink",      swatch: "#FF375F" },
+                ].map(({ color, label, swatch }) => {
+                  const active = (envState.accentColor ?? null) === color;
+                  return (
+                    <motion.button key={label} whileTap={{ scale:.88 }}
+                      onClick={() => setAccentColor(color)}
+                      style={{
+                        display:"flex", flexDirection:"column", alignItems:"center", gap:5,
+                        background:"none", border:"none", cursor:"pointer", padding:0,
+                      }}>
+                      <div style={{
+                        width:42, height:42, borderRadius:"50%",
+                        background: color === null
+                          ? `radial-gradient(circle at 35% 35%, ${swatch}cc, ${swatch}66)`
+                          : swatch,
+                        boxShadow: active ? `0 0 0 3px ${T.bg}, 0 0 0 5px ${swatch}` : "none",
+                        transition:"box-shadow .18s",
+                        display:"flex", alignItems:"center", justifyContent:"center",
+                      }}>
+                        {color === null && (
+                          <span style={{ fontSize:12, opacity:.7 }}>✦</span>
+                        )}
+                        {active && color !== null && (
+                          <span style={{ fontSize:14, color:"#fff", fontWeight:900 }}>✓</span>
+                        )}
+                      </div>
+                      <span style={{ fontSize:9.5, fontWeight:700, color: active ? swatch : T.muted, letterSpacing:".03em" }}>
+                        {label.toUpperCase()}
+                      </span>
+                    </motion.button>
+                  );
+                });
+                })()}
               </div>
             </GlassCard>
 

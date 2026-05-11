@@ -2887,8 +2887,41 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
 }
 
 // ─── SCREEN SHELL ─────────────────────────────────────────────────────────────
-function Screen({ children, theme, style={}, onScroll, ref: refProp }) {
+// topGradient: optional gradient CSS string.
+// When provided, uses a two-layer layout:
+//   1. Outer fixed wrapper (non-scrolling) — gradient painted here, stays put
+//   2. Inner transparent scroll container — content slides over the gradient
+// This achieves the Apple Health scroll-over gradient effect.
+function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient }) {
   const T = D[theme];
+  if (topGradient) {
+    return (
+      <div style={{ position:"fixed", inset:0, background:T.bg }}>
+        {/* Non-scrolling gradient backdrop — stays fixed as content scrolls */}
+        <div style={{
+          position:"absolute", top:0, left:0, right:0, height:"42%",
+          pointerEvents:"none", zIndex:0,
+          background: topGradient,
+        }}/>
+        {/* Scrolling content — transparent so gradient shows through at top */}
+        <motion.div {...FX.page}
+          ref={refProp}
+          onScroll={onScroll}
+          data-scroll
+          style={{
+            position:"absolute", inset:0, background:"transparent",
+            display:"flex", flexDirection:"column",
+            overflowY:"auto", overflowX:"hidden",
+            overscrollBehavior:"contain",
+            paddingBottom:"env(safe-area-inset-bottom)",
+            ...style,
+          }}>
+          {children}
+        </motion.div>
+      </div>
+    );
+  }
+  // Default single-layer (no gradient): original behaviour unchanged
   return (
     <motion.div {...FX.page}
       ref={refProp}
@@ -7773,15 +7806,11 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
   }, [onNfcTap]);
 
   return (
-    <Screen theme={theme}>
-      {/* Top bleed — subtle color wash at top edge */}
-      <div style={{
-        position:"absolute", top:0, left:0, right:0, height:220,
-        pointerEvents:"none", zIndex:1,
-        background: theme==="dark"
-          ? `linear-gradient(175deg, rgba(255,107,53,0.18) 0%, rgba(191,90,242,0.11) 50%, transparent 100%)`
-          : `linear-gradient(175deg, rgba(255,107,53,0.13) 0%, rgba(191,90,242,0.08) 50%, transparent 100%)`,
-      }}/>
+    <Screen theme={theme}
+      topGradient={theme==="dark"
+        ? `linear-gradient(175deg, rgba(255,107,53,0.22) 0%, rgba(191,90,242,0.13) 50%, transparent 100%)`
+        : `linear-gradient(175deg, rgba(255,107,53,0.15) 0%, rgba(191,90,242,0.09) 50%, transparent 100%)`
+      }>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
       {/* Top bar — logo left, menu right */}
@@ -11123,15 +11152,11 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
   ];
 
   return (
-    <Screen theme={theme} style={{ overflowY:"auto", position:"relative" }}>
-      {/* Top bleed — fixed so content scrolls over it */}
-      <div style={{
-        position:"fixed", top:0, left:0, right:0, height:"32%",
-        pointerEvents:"none", zIndex:0,
-        background: theme==="dark"
-          ? `linear-gradient(175deg, rgba(255,107,53,0.14) 0%, rgba(191,90,242,0.09) 45%, transparent 100%)`
-          : `linear-gradient(175deg, rgba(255,107,53,0.10) 0%, rgba(191,90,242,0.07) 45%, transparent 100%)`,
-      }}/>
+    <Screen theme={theme} style={{ overflowY:"auto" }}
+      topGradient={theme==="dark"
+        ? `linear-gradient(175deg, rgba(255,107,53,0.20) 0%, rgba(191,90,242,0.12) 45%, transparent 100%)`
+        : `linear-gradient(175deg, rgba(255,107,53,0.13) 0%, rgba(191,90,242,0.08) 45%, transparent 100%)`
+      }>
 
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
         position:"relative", zIndex:1, maxWidth:420, margin:"0 auto", width:"100%" }}>
@@ -11843,6 +11868,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [streaks,     setStreaks]     = useState(() => getStreaks());
   const [shareOpen,        setShareOpen]        = useState(false);
   const [workoutShareOpen, setWorkoutShareOpen] = useState(false);
+  // Scroll tracking for transparent-when-at-top header
+  const [gymScrolled, setGymScrolled] = useState(false);
   // Tab navigation
   const [activeGymTab, setActiveGymTab] = useState("train"); // "train" | "stats" | "fuel" | "progress"
 
@@ -12214,8 +12241,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const ppLocked = ppDaysSinceLast < 7;
   const ppDaysUntilUnlock = ppLocked ? (7 - ppDaysSinceLast) : 0;
 
+  const _gymGradient = theme === "dark"
+    ? `linear-gradient(175deg, rgba(255,107,53,0.30) 0%, rgba(191,90,242,0.17) 45%, transparent 100%)`
+    : `linear-gradient(175deg, rgba(255,107,53,0.20) 0%, rgba(191,90,242,0.11) 45%, transparent 100%)`;
+
   return (
-    <Screen theme={theme} style={{ overflowY:"auto" }}>
+    <Screen theme={theme} style={{ overflowY:"auto" }} topGradient={_gymGradient}
+      onScroll={e => setGymScrolled(e.currentTarget.scrollTop > 20)}>
 
       {/* ── Share Card overlay ───────────────────────────────────────────── */}
       <AnimatePresence>
@@ -12404,12 +12436,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         )}
       </AnimatePresence>
 
-      {/* Sticky header */}
+      {/* Sticky header — transparent at top, frosted on scroll (Apple Health style) */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
-        background:`${T.bg}ee`, backdropFilter:isMobile?"none":"blur(16px)",
-        borderBottom:`1px solid ${T.border}`,
+        background: gymScrolled ? `${T.bg}ee` : "transparent",
+        backdropFilter: gymScrolled && !isMobile ? "blur(16px)" : "none",
+        borderBottom:`1px solid ${gymScrolled ? T.border : "transparent"}`,
         padding:"13px 20px 10px",
+        transition:"background .2s, border-color .2s",
       }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
           <BackBtn onBack={onBack} theme={theme}/>

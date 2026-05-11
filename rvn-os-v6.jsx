@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, createContext, useContext, useReducer, Component } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext, useReducer, Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
 // ─── ICON SYSTEM (inline SVG — no external dependency) ───────────────────────
@@ -7219,9 +7219,9 @@ function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
   const [phase, setPhase] = useState(0);
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 800);
-    const t2 = setTimeout(() => setPhase(2), 2200);
-    const t3 = setTimeout(() => onDone && onDone(), 5500);
+    const t1 = setTimeout(() => setPhase(1), 600);
+    const t2 = setTimeout(() => setPhase(2), 1800);
+    const t3 = setTimeout(() => onDone && onDone(), 3200);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, [onDone]);
 
@@ -7230,13 +7230,13 @@ function SplashScreen({ onDone, theme }) {
       key="reveal"
       initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
       transition={{ duration:.4 }}
-      onClick={phase === 2 ? onDone : undefined}
+      onClick={onDone}
       style={{
         position:"fixed", inset:0,
         background: "#000",
         display:"flex", alignItems:"center", justifyContent:"center",
         flexDirection:"column",
-        cursor: phase === 2 ? "pointer" : "default",
+        cursor:"default",
         overflow:"hidden",
       }}>
       {/* Radial halo */}
@@ -7255,26 +7255,13 @@ function SplashScreen({ onDone, theme }) {
       {/* LOGO */}
       <motion.div
         initial={{ opacity:0 }} animate={{ opacity: phase >= 1 ? 1 : 0 }}
-        transition={{ duration:0.3, delay:0.2 }}
+        transition={{ duration:0.5, delay:0.1 }}
         style={{ position:"relative", zIndex:2, display:"flex", justifyContent:"center" }}>
         <RVNLogo size={260} glow={T.blue}/>
       </motion.div>
 
-      {/* Touch to Begin */}
-      <motion.div
-        initial={{ opacity:0 }} animate={{ opacity: phase === 2 ? 0.55 : 0 }}
-        transition={{ duration:1, delay:0.5 }}
-        style={{
-          position:"absolute", bottom:60, fontSize:12, letterSpacing:"0.06em",
-          color: "rgba(255,255,255,.55)",
-          textTransform:"uppercase",
-          fontFamily: FONT_SERIF, fontWeight: 400,
-        }}>
-        Touch to Begin
-      </motion.div>
-
       {/* ECG pulse */}
-      {phase === 2 && (
+      {phase >= 2 && (
         <motion.div
           initial={{ opacity:0 }} animate={{ opacity:1 }}
           style={{ position:"absolute", bottom:100, left:0, right:0, height:40 }}>
@@ -7283,12 +7270,58 @@ function SplashScreen({ onDone, theme }) {
               points="0,20 60,20 80,20 90,4 100,36 110,20 130,20 200,20 210,20 220,6 228,34 236,20 250,20 400,20"
               fill="none" stroke="#fff" strokeWidth="1"
               initial={{ pathLength:0 }} animate={{ pathLength:1 }}
-              transition={{ duration:1.2, ease:"easeInOut" }}
+              transition={{ duration:1.0, ease:"easeInOut" }}
             />
           </svg>
         </motion.div>
       )}
     </motion.div>
+  );
+}
+
+// ─── MOCK STATUS BAR (live clock + clean iOS icons) ──────────────────────────
+function _MockStatusBar() {
+  const [time, setTime] = React.useState(() => {
+    const n = new Date();
+    return `${n.getHours() % 12 || 12}:${String(n.getMinutes()).padStart(2,"0")}`;
+  });
+  React.useEffect(() => {
+    const iv = setInterval(() => {
+      const n = new Date();
+      setTime(`${n.getHours() % 12 || 12}:${String(n.getMinutes()).padStart(2,"0")}`);
+    }, 10000);
+    return () => clearInterval(iv);
+  }, []);
+  return (
+    <div style={{
+      height:34, background:"#0A0A0A",
+      display:"flex", alignItems:"center", justifyContent:"space-between",
+      padding:"0 18px", flexShrink:0, zIndex:5,
+    }}>
+      <span style={{ fontSize:11.5, color:"#fff", fontWeight:700, fontVariantNumeric:"tabular-nums" }}>{time}</span>
+      <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+        {/* Signal bars */}
+        <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
+          <rect x="0" y="7" width="3" height="4" rx="0.5" fill="white"/>
+          <rect x="4" y="5" width="3" height="6" rx="0.5" fill="white"/>
+          <rect x="8" y="3" width="3" height="8" rx="0.5" fill="white"/>
+          <rect x="12" y="0" width="3" height="11" rx="0.5" fill="white"/>
+        </svg>
+        {/* WiFi */}
+        <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
+          <path d="M7 9.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" fill="white"/>
+          <path d="M4 7.5C4.83 6.6 5.85 6 7 6s2.17.6 3 1.5" stroke="white" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+          <path d="M1.5 5C3 3.2 4.88 2 7 2s4 1.2 5.5 3" stroke="white" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+        </svg>
+        {/* Battery */}
+        <div style={{ display:"flex", alignItems:"center", gap:1 }}>
+          <div style={{ width:20, height:10, borderRadius:2.5, border:"1px solid rgba(255,255,255,0.6)", position:"relative", padding:1.5 }}>
+            <div style={{ height:"100%", width:"80%", background:"#30D158", borderRadius:1 }}/>
+          </div>
+          <div style={{ width:2, height:4, background:"rgba(255,255,255,0.4)", borderRadius:"0 1px 1px 0" }}/>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -7518,18 +7551,7 @@ function LandingPhoneMockup({ ac, theme }) {
           borderRadius:10, zIndex:10,
         }}/>
         {/* Status bar */}
-        <div style={{
-          height:34, background:"#0A0A0A",
-          display:"flex", alignItems:"center", justifyContent:"space-between",
-          padding:"0 18px", flexShrink:0, zIndex:5,
-        }}>
-          <span style={{ fontSize:11.5, color:"#fff", fontWeight:700 }}>9:41</span>
-          <div style={{ display:"flex", gap:4, alignItems:"center" }}>
-            <span style={{ fontSize:11, color:"#fff" }}>●●●</span>
-            <span style={{ fontSize:11, color:"#fff" }}>▲</span>
-            <span style={{ fontSize:11, color:"#fff" }}>▌▌▌</span>
-          </div>
-        </div>
+        <_MockStatusBar/>
         {/* Screen content with AnimatePresence */}
         <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
           <AnimatePresence mode="wait">
@@ -7619,11 +7641,13 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
 
   return (
     <Screen theme={theme}>
-      {/* Top bleed — archetype color fades from top edge into pure black, like Health/IG */}
+      {/* Top bleed — multi-stop premium gradient, like Apple Health */}
       <div style={{
-        position:"absolute", top:0, left:0, right:0, height:"45%",
+        position:"absolute", top:0, left:0, right:0, height:"55%",
         pointerEvents:"none",
-        background:`linear-gradient(to bottom, ${ac}${theme==="dark"?"28":"3A"} 0%, ${ac}${theme==="dark"?"0C":"14"} 40%, transparent 100%)`,
+        background: theme==="dark"
+          ? `linear-gradient(160deg, rgba(255,107,53,0.22) 0%, rgba(191,90,242,0.16) 40%, rgba(10,132,255,0.10) 70%, transparent 100%)`
+          : `linear-gradient(160deg, rgba(255,107,53,0.18) 0%, rgba(191,90,242,0.12) 40%, rgba(10,132,255,0.08) 70%, transparent 100%)`,
       }}/>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
@@ -10967,11 +10991,13 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto", position:"relative" }}>
-      {/* Top bleed — same treatment as main hub */}
+      {/* Top bleed — same premium multi-color treatment as main hub */}
       <div style={{
-        position:"absolute", top:0, left:0, right:0, height:"50%",
+        position:"absolute", top:0, left:0, right:0, height:"55%",
         pointerEvents:"none",
-        background:`linear-gradient(to bottom, ${ac}${theme==="dark"?"30":"40"} 0%, ${ac}${theme==="dark"?"0A":"16"} 45%, transparent 100%)`,
+        background: theme==="dark"
+          ? `linear-gradient(160deg, rgba(255,107,53,0.22) 0%, rgba(191,90,242,0.16) 40%, rgba(10,132,255,0.10) 70%, transparent 100%)`
+          : `linear-gradient(160deg, rgba(255,107,53,0.18) 0%, rgba(191,90,242,0.12) 40%, rgba(10,132,255,0.08) 70%, transparent 100%)`,
       }}/>
 
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
@@ -11547,7 +11573,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
   );
 }
 
-function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelog, onSupplements, onMorningBrief, onWorkoutHistory, onBodyWeight, onMealPlan, onBuddy, onGroupWorkout, theme, biology }) {
+function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelog, onSupplements, onMorningBrief, onWorkoutHistory, onBodyWeight, onMealPlan, onBuddy, onGroupWorkout, theme, biology, themePref="dark", onThemePrefChange }) {
   const T = D[theme];
   const _allArch = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
   const arch = _allArch.find(a=>a.id===archetypeId) || GYM_ARCHETYPES[0];
@@ -12956,6 +12982,41 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               padding:"24px 20px 40px", boxShadow:"0 -8px 40px rgba(0,0,0,0.4)" }}>
             <div style={{ width:36, height:4, background:T.border, borderRadius:2, margin:"0 auto 20px" }}/>
             <div style={{ fontSize:16, fontWeight:800, color:T.text, marginBottom:20 }}>⚙️ Settings</div>
+
+            {/* Theme toggle */}
+            <div style={{ padding:"12px 14px", borderRadius:12, background:T.glass,
+              border:`1px solid ${T.border}`, marginBottom:12 }}>
+              <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em", fontWeight:600, marginBottom:10 }}>APPEARANCE</div>
+              <div style={{ display:"flex", gap:6 }}>
+                {[
+                  { id:"dark",  label:"Dark",  icon:"🌙" },
+                  { id:"light", label:"Light", icon:"☀️" },
+                  { id:"auto",  label:"Auto",  icon:"⏰" },
+                ].map(opt => {
+                  const isActive = (themePref || "dark") === opt.id;
+                  return (
+                    <button key={opt.id}
+                      onClick={() => onThemePrefChange && onThemePrefChange(opt.id)}
+                      style={{
+                        flex:1, padding:"9px 4px", borderRadius:10, border:"none", cursor:"pointer",
+                        background: isActive ? ac : T.glassMid,
+                        color: isActive ? "#fff" : T.muted,
+                        fontSize:11, fontWeight: isActive ? 700 : 500,
+                        display:"flex", flexDirection:"column", alignItems:"center", gap:3,
+                        transition:"all .15s",
+                      }}>
+                      <span style={{ fontSize:15 }}>{opt.icon}</span>
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+              {(themePref === "auto") && (
+                <div style={{ fontSize:11, color:T.muted, marginTop:8, textAlign:"center" }}>
+                  Light 7am–8pm · Dark 8pm–7am
+                </div>
+              )}
+            </div>
 
             {/* Account info */}
             <div style={{ padding:"12px 14px", borderRadius:12, background:T.glass,
@@ -27074,6 +27135,30 @@ function RVNRoot() {
 
   const go = goto;
 
+  // ── Theme preference — dark / light / auto (time-of-day) ─────────────────────
+  const [themePref, _setThemePref] = useState(() => {
+    try { return localStorage.getItem("rvn_theme_pref") || "dark"; } catch { return "dark"; }
+  });
+  const applyThemePref = useCallback((pref) => {
+    try { localStorage.setItem("rvn_theme_pref", pref); } catch {}
+    if (pref === "dark")  { setTheme("dark");  return; }
+    if (pref === "light") { setTheme("light"); return; }
+    // "auto" — dark 8pm–7am, light otherwise
+    const h = new Date().getHours();
+    setTheme(h >= 20 || h < 7 ? "dark" : "light");
+  }, [setTheme]);
+  const setThemePref = useCallback((pref) => {
+    _setThemePref(pref);
+    applyThemePref(pref);
+  }, [applyThemePref]);
+  useEffect(() => {
+    applyThemePref(themePref);
+    if (themePref !== "auto") return;
+    const iv = setInterval(() => applyThemePref("auto"), 60 * 1000);
+    return () => clearInterval(iv);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [themePref]);
+
   // ── App-ready signal for browser automation / auditing tools ─────────────────
   useEffect(() => {
     window.__RVN_READY = false;
@@ -27505,6 +27590,7 @@ function RVNRoot() {
         {screen==="protocol" && mode==="gym" && (
           <GymProtocol key="protocol_gym" theme={theme}
             user={user} bioData={perfData} archetypeId={archetypeId} biology={biology} inventory={inventory}
+            themePref={themePref} onThemePrefChange={setThemePref}
             onBack={() => go("narrative")}
             onChangelog={() => go("changelog")}
             onSupplements={() => go("supplements")}

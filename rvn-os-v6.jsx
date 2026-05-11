@@ -7431,29 +7431,27 @@ function _MockStatusBar() {
     <div style={{
       height:34, background:"#0A0A0A",
       display:"flex", alignItems:"center", justifyContent:"space-between",
-      padding:"0 18px", flexShrink:0, zIndex:5,
+      padding:"0 16px", flexShrink:0, zIndex:5,
     }}>
       <span style={{ fontSize:11.5, color:"#fff", fontWeight:700, fontVariantNumeric:"tabular-nums" }}>{time}</span>
-      <div style={{ display:"flex", gap:5, alignItems:"center" }}>
-        {/* Signal bars */}
-        <svg width="15" height="11" viewBox="0 0 15 11" fill="none">
-          <rect x="0" y="7" width="3" height="4" rx="0.5" fill="white"/>
-          <rect x="4" y="5" width="3" height="6" rx="0.5" fill="white"/>
-          <rect x="8" y="3" width="3" height="8" rx="0.5" fill="white"/>
-          <rect x="12" y="0" width="3" height="11" rx="0.5" fill="white"/>
-        </svg>
+      <div style={{ display:"flex", gap:4, alignItems:"center" }}>
+        {/* Signal — 2 clean dots */}
+        <div style={{ display:"flex", gap:2.5, alignItems:"flex-end" }}>
+          <div style={{ width:4, height:6, borderRadius:1, background:"rgba(255,255,255,0.5)" }}/>
+          <div style={{ width:4, height:9, borderRadius:1, background:"#fff" }}/>
+        </div>
         {/* WiFi */}
-        <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
-          <path d="M7 9.5a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" fill="white"/>
-          <path d="M4 7.5C4.83 6.6 5.85 6 7 6s2.17.6 3 1.5" stroke="white" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
-          <path d="M1.5 5C3 3.2 4.88 2 7 2s4 1.2 5.5 3" stroke="white" strokeWidth="1.2" strokeLinecap="round" fill="none"/>
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+          <circle cx="6.5" cy="9" r="1.2" fill="white"/>
+          <path d="M3.5 6.5C4.2 5.7 5.3 5.2 6.5 5.2s2.3.5 3 1.3" stroke="white" strokeWidth="1.1" strokeLinecap="round" fill="none"/>
+          <path d="M1 4C2.2 2.5 4.2 1.5 6.5 1.5S10.8 2.5 12 4" stroke="white" strokeWidth="1.1" strokeLinecap="round" fill="none"/>
         </svg>
         {/* Battery */}
-        <div style={{ display:"flex", alignItems:"center", gap:1 }}>
-          <div style={{ width:20, height:10, borderRadius:2.5, border:"1px solid rgba(255,255,255,0.6)", position:"relative", padding:1.5 }}>
-            <div style={{ height:"100%", width:"80%", background:"#30D158", borderRadius:1 }}/>
+        <div style={{ display:"flex", alignItems:"center" }}>
+          <div style={{ width:19, height:9, borderRadius:2, border:"1px solid rgba(255,255,255,0.55)", padding:"1.5px 2px", boxSizing:"border-box" }}>
+            <div style={{ height:"100%", width:"78%", background:"#30D158", borderRadius:1 }}/>
           </div>
-          <div style={{ width:2, height:4, background:"rgba(255,255,255,0.4)", borderRadius:"0 1px 1px 0" }}/>
+          <div style={{ width:1.5, height:4, background:"rgba(255,255,255,0.35)", borderRadius:"0 1px 1px 0", marginLeft:1 }}/>
         </div>
       </div>
     </div>
@@ -7776,13 +7774,13 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
 
   return (
     <Screen theme={theme}>
-      {/* Top bleed — multi-stop premium gradient, like Apple Health */}
+      {/* Top bleed — fixed so content scrolls over it, like Apple Health */}
       <div style={{
-        position:"absolute", top:0, left:0, right:0, height:"55%",
-        pointerEvents:"none",
+        position:"fixed", top:0, left:0, right:0, height:"32%",
+        pointerEvents:"none", zIndex:0,
         background: theme==="dark"
-          ? `linear-gradient(160deg, rgba(255,107,53,0.22) 0%, rgba(191,90,242,0.16) 40%, rgba(10,132,255,0.10) 70%, transparent 100%)`
-          : `linear-gradient(160deg, rgba(255,107,53,0.18) 0%, rgba(191,90,242,0.12) 40%, rgba(10,132,255,0.08) 70%, transparent 100%)`,
+          ? `linear-gradient(175deg, rgba(255,107,53,0.14) 0%, rgba(191,90,242,0.09) 45%, transparent 100%)`
+          : `linear-gradient(175deg, rgba(255,107,53,0.10) 0%, rgba(191,90,242,0.07) 45%, transparent 100%)`,
       }}/>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
@@ -11126,13 +11124,13 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto", position:"relative" }}>
-      {/* Top bleed — same premium multi-color treatment as main hub */}
+      {/* Top bleed — fixed so content scrolls over it */}
       <div style={{
-        position:"absolute", top:0, left:0, right:0, height:"55%",
-        pointerEvents:"none",
+        position:"fixed", top:0, left:0, right:0, height:"32%",
+        pointerEvents:"none", zIndex:0,
         background: theme==="dark"
-          ? `linear-gradient(160deg, rgba(255,107,53,0.22) 0%, rgba(191,90,242,0.16) 40%, rgba(10,132,255,0.10) 70%, transparent 100%)`
-          : `linear-gradient(160deg, rgba(255,107,53,0.18) 0%, rgba(191,90,242,0.12) 40%, rgba(10,132,255,0.08) 70%, transparent 100%)`,
+          ? `linear-gradient(175deg, rgba(255,107,53,0.14) 0%, rgba(191,90,242,0.09) 45%, transparent 100%)`
+          : `linear-gradient(175deg, rgba(255,107,53,0.10) 0%, rgba(191,90,242,0.07) 45%, transparent 100%)`,
       }}/>
 
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
@@ -11712,6 +11710,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const T = D[theme];
   const _allArch = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
   const arch = _allArch.find(a=>a.id===archetypeId) || GYM_ARCHETYPES[0];
+  const ac = arch?.glow || "#0A84FF";
   const products = (inventory?.gym?.[archetypeId] || []).filter(p=>p.active);
   const [logged,   setLogged]   = useState(false);
   const [saving,   setSaving]   = useState(false);

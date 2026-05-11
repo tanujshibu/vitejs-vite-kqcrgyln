@@ -269,13 +269,13 @@ const D = {
     muted:     "rgba(180,185,230,0.40)",
     faint:     "rgba(150,160,210,0.20)",
     // Mode-Aware Liquid Accents
-    blue:      "#2E5BFF",          // Electric Cobalt — CNS/Gym power
-    gold:      "#D4AF37",          // Bio-Liquid Gold — premium purity
-    green:     "#00FFAB",          // Vitality Mint — enzymatic freshness
-    red:       "#FF4B2B",          // Thermal Ember — blood flow/recovery
+    blue:      "#0A84FF",          // Electric Cobalt — CNS/Gym power
+    gold:      "#C8A94A",          // Bio-Liquid Gold — premium purity
+    green:     "#30D158",          // Vitality Mint — enzymatic freshness
+    red:       "#FF453A",          // Thermal Ember — blood flow/recovery
     purple:    "#BF5AF2",
-    teal:      "#38D9F5",
-    orange:    "#FF6B35",
+    teal:      "#64D2FF",
+    orange:    "#FF9F0A",
     card:      "#13131C",          // Elevated card surface — above bg
     ghost:     "rgba(150,160,210,0.10)",
     scanline:  "rgba(255,255,255,0.014)",
@@ -304,13 +304,13 @@ const D = {
     muted:     "rgba(13,15,26,0.40)",
     faint:     "rgba(13,15,26,0.20)",
     // Mode-Aware — same hues, calibrated for bright bg
-    blue:      "#1A45E0",          // Electric Cobalt (light-safe)
-    gold:      "#B8902A",          // Bio-Liquid Gold (light-safe)
-    green:     "#00C882",          // Vitality Mint (light-safe)
-    red:       "#D93A1E",          // Thermal Ember (light-safe)
+    blue:      "#007AFF",          // Electric Cobalt (light-safe)
+    gold:      "#A07820",          // Bio-Liquid Gold (light-safe)
+    green:     "#34C759",          // Vitality Mint (light-safe)
+    red:       "#FF3B30",          // Thermal Ember (light-safe)
     purple:    "#7B3FC0",
-    teal:      "#0294B5",
-    orange:    "#C84E14",
+    teal:      "#32ADE6",
+    orange:    "#FF9500",
     card:      "#FFFFFF",          // Pure white card surface
     ghost:     "rgba(13,15,26,0.05)",
     scanline:  "rgba(0,0,0,0.0)",
@@ -352,7 +352,7 @@ const FX = isMobile ? {
 // ─── CIRCADIAN INTELLIGENCE ───────────────────────────────────────────────────
 function getCircadianState() {
   const h = new Date().getHours();
-  if (h >= 5  && h < 8)  return { phase:"Cortisol Surge",       icon:"◉", color:"#FF6B35", advice:"Peak neural activation. Ideal for heavy compound lifts.",       window:"PRIME" };
+  if (h >= 5  && h < 8)  return { phase:"Cortisol Surge",       icon:"◉", color:"#FF9F0A", advice:"Peak neural activation. Ideal for heavy compound lifts.",       window:"PRIME" };
   if (h >= 8  && h < 11) return { phase:"Anabolic Window",      icon:"⬡", color:"#30D158", advice:"Testosterone at daily peak. Optimal for hypertrophy training.",  window:"PEAK"  };
   if (h >= 11 && h < 14) return { phase:"Cognitive Peak",       icon:"⟡", color:"#5AC8FA", advice:"Dopamine elevated. Best window for skill acquisition.",          window:"HIGH"  };
   if (h >= 14 && h < 17) return { phase:"Thermogenic High",     icon:"◈", color:"#C9A84C", advice:"Core temperature at maximum. Explosive performance available.",  window:"HIGH"  };
@@ -399,7 +399,7 @@ function getVelocityNarrative(velocityLog) {
   if (drop >= 25) return {
     headline: "Your body hit its limit — in a good way.",
     detail:   `Speed dropped ${drop}% from your first rep to your last. That kind of drop means you fully loaded the muscle — exactly what drives growth. Plan an extra rest day before hitting this movement again.`,
-    icon: "⚡", color: "#FF6B35",
+    icon: "⚡", color: "#FF9F0A",
   };
   if (drop >= 10) return {
     headline: "Solid session. Load was right.",
@@ -484,7 +484,7 @@ function getSocialProof(archetypeId) {
 function getCircadianWorkoutWarning() {
   const h = new Date().getHours();
   if (h >= 21 || h < 5) return {
-    level: "warn", icon: "◑", color: "#FF6B35",
+    level: "warn", icon: "◑", color: "#FF9F0A",
     title: "Late-Night Session",
     msg:   "Training this late raises your stress hormones right when they should be winding down. Try to keep tonight's session shorter and lighter if you can.",
   };
@@ -531,7 +531,7 @@ const OS_MODES = {
     heroBio:      "Systems ready. Protocol generating from your biological blueprint.",
     ctaLabel:     "Begin Neural Scan",
     bgGradient:   (T) => `radial-gradient(ellipse 80% 55% at 50% 0%, ${T.gold}1A 0%, transparent 65%)`,
-    pulse:        "#D4AF37",
+    pulse:        "#C8A94A",
   },
   store: {
     id:           "store",
@@ -543,7 +543,7 @@ const OS_MODES = {
     heroBio:      "Molecular absorption analysis active. Sourcing your biological requirements.",
     ctaLabel:     "Start Bio-Assessment",
     bgGradient:   (T) => `radial-gradient(ellipse 80% 55% at 50% 0%, ${T.blue}1A 0%, transparent 65%)`,
-    pulse:        "#2E5BFF",
+    pulse:        "#0A84FF",
   },
   smoothie: {
     id:           "smoothie",
@@ -555,7 +555,7 @@ const OS_MODES = {
     heroBio:      "Reading your current biological state. Formulating precision nutrition.",
     ctaLabel:     "Scan Current State",
     bgGradient:   (T) => `radial-gradient(ellipse 80% 55% at 50% 0%, ${T.green}1A 0%, transparent 65%)`,
-    pulse:        "#00FFAB",
+    pulse:        "#30D158",
   },
 };
 
@@ -566,7 +566,7 @@ const GYM_ARCHETYPES = [
     name:    "V-Taper",
     word:    "WIDTH",
     sub:     "APEX SILHOUETTE",
-    glow:    "#2E5BFF",
+    glow:    "#0A84FF",
     muscles: ["Lats","Rear Shoulders","Outer Ribs","Upper Back"],
     bioScore:82,
     signature:"Shoulder-to-waist ratio dominance. The elite visual signature.",
@@ -590,7 +590,7 @@ const GYM_ARCHETYPES = [
     name:    "Core Definition",
     word:    "DEFINITION",
     sub:     "CARVED MIDSECTION",
-    glow:    "#D4AF37",
+    glow:    "#C8A94A",
     muscles: ["Abs","Side Abs","Deep Core","Outer Ribs"],
     bioScore:76,
     signature:"Six-pack segmentation + oblique tie-in. The anatomy that stops rooms.",
@@ -614,7 +614,7 @@ const GYM_ARCHETYPES = [
     name:    "Mass Builder",
     word:    "DENSITY",
     sub:     "RAW STRUCTURAL POWER",
-    glow:    "#FF4B2B",
+    glow:    "#FF453A",
     muscles: ["Chest","Quadriceps","Trapezius","Overall Muscle Density"],
     bioScore:88,
     signature:"The kind of mass that reads across a room. Presence protocol.",
@@ -638,7 +638,7 @@ const GYM_ARCHETYPES = [
     name:    "Athletic Performance",
     word:    "POWER",
     sub:     "TOTAL ATHLETIC EXPRESSION",
-    glow:    "#00FFAB",
+    glow:    "#30D158",
     muscles: ["Full Kinetic Chain","Fast-Twitch Fibers","Cardiovascular System","Neural Drive"],
     bioScore:91,
     signature:"Fast, imposing, capable. The physique that matches its own energy.",
@@ -763,7 +763,7 @@ const FEMALE_GYM_ARCHETYPES = [
     name:    "Glute Architecture",
     word:    "CURVES",
     sub:     "POSTERIOR DOMINANCE",
-    glow:    "#FF4B2B",
+    glow:    "#FF453A",
     muscles: ["Glutes","Side Glutes","Hip Flexors","Hamstrings"],
     bioScore:84,
     signature:"Full, round glute development with hip-to-waist ratio dominance.",
@@ -787,7 +787,7 @@ const FEMALE_GYM_ARCHETYPES = [
     name:    "Figure Protocol",
     word:    "SHAPE",
     sub:     "SHOULDER WIDTH · DEFINED WAIST",
-    glow:    "#D4AF37",
+    glow:    "#C8A94A",
     muscles: ["Side Shoulders","Obliques","Side Glutes","Outer Ribs"],
     bioScore:78,
     signature:"Shoulder-to-waist-to-hip ratio — the classic feminine silhouette.",
@@ -811,7 +811,7 @@ const FEMALE_GYM_ARCHETYPES = [
     name:    "Lean Athlete",
     word:    "POWER",
     sub:     "ATHLETIC FEMININE PERFORMANCE",
-    glow:    "#00FFAB",
+    glow:    "#30D158",
     muscles: ["Full Kinetic Chain","Fast-Twitch Type II","VO2 Max","Metabolic Rate"],
     bioScore:81,
     signature:"Low body fat, functional strength, and elite cardiovascular capacity.",
@@ -835,7 +835,7 @@ const FEMALE_GYM_ARCHETYPES = [
     name:    "Tone & Define",
     word:    "DEFINITION",
     sub:     "SCULPTED LEAN MUSCLE",
-    glow:    "#2E5BFF",
+    glow:    "#0A84FF",
     muscles: ["Biceps","Triceps","Abs","Front Shoulders"],
     bioScore:72,
     signature:"Visible muscle definition without bulk — the lean sculpted aesthetic.",
@@ -1259,7 +1259,7 @@ function calcPersonalizedWhy(perfData, supplementName, biology, archetypeId) {
 // ─── PREMIUM BRANDS ───────────────────────────────────────────────────────────
 const BRANDS = [
   {
-    id:"thorne", name:"Thorne", tier:"PHARMACEUTICAL", color:"#D4AF37",
+    id:"thorne", name:"Thorne", tier:"PHARMACEUTICAL", color:"#C8A94A",
     badge:"NSF Certified", tagline:"Clinical-grade formulations. Zero compromise.",
     symbol:"◇", certs:["NSF","GMP","Third-Party Tested"],
   },
@@ -1274,7 +1274,7 @@ const BRANDS = [
     symbol:"⬡", certs:["NSF for Sport","WADA Compliant"],
   },
   {
-    id:"chargedsupps", name:"ChargedSupps™", tier:"HOUSE BRAND", color:"#FF6B35",
+    id:"chargedsupps", name:"ChargedSupps™", tier:"HOUSE BRAND", color:"#FF9F0A",
     badge:"Store Exclusive", tagline:"Performance-first formulas. Retail-direct pricing.",
     symbol:"●", certs:["GMP Certified"],
   },
@@ -1332,7 +1332,7 @@ const STORE_ARCHETYPES = [
     ],
   },
   {
-    id:"metabolic", name:"Metabolic Reset", word:"LEAN", sub:"FAT-BURNING ARCHITECTURE", glow:"#FF6B35",
+    id:"metabolic", name:"Metabolic Reset", word:"LEAN", sub:"FAT-BURNING ARCHITECTURE", glow:"#FF9F0A",
     bioScore:83, signature:"Striations visible in side shoulders and upper chest. The fat-free signature.",
     aiLine:"Your body is ready to drop fat. It just needs the right structure — that's exactly what this protocol gives it.",
     narrative:[
@@ -1348,7 +1348,7 @@ const STORE_ARCHETYPES = [
     ],
   },
   {
-    id:"fat_loss", name:"Fat Loss Protocol", word:"SHRED", sub:"PRECISION FAT MOBILIZATION", glow:"#FF6B35",
+    id:"fat_loss", name:"Fat Loss Protocol", word:"SHRED", sub:"PRECISION FAT MOBILIZATION", glow:"#FF9F0A",
     bioScore:81, signature:"Visible vascularity. Striations in every major muscle group.",
     aiLine:"You're close. Your body knows how to burn fat — it just needs consistency and the right protocol to finish the job.",
     narrative:[
@@ -1364,7 +1364,7 @@ const STORE_ARCHETYPES = [
     ],
   },
   {
-    id:"muscle_build", name:"Muscle Builder", word:"MASS", sub:"HYPERTROPHY ARCHITECTURE", glow:"#FF4B2B",
+    id:"muscle_build", name:"Muscle Builder", word:"MASS", sub:"HYPERTROPHY ARCHITECTURE", glow:"#FF453A",
     bioScore:85, signature:"Dense, powerful musculature. Size that commands immediate respect.",
     aiLine:"Your muscles are ready to grow. Hit the food and the training consistently and the size comes — it's just biology.",
     narrative:[
@@ -1389,8 +1389,8 @@ const SMOOTHIE_STATES = [
   { id:"stress",    label:"High Stress",     icon:"◑", color:"#BF5AF2", desc:"Cortisol elevation detected"            },
   { id:"immunity",  label:"Under Weather",   icon:"∞", color:"#30D158", desc:"Immune activation markers elevated"     },
   { id:"morning",   label:"Morning Prime",   icon:"◣", color:"#C9A84C", desc:"Cortisol surge + anabolic window"       },
-  { id:"fat_burn",  label:"Fat Burn Mode",   icon:"○", color:"#FF6B35", desc:"Lipolysis activation protocol"          },
-  { id:"muscle",    label:"Muscle Builder",  icon:"⬡", color:"#FF4B2B", desc:"mTOR pathway + anabolic window open"    },
+  { id:"fat_burn",  label:"Fat Burn Mode",   icon:"○", color:"#FF9F0A", desc:"Lipolysis activation protocol"          },
+  { id:"muscle",    label:"Muscle Builder",  icon:"⬡", color:"#FF453A", desc:"mTOR pathway + anabolic window open"    },
 ];
 
 const SMOOTHIE_FORMULAS = {
@@ -1463,7 +1463,7 @@ const SMOOTHIE_FORMULAS = {
   fat_burn: {
     name:        "Lipolysis Protocol",
     tagline:     "Fat mobilization + thermogenic activation",
-    color:       "#FF6B35",
+    color:       "#FF9F0A",
     base:        "Green tea + grapefruit + cucumber + mint",
     addons: [
       { name:"L-Carnitine",      ml:"2000mg",why:"Fatty acid transporter — mobilized fat cannot burn without this",  price:2.25 },
@@ -1474,7 +1474,7 @@ const SMOOTHIE_FORMULAS = {
   muscle: {
     name:        "Hypertrophy Signal",
     tagline:     "mTOR activation + anabolic primer",
-    color:       "#FF4B2B",
+    color:       "#FF453A",
     base:        "Banana + oats + peanut butter + whole milk",
     addons: [
       { name:"Whey Hydrolysate",  g:"35g",   why:"15-min absorption — hits the 3.4g leucine threshold for mTOR",    price:3.50 },
@@ -1494,7 +1494,7 @@ const INVENTORY = {
     ],
     abs:      [
       { id:"t_carn",  name:"L-Carnitine Elite 2000",   brand:"Thorne",        price:44.99, stock:3, active:true, tag:"Low Stock", tagColor:"#FF453A", bioNeed:"Fat Transport",         reason:"Shuttles fatty acids into mitochondria — direct sub-q fat reduction." },
-      { id:"cs_burn", name:"Thermo Complex AM",         brand:"ChargedSupps™", price:49.99, stock:6, active:true, tag:"Thermogenic",tagColor:"#FF6B35", bioNeed:"Metabolic Rate",         reason:"EGCG + synephrine — 8% metabolic rate elevation per clinical dose." },
+      { id:"cs_burn", name:"Thermo Complex AM",         brand:"ChargedSupps™", price:49.99, stock:6, active:true, tag:"Thermogenic",tagColor:"#FF9F0A", bioNeed:"Metabolic Rate",         reason:"EGCG + synephrine — 8% metabolic rate elevation per clinical dose." },
       { id:"t_fish",  name:"Super EPA Fish Oil",        brand:"Thorne",        price:42.99, stock:8, active:true, tag:"Anti-Inflam",tagColor:"#5AC8FA", bioNeed:"Inflammation Control",  reason:"EPA suppresses the inflammation cascade that promotes visceral fat." },
     ],
     density:  [
@@ -1508,24 +1508,24 @@ const INVENTORY = {
       { id:"cs_adpt", name:"Adaptogen Complex",           brand:"ChargedSupps™",price:52.99, stock:5, active:true, tag:"Recovery", tagColor:"#30D158", bioNeed:"Cortisol Control",       reason:"Ashwagandha + Rhodiola — 26% cortisol reduction in trained athletes." },
     ],
     glutes: [
-      { id:"g_pump",  name:"Glute Complex Formula",    brand:"ChargedSupps",  price:44.99, stock:5, active:true, tag:"Glute Pump",   tagColor:"#FF4B2B", bioNeed:"Blood Flow",         reason:"L-arginine + citrulline gives maximum hip-thrust pump and nutrient delivery to glute tissue." },
-      { id:"g_coll",  name:"Marine Collagen 5000",     brand:"Thorne",        price:54.99, stock:4, active:true, tag:"Tissue",       tagColor:"#D4AF37", bioNeed:"Connective Tissue",  reason:"Glute-hamstring tie-in requires dense connective tissue. Collagen peptides directly build this." },
+      { id:"g_pump",  name:"Glute Complex Formula",    brand:"ChargedSupps",  price:44.99, stock:5, active:true, tag:"Glute Pump",   tagColor:"#FF453A", bioNeed:"Blood Flow",         reason:"L-arginine + citrulline gives maximum hip-thrust pump and nutrient delivery to glute tissue." },
+      { id:"g_coll",  name:"Marine Collagen 5000",     brand:"Thorne",        price:54.99, stock:4, active:true, tag:"Tissue",       tagColor:"#C8A94A", bioNeed:"Connective Tissue",  reason:"Glute-hamstring tie-in requires dense connective tissue. Collagen peptides directly build this." },
       { id:"g_elyte", name:"Electrolyte Complex",      brand:"Thorne",        price:38.99, stock:8, active:true, tag:"Recovery",     tagColor:"#30D158", bioNeed:"Contraction Force",  reason:"Optimal Na/K/Mg ratio for peak back muscles contraction and reduced cramping." },
     ],
     hourglass: [
-      { id:"h_mag",   name:"Magnesium Glycinate 400",  brand:"Thorne",        price:36.99, stock:6, active:true, tag:"Cortisol",     tagColor:"#D4AF37", bioNeed:"Waist Definition",   reason:"Cortisol drives water retention around the midsection. Magnesium suppresses it at the source." },
-      { id:"h_cla",   name:"CLA Complex 3000mg",       brand:"ChargedSupps",  price:38.99, stock:5, active:true, tag:"Fat Cell",     tagColor:"#FF4B2B", bioNeed:"Hip Fat Reduction",  reason:"Reduces adipocyte storage capacity — specifically targets the hip and waist area." },
-      { id:"h_fish",  name:"Super EPA Fish Oil",       brand:"Thorne",        price:42.99, stock:7, active:true, tag:"Anti-Inflam",  tagColor:"#2E5BFF", bioNeed:"Inflammation",       reason:"EPA blocks the inflammation that causes water retention. Less bloat equals defined waist." },
+      { id:"h_mag",   name:"Magnesium Glycinate 400",  brand:"Thorne",        price:36.99, stock:6, active:true, tag:"Cortisol",     tagColor:"#C8A94A", bioNeed:"Waist Definition",   reason:"Cortisol drives water retention around the midsection. Magnesium suppresses it at the source." },
+      { id:"h_cla",   name:"CLA Complex 3000mg",       brand:"ChargedSupps",  price:38.99, stock:5, active:true, tag:"Fat Cell",     tagColor:"#FF453A", bioNeed:"Hip Fat Reduction",  reason:"Reduces adipocyte storage capacity — specifically targets the hip and waist area." },
+      { id:"h_fish",  name:"Super EPA Fish Oil",       brand:"Thorne",        price:42.99, stock:7, active:true, tag:"Anti-Inflam",  tagColor:"#0A84FF", bioNeed:"Inflammation",       reason:"EPA blocks the inflammation that causes water retention. Less bloat equals defined waist." },
     ],
     lean_athlete: [
-      { id:"l_eaa",   name:"Essential Amino Complex",  brand:"ChargedSupps",  price:44.99, stock:6, active:true, tag:"Intra-WO",    tagColor:"#00FFAB", bioNeed:"Muscle Preservation", reason:"All 9 EAAs during training prevent muscle breakdown during high-intensity conditioning blocks." },
-      { id:"l_elyte", name:"Electrolyte Complex",      brand:"Thorne",        price:38.99, stock:9, active:true, tag:"Performance", tagColor:"#00FFAB", bioNeed:"Hydration",           reason:"Female athletes lose more sodium per sweat session. This replaces all three key electrolytes." },
-      { id:"l_carn",  name:"L-Carnitine Elite 2000",   brand:"Thorne",        price:44.99, stock:4, active:true, tag:"Fat as Fuel",  tagColor:"#FF4B2B", bioNeed:"Fat Oxidation",      reason:"Shuttles fatty acids into mitochondria — essential for the body recomp effect this protocol drives." },
+      { id:"l_eaa",   name:"Essential Amino Complex",  brand:"ChargedSupps",  price:44.99, stock:6, active:true, tag:"Intra-WO",    tagColor:"#30D158", bioNeed:"Muscle Preservation", reason:"All 9 EAAs during training prevent muscle breakdown during high-intensity conditioning blocks." },
+      { id:"l_elyte", name:"Electrolyte Complex",      brand:"Thorne",        price:38.99, stock:9, active:true, tag:"Performance", tagColor:"#30D158", bioNeed:"Hydration",           reason:"Female athletes lose more sodium per sweat session. This replaces all three key electrolytes." },
+      { id:"l_carn",  name:"L-Carnitine Elite 2000",   brand:"Thorne",        price:44.99, stock:4, active:true, tag:"Fat as Fuel",  tagColor:"#FF453A", bioNeed:"Fat Oxidation",      reason:"Shuttles fatty acids into mitochondria — essential for the body recomp effect this protocol drives." },
     ],
     tone_define: [
-      { id:"td_stack",name:"L-Carnitine + CLA Stack",  brand:"ChargedSupps",  price:52.99, stock:5, active:true, tag:"Definition",  tagColor:"#2E5BFF", bioNeed:"Fat Metabolism",     reason:"CLA + L-Carnitine targets the stubborn hip and thigh fat areas specific to female fat distribution." },
-      { id:"td_coll", name:"Marine Collagen Peptides", brand:"Thorne",        price:62.99, stock:4, active:true, tag:"Skin Tone",   tagColor:"#D4AF37", bioNeed:"Skin Firmness",      reason:"Muscle definition is only visible through firm collagen-dense skin. This is the missing layer." },
-      { id:"td_fish", name:"Super EPA Fish Oil",       brand:"Thorne",        price:42.99, stock:6, active:true, tag:"Recovery",    tagColor:"#2E5BFF", bioNeed:"Inflammation",       reason:"Reduces the puffiness over muscle that hides definition. Less inflammation equals more visible tone." },
+      { id:"td_stack",name:"L-Carnitine + CLA Stack",  brand:"ChargedSupps",  price:52.99, stock:5, active:true, tag:"Definition",  tagColor:"#0A84FF", bioNeed:"Fat Metabolism",     reason:"CLA + L-Carnitine targets the stubborn hip and thigh fat areas specific to female fat distribution." },
+      { id:"td_coll", name:"Marine Collagen Peptides", brand:"Thorne",        price:62.99, stock:4, active:true, tag:"Skin Tone",   tagColor:"#C8A94A", bioNeed:"Skin Firmness",      reason:"Muscle definition is only visible through firm collagen-dense skin. This is the missing layer." },
+      { id:"td_fish", name:"Super EPA Fish Oil",       brand:"Thorne",        price:42.99, stock:6, active:true, tag:"Recovery",    tagColor:"#0A84FF", bioNeed:"Inflammation",       reason:"Reduces the puffiness over muscle that hides definition. Less inflammation equals more visible tone." },
     ],
     // ── New men's archetype inventory ───────────────────────────────────────────
     chest_arms: [
@@ -1588,18 +1588,18 @@ const INVENTORY = {
       { id:"t_omg3",  name:"Omega-3 w/ CoQ10",            brand:"Thorne",        price:48.99, stock:6, active:true, tag:"Neuro",     tagColor:"#30D158", bioNeed:"Synaptic Integrity",   reason:"DHA is the structural lipid of every neuronal cell membrane." },
     ],
     metabolic:[
-      { id:"t_berb",  name:"Berberine HCl 1000mg",       brand:"Thorne",        price:52.99, stock:4, active:true, tag:"AMPK",      tagColor:"#FF6B35", bioNeed:"Glucose Control",      reason:"Activates AMPK — same pathway as metformin, naturally occurring." },
+      { id:"t_berb",  name:"Berberine HCl 1000mg",       brand:"Thorne",        price:52.99, stock:4, active:true, tag:"AMPK",      tagColor:"#FF9F0A", bioNeed:"Glucose Control",      reason:"Activates AMPK — same pathway as metformin, naturally occurring." },
       { id:"cs_cla",  name:"CLA Complex 3000mg",          brand:"ChargedSupps™", price:38.99, stock:6, active:true, tag:"Fat Cell",  tagColor:"#FF453A", bioNeed:"Adipocyte Reduction",  reason:"Directly reduces adipocyte storage capacity at the cellular level." },
-      { id:"t_thyro", name:"Thyroid Metabolism Support",  brand:"Thorne",        price:44.99, stock:5, active:true, tag:"T3/T4",     tagColor:"#FF6B35", bioNeed:"Thyroid Optimization", reason:"Iodine + selenium + tyrosine — all three T3/T4 synthesis substrates." },
+      { id:"t_thyro", name:"Thyroid Metabolism Support",  brand:"Thorne",        price:44.99, stock:5, active:true, tag:"T3/T4",     tagColor:"#FF9F0A", bioNeed:"Thyroid Optimization", reason:"Iodine + selenium + tyrosine — all three T3/T4 synthesis substrates." },
     ],
     fat_loss: [
-      { id:"fl_carn",  name:"L-Carnitine Elite 2000",    brand:"Thorne",        price:44.99, stock:5, active:true, tag:"#1 Fat Burn", tagColor:"#FF6B35", bioNeed:"Fat Transport",         reason:"Shuttles fatty acids into mitochondria — the missing step in most fat-loss stacks." },
+      { id:"fl_carn",  name:"L-Carnitine Elite 2000",    brand:"Thorne",        price:44.99, stock:5, active:true, tag:"#1 Fat Burn", tagColor:"#FF9F0A", bioNeed:"Fat Transport",         reason:"Shuttles fatty acids into mitochondria — the missing step in most fat-loss stacks." },
       { id:"fl_cla",   name:"CLA Complex 3g",            brand:"ChargedSupps™", price:36.99, stock:8, active:true, tag:"Shred",      tagColor:"#FF453A", bioNeed:"Adipocyte Control",     reason:"Reduces fat cell storage capacity at the cellular level — not a stimulant." },
       { id:"fl_egt",   name:"EGCG Green Tea 400mg",      brand:"Thorne",        price:29.99, stock:11, active:true, tag:"Thermogenic",tagColor:"#30D158", bioNeed:"Metabolic Rate",         reason:"8% metabolic elevation per clinical dose. COX-2 modulation for clean energy output." },
     ],
     muscle_build: [
       { id:"mb_whey",  name:"Whey Elite™ Hydrolyzed",   brand:"Thorne",        price:68.99, stock:4, active:true, tag:"#1 Seller", tagColor:"#0A84FF", bioNeed:"Protein Synthesis",     reason:"Hydrolyzed WPI — 15min absorption. Hits the 3.4g leucine threshold before the MPS window closes." },
-      { id:"mb_creat", name:"Creatine Monohydrate 500g",  brand:"ChargedSupps™", price:32.99, stock:14, active:true, tag:"Power",     tagColor:"#FF4B2B", bioNeed:"ATP Resynthesis",       reason:"200+ peer-reviewed studies. Consistent 8-12% strength increase. The most proven supplement that exists." },
+      { id:"mb_creat", name:"Creatine Monohydrate 500g",  brand:"ChargedSupps™", price:32.99, stock:14, active:true, tag:"Power",     tagColor:"#FF453A", bioNeed:"ATP Resynthesis",       reason:"200+ peer-reviewed studies. Consistent 8-12% strength increase. The most proven supplement that exists." },
       { id:"mb_hmb",   name:"HMB Free Acid 3g",          brand:"Thorne",        price:54.99, stock:6, active:true, tag:"Anti-Catabolic",tagColor:"#BF5AF2", bioNeed:"Muscle Preservation",  reason:"Prevents muscle breakdown during surplus phases — maximizes net muscle gain per calorie consumed." },
     ],
   },
@@ -1633,8 +1633,8 @@ const TRUTH_COMPARISONS = [
 // ─── SUPPLEMENT MOA ───────────────────────────────────────────────────────────
 const SUPPLEMENT_MOA = [
   { id:"nad",   name:"NAD+ Complex",         brand:"Thorne NMN",      tag:"Cellular Energy Boost",  tagColor:"#C9A84C", headline:"More Energy, Faster Recovery", hook:"Feel the difference in your first workout. People describe it as their body switching from battery-saver mode to full power.", body:"NAD+ is the fuel your cells run on. After 25, your levels drop ~50% — that's why recovery feels slower. NMN restores those levels in minutes. More energy, better focus, faster muscle repair.", anim:"nad",   color:"#C9A84C" },
-  { id:"omega", name:"Omega-3 Elite",        brand:"Thorne EPA/DHA",  tag:"Anti-Inflammation",       tagColor:"#2E5BFF", headline:"Less Soreness, Cleaner Gains", hook:"If you're sore for 3+ days after training, inflammation is the culprit. This fixes that.", body:"Omega-3s reduce the inflammation that causes joint pain and muscle soreness. Premium triglyceride form absorbs 70% better than the cheap stuff. You'll notice the difference in how you feel day-to-day.", anim:"omega", color:"#2E5BFF" },
-  { id:"resv",  name:"Resveratrol Phytosome",brand:"Thorne",          tag:"Longevity & Recovery",    tagColor:"#00FFAB", headline:"The Anti-Aging Compound", hook:"The supplement that scientists take themselves. Found in red wine — but you'd need 100 bottles to match one capsule.", body:"Resveratrol activates your body's own repair genes. Think of it as a system update for your cells. Phytosome form means it actually gets absorbed — most resveratrol pills are wasted in digestion.", anim:"resv",  color:"#00FFAB" },
+  { id:"omega", name:"Omega-3 Elite",        brand:"Thorne EPA/DHA",  tag:"Anti-Inflammation",       tagColor:"#0A84FF", headline:"Less Soreness, Cleaner Gains", hook:"If you're sore for 3+ days after training, inflammation is the culprit. This fixes that.", body:"Omega-3s reduce the inflammation that causes joint pain and muscle soreness. Premium triglyceride form absorbs 70% better than the cheap stuff. You'll notice the difference in how you feel day-to-day.", anim:"omega", color:"#0A84FF" },
+  { id:"resv",  name:"Resveratrol Phytosome",brand:"Thorne",          tag:"Longevity & Recovery",    tagColor:"#30D158", headline:"The Anti-Aging Compound", hook:"The supplement that scientists take themselves. Found in red wine — but you'd need 100 bottles to match one capsule.", body:"Resveratrol activates your body's own repair genes. Think of it as a system update for your cells. Phytosome form means it actually gets absorbed — most resveratrol pills are wasted in digestion.", anim:"resv",  color:"#30D158" },
 ];
 
 // ─── BIO SCORE CALCULATOR ─────────────────────────────────────────────────────
@@ -1692,11 +1692,11 @@ const TESTIMONIALS = [
   {
     id:"t1", brand:"thorne", archetypes:["longevity","core_definition"],
     name:"Marcus T.", handle:"@marcust_fit", age:34, location:"Austin, TX",
-    avatar:"M", avatarColor:"#D4AF37",
+    avatar:"M", avatarColor:"#C8A94A",
     rating:5, daysAgo:12,
     text:"NAD+ Cell Restore literally changed how I age. Bloodwork confirmed — my biological age dropped 6 years in 8 months. My doctor was shocked.",
     verifiedResult:"Verified: −6 Biological Age Years",
-    resultBadgeColor:"#D4AF37",
+    resultBadgeColor:"#C8A94A",
     benchRatio:0.82,
     videoThumb:"◉", hasVideo:true,
     pinned:false,
@@ -1728,11 +1728,11 @@ const TESTIMONIALS = [
   {
     id:"t4", brand:"chargedsupps", archetypes:["mass_builder","longevity"],
     name:"DeShawn W.", handle:"@deshawnwlifts", age:31, location:"Atlanta, GA",
-    avatar:"D", avatarColor:"#FF6B35",
+    avatar:"D", avatarColor:"#FF9F0A",
     rating:5, daysAgo:3,
     text:"Store brand but absolutely ELITE quality. The Charged Whey protein — 44g per serving, no bloat, incredible taste. First scoop you know it's different.",
     verifiedResult:"Verified: V-Taper Progress Documented",
-    resultBadgeColor:"#FF6B35",
+    resultBadgeColor:"#FF9F0A",
     benchRatio:0.91,
     videoThumb:"●", hasVideo:true,
     pinned:false,
@@ -1740,11 +1740,11 @@ const TESTIMONIALS = [
   {
     id:"t5", brand:"thorne", archetypes:["longevity","fat_loss"],
     name:"Elena R.", handle:"@elenarwellness", age:42, location:"Seattle, WA",
-    avatar:"E", avatarColor:"#D4AF37",
+    avatar:"E", avatarColor:"#C8A94A",
     rating:5, daysAgo:18,
     text:"Resveracel + Omega-3 for 6 months. My inflammation markers dropped 40%, energy through the roof. This is what real supplementation feels like.",
     verifiedResult:"Verified: −40% Inflammation Markers",
-    resultBadgeColor:"#D4AF37",
+    resultBadgeColor:"#C8A94A",
     benchRatio:0.58,
     videoThumb:"◇", hasVideo:false,
     pinned:false,
@@ -1765,7 +1765,7 @@ const TESTIMONIALS = [
 
 // ─── BRAND LOGO SVG PATHS ─────────────────────────────────────────────────────
 const BRAND_LOGO_SVG = {
-  thorne: (color="#D4AF37") => (
+  thorne: (color="#C8A94A") => (
     `<svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg">
       <text x="6" y="30" font-family="Georgia,serif" font-size="28" font-weight="700" fill="${color}" letter-spacing="-1">THORNE</text>
       <rect x="6" y="34" width="94" height="2" fill="${color}" opacity="0.5"/>
@@ -1783,7 +1783,7 @@ const BRAND_LOGO_SVG = {
       <text x="24" y="28" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="${color}" letter-spacing="0.5">KLEAN ATHLETE</text>
     </svg>`
   ),
-  chargedsupps: (color="#FF6B35") => (
+  chargedsupps: (color="#FF9F0A") => (
     `<svg viewBox="0 0 170 40" xmlns="http://www.w3.org/2000/svg">
       <polygon points="10,8 20,8 14,20 22,20 8,36 12,22 5,22" fill="${color}"/>
       <text x="28" y="28" font-family="Arial,sans-serif" font-size="16" font-weight="800" fill="${color}" letter-spacing="0.5">CHARGEDSUPPS™</text>
@@ -1813,7 +1813,7 @@ if (typeof OS_MODES !== "undefined" && !OS_MODES.personal) {
     heroBio:    "Kailu listening. Log anything — food, sleep, training, feelings — in plain language.",
     ctaLabel:   "Open Bio-Brief",
     bgGradient: (T) => `radial-gradient(ellipse 80% 55% at 50% 0%, ${T.blue}1A 0%, transparent 65%)`,
-    pulse:      "#2E5BFF",
+    pulse:      "#0A84FF",
   };
 }
 
@@ -2256,7 +2256,7 @@ class RVNErrorBoundary extends Component {
         fontFamily: `"SF Pro Display",system-ui,sans-serif`, padding: 32,
         textAlign: "center",
       }}>
-        <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: 2, color: "#2E5BFF", marginBottom: 12 }}>
+        <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: 2, color: "#0A84FF", marginBottom: 12 }}>
           RVN OS
         </div>
         <div style={{ fontSize: 13, color: "rgba(210,215,255,0.65)", marginBottom: 8 }}>
@@ -2265,14 +2265,14 @@ class RVNErrorBoundary extends Component {
         <div style={{
           background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,75,43,0.4)",
           borderRadius: 10, padding: "14px 20px", fontSize: 11,
-          color: "#FF4B2B", maxWidth: 400, marginBottom: 24, wordBreak: "break-all",
+          color: "#FF453A", maxWidth: 400, marginBottom: 24, wordBreak: "break-all",
         }}>
           {this.state.error?.message || "An unexpected error occurred."}
         </div>
         <button
           onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
           style={{
-            background: "#2E5BFF", color: "#fff", border: "none",
+            background: "#0A84FF", color: "#fff", border: "none",
             borderRadius: 10, padding: "12px 28px", fontSize: 12,
             fontWeight: 800, letterSpacing: 2, cursor: "pointer",
           }}
@@ -2287,7 +2287,7 @@ class RVNErrorBoundary extends Component {
 // ─── COBALT SPINNER ───────────────────────────────────────────────────────────
 // Biotech-themed loading indicator. Used globally for async operations.
 function CobaltSpinner({ size = 32, color }) {
-  const c = color || "#2E5BFF";
+  const c = color || "#0A84FF";
   return (
     <svg width={size} height={size} viewBox="0 0 40 40"
       style={{ animation: "os_spin 0.8s linear infinite", display: "block" }}>
@@ -2403,29 +2403,22 @@ function NeuralMesh({ theme, accentColor, density = 12 }) {
   const ac = accentColor || T.blue;
   return (
     <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"
-      style={{ position:"absolute", inset:0, width:"100%", height:"100%", pointerEvents:"none" }}>
+      style={{ position:"absolute", inset:0, width:"100%", height:"100%", pointerEvents:"none", opacity:0.35 }}>
       {edges.map((e, i) => (
         <line key={i} x1={`${e.x1}%`} y1={`${e.y1}%`} x2={`${e.x2}%`} y2={`${e.y2}%`}
-          stroke={ac} strokeWidth=".12" strokeOpacity=".22"/>
+          stroke={ac} strokeWidth=".08" strokeOpacity=".12"/>
       ))}
       {nodes.map((n, i) => (
-        <circle key={i} cx={`${n.x}%`} cy={`${n.y}%`} r=".35"
-          fill={ac} style={{ animation:`os_neural ${2+n.delay}s ease-in-out infinite`, animationDelay:`${n.delay}s` }}/>
+        <circle key={i} cx={`${n.x}%`} cy={`${n.y}%`} r=".22"
+          fill={ac} fillOpacity=".3" style={{ animation:`os_neural ${2+n.delay}s ease-in-out infinite`, animationDelay:`${n.delay}s` }}/>
       ))}
     </svg>
   );
 }
 
-// ─── SCANLINE OVERLAY ──────────────────────────────────────────────────────────
-function Scanlines({ theme }) {
-  if (theme !== "dark") return null;
-  return (
-    <div style={{
-      position:"fixed", inset:0, pointerEvents:"none", zIndex:9998,
-      background:`repeating-linear-gradient(0deg,transparent,transparent 2px,${D.dark.scanline} 2px,${D.dark.scanline} 4px)`,
-    }}/>
-  );
-}
+// ─── SCANLINE OVERLAY ─────────────────────────────────────────────────────────
+// Removed — CRT scanlines are a retro game aesthetic, not premium health tech
+function Scanlines() { return null; }
 
 // ─── RVN LOGO ─────────────────────────────────────────────────────────────────
 function RVNLogo({ size = 56, glow, style = {} }) {
@@ -2481,18 +2474,16 @@ function GlassCard({ children, theme, glow, style={}, onClick }) {
     <div onClick={onClick}
       style={{
         background: glow
-          ? `linear-gradient(135deg, ${glow}0D 0%, ${T.glass} 100%)`
+          ? `linear-gradient(135deg, ${glow}09 0%, ${T.glass} 100%)`
           : T.glass,
-        backdropFilter: isMobile ? "none" : "blur(24px) saturate(200%) brightness(1.04)",
-        WebkitBackdropFilter: isMobile ? "none" : "blur(24px) saturate(200%) brightness(1.04)",
-        // 1px outer edge + 1px inner highlight — "Precision-Engineered" layering
-        border:`1px solid ${glow ? glow+"55" : T.border}`,
-        outline: `1px solid ${T.borderInner}`,
-        outlineOffset:"-2px",
+        backdropFilter: isMobile ? "none" : "blur(20px) saturate(160%)",
+        WebkitBackdropFilter: isMobile ? "none" : "blur(20px) saturate(160%)",
+        // Single border — neutral so cards don't fight for attention
+        border:`1px solid ${T.border}`,
         borderRadius:16,
         boxShadow: glow
-          ? `0 12px 48px ${glow}1A, 0 2px 12px ${glow}0F, inset 0 1px 0 ${glow}33`
-          : `0 8px 32px rgba(0,0,0,.22), 0 1px 4px rgba(0,0,0,.12), inset 0 1px 0 ${T.borderHi}`,
+          ? `0 8px 32px ${glow}14, 0 1px 4px rgba(0,0,0,.18), inset 0 1px 0 ${T.borderHi}`
+          : `0 4px 20px rgba(0,0,0,.18), 0 1px 3px rgba(0,0,0,.10), inset 0 1px 0 ${T.borderHi}`,
         ...style,
       }}>
       {children}
@@ -3683,7 +3674,7 @@ function AvatarCell({ active, glow, size=140, animating=false }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // HOLO AVATAR — Medical-grade holographic scan with 360° hover rotation
 // ═══════════════════════════════════════════════════════════════════════════════
-function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, active=false }) {
+function HoloAvatar({ archetypeId, gender="male", glow="#0A84FF", size=160, active=false }) {
   const [hovered, setHovered] = useState(false);
 
   // ── Ghost-Shell Anatomy Database ─────────────────────────────────────────
@@ -4050,7 +4041,7 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
 
 
 // ─── CELL BATTERY CINE-RENDER ─────────────────────────────────────────────────
-function CellBattery({ active=true, color="#D4AF37", size=110 }) {
+function CellBattery({ active=true, color="#C8A94A", size=110 }) {
   const id = `cb_${size}`;
   const [charge, setCharge] = useState(active ? 1 : 0);
   useEffect(() => {
@@ -4202,7 +4193,7 @@ function BioAvatar({ archetypeId, theme, active, glow, size=140, animating, gend
   const T = D[theme] || D.dark;
   const archetypes = gender==="female" ? FEMALE_GYM_ARCHETYPES : GYM_ARCHETYPES;
   const arch = [...(archetypes||[]), ...(STORE_ARCHETYPES||[])].find(a => a.id===archetypeId);
-  const g = glow || arch?.glow || (T ? T.blue : "#2E5BFF");
+  const g = glow || arch?.glow || (T ? T.blue : "#0A84FF");
   return <HoloAvatar archetypeId={archetypeId} gender={gender} glow={g} size={size} active={active}/>;
 }
 
@@ -4215,9 +4206,9 @@ function ThemeToggle({ theme, onToggle }) {
     <motion.button whileTap={{ scale:.95 }} onClick={onToggle}
       style={{
         width:48, height:26, borderRadius:13, border:"none", cursor:"pointer",
-        background: isDark ? "#2E5BFF" : "#C9A84C",
+        background: isDark ? "#0A84FF" : "#C9A84C",
         position:"relative", flexShrink:0,
-        boxShadow:`0 0 12px ${isDark?"#2E5BFF":"#C9A84C"}55`,
+        boxShadow:`0 0 12px ${isDark?"#0A84FF":"#C9A84C"}55`,
       }}>
       <motion.div
         animate={{ x: isDark ? 24 : 3 }}
@@ -4273,7 +4264,7 @@ function BioClockWidget({ theme, compact=false }) {
 // ─── MOA DISPATCH (supplement animation icons) ────────────────────────────────
 function MoADispatch({ id, theme }) {
   const T = D[theme]||D.dark;
-  const color = id==="nad" ? "#C9A84C" : id==="omega" ? "#2E5BFF" : id==="resv" ? "#00FFAB" : "#D4AF37";
+  const color = id==="nad" ? "#C9A84C" : id==="omega" ? "#0A84FF" : id==="resv" ? "#30D158" : "#C8A94A";
   const shapes = {
     nad: (
       <svg width="30" height="30" viewBox="0 0 30 30">
@@ -4957,94 +4948,94 @@ const PROTOCOL_MILESTONES = {
   mass_builder: [
     { week:3,  supp:"Creatine HMB",      why:"Creatine reaches full muscle saturation at week 3. ATP reserves are 23% higher. Every rep now recruits more fast-twitch fibres.", metric:"Strength", rvn:"+14%", std:"+4%",  color:"#0A84FF" },
     { week:6,  supp:"Whey + EAAs",       why:"Protein synthesis is in overdrive. Leucine threshold consistently crossed every session. Lean tissue is being laid down visibly.", metric:"Lean Mass", rvn:"+8lbs", std:"+2lbs", color:"#30D158" },
-    { week:9,  supp:"Beta-Alanine",      why:"Carnosine buffering is fully established. You can train harder for longer before lactic acid forces you to stop.", metric:"Volume",   rvn:"+31%", std:"+9%",  color:"#FF6B35" },
-    { week:12, supp:"Full Stack Synergy",why:"All compounds are working in concert. Creatine + protein + beta-alanine create a compounding effect no single supplement achieves alone.", metric:"Total Gains", rvn:"+38%", std:"+11%", color:"#D4AF37" },
+    { week:9,  supp:"Beta-Alanine",      why:"Carnosine buffering is fully established. You can train harder for longer before lactic acid forces you to stop.", metric:"Volume",   rvn:"+31%", std:"+9%",  color:"#FF9F0A" },
+    { week:12, supp:"Full Stack Synergy",why:"All compounds are working in concert. Creatine + protein + beta-alanine create a compounding effect no single supplement achieves alone.", metric:"Total Gains", rvn:"+38%", std:"+11%", color:"#C8A94A" },
   ],
   core_definition: [
-    { week:3,  supp:"L-Carnitine",       why:"L-Carnitine is now physically moving fatty acids across the mitochondrial membrane. Fat oxidation during training is measurably higher.", metric:"Fat Burn",   rvn:"+18%", std:"+5%",  color:"#FF6B35" },
+    { week:3,  supp:"L-Carnitine",       why:"L-Carnitine is now physically moving fatty acids across the mitochondrial membrane. Fat oxidation during training is measurably higher.", metric:"Fat Burn",   rvn:"+18%", std:"+5%",  color:"#FF9F0A" },
     { week:6,  supp:"CLA + Omega-3",     why:"Omega-3 has integrated into cell membranes. Inflammation is down — meaning you recover faster and train harder. CLA is redirecting stored fat.", metric:"Definition", rvn:"+22%", std:"+7%",  color:"#0A84FF" },
     { week:9,  supp:"Green Tea Extract", why:"EGCG is now potentiating thermogenesis around the clock — not just in training. Resting metabolism is measurably elevated.", metric:"Resting Burn", rvn:"+15%", std:"+3%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",     why:"Striated muscle visible. Vascularity established. The definition you're seeing is the compound result of 3 months of molecular-level optimization.", metric:"Body Comp",  rvn:"-18%BF", std:"-6%BF", color:"#D4AF37" },
+    { week:12, supp:"Full Protocol",     why:"Striated muscle visible. Vascularity established. The definition you're seeing is the compound result of 3 months of molecular-level optimization.", metric:"Body Comp",  rvn:"-18%BF", std:"-6%BF", color:"#C8A94A" },
   ],
   athletic_performance: [
     { week:3,  supp:"Creatine + Pre",    why:"CNS stimulation is now fully calibrated. Explosive output in the first 3 sets is 19% higher than week 1. Your nervous system has adapted.", metric:"Power",     rvn:"+19%", std:"+5%",  color:"#0A84FF" },
     { week:6,  supp:"Magnesium Glycinate",why:"Magnesium has replenished the chronic deficit most athletes don't know they have. Deep sleep improved — this is where growth happens.", metric:"Recovery",   rvn:"+34%", std:"+8%",  color:"#30D158" },
-    { week:9,  supp:"Vitamin D3 + K2",   why:"Testosterone optimization is underway. D3 and K2 together direct calcium to bone, not arteries — injury resilience is now significantly higher.", metric:"Resilience", rvn:"+28%", std:"+6%",  color:"#FF6B35" },
-    { week:12, supp:"Full Protocol",     why:"You are operating at genuine athletic peak. Every system — power, recovery, hormonal — has been systematically optimized over 12 weeks.", metric:"Performance", rvn:"+41%", std:"+12%", color:"#D4AF37" },
+    { week:9,  supp:"Vitamin D3 + K2",   why:"Testosterone optimization is underway. D3 and K2 together direct calcium to bone, not arteries — injury resilience is now significantly higher.", metric:"Resilience", rvn:"+28%", std:"+6%",  color:"#FF9F0A" },
+    { week:12, supp:"Full Protocol",     why:"You are operating at genuine athletic peak. Every system — power, recovery, hormonal — has been systematically optimized over 12 weeks.", metric:"Performance", rvn:"+41%", std:"+12%", color:"#C8A94A" },
   ],
   longevity: [
     { week:3,  supp:"NAD+ (NMN/NR)",     why:"NAD+ levels are rising in every cell. Sirtuin pathways activating — these are the same pathways that caloric restriction activates. Cellular energy is measurably higher.", metric:"Cellular ATP", rvn:"+24%", std:"+2%",  color:"#30D158" },
     { week:6,  supp:"Resveratrol",       why:"Resveratrol has activated AMPK and SIRT1. Inflammation biomarkers are measurably lower. Cells are beginning to clear damaged components (autophagy).", metric:"Inflammation", rvn:"-31%", std:"-5%",  color:"#0A84FF" },
     { week:9,  supp:"Omega-3 + CoQ10",   why:"Mitochondrial membranes are now omega-3 enriched — more fluid, more efficient. CoQ10 is the final electron carrier in ATP synthesis. Energy per cell is at its peak.", metric:"Mitochondria", rvn:"+38%", std:"+4%",  color:"#C9A84C" },
-    { week:12, supp:"Full Bio-Stack",    why:"Biological age markers have shifted. This isn't about feeling better — it's about measurable epigenetic change. The protocol has done what no single supplement could.", metric:"Bio Age",    rvn:"-6yr", std:"-1yr",  color:"#D4AF37" },
+    { week:12, supp:"Full Bio-Stack",    why:"Biological age markers have shifted. This isn't about feeling better — it's about measurable epigenetic change. The protocol has done what no single supplement could.", metric:"Bio Age",    rvn:"-6yr", std:"-1yr",  color:"#C8A94A" },
   ],
   fat_loss: [
-    { week:3,  supp:"Thermogenic Stack", why:"Core temperature is 0.4°C higher at rest. This isn't subtle — it's an additional 200 calories per day being oxidised. The thermogenic effect is now active 24/7.", metric:"Resting Burn", rvn:"+200cal", std:"+40cal", color:"#FF6B35" },
+    { week:3,  supp:"Thermogenic Stack", why:"Core temperature is 0.4°C higher at rest. This isn't subtle — it's an additional 200 calories per day being oxidised. The thermogenic effect is now active 24/7.", metric:"Resting Burn", rvn:"+200cal", std:"+40cal", color:"#FF9F0A" },
     { week:6,  supp:"L-Carnitine",       why:"Fat is being physically transported into mitochondria at a measurably higher rate. Mobilised fat that used to recirculate is now being burned.", metric:"Fat Oxidation", rvn:"+34%", std:"+6%",  color:"#0A84FF" },
     { week:9,  supp:"CLA",               why:"CLA is selectively targeting adipose tissue while preserving lean muscle. This is the compound that prevents the 'skinny-fat' outcome of standard dieting.", metric:"Muscle Sparing", rvn:"+19%", std:"+2%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",     why:"22 lbs of fat lost. Muscle maintained. This result is only achievable when every link in the metabolic chain is supported simultaneously.", metric:"Fat Lost",   rvn:"-22lbs", std:"-6lbs", color:"#D4AF37" },
+    { week:12, supp:"Full Protocol",     why:"22 lbs of fat lost. Muscle maintained. This result is only achievable when every link in the metabolic chain is supported simultaneously.", metric:"Fat Lost",   rvn:"-22lbs", std:"-6lbs", color:"#C8A94A" },
   ],
   muscle_build: [
     { week:3,  supp:"Creatine Monohydrate",why:"Muscle creatine stores are now fully saturated. This translates to an immediate and measurable increase in strength output during compound lifts.", metric:"1RM Strength", rvn:"+16%", std:"+4%",  color:"#0A84FF" },
     { week:6,  supp:"Whey Isolate",      why:"Protein synthesis rate is elevated around the clock. You're now building muscle tissue even on rest days — which never happens without adequate protein.", metric:"Lean Tissue", rvn:"+7lbs",  std:"+2lbs", color:"#30D158" },
-    { week:9,  supp:"ZMA (Zinc+Mag)",    why:"Testosterone and IGF-1 are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now clean.", metric:"Hormonal",  rvn:"+22%", std:"+3%",  color:"#FF6B35" },
-    { week:12, supp:"Full Stack",        why:"31 lbs of lean mass in 12 weeks. The stack compounds — creatine drives strength, protein drives synthesis, ZMA optimises the hormonal environment for maximum uptake.", metric:"Total Mass", rvn:"+31lbs", std:"+8lbs", color:"#D4AF37" },
+    { week:9,  supp:"ZMA (Zinc+Mag)",    why:"Testosterone and IGF-1 are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now clean.", metric:"Hormonal",  rvn:"+22%", std:"+3%",  color:"#FF9F0A" },
+    { week:12, supp:"Full Stack",        why:"31 lbs of lean mass in 12 weeks. The stack compounds — creatine drives strength, protein drives synthesis, ZMA optimises the hormonal environment for maximum uptake.", metric:"Total Mass", rvn:"+31lbs", std:"+8lbs", color:"#C8A94A" },
   ],
   // ── New men's archetypes ──────────────────────────────────────────────────────
   chest_arms: [
     { week:3,  supp:"Creatine Mono",       why:"Muscles are now creatine-saturated. Bench press has jumped 10–15 lbs in 3 weeks. The number will keep climbing.", metric:"Bench Press",  rvn:"+14%", std:"+4%",  color:"#0A84FF" },
     { week:6,  supp:"Whey Isolate",        why:"Bicep peak is visibly more defined. Protein synthesis is running around the clock — chest and arm mass is being laid down.", metric:"Arm Size",    rvn:"+0.8in",std:"+0.2in",color:"#FF9F0A" },
-    { week:9,  supp:"Citrulline Stack",    why:"Vascularity is emerging. Blood flow to the arms during training is 40% higher. Every rep is better fed, better pumped.", metric:"Definition",  rvn:"+29%", std:"+7%",  color:"#FF6B35" },
-    { week:12, supp:"Full Stack",          why:"Chest is thicker, arms are full. The combination of creatine strength + protein synthesis + pump compounds into visible transformation.", metric:"Total Gains", rvn:"+35%", std:"+10%", color:"#D4AF37" },
+    { week:9,  supp:"Citrulline Stack",    why:"Vascularity is emerging. Blood flow to the arms during training is 40% higher. Every rep is better fed, better pumped.", metric:"Definition",  rvn:"+29%", std:"+7%",  color:"#FF9F0A" },
+    { week:12, supp:"Full Stack",          why:"Chest is thicker, arms are full. The combination of creatine strength + protein synthesis + pump compounds into visible transformation.", metric:"Total Gains", rvn:"+35%", std:"+10%", color:"#C8A94A" },
   ],
   powerlifter: [
     { week:3,  supp:"Creatine HMB",        why:"Creatine phosphate stores are now full. Your max squat has jumped — setting PRs in week 3 of 12. That is the creatine loading effect.", metric:"1RM Squat",   rvn:"+12%", std:"+3%",  color:"#BF5AF2" },
     { week:6,  supp:"Joint Complex",       why:"Connective tissue is being rebuilt. Heavy bilateral loading is getting more comfortable. Knee and hip discomfort between sessions is measurably lower.", metric:"Joint Health",rvn:"+41%", std:"+8%",  color:"#0A84FF" },
     { week:9,  supp:"ZMA Protocol",        why:"Testosterone baseline is restored. Zinc correction in heavy athletes accounts for a 22% hormonal improvement — recovery between sessions is faster.", metric:"Recovery",   rvn:"+22%", std:"+4%",  color:"#30D158" },
-    { week:12, supp:"Full Stack",          why:"Every major lift is at an all-time PR. ATP resynthesis + joint health + testosterone optimization is what competition-ready looks like.", metric:"Total PRs",  rvn:"+28%", std:"+7%",  color:"#D4AF37" },
+    { week:12, supp:"Full Stack",          why:"Every major lift is at an all-time PR. ATP resynthesis + joint health + testosterone optimization is what competition-ready looks like.", metric:"Total PRs",  rvn:"+28%", std:"+7%",  color:"#C8A94A" },
   ],
   shred: [
     { week:3,  supp:"L-Carnitine",         why:"Fat oxidation during training is now measurably higher. The carnitine transport system is running at capacity — mobilized fat is being burned, not recycled.", metric:"Fat Burn",   rvn:"+22%", std:"+5%",  color:"#FF3B30" },
-    { week:6,  supp:"Thermo Complex",      why:"Resting metabolic rate is elevated around the clock. 140 extra calories per day adds up to almost 1 additional lb per week of fat loss on top of training.", metric:"Resting Burn",rvn:"+140cal",std:"+30cal",color:"#FF6B35" },
+    { week:6,  supp:"Thermo Complex",      why:"Resting metabolic rate is elevated around the clock. 140 extra calories per day adds up to almost 1 additional lb per week of fat loss on top of training.", metric:"Resting Burn",rvn:"+140cal",std:"+30cal",color:"#FF9F0A" },
     { week:9,  supp:"CLA Protocol",        why:"Fat cells are structurally smaller. CLA does not just burn fat — it changes how fat cells behave, making it harder for them to expand again after the cut.", metric:"Body Comp",  rvn:"-14%BF",std:"-4%BF",color:"#30D158" },
-    { week:12, supp:"Full Stack",          why:"The shred is complete. Muscle is preserved. The stack ensured fat loss not muscle loss — and the body composition change is permanent, not just water weight.", metric:"Fat Lost",   rvn:"-20lbs",std:"-5lbs",color:"#D4AF37" },
+    { week:12, supp:"Full Stack",          why:"The shred is complete. Muscle is preserved. The stack ensured fat loss not muscle loss — and the body composition change is permanent, not just water weight.", metric:"Fat Lost",   rvn:"-20lbs",std:"-5lbs",color:"#C8A94A" },
   ],
   calisthenics: [
     { week:3,  supp:"Collagen + Joints",   why:"Tendons and ligaments are beginning to adapt. Elbow and wrist discomfort from lever exercises is significantly reduced. The collagen framework is being rebuilt.", metric:"Joint Health",rvn:"+35%", std:"+7%",  color:"#5AC8FA" },
     { week:6,  supp:"Magnesium",           why:"Neural recovery is full between sessions. Isometric holds last longer. Magnesium has eliminated the neuromuscular tension that was limiting skill progression.", metric:"Skill Level", rvn:"+44%", std:"+11%", color:"#0A84FF" },
     { week:9,  supp:"EAA Complex",         why:"Mid-workout catabolism is gone. EAAs protect muscle during long skill sessions where protein breakdown would otherwise blunt adaptation gains.", metric:"Strength",   rvn:"+31%", std:"+8%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",       why:"Movements that were impossible at week 1 are now repeatable. Connective tissue + neural recovery + muscle preservation created compounding skill gains.", metric:"Total Skill", rvn:"+58%", std:"+14%", color:"#D4AF37" },
+    { week:12, supp:"Full Protocol",       why:"Movements that were impossible at week 1 are now repeatable. Connective tissue + neural recovery + muscle preservation created compounding skill gains.", metric:"Total Skill", rvn:"+58%", std:"+14%", color:"#C8A94A" },
   ],
   // ── New women's archetypes ────────────────────────────────────────────────────
   lower_build: [
     { week:3,  supp:"Creatine Mono",       why:"Squat and deadlift numbers are already up. Creatine saturation in the leg muscles means more ATP for heavy compound work — every session ends heavier.", metric:"Leg Strength",rvn:"+16%", std:"+4%",  color:"#BF5AF2" },
     { week:6,  supp:"Whey Isolate",        why:"Quads and hamstrings are visibly developing. Protein synthesis in the lower body is running above baseline — muscle tissue is being built between sessions.", metric:"Leg Mass",   rvn:"+5lbs",std:"+1.2lbs",color:"#30D158" },
     { week:9,  supp:"Joint Support",       why:"Heavy lower body work taxes hips and knees. Glucosamine + collagen has rebuilt the cartilage layer — heavy sessions are now feeling smoother and safer.", metric:"Joint Health",rvn:"+38%", std:"+7%",  color:"#0A84FF" },
-    { week:12, supp:"Full Stack",          why:"Visible quad sweep. Glute-hamstring tie-in defined. Three months of progressive overload supported by the right molecular environment.", metric:"Total Gains", rvn:"+34%", std:"+9%",  color:"#D4AF37" },
+    { week:12, supp:"Full Stack",          why:"Visible quad sweep. Glute-hamstring tie-in defined. Three months of progressive overload supported by the right molecular environment.", metric:"Total Gains", rvn:"+34%", std:"+9%",  color:"#C8A94A" },
   ],
   body_recomp: [
     { week:3,  supp:"L-Carnitine",         why:"Your body is now using fat as the priority fuel source. Muscle tissue is being built simultaneously — the recomp effect is measurably active.", metric:"Fat Oxidation",rvn:"+24%", std:"+5%",  color:"#FF9F0A" },
     { week:6,  supp:"Whey Isolate",        why:"Lean mass is up. Body fat is down. The scale may not move but measurements have changed — this is the definition of body recomposition.", metric:"Body Comp",  rvn:"+18%", std:"+4%",  color:"#30D158" },
     { week:9,  supp:"Magnesium Stack",     why:"Cortisol is controlled. When cortisol is high, fat deposits around the waist and muscle breaks down. Magnesium fixed that — recomp efficiency is at its peak.", metric:"Lean Ratio",  rvn:"+27%", std:"+5%",  color:"#0A84FF" },
-    { week:12, supp:"Full Protocol",       why:"Less fat, more muscle, same or lower weight — this is what nobody tells you is possible, but the right stack made it happen.", metric:"Final Recomp",rvn:"+41%", std:"+10%", color:"#D4AF37" },
+    { week:12, supp:"Full Protocol",       why:"Less fat, more muscle, same or lower weight — this is what nobody tells you is possible, but the right stack made it happen.", metric:"Final Recomp",rvn:"+41%", std:"+10%", color:"#C8A94A" },
   ],
   arms_back_f: [
     { week:3,  supp:"EAA Complex",         why:"Upper body muscle breakdown during training is stopped. Every set is now building, not just surviving. Arm and back definition is beginning to emerge.", metric:"Definition", rvn:"+17%", std:"+4%",  color:"#5AC8FA" },
     { week:6,  supp:"Pump Formula",        why:"Arm vascularity is visible. Citrulline has increased blood flow to the bicep and lat significantly — muscles are better fed and responding faster.", metric:"Vascularity",rvn:"+34%", std:"+6%",  color:"#0A84FF" },
     { week:9,  supp:"Omega-3 Stack",       why:"Recovery between upper body sessions is dramatically faster. Inflammation in the arms and shoulders is controlled — you can train with more frequency.", metric:"Recovery",   rvn:"+29%", std:"+7%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",       why:"Arms are defined. Back has width and depth. Building + pumping + recovering correctly compounded into the upper body transformation.", metric:"Total Gains", rvn:"+36%", std:"+10%", color:"#D4AF37" },
+    { week:12, supp:"Full Protocol",       why:"Arms are defined. Back has width and depth. Building + pumping + recovering correctly compounded into the upper body transformation.", metric:"Total Gains", rvn:"+36%", std:"+10%", color:"#C8A94A" },
   ],
   full_body_f: [
     { week:3,  supp:"Whey Isolate",        why:"Full body 3x/week demands protein after every session. Whey isolate delivers amino acids to every muscle group within 15 minutes of training ending.", metric:"Recovery",   rvn:"+21%", std:"+5%",  color:"#30D158" },
     { week:6,  supp:"Magnesium",           why:"Recovery is happening fully between sessions. Deep sleep quality improved — this is when growth hormone peaks and the muscle building actually happens.", metric:"Sleep Quality",rvn:"+38%", std:"+8%",  color:"#0A84FF" },
     { week:9,  supp:"L-Carnitine",         why:"Every full body session is now burning fat as the primary fuel. Body composition is shifting — less fat, more lean tissue, elevated metabolism.", metric:"Body Comp",  rvn:"+24%", std:"+6%",  color:"#FF9F0A" },
-    { week:12, supp:"Full Protocol",       why:"Total body transformation. Every muscle group has been trained 48 times in 12 weeks. With the right support, this is the fastest complete change available.", metric:"Total Change",rvn:"+38%", std:"+10%", color:"#D4AF37" },
+    { week:12, supp:"Full Protocol",       why:"Total body transformation. Every muscle group has been trained 48 times in 12 weeks. With the right support, this is the fastest complete change available.", metric:"Total Change",rvn:"+38%", std:"+10%", color:"#C8A94A" },
   ],
   smoothie: [
     { week:3,  supp:"Collagen + Vitamin C",why:"Collagen synthesis requires vitamin C as a cofactor. Joint tissue is being rebuilt at the cellular level. Morning stiffness is measurably reduced.", metric:"Joint Health", rvn:"+28%", std:"+4%",  color:"#30D158" },
     { week:6,  supp:"Spirulina + Chlorella",why:"Phytonutrient density is now at therapeutic levels. Heavy metal chelation is occurring. Mitochondrial efficiency has measurably improved.", metric:"Detox Score", rvn:"+41%", std:"+5%",  color:"#0A84FF" },
-    { week:9,  supp:"Adaptogens (Ashwagandha)",why:"Cortisol is measurably lower. HRV (heart rate variability) is improved. Your nervous system is no longer in a chronic stress state.", metric:"Stress Index", rvn:"-34%", std:"-5%",  color:"#FF6B35" },
-    { week:12, supp:"Full Formula",      why:"Every biomarker has shifted. Energy, sleep, skin, digestion — all improved because the formula addressed every system simultaneously.", metric:"Wellness Score", rvn:"+52%", std:"+8%",  color:"#D4AF37" },
+    { week:9,  supp:"Adaptogens (Ashwagandha)",why:"Cortisol is measurably lower. HRV (heart rate variability) is improved. Your nervous system is no longer in a chronic stress state.", metric:"Stress Index", rvn:"-34%", std:"-5%",  color:"#FF9F0A" },
+    { week:12, supp:"Full Formula",      why:"Every biomarker has shifted. Energy, sleep, skin, digestion — all improved because the formula addressed every system simultaneously.", metric:"Wellness Score", rvn:"+52%", std:"+8%",  color:"#C8A94A" },
   ],
 };
 
@@ -5142,7 +5133,7 @@ const SUPPLEMENT_CATALOG = {
       why:"Creatine phosphate stores reach full saturation at week 3 — ATP reserves are 23% higher. Explosive power in the first 5 reps of every set is measurably elevated, and fast-twitch fibre recruitment increases with every session." },
     { id:"whey",        name:"Whey Protein Isolate",week:1,  weight:0.22, metric:"Lean Mass",    value:"+8 lbs", color:"#30D158",
       why:"Leucine threshold is crossed every session, activating mTOR signalling and keeping muscle protein synthesis elevated for 48h post-workout. You build lean tissue on rest days — something that physiologically cannot happen without adequate high-quality protein." },
-    { id:"beta",        name:"Beta-Alanine",        week:6,  weight:0.20, metric:"Volume",       value:"+31%",   color:"#FF6B35",
+    { id:"beta",        name:"Beta-Alanine",        week:6,  weight:0.20, metric:"Volume",       value:"+31%",   color:"#FF9F0A",
       why:"Muscle carnosine buffering is now fully established. Lactic acid is neutralised faster — you complete 4-6 more reps per set before metabolic failure. Over a full week, that extra volume is a massive additional stimulus." },
     { id:"zma",         name:"ZMA (Zinc + Mag)",    week:9,  weight:0.18, metric:"Hormonal",     value:"+22%",   color:"#C9A84C",
       why:"Zinc and magnesium deficiencies — present in 70% of active individuals — are now corrected. Testosterone and IGF-1 production are unblocked. Recovery between sessions is accelerated by the restored hormonal environment." },
@@ -5150,7 +5141,7 @@ const SUPPLEMENT_CATALOG = {
       why:"CNS activation is maximised before each session. You recruit more motor units in the critical first working sets — higher motor unit recruitment equals a greater anabolic stimulus, which compounds over 12 weeks." },
   ],
   core_definition: [
-    { id:"lcarnitine",  name:"L-Carnitine",         week:3,  weight:0.28, metric:"Fat Burn",     value:"+18%",   color:"#FF6B35",
+    { id:"lcarnitine",  name:"L-Carnitine",         week:3,  weight:0.28, metric:"Fat Burn",     value:"+18%",   color:"#FF9F0A",
       why:"L-Carnitine is physically shuttling fatty acids across the mitochondrial membrane. Fat oxidation during every training session is measurably elevated from week 3 — you're literally burning fat you could not burn before." },
     { id:"cla_omega",   name:"CLA + Omega-3",       week:6,  weight:0.24, metric:"Definition",   value:"+22%",   color:"#0A84FF",
       why:"Omega-3 has integrated into cell membranes — reducing exercise-induced inflammation so you recover faster and train harder. CLA is now redirecting stored fat toward oxidation instead of re-storage after training." },
@@ -5166,7 +5157,7 @@ const SUPPLEMENT_CATALOG = {
       why:"CNS stimulation is fully calibrated and creatine stores saturated. Explosive output in the first 3 sets is 19% higher than week 1. Your nervous system has adapted to the loading pattern and is now firing optimally." },
     { id:"magnesium",   name:"Magnesium Glycinate", week:6,  weight:0.24, metric:"Recovery",     value:"+34%",   color:"#30D158",
       why:"Magnesium deficiency — present in 60% of athletes — is corrected. Deep sleep quality has improved significantly, and deep sleep is when growth hormone secretion and tissue repair peak. Better sleep means faster recovery means more frequent hard training." },
-    { id:"vitd3",       name:"Vitamin D3 + K2",     week:9,  weight:0.22, metric:"Resilience",   value:"+28%",   color:"#FF6B35",
+    { id:"vitd3",       name:"Vitamin D3 + K2",     week:9,  weight:0.22, metric:"Resilience",   value:"+28%",   color:"#FF9F0A",
       why:"D3 and K2 together direct calcium to bone and away from soft tissue. Testosterone optimisation is underway. Structural injury resilience is measurably higher — the compound effect on joints and connective tissue is only visible at this stage." },
     { id:"electrolytes",name:"Electrolyte Stack",   week:1,  weight:0.14, metric:"Hydration",    value:"+12%",   color:"#C9A84C",
       why:"Even 2% dehydration reduces power output by 11%. Full electrolyte balance guarantees every training session is performed with optimal fluid and mineral status — there is no recovery from poor session quality." },
@@ -5180,13 +5171,13 @@ const SUPPLEMENT_CATALOG = {
       why:"AMPK and SIRT1 are now activated. Systemic inflammation biomarkers are measurably lower. Cells are beginning to clear damaged components via autophagy — the cellular recycling process that is the closest thing science has to anti-ageing." },
     { id:"coq10",       name:"Omega-3 + CoQ10",     week:9,  weight:0.22, metric:"Mitochondria", value:"+38%",   color:"#C9A84C",
       why:"Mitochondrial membranes are now omega-3 enriched — more fluid, more efficient at electron transport. CoQ10 is the final carrier in the ATP synthesis chain. Energy output per cell is at its highest measurable point." },
-    { id:"vitd3",       name:"Vitamin D3 + K2",     week:1,  weight:0.13, metric:"Immune Score", value:"+20%",   color:"#FF6B35",
+    { id:"vitd3",       name:"Vitamin D3 + K2",     week:1,  weight:0.13, metric:"Immune Score", value:"+20%",   color:"#FF9F0A",
       why:"D3 is the master hormonal regulator — immune function, mood, testosterone, and calcium metabolism all depend on it. Deficiency correction takes 6-8 weeks. Starting at week 1 ensures the compounding begins immediately." },
     { id:"ashwa",       name:"Ashwagandha",          week:3,  weight:0.10, metric:"Cortisol",     value:"-22%",   color:"#FF375F",
       why:"Cortisol is the primary biological ageing accelerant. Ashwagandha measurably reduces cortisol, improving sleep depth and HRV — two of the most reliable longevity biomarkers currently measurable without lab work." },
   ],
   fat_loss: [
-    { id:"thermo",      name:"Thermogenic Stack",   week:3,  weight:0.28, metric:"Resting Burn",  value:"+200cal",color:"#FF6B35",
+    { id:"thermo",      name:"Thermogenic Stack",   week:3,  weight:0.28, metric:"Resting Burn",  value:"+200cal",color:"#FF9F0A",
       why:"Core temperature is now 0.4°C higher at rest. This is an additional 200 calories per day being oxidised — not just during exercise, but around the clock. The thermogenic effect compounds every single day from week 3 onwards." },
     { id:"lcarnitine",  name:"L-Carnitine",         week:6,  weight:0.26, metric:"Fat Oxidation", value:"+34%",  color:"#0A84FF",
       why:"Fatty acids mobilised by thermogenics and exercise are now being physically escorted into mitochondria at a measurably higher rate. Mobilised fat that used to recirculate is now being burned. This is the lock-and-key mechanism." },
@@ -5202,7 +5193,7 @@ const SUPPLEMENT_CATALOG = {
       why:"Muscle creatine stores are fully saturated. This is an immediate and measurable increase in strength output during compound lifts — you can load the bar heavier from this week, and heavier loading is the primary driver of hypertrophy." },
     { id:"whey",        name:"Whey Isolate",        week:1,  weight:0.24, metric:"Lean Tissue",   value:"+7 lbs",color:"#30D158",
       why:"Protein synthesis rate is elevated around the clock. You build lean tissue on rest days — which physiologically cannot happen without adequate leucine from high-quality protein crossing the mTOR threshold consistently." },
-    { id:"zma",         name:"ZMA (Zinc + Mag)",    week:9,  weight:0.22, metric:"Hormonal",      value:"+22%",  color:"#FF6B35",
+    { id:"zma",         name:"ZMA (Zinc + Mag)",    week:9,  weight:0.22, metric:"Hormonal",      value:"+22%",  color:"#FF9F0A",
       why:"Testosterone and IGF-1 production are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now unobstructed — every gram of protein now has a cleaner hormonal environment to work in." },
     { id:"hmb",         name:"HMB",                 week:6,  weight:0.15, metric:"Anti-Catabolic",value:"+18%",  color:"#C9A84C",
       why:"HMB blocks the enzyme that degrades muscle protein between sessions. Less catabolism means net anabolism is higher even at the same training volume. This is particularly powerful during any higher-intensity training blocks." },
@@ -5214,7 +5205,7 @@ const SUPPLEMENT_CATALOG = {
       why:"Collagen synthesis requires vitamin C as a cofactor. Joint tissue is now being rebuilt at the cellular level — not just supplemented, rebuilt. Morning stiffness, one of the clearest signs of inflammation, measurably reduces by week 3." },
     { id:"spirulina",   name:"Spirulina + Chlorella",week:6, weight:0.25, metric:"Detox Score",   value:"+41%",  color:"#0A84FF",
       why:"Phytonutrient density is now at therapeutic levels. Heavy metal chelation is occurring at a cellular level. Mitochondrial efficiency has measurably improved — cells produce more energy with less oxidative byproduct damage." },
-    { id:"ashwa",       name:"Ashwagandha",          week:9, weight:0.22, metric:"Stress Index",  value:"-34%",  color:"#FF6B35",
+    { id:"ashwa",       name:"Ashwagandha",          week:9, weight:0.22, metric:"Stress Index",  value:"-34%",  color:"#FF9F0A",
       why:"Cortisol is measurably lower. HRV (heart rate variability) has improved. Your nervous system is no longer in a chronic stress state — the recovery cascade this unlocks improves sleep, mood, digestion, and every other biomarker simultaneously." },
     { id:"probiotics",  name:"Probiotic Blend",     week:1,  weight:0.14, metric:"Gut Health",    value:"+22%",  color:"#C9A84C",
       why:"Gut microbiome diversity is the foundation of nutrient absorption, immune function, and mood regulation. Without this baseline, the benefits of every other supplement are reduced by 20-40%. This goes in first." },
@@ -6502,7 +6493,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
               const bioScore = calcBioScore(archetypeId, bioData) || 72;
               const forecast = getBioScoreForecast(bioScore, 3);
               const fc = forecast.trend === "up" ? "#30D158"
-                       : forecast.trend === "down" ? "#FF6B35" : T.blue;
+                       : forecast.trend === "down" ? "#FF9F0A" : T.blue;
               return (
                 <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.25 }}
                   style={{ marginBottom:20 }}>
@@ -6670,7 +6661,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
     ? { label:"HIGH",   color:"#30D158", note:"You're primed. Don't hold back today." }
     : bioScore >= 65
     ? { label:"GOOD",   color:"#0A84FF", note:"Solid day. Push to about 90% effort." }
-    : { label:"RECOVER",color:"#FF6B35", note:"Your body needs more time. Focus on form over weight today." };
+    : { label:"RECOVER",color:"#FF9F0A", note:"Your body needs more time. Focus on form over weight today." };
 
   const supplementNote = hour < 10
     ? "Best time to take your morning supplements is right now."
@@ -6762,14 +6753,14 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
 
           {/* Week forecast */}
           <motion.div {...FX.stagger(2, .05)}>
-            <GlassCard theme={theme} glow={forecast.trend === "up" ? "#30D158" : forecast.trend === "down" ? "#FF6B35" : T.blue}
+            <GlassCard theme={theme} glow={forecast.trend === "up" ? "#30D158" : forecast.trend === "down" ? "#FF9F0A" : T.blue}
               style={{ padding:"14px" }}>
               <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>
                 YOUR WEEK AHEAD
               </div>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
                 <div style={{ fontSize:28, fontWeight:900,
-                  color: forecast.trend === "up" ? "#30D158" : forecast.trend === "down" ? "#FF6B35" : T.blue }}>
+                  color: forecast.trend === "up" ? "#30D158" : forecast.trend === "down" ? "#FF9F0A" : T.blue }}>
                   {forecast.projected}
                 </div>
                 <div>
@@ -7798,7 +7789,7 @@ function scheduleDailyNotifs() {
 // ─── SHARE CARD ───────────────────────────────────────────────────────────────
 function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
   const T  = D[theme] || D.dark;
-  const ac = arch?.color || arch?.glow || "#2E5BFF";
+  const ac = arch?.color || arch?.glow || "#0A84FF";
   const archName = arch?.name || "ATHLETE";
   const streak   = streaks?.best || streaks?.session || 0;
 
@@ -7944,7 +7935,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
 // ─── WORKOUT SHARE CARD (IG-Story Ready) ─────────────────────────────────────
 function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, velocityLog, profile, theme, onClose }) {
   const T  = D[theme] || D.dark;
-  const ac = arch?.glow || arch?.color || "#2E5BFF";
+  const ac = arch?.glow || arch?.color || "#0A84FF";
   const archName   = arch?.name || "ATHLETE";
   const doneSets   = Object.values(setsDone || {}).filter(Boolean).length;
   const totalSets  = (exercises || []).reduce((s, ex) => s + parseInt(ex.sets || 0), 0);
@@ -8493,7 +8484,7 @@ function FactVisual({ type, color: C }) {
         initial={{ pathLength:0 }} animate={{ pathLength:0.5 }}
         transition={{ delay:0.3, duration:0.9, ease:[.22,1,.36,1] }}/>
       {/* Danger zone at end */}
-      <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke="#FF4B2B" strokeWidth="6"
+      <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke="#FF453A" strokeWidth="6"
         strokeLinecap="round" pathLength="1" strokeDasharray="0.25 0.75" strokeDashoffset="-0.75" opacity={0.4}
         initial={{ opacity:0 }} animate={{ opacity:0.35 }} transition={{ delay:0.9 }}/>
       {/* Needle — sweeps from left (0) to center (sweet spot) */}
@@ -9100,7 +9091,7 @@ function FactAnimSVG({ type, color }) {
 const ONBOARDING_FACTS = {
   gender: {
     male: {
-      stat: "168", color: "#D4AF37", visual: "bar_compare", lottie: "split",
+      stat: "168", color: "#C8A94A", visual: "bar_compare", lottie: "split",
       headline: "Only 10 of these hours are gym. The rest decide your results.",
       body: "10 gym hours is 6% of your week. Sleep, food, and recovery own the other 94%. Your protocol addresses all of it.",
     },
@@ -9112,7 +9103,7 @@ const ONBOARDING_FACTS = {
   },
   frequency: {
     high: {
-      stat: "48hrs", color: "#FF4B2B", visual: "bars_grow", lottie: "muscle",
+      stat: "48hrs", color: "#FF453A", visual: "bars_grow", lottie: "muscle",
       headline: "Your muscles grow on rest days, not gym days",
       body: "Protein synthesis stays elevated 48hrs after training. Hit too soon and you interrupt it.",
     },
@@ -9151,7 +9142,7 @@ const ONBOARDING_FACTS = {
       body: "Your workout sends the signal. Sleep delivers the result. Without it, gains are lost.",
     },
     soreness: {
-      stat: "72hrs", color: "#FF4B2B", visual: "timeline_dots", lottie: "fire",
+      stat: "72hrs", color: "#FF453A", visual: "timeline_dots", lottie: "fire",
       headline: "Soreness means you recovered poorly, not trained hard",
       body: "Soreness is just inflammation — it doesn't mean you trained harder. The best athletes barely get sore because their recovery is that good.",
     },
@@ -9163,10 +9154,10 @@ const ONBOARDING_FACTS = {
   },
   archetype: {
     // ── Male archetypes ───────────────────────────────────────────────────────
-    vtaper:       { stat: "12wks",  color: "#2E5BFF",  visual: "v_shape",        headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
-    abs:          { stat: "1 layer",color: "#D4AF37",  visual: "layer_reveal",   headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
-    density:      { stat: "0.5lbs", color: "#FF4B2B",  visual: "muscle_cap",     headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
-    athletic:     { stat: "8%",     color: "#00FFAB",  visual: "bars_grow",      headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
+    vtaper:       { stat: "12wks",  color: "#0A84FF",  visual: "v_shape",        headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
+    abs:          { stat: "1 layer",color: "#C8A94A",  visual: "layer_reveal",   headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
+    density:      { stat: "0.5lbs", color: "#FF453A",  visual: "muscle_cap",     headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
+    athletic:     { stat: "8%",     color: "#30D158",  visual: "bars_grow",      headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
     chest_arms:   { stat: "8wks",   color: "#FF9F0A",  visual: "two_bars",       headline: "Your arms will look different in 8 weeks. Guaranteed.",   body: "Arms and chest respond faster than any other muscle. The gains are early, visible, and compound." },
     powerlifter:  { stat: "5g",     color: "#BF5AF2",  visual: "gauge",          headline: "Creatine has 400+ studies. No supplement is more proven.", body: "5g daily is all it takes. Your 1RM goes up within 2 weeks — not months." },
     shred:        { stat: "24hrs",  color: "#FF3B30",  visual: "battery",        headline: "Your metabolism stays elevated 24 hours after HIIT",      body: "This isn't about burning calories in the gym. HIIT reprograms your metabolic rate for the entire next day." },
@@ -9181,8 +9172,8 @@ const ONBOARDING_FACTS = {
     arms_back_f:  { stat: "8wks",   color: "#5AC8FA",  visual: "dumbbell",       headline: "Arms and back define the athletic feminine silhouette",   body: "Visible definition in arms and upper back reshapes how every outfit fits. 8 weeks to visible change." },
     full_body_f:  { stat: "24wks",  color: "#30D158",  visual: "bars_grow",      headline: "At 24 weeks you're unrecognizable",                       body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
     // ── Fallback ──────────────────────────────────────────────────────────────
-    longevity:    { stat: "14yrs",   color: "#00FFAB", visual: "age_split",     headline: "People who train consistently are 14 years younger — biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed — all measurably younger. Your protocol builds a body that stays that way." },
-    default:      { stat: "10×",     color: "#2E5BFF", visual: "two_bars",      headline: "A protocol beats motivation every single time.",                  body: "Motivated people skip. Protocols run. People with a real system are 10× more likely to reach their goal. You just started building yours." },
+    longevity:    { stat: "14yrs",   color: "#30D158", visual: "age_split",     headline: "People who train consistently are 14 years younger — biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed — all measurably younger. Your protocol builds a body that stays that way." },
+    default:      { stat: "10×",     color: "#0A84FF", visual: "two_bars",      headline: "A protocol beats motivation every single time.",                  body: "Motivated people skip. Protocols run. People with a real system are 10× more likely to reach their goal. You just started building yours." },
   },
 };
 
@@ -9403,7 +9394,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // Shared question wrapper — cinematic story-mode layout
   function QWrap({ step, total=7, storyHook, headline, children, onBackFn }) {
-    const glows = ["#2E5BFF","#BF5AF2","#C9A84C","#FF4B2B","#30D158","#5AC8FA","#FF9F0A"];
+    const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
     const stepColor = glows[(step - 1) % glows.length];
     return (
       <Screen theme={theme} style={{ overflow:"hidden" }}>
@@ -9654,7 +9645,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
         <div style={{ display:"flex", gap:5 }}>
           {Array.from({ length:7 }, (_, i) => (
             <div key={i} style={{ width:i===0?18:5, height:5, borderRadius:3, transition:"all .3s",
-              background:i===0?"#2E5BFF":T.border, boxShadow:i===0?"0 0 6px #2E5BFF":"none" }}/>
+              background:i===0?"#0A84FF":T.border, boxShadow:i===0?"0 0 6px #2E5BFF":"none" }}/>
           ))}
         </div>
       </div>
@@ -9675,7 +9666,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
             color:T.text, lineHeight:1.12 }}>Let's start with<br/>your biology.</div>
           <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
             transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
-            style={{ height:2, width:40, background:"#2E5BFF", borderRadius:2,
+            style={{ height:2, width:40, background:"#0A84FF", borderRadius:2,
               marginTop:10, transformOrigin:"left", boxShadow:"0 0 8px #2E5BFF99" }}/>
         </motion.div>
       </motion.div>
@@ -9684,7 +9675,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       <div style={{ position:"relative", zIndex:1, flex:1, display:"flex",
         flexDirection:"column", gap:12, padding:"4px 22px 52px" }}>
         {[
-          { value:"male",   label:"Man",   icon:"♂", color:"#2E5BFF" },
+          { value:"male",   label:"Man",   icon:"♂", color:"#0A84FF" },
           { value:"female", label:"Woman", icon:"♀", color:"#BF5AF2" },
         ].map((opt, i) => {
           const isSel = picked === opt.value;
@@ -9733,7 +9724,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       storyHook="Most people think more sessions = more results. It's almost never true."
       onBackFn={() => setPhase(0)}>
       {[
-        { value:"high", label:"5+ times a week",    sub:"High frequency athlete",      icon:"flame",    color:"#FF4B2B" },
+        { value:"high", label:"5+ times a week",    sub:"High frequency athlete",      icon:"flame",    color:"#FF453A" },
         { value:"med",  label:"3–4 times a week",   sub:"Consistent training block",   icon:"zap",      color:"#C9A84C" },
         { value:"low",  label:"1–2 times a week",   sub:"Building the foundation",     icon:"leaf",     color:"#30D158" },
       ].map((opt, i) => (
@@ -9750,7 +9741,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       storyHook="Most people drink coffee wrong for the gym. Not too much — just at the wrong time."
       onBackFn={() => setPhase(1)}>
       {[
-        { value:"high", label:"Very sensitive",      sub:"Jittery on even one coffee",         icon:"alert",    color:"#FF4B2B" },
+        { value:"high", label:"Very sensitive",      sub:"Jittery on even one coffee",         icon:"alert",    color:"#FF453A" },
         { value:"med",  label:"Normal tolerance",   sub:"Standard reaction to caffeine",      icon:"coffee",   color:"#C9A84C" },
         { value:"low",  label:"High tolerance",     sub:"3+ cups and barely feel it",         icon:"zap",      color:"#30D158" },
         { value:"none", label:"I don't use caffeine", sub:"No coffee, tea, or pre-workout",   icon:"ban",      color:"#8E8E93" },
@@ -9769,7 +9760,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       onBackFn={() => setPhase(2)}>
       {[
         { value:"sleep",    label:"Sleep quality",     sub:"I don't sleep well or long enough",      icon:"moon",     color:"#5AC8FA" },
-        { value:"soreness", label:"Muscle soreness",   sub:"Still sore before my next session",     icon:"dumbbell", color:"#FF4B2B" },
+        { value:"soreness", label:"Muscle soreness",   sub:"Still sore before my next session",     icon:"dumbbell", color:"#FF453A" },
         { value:"fog",      label:"Mental fog",        sub:"Brain is slow the day after training",   icon:"brain",    color:"#BF5AF2" },
         { value:"none",     label:"I recover well",    sub:"No real issues — just want to optimize", icon:"check",    color:"#30D158" },
       ].map((opt, i) => (
@@ -9988,7 +9979,7 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
         icon: "⬡",
         headline: `Your protein multiplier — ${level} tier`,
         body: `At ${bw}lbs (${bwKg}kg), your ${level}-level protocol uses ${multiplier}g of protein per kg of bodyweight — putting your target around ${proteinTarget}g/day. That's ~${perMeal}g per meal across 4 meals. The average person eats ~65g total. That gap is where transformations are won or lost.`,
-        color: "#2E5BFF",
+        color: "#0A84FF",
       };
     } else {
       const sleep = allVals.sleep || 6.5;
@@ -10243,7 +10234,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 
   // Shared question screen — same cinematic layout as BiologyStep
   function QScreen({ step, total, headline, storyHook, children, onBackFn, showContinue, onContinue }) {
-    const glows = ["#2E5BFF","#BF5AF2","#C9A84C","#FF4B2B","#30D158","#5AC8FA","#FF9F0A"];
+    const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
     const stepColor = glows[(step - 1) % glows.length];
     return (
       <Screen theme={theme} style={{ overflow:"hidden" }}>
@@ -10400,9 +10391,9 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
       storyHook="Be honest here. The protocol can only take you where you actually want to go."
       onBackFn={onBack}>
       <TapCards selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
-        { value:"muscle", icon:"dumbbell", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#2E5BFF" },
-        { value:"fat",    icon:"flame",    label:"Lose Fat",     sub:"Burn fat while preserving lean muscle",   color:"#FF4B2B" },
-        { value:"recomp", icon:"scale",    label:"Body Recomp",  sub:"Simultaneously build muscle and lose fat", color:"#D4AF37" },
+        { value:"muscle", icon:"dumbbell", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#0A84FF" },
+        { value:"fat",    icon:"flame",    label:"Lose Fat",     sub:"Burn fat while preserving lean muscle",   color:"#FF453A" },
+        { value:"recomp", icon:"scale",    label:"Body Recomp",  sub:"Simultaneously build muscle and lose fat", color:"#C8A94A" },
       ]}/>
     </QScreen>
   );
@@ -10415,8 +10406,8 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
       <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(3); }} options={[
         { value:"sedentary", icon:"monitor",  label:"Mostly Sitting",    sub:"Desk job, minimal walking",           color:"#5AC8FA" },
         { value:"light",     icon:"activity", label:"Lightly Active",     sub:"Some walking, on your feet part-time", color:"#30D158" },
-        { value:"moderate",  icon:"bike",     label:"Moderately Active",  sub:"Physical job or daily movement",       color:"#D4AF37" },
-        { value:"active",    icon:"zap",      label:"Very Active",        sub:"On your feet all day, labor work",     color:"#FF4B2B" },
+        { value:"moderate",  icon:"bike",     label:"Moderately Active",  sub:"Physical job or daily movement",       color:"#C8A94A" },
+        { value:"active",    icon:"zap",      label:"Very Active",        sub:"On your feet all day, labor work",     color:"#FF453A" },
       ]}/>
     </QScreen>
   );
@@ -10427,7 +10418,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
       storyHook="The best diet is the one you'll actually stick to. Pick the one that's actually you."
       onBackFn={() => advance(1)}>
       <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
-        { value:"standard",  icon:"utensils", label:"Standard",        sub:"Balanced macros — the default protocol",      color:"#D4AF37" },
+        { value:"standard",  icon:"utensils", label:"Standard",        sub:"Balanced macros — the default protocol",      color:"#C8A94A" },
         { value:"highcarb",  icon:"wheat",    label:"High Carb",       sub:"Performance-focused, carb-forward fueling",   color:"#FF9F0A" },
         { value:"plant",     icon:"leaf",     label:"Plant-Based",     sub:"Vegan/vegetarian — protein sources optimized", color:"#30D158" },
         { value:"keto",      icon:"droplets", label:"Keto / Low Carb", sub:"Fat-dominant, insulin management",             color:"#5AC8FA" },
@@ -10439,7 +10430,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 }
 
 // ─── DIGITAL KEY ANIMATION ───────────────────────────────────────────────────
-function DigitalKey({ color="#D4AF37", theme }) {
+function DigitalKey({ color="#C8A94A", theme }) {
   const T = D[theme]||D.dark;
   const [unlocked, setUnlocked] = useState(false);
   const [beams,    setBeams]    = useState(false);
@@ -11839,7 +11830,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const WORKOUT_TEMPLATES = [
     {
       id:"ppl-push", name:"Push Day", tag:"PPL", emoji:"🔺",
-      color:"#FF6B35", duration:"55 min",
+      color:"#FF9F0A", duration:"55 min",
       exercises:[
         { name:"Bench Press",        sets:4, reps:"6-8",  load:"80% 1RM" },
         { name:"Incline Dumbbell",   sets:3, reps:"10-12", load:"70% 1RM" },
@@ -11892,7 +11883,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     },
     {
       id:"stronglifts-a", name:"Stronglifts A", tag:"SL5×5", emoji:"◉",
-      color:"#2E5BFF", duration:"40 min",
+      color:"#0A84FF", duration:"40 min",
       exercises:[
         { name:"Squat",              sets:5, reps:"5",  load:"5lb increase/session" },
         { name:"Bench Press",        sets:5, reps:"5",  load:"5lb increase/session" },
@@ -12800,8 +12791,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         {/* ── POST-WORKOUT SUPPLEMENT UPSELL ───────────────────────────────── */}
         {logged && !saving && !suppUpsellShown && (() => {
           const suppSuggestions = [
-            { name:"Creatine Monohydrate", timing:"Take now — post-workout window", emoji:"⚡", tag:"RECOVERY", color:"#2E5BFF" },
-            { name:"Whey Protein Isolate", timing:`${profile.macroGoals?.protein||180}g daily target — log via Kailu`, emoji:"💪", tag:"PROTEIN", color:"#FF6B35" },
+            { name:"Creatine Monohydrate", timing:"Take now — post-workout window", emoji:"⚡", tag:"RECOVERY", color:"#0A84FF" },
+            { name:"Whey Protein Isolate", timing:`${profile.macroGoals?.protein||180}g daily target — log via Kailu`, emoji:"💪", tag:"PROTEIN", color:"#FF9F0A" },
             { name:"Magnesium Glycinate", timing:"Tonight before bed — sleep quality", emoji:"🌙", tag:"SLEEP", color:"#BF5AF2" },
           ];
           return (
@@ -13065,7 +13056,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       <div style={{ flex:1 }}>
                         <Sparkline data={w14} color="#30D158" width={120} height={36} strokeWidth={2.5}/>
                         <div style={{ fontSize:11.5, marginTop:4,
-                          color: trend2 < -0.3 ? "#30D158" : trend2 > 0.3 ? "#FF6B35" : T.muted, fontWeight:700 }}>
+                          color: trend2 < -0.3 ? "#30D158" : trend2 > 0.3 ? "#FF9F0A" : T.muted, fontWeight:700 }}>
                           {trend2 > 0 ? "+" : ""}{trend2.toFixed(1)}{weightUnit} / {recent14.length}d
                         </div>
                       </div>
@@ -13786,7 +13777,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:14 }}>PERSONAL RECORDS</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                   {[
-                    { lift:"Bench",    val:prs2.bench,    color:"#FF6B35" },
+                    { lift:"Bench",    val:prs2.bench,    color:"#FF9F0A" },
                     { lift:"Squat",    val:prs2.squat,    color:"#30D158" },
                     { lift:"Deadlift", val:prs2.deadlift, color:"#FF3B30" },
                     { lift:"OHP",      val:prs2.ohp,      color:"#BF5AF2" },
@@ -13814,7 +13805,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:14 }}>
                 {[
                   { icon:"barChart",  label:"Workout History", sub:"Sessions & PR charts", action: onWorkoutHistory, color:"#30D158" },
-                  { icon:"scale",     label:"Body Weight",     sub:"Weight log & trend",   action: onBodyWeight,    color:"#2E5BFF" },
+                  { icon:"scale",     label:"Body Weight",     sub:"Weight log & trend",   action: onBodyWeight,    color:"#0A84FF" },
                   { icon:"users",     label:"Buddy System",    sub:"Training partners",     action: onBuddy,         color:"#FF9F0A" },
                   { icon:"trophy",    label:"Group Workout",   sub:"Train with others",     action: onGroupWorkout,  color:"#BF5AF2" },
                 ].map(item => (
@@ -22300,7 +22291,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
       name:       "WHOOP",
       tagline:    "Recovery · HRV · Strain · Sleep",
       icon:       "⟳",
-      color:      "#00FFAB",
+      color:      "#30D158",
       onConnect:  connectWhoop,
       isConnected:connected.whoop,
       data:       whoopData,
@@ -22309,7 +22300,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
           color: whoopData.recovery >= 67 ? "#30D158" : whoopData.recovery >= 34 ? "#FF9F0A" : "#FF453A" },
         { label:"HRV",        value:`${whoopData.hrv}ms`,    color:"#0A84FF" },
         { label:"STRAIN",     value:whoopData.strain.toFixed(1), color:"#FF9F0A" },
-        { label:"SLEEP",      value:`${whoopData.sleepScore}%`,  color:"#00FFAB" },
+        { label:"SLEEP",      value:`${whoopData.sleepScore}%`,  color:"#30D158" },
       ] : [],
       note: null,
     },
@@ -22326,7 +22317,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
         { label:"STEPS",      value:appleHealthData.steps.toLocaleString(), color:"#30D158" },
         { label:"ACTIVE CAL", value:`${appleHealthData.activeCalories} kcal`, color:"#FF9F0A" },
         { label:"SLEEP",      value:`${appleHealthData.sleepHours}h`,  color:"#0A84FF" },
-        { label:"VO₂ MAX",    value:appleHealthData.vo2Max.toFixed(1), color:"#00FFAB" },
+        { label:"VO₂ MAX",    value:appleHealthData.vo2Max.toFixed(1), color:"#30D158" },
       ] : [],
       note: "Full HealthKit sync available in the RVN native app. Web shows an estimated sync.",
     },
@@ -23460,8 +23451,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
   const [storyForm, setStoryForm] = useState({ name:"", handle:"", result:"", brand:"thorne", text:"", archetypes:["core_definition"] });
   // Venue branding
   const [venueBrand, setVenueBrand] = useState(() => {
-    try { return JSON.parse(localStorage.getItem("rvn_venue_brand") || "null") || { gymName:"", accentColor:"#2E5BFF", welcomeMsg:"", logoDataUrl:"" }; }
-    catch { return { gymName:"", accentColor:"#2E5BFF", welcomeMsg:"", logoDataUrl:"" }; }
+    try { return JSON.parse(localStorage.getItem("rvn_venue_brand") || "null") || { gymName:"", accentColor:"#0A84FF", welcomeMsg:"", logoDataUrl:"" }; }
+    catch { return { gymName:"", accentColor:"#0A84FF", welcomeMsg:"", logoDataUrl:"" }; }
   });
   const saveVenueBrand = (updates) => {
     const next = { ...venueBrand, ...updates };
@@ -23485,7 +23476,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
     // Build the onboarding deep-link URL
     const gymData = {
       gymName:     venueBrand.gymName   || storeName || "My Gym",
-      accentColor: venueBrand.accentColor || "#2E5BFF",
+      accentColor: venueBrand.accentColor || "#0A84FF",
       welcomeMsg:  venueBrand.welcomeMsg  || "Welcome!",
     };
     const encoded = btoa(JSON.stringify(gymData));
@@ -23919,8 +23910,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{venueBrand.gymName || storeName || "Your Gym Name"}</div>
                 <div style={{ fontSize:11, color:T.muted, marginTop:2 }}>{venueBrand.welcomeMsg || "Set welcome message in Brands tab"}</div>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:8 }}>
-                  <div style={{ width:16, height:16, borderRadius:"50%", background:venueBrand.accentColor || "#2E5BFF" }}/>
-                  <span style={{ fontSize:11.5, color:T.faint }}>{venueBrand.accentColor || "#2E5BFF"}</span>
+                  <div style={{ width:16, height:16, borderRadius:"50%", background:venueBrand.accentColor || "#0A84FF" }}/>
+                  <span style={{ fontSize:11.5, color:T.faint }}>{venueBrand.accentColor || "#0A84FF"}</span>
                 </div>
               </div>
 
@@ -24324,7 +24315,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       style={{ width:44, height:36, borderRadius:8, border:`1px solid ${T.border}`, padding:2, cursor:"pointer", background:T.glass }}/>
                     <div style={{ fontSize:11, color:T.text, fontFamily:"monospace" }}>{venueBrand.accentColor}</div>
                     {/* Color presets */}
-                    {["#2E5BFF","#FF4B2B","#00FFAB","#BF5AF2","#FF9F0A"].map(c => (
+                    {["#0A84FF","#FF453A","#30D158","#BF5AF2","#FF9F0A"].map(c => (
                       <button key={c} onClick={() => saveVenueBrand({ accentColor: c })}
                         style={{ width:22, height:22, borderRadius:"50%", background:c, border: venueBrand.accentColor===c ? `2px solid ${T.text}` : "none", cursor:"pointer" }}/>
                     ))}
@@ -24421,7 +24412,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Demo Bypass */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12, border:`1px solid #D4AF3744` }}>
-              <div style={{ fontSize:11.5, fontWeight:700, color:"#D4AF37", letterSpacing:".03em", marginBottom:4 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:"#C8A94A", letterSpacing:".03em", marginBottom:4 }}>
                 DEMO MODE
               </div>
               <div style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
@@ -24577,7 +24568,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 style={{ width:"100%", padding:"12px",
                   background: storyForm.name&&storyForm.result&&storyForm.text
                     ? "linear-gradient(90deg,#D4AF37,#FFD700)" : T.glass,
-                  border:`1px solid ${storyForm.name&&storyForm.result&&storyForm.text?"#D4AF37":T.border}`,
+                  border:`1px solid ${storyForm.name&&storyForm.result&&storyForm.text?"#C8A94A":T.border}`,
                   borderRadius:10, fontSize:12, fontWeight:900,
                   color:storyForm.name&&storyForm.result&&storyForm.text?"#000":T.faint,
                   cursor:"pointer", letterSpacing:".01em" }}>
@@ -25357,7 +25348,7 @@ function WorkoutHistoryScreen({ theme, onBack, user }) {
   }, [email]);
 
   const prLifts = [
-    { key:"bench",    label:"Bench",    color:"#FF6B35" },
+    { key:"bench",    label:"Bench",    color:"#FF9F0A" },
     { key:"squat",    label:"Squat",    color:"#30D158" },
     { key:"deadlift", label:"Deadlift", color:"#FF3B30" },
     { key:"ohp",      label:"OHP",      color:"#BF5AF2" },
@@ -25798,7 +25789,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
               </div>
               <div style={{ display:"flex", justifyContent:"space-between" }}>
                 {[
-                  { label:"PROTEIN", val:plan.totalProtein, unit:"g", color:"#FF6B35" },
+                  { label:"PROTEIN", val:plan.totalProtein, unit:"g", color:"#FF9F0A" },
                   { label:"CARBS",   val:plan.totalCarbs,   unit:"g", color:"#FF9F0A" },
                   { label:"FATS",    val:plan.totalFats,    unit:"g", color:"#BF5AF2" },
                   { label:"CALS",    val:plan.totalCalories, unit:"", color:"#30D158" },
@@ -25827,7 +25818,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                     </div>
                   </div>
                   <div style={{ textAlign:"right" }}>
-                    <div style={{ fontSize:14, fontWeight:900, color:"#FF6B35" }}>{meal.protein}g</div>
+                    <div style={{ fontSize:14, fontWeight:900, color:"#FF9F0A" }}>{meal.protein}g</div>
                     <div style={{ fontSize:11, color:T.faint }}>protein</div>
                   </div>
                 </div>
@@ -25953,7 +25944,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                       </div>
                     </div>
                     <div style={{ textAlign:"right" }}>
-                      <div style={{ fontSize:16, fontWeight:900, color:"#FF6B35" }}>{r.protein}g</div>
+                      <div style={{ fontSize:16, fontWeight:900, color:"#FF9F0A" }}>{r.protein}g</div>
                       <div style={{ fontSize:11, color:T.faint }}>protein</div>
                     </div>
                   </div>
@@ -26253,7 +26244,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
             <motion.button key={t.id} whileTap={{ scale:.97 }} onClick={() => setTab(t.id)}
               style={{
                 flexShrink:0, padding:"9px 14px", borderRadius:10,
-                background: tab === t.id ? "#2E5BFF" : T.glass,
+                background: tab === t.id ? "#0A84FF" : T.glass,
                 border: tab === t.id ? "none" : `1px solid ${T.border}`,
                 color: tab === t.id ? "#fff" : T.muted,
                 fontSize:11.5, fontWeight:600, letterSpacing:".01em", cursor:"pointer",
@@ -26277,7 +26268,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
                 </div>
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setTab("find")}
                   style={{
-                    padding:"12px 24px", borderRadius:14, background:"#2E5BFF",
+                    padding:"12px 24px", borderRadius:14, background:"#0A84FF",
                     border:"none", color:"#fff", fontSize:13, fontWeight:800, cursor:"pointer",
                   }}>
                   Find a Buddy
@@ -26295,7 +26286,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
                   width:44, height:44, borderRadius:"50%",
                   background:`#2E5BFF20`, border:`2px solid #2E5BFF44`,
                   display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:18, fontWeight:900, color:"#2E5BFF",
+                  fontSize:18, fontWeight:900, color:"#0A84FF",
                 }}>
                   {email[0].toUpperCase()}
                 </div>
@@ -26306,7 +26297,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
                 <div style={{
                   padding:"6px 12px", borderRadius:16,
                   background:`#2E5BFF15`, border:`1px solid #2E5BFF30`,
-                  fontSize:11.5, fontWeight:700, color:"#2E5BFF",
+                  fontSize:11.5, fontWeight:700, color:"#0A84FF",
                 }}>
                   BUDDY
                 </div>
@@ -26336,7 +26327,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
               <motion.button whileTap={{ scale:.96 }} onClick={searchForBuddy}
                 disabled={searching}
                 style={{
-                  padding:"0 18px", borderRadius:14, background:"#2E5BFF",
+                  padding:"0 18px", borderRadius:14, background:"#0A84FF",
                   border:"none", color:"#fff", fontSize:13, fontWeight:800,
                   cursor:"pointer", opacity: searching ? 0.6 : 1,
                 }}>
@@ -26357,7 +26348,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
                         width:40, height:40, borderRadius:"50%",
                         background:"#2E5BFF20", border:"2px solid #2E5BFF44",
                         display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:16, fontWeight:900, color:"#2E5BFF",
+                        fontSize:16, fontWeight:900, color:"#0A84FF",
                       }}>
                         {searchResult.email[0].toUpperCase()}
                       </div>
@@ -26378,7 +26369,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
                       <motion.button whileTap={{ scale:.97 }} onClick={() => sendRequest(searchResult.email)}
                         style={{
                           width:"100%", padding:"13px", borderRadius:13,
-                          background:"#2E5BFF", border:"none", color:"#fff",
+                          background:"#0A84FF", border:"none", color:"#fff",
                           fontSize:14, fontWeight:800, cursor:"pointer",
                         }}>
                         Send Buddy Request
@@ -26614,13 +26605,13 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
             <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:8 }}>
               MY SETS THIS SESSION
             </div>
-            <div style={{ fontSize:52, fontWeight:900, color:"#2E5BFF", letterSpacing:"-.03em", marginBottom:12 }}>
+            <div style={{ fontSize:52, fontWeight:900, color:"#0A84FF", letterSpacing:"-.03em", marginBottom:12 }}>
               {mySets}
             </div>
             <motion.button whileTap={{ scale:.95 }} onClick={logSet}
               style={{
                 width:"100%", padding:"16px", borderRadius:16,
-                background:"#2E5BFF", border:"none", color:"#fff",
+                background:"#0A84FF", border:"none", color:"#fff",
                 fontSize:16, fontWeight:900, cursor:"pointer",
                 boxShadow:`0 6px 24px #2E5BFF44`,
               }}>
@@ -26653,7 +26644,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
                   {i + 1}
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:13, fontWeight:700, color: p.email === myEmail ? "#2E5BFF" : T.text }}>
+                  <div style={{ fontSize:13, fontWeight:700, color: p.email === myEmail ? "#0A84FF" : T.text }}>
                     {p.name || p.email.split("@")[0]} {p.email === myEmail ? "(You)" : ""}
                   </div>
                 </div>
@@ -26703,7 +26694,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
               <motion.button key={type} whileTap={{ scale:.96 }} onClick={() => setNewRoomType(type)}
                 style={{
                   padding:"14px 8px", borderRadius:14, cursor:"pointer",
-                  background: newRoomType === type ? "#2E5BFF" : T.glass,
+                  background: newRoomType === type ? "#0A84FF" : T.glass,
                   border: newRoomType === type ? "none" : `1px solid ${T.border}`,
                   color: newRoomType === type ? "#fff" : T.text,
                 }}>
@@ -26718,7 +26709,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
           <motion.button whileTap={{ scale:.97 }} onClick={createRoom} disabled={creating || !newRoomName.trim()}
             style={{
               width:"100%", padding:"16px", borderRadius:16,
-              background: creating || !newRoomName.trim() ? T.glass : "#2E5BFF",
+              background: creating || !newRoomName.trim() ? T.glass : "#0A84FF",
               border: creating || !newRoomName.trim() ? `1px solid ${T.border}` : "none",
               color: creating || !newRoomName.trim() ? T.muted : "#fff",
               fontSize:15, fontWeight:900, cursor:"pointer",
@@ -26745,7 +26736,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
           <motion.button whileTap={{ scale:.96 }} onClick={() => setView("create")}
             style={{
               padding:"9px 16px", borderRadius:12, cursor:"pointer",
-              background:"#2E5BFF", border:"none",
+              background:"#0A84FF", border:"none",
               color:"#fff", fontSize:11, fontWeight:600, letterSpacing:".01em",
             }}>
             + CREATE
@@ -26763,7 +26754,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
             </div>
             <motion.button whileTap={{ scale:.97 }} onClick={() => setView("create")}
               style={{
-                padding:"12px 24px", borderRadius:14, background:"#2E5BFF",
+                padding:"12px 24px", borderRadius:14, background:"#0A84FF",
                 border:"none", color:"#fff", fontSize:13, fontWeight:800, cursor:"pointer",
               }}>
               Create Room
@@ -26796,7 +26787,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
                 <motion.button whileTap={{ scale:.97 }} onClick={() => joinRoom(room)}
                   style={{
                     width:"100%", padding:"12px", borderRadius:13,
-                    background:"#2E5BFF", border:"none", color:"#fff",
+                    background:"#0A84FF", border:"none", color:"#fff",
                     fontSize:13, fontWeight:800, cursor:"pointer",
                   }}>
                   Join Room →
@@ -26941,7 +26932,7 @@ const RVN_CHANGELOG = [
     version: "6.0",
     date: "Apr 2026",
     badge: "LAUNCH",
-    badgeColor: "#2E5BFF",
+    badgeColor: "#0A84FF",
     items: [
       { icon: "🏪", title: "ManagerHub B2B", desc: "Full command center for gym owners: roster management, NFC tags, revenue analytics, and branded experiences." },
       { icon: "🔑", title: "Roles & Permissions", desc: "Owner / Coach / Staff role matrix with PIN-gated access." },
@@ -27221,7 +27212,7 @@ function RVNRoot() {
           if (gymData.gymName) {
             localStorage.setItem("rvn_venue_brand", JSON.stringify({
               gymName:     gymData.gymName,
-              accentColor: gymData.accentColor || "#2E5BFF",
+              accentColor: gymData.accentColor || "#0A84FF",
               welcomeMsg:  gymData.welcomeMsg  || `Welcome to ${gymData.gymName}!`,
               logoDataUrl: "",
             }));

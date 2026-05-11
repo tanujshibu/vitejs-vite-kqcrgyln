@@ -11767,6 +11767,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [igLoading,       setIgLoading]       = useState(false);
   const [igCaption,       setIgCaption]       = useState("");
   const [igLoadingMode,   setIgLoadingMode]   = useState("reading"); // "reading"|"transcribing"
+  const [igLinkFailed,    setIgLinkFailed]    = useState(false); // true when URL was tried but blocked
   const [igTitle,         setIgTitle]         = useState("");
   const [igError,         setIgError]         = useState("");
   // Velocity data collected from VBT camera during session
@@ -14323,12 +14324,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           <>
             <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
               onClick={() => !igLoading && setIgImportOpen(false)}
-              style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:170 }}/>
+              style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:1010 }}/>
             <motion.div
               initial={{ y:"100%" }} animate={{ y:0 }} exit={{ y:"100%" }}
               transition={{ type:"spring", stiffness:360, damping:34 }}
               style={{
-                position:"fixed", bottom:0, left:0, right:0, zIndex:180,
+                position:"fixed", bottom:0, left:0, right:0, zIndex:1020,
                 background: theme==="dark" ? "#1A1A1C" : "#F2F2F7",
                 borderRadius:"24px 24px 0 0",
                 padding:"16px 20px 44px",
@@ -14410,6 +14411,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                             setIgStep("review");
                           } else if (data.needsCaption) {
                             setIgCaption("");
+                            setIgLinkFailed(true);
                             setIgStep("caption");
                           } else {
                             setIgStep("paste");
@@ -14436,7 +14438,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       }}>
                       ANALYZE WITH AI  ›
                     </motion.button>
-                    <button onClick={() => { setIgCaption(""); setIgLoadingMode("reading"); setIgStep("caption"); }}
+                    <button onClick={() => { setIgCaption(""); setIgLoadingMode("reading"); setIgLinkFailed(false); setIgStep("caption"); }}
                       style={{ width:"100%", padding:"11px", marginTop:8, background:"transparent",
                         border:"none", cursor:"pointer", fontSize:12, color:T.muted }}>
                       Upload video or paste caption instead
@@ -14470,6 +14472,15 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 {/* ── STEP: paste caption / upload video fallback ── */}
                 {igStep === "caption" && (
                   <motion.div key="caption" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
+
+                    {/* Link-failed notice */}
+                    {igLinkFailed && (
+                      <div style={{ marginBottom:14, padding:"10px 12px", borderRadius:10,
+                        background:"#FF453A18", border:"1px solid #FF453A44",
+                        fontSize:11.5, color:"#FF6961", lineHeight:1.55, fontWeight:500 }}>
+                        🔒 Instagram blocked the link — they do this for all Reels fetched programmatically (even other apps that "just paste a link" actually run their own scraper services behind the scenes). Use one of the options below instead.
+                      </div>
+                    )}
 
                     {/* Video upload option */}
                     <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
@@ -14620,7 +14631,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       }}>
                       EXTRACT EXERCISES  ›
                     </motion.button>
-                    <button onClick={() => setIgStep("paste")}
+                    <button onClick={() => { setIgLinkFailed(false); setIgStep("paste"); }}
                       style={{ width:"100%", padding:"11px", marginTop:8, background:"transparent",
                         border:"none", cursor:"pointer", fontSize:12, color:T.muted }}>
                       ← Back

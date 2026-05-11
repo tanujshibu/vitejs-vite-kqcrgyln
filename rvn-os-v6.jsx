@@ -9396,15 +9396,15 @@ const ONBOARDING_FACTS = {
 
 function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
-  // 3 seconds — fast enough to feel like a beat, not a read
+  // 2.5s — quick beat, not a pause
   useEffect(() => {
-    const t = setTimeout(onContinue, 5000);
+    const t = setTimeout(onContinue, 2500);
     return () => clearTimeout(t);
   }, []);
   return (
     <motion.div
       initial={{ opacity:0 }} animate={{ opacity:1 }}
-      transition={{ duration:0.12 }}
+      transition={{ duration:0.18 }}
       onClick={onContinue}
       style={{
         position:"fixed", inset:0, zIndex:9999,
@@ -9414,30 +9414,16 @@ function FactFlash({ data, onContinue, theme }) {
         padding:"0 36px 80px", cursor:"pointer", overflow:"hidden",
       }}>
 
-      {/* Deep color wash — makes it feel like its own world */}
+      {/* Subtle color wash — calm, not a strobe */}
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-        background:`radial-gradient(ellipse 100% 80% at 50% 40%, ${data.color}28, transparent 70%)` }}/>
+        background:`radial-gradient(ellipse 80% 60% at 50% 40%, ${data.color}18, transparent 65%)` }}/>
 
-      {/* Color burst on enter */}
+      {/* Single soft expanding ring — no blinding burst */}
       <motion.div
-        initial={{ scale:0, opacity:0.55 }} animate={{ scale:28, opacity:0 }}
-        transition={{ duration:0.85, ease:[0.22,1,0.36,1] }}
-        style={{ position:"absolute", width:56, height:56, borderRadius:"50%",
-          background:data.color, pointerEvents:"none" }}/>
-
-      {/* Expanding ring */}
-      <motion.div
-        initial={{ scale:0.15, opacity:0.5 }} animate={{ scale:1.4, opacity:0 }}
-        transition={{ duration:1.6, ease:"easeOut" }}
-        style={{ position:"absolute", width:340, height:340, borderRadius:"50%",
-          border:`1.5px solid ${data.color}`, pointerEvents:"none" }}/>
-
-      {/* Second ring, offset */}
-      <motion.div
-        initial={{ scale:0.15, opacity:0.3 }} animate={{ scale:1.0, opacity:0 }}
-        transition={{ delay:0.2, duration:1.4, ease:"easeOut" }}
-        style={{ position:"absolute", width:240, height:240, borderRadius:"50%",
-          border:`1px solid ${data.color}`, pointerEvents:"none" }}/>
+        initial={{ scale:0.2, opacity:0.35 }} animate={{ scale:1.3, opacity:0 }}
+        transition={{ duration:1.2, ease:"easeOut" }}
+        style={{ position:"absolute", width:300, height:300, borderRadius:"50%",
+          border:`1px solid ${data.color}66`, pointerEvents:"none" }}/>
 
       {/* ANIMATED VISUAL */}
       <motion.div
@@ -13187,7 +13173,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
       {/* ── Settings Modal ──────────────────────────────────────────────────── */}
       {settingsOpen && (
-        <div style={{ position:"fixed", inset:0, zIndex:300, background:"rgba(0,0,0,0.72)",
+        <div style={{ position:"fixed", inset:0, zIndex:1100, background:"rgba(0,0,0,0.72)",
           display:"flex", alignItems:"flex-end", justifyContent:"center" }}
           onClick={e => { if(e.target===e.currentTarget) { setSettingsOpen(false); setConfirmReset(false); } }}>
           <motion.div initial={{ y:80, opacity:0 }} animate={{ y:0, opacity:1 }} exit={{ y:80, opacity:0 }}
@@ -13229,6 +13215,44 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   Light 7am–8pm · Dark 8pm–7am
                 </div>
               )}
+            </div>
+
+            {/* Accent Color */}
+            <div style={{ padding:"12px 14px", borderRadius:12, background:T.glass,
+              border:`1px solid ${T.border}`, marginBottom:12 }}>
+              <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em", fontWeight:600, marginBottom:10 }}>ACCENT COLOR</div>
+              <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                {[
+                  { color: null,      label: "Protocol", swatch: ac },
+                  { color: "#0A84FF", label: "Blue",     swatch: "#0A84FF" },
+                  { color: "#BF5AF2", label: "Purple",   swatch: "#BF5AF2" },
+                  { color: "#30D158", label: "Green",    swatch: "#30D158" },
+                  { color: "#FF6B35", label: "Orange",   swatch: "#FF6B35" },
+                  { color: "#FF375F", label: "Pink",     swatch: "#FF375F" },
+                ].map(({ color, label, swatch }) => {
+                  const active = (envState.accentColor ?? null) === color;
+                  return (
+                    <div key={label} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:5 }}>
+                      <button onClick={() => setAccentColor(color)}
+                        style={{
+                          width:38, height:38, borderRadius:"50%", cursor:"pointer", border:"none",
+                          background: color === null
+                            ? `radial-gradient(circle at 35% 35%, ${swatch}cc, ${swatch}55)`
+                            : swatch,
+                          boxShadow: active ? `0 0 0 2.5px ${T.bg}, 0 0 0 4.5px ${swatch}` : "none",
+                          transition:"box-shadow .15s",
+                          display:"flex", alignItems:"center", justifyContent:"center",
+                        }}>
+                        {color === null && <span style={{ fontSize:11, color:"#fff", opacity:.7 }}>✦</span>}
+                        {active && color !== null && <span style={{ fontSize:13, color:"#fff", fontWeight:900 }}>✓</span>}
+                      </button>
+                      <span style={{ fontSize:9, fontWeight:700, color: active ? swatch : T.muted, letterSpacing:".03em" }}>
+                        {label.toUpperCase()}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Account info */}

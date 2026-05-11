@@ -11164,12 +11164,11 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }}
-      topGradient={theme==="dark"
-        ? `radial-gradient(ellipse 90% 55% at 15% 0%, rgba(255,107,53,0.24) 0%, transparent 70%),
-           radial-gradient(ellipse 90% 55% at 85% 0%, rgba(191,90,242,0.18) 0%, transparent 70%)`
-        : `radial-gradient(ellipse 90% 55% at 15% 0%, rgba(255,107,53,0.15) 0%, transparent 70%),
-           radial-gradient(ellipse 90% 55% at 85% 0%, rgba(191,90,242,0.11) 0%, transparent 70%)`
-      }>
+      topGradient={`
+        radial-gradient(ellipse 220% 55% at 50% -5%, ${ac}55 0%, transparent 60%),
+        radial-gradient(ellipse 90% 40% at   0% 0%, ${ac}35 0%, transparent 55%),
+        radial-gradient(ellipse 90% 40% at 100% 0%, ${ac}25 0%, transparent 55%)
+      `}>
 
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"28px 24px 40px",
         position:"relative", zIndex:1, maxWidth:420, margin:"0 auto", width:"100%" }}>
@@ -12254,11 +12253,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const ppLocked = ppDaysSinceLast < 7;
   const ppDaysUntilUnlock = ppLocked ? (7 - ppDaysSinceLast) : 0;
 
-  const _gymGradient = theme === "dark"
-    ? `radial-gradient(ellipse 90% 55% at 10% 0%, rgba(255,107,53,0.32) 0%, transparent 65%),
-       radial-gradient(ellipse 90% 55% at 90% 0%, rgba(191,90,242,0.24) 0%, transparent 65%)`
-    : `radial-gradient(ellipse 90% 55% at 10% 0%, rgba(255,107,53,0.20) 0%, transparent 65%),
-       radial-gradient(ellipse 90% 55% at 90% 0%, rgba(191,90,242,0.14) 0%, transparent 65%)`;
+  // Single wide arc using the archetype's colour — spans both corners so it
+  // reads as one connected glow across the full top, not two separate spots.
+  const _glowHex = arch.glow; // e.g. "#C9A84C", "#0A84FF", "#BF5AF2"
+  const _gymGradient = `
+    radial-gradient(ellipse 220% 55% at 50% -5%, ${_glowHex}55 0%, transparent 60%),
+    radial-gradient(ellipse 90% 40% at  0% 0%, ${_glowHex}35 0%, transparent 55%),
+    radial-gradient(ellipse 90% 40% at 100% 0%, ${_glowHex}25 0%, transparent 55%)
+  `;
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto" }} topGradient={_gymGradient}

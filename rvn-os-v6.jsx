@@ -4946,96 +4946,96 @@ function MoACinematicLoop({ type, color, theme }) {
 // ── Supplement milestone data per archetype ───────────────────────────────────
 const PROTOCOL_MILESTONES = {
   mass_builder: [
-    { week:3,  supp:"Creatine HMB",      why:"Creatine reaches full muscle saturation at week 3. ATP reserves are 23% higher. Every rep now recruits more fast-twitch fibres.", metric:"Strength", rvn:"+14%", std:"+4%",  color:"#0A84FF" },
-    { week:6,  supp:"Whey + EAAs",       why:"Protein synthesis is in overdrive. Leucine threshold consistently crossed every session. Lean tissue is being laid down visibly.", metric:"Lean Mass", rvn:"+8lbs", std:"+2lbs", color:"#30D158" },
-    { week:9,  supp:"Beta-Alanine",      why:"Carnosine buffering is fully established. You can train harder for longer before lactic acid forces you to stop.", metric:"Volume",   rvn:"+31%", std:"+9%",  color:"#FF9F0A" },
-    { week:12, supp:"Full Stack Synergy",why:"All compounds are working in concert. Creatine + protein + beta-alanine create a compounding effect no single supplement achieves alone.", metric:"Total Gains", rvn:"+38%", std:"+11%", color:"#C8A94A" },
+    { week:3,  supp:"Creatine HMB",      why:"Creatine reaches full muscle saturation at week 3. ATP reserves are 23% higher. Every rep now recruits more fast-twitch fibres.", metric:"Strength", rvn:"+14%", std:"+4%",  color:null },
+    { week:6,  supp:"Whey + EAAs",       why:"Protein synthesis is in overdrive. Leucine threshold consistently crossed every session. Lean tissue is being laid down visibly.", metric:"Lean Mass", rvn:"+8lbs", std:"+2lbs", color:null },
+    { week:9,  supp:"Beta-Alanine",      why:"Carnosine buffering is fully established. You can train harder for longer before lactic acid forces you to stop.", metric:"Volume",   rvn:"+31%", std:"+9%",  color:null },
+    { week:12, supp:"Full Stack Synergy",why:"All compounds are working in concert. Creatine + protein + beta-alanine create a compounding effect no single supplement achieves alone.", metric:"Total Gains", rvn:"+38%", std:"+11%", color:null },
   ],
   core_definition: [
-    { week:3,  supp:"L-Carnitine",       why:"L-Carnitine is now physically moving fatty acids across the mitochondrial membrane. Fat oxidation during training is measurably higher.", metric:"Fat Burn",   rvn:"+18%", std:"+5%",  color:"#FF9F0A" },
-    { week:6,  supp:"CLA + Omega-3",     why:"Omega-3 has integrated into cell membranes. Inflammation is down — meaning you recover faster and train harder. CLA is redirecting stored fat.", metric:"Definition", rvn:"+22%", std:"+7%",  color:"#0A84FF" },
-    { week:9,  supp:"Green Tea Extract", why:"EGCG is now potentiating thermogenesis around the clock — not just in training. Resting metabolism is measurably elevated.", metric:"Resting Burn", rvn:"+15%", std:"+3%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",     why:"Striated muscle visible. Vascularity established. The definition you're seeing is the compound result of 3 months of molecular-level optimization.", metric:"Body Comp",  rvn:"-18%BF", std:"-6%BF", color:"#C8A94A" },
+    { week:3,  supp:"L-Carnitine",       why:"L-Carnitine is now physically moving fatty acids across the mitochondrial membrane. Fat oxidation during training is measurably higher.", metric:"Fat Burn",   rvn:"+18%", std:"+5%",  color:null },
+    { week:6,  supp:"CLA + Omega-3",     why:"Omega-3 has integrated into cell membranes. Inflammation is down — meaning you recover faster and train harder. CLA is redirecting stored fat.", metric:"Definition", rvn:"+22%", std:"+7%",  color:null },
+    { week:9,  supp:"Green Tea Extract", why:"EGCG is now potentiating thermogenesis around the clock — not just in training. Resting metabolism is measurably elevated.", metric:"Resting Burn", rvn:"+15%", std:"+3%",  color:null },
+    { week:12, supp:"Full Protocol",     why:"Striated muscle visible. Vascularity established. The definition you're seeing is the compound result of 3 months of molecular-level optimization.", metric:"Body Comp",  rvn:"-18%BF", std:"-6%BF", color:null },
   ],
   athletic_performance: [
-    { week:3,  supp:"Creatine + Pre",    why:"CNS stimulation is now fully calibrated. Explosive output in the first 3 sets is 19% higher than week 1. Your nervous system has adapted.", metric:"Power",     rvn:"+19%", std:"+5%",  color:"#0A84FF" },
-    { week:6,  supp:"Magnesium Glycinate",why:"Magnesium has replenished the chronic deficit most athletes don't know they have. Deep sleep improved — this is where growth happens.", metric:"Recovery",   rvn:"+34%", std:"+8%",  color:"#30D158" },
-    { week:9,  supp:"Vitamin D3 + K2",   why:"Testosterone optimization is underway. D3 and K2 together direct calcium to bone, not arteries — injury resilience is now significantly higher.", metric:"Resilience", rvn:"+28%", std:"+6%",  color:"#FF9F0A" },
-    { week:12, supp:"Full Protocol",     why:"You are operating at genuine athletic peak. Every system — power, recovery, hormonal — has been systematically optimized over 12 weeks.", metric:"Performance", rvn:"+41%", std:"+12%", color:"#C8A94A" },
+    { week:3,  supp:"Creatine + Pre",    why:"CNS stimulation is now fully calibrated. Explosive output in the first 3 sets is 19% higher than week 1. Your nervous system has adapted.", metric:"Power",     rvn:"+19%", std:"+5%",  color:null },
+    { week:6,  supp:"Magnesium Glycinate",why:"Magnesium has replenished the chronic deficit most athletes don't know they have. Deep sleep improved — this is where growth happens.", metric:"Recovery",   rvn:"+34%", std:"+8%",  color:null },
+    { week:9,  supp:"Vitamin D3 + K2",   why:"Testosterone optimization is underway. D3 and K2 together direct calcium to bone, not arteries — injury resilience is now significantly higher.", metric:"Resilience", rvn:"+28%", std:"+6%",  color:null },
+    { week:12, supp:"Full Protocol",     why:"You are operating at genuine athletic peak. Every system — power, recovery, hormonal — has been systematically optimized over 12 weeks.", metric:"Performance", rvn:"+41%", std:"+12%", color:null },
   ],
   longevity: [
-    { week:3,  supp:"NAD+ (NMN/NR)",     why:"NAD+ levels are rising in every cell. Sirtuin pathways activating — these are the same pathways that caloric restriction activates. Cellular energy is measurably higher.", metric:"Cellular ATP", rvn:"+24%", std:"+2%",  color:"#30D158" },
-    { week:6,  supp:"Resveratrol",       why:"Resveratrol has activated AMPK and SIRT1. Inflammation biomarkers are measurably lower. Cells are beginning to clear damaged components (autophagy).", metric:"Inflammation", rvn:"-31%", std:"-5%",  color:"#0A84FF" },
-    { week:9,  supp:"Omega-3 + CoQ10",   why:"Mitochondrial membranes are now omega-3 enriched — more fluid, more efficient. CoQ10 is the final electron carrier in ATP synthesis. Energy per cell is at its peak.", metric:"Mitochondria", rvn:"+38%", std:"+4%",  color:"#C9A84C" },
-    { week:12, supp:"Full Bio-Stack",    why:"Biological age markers have shifted. This isn't about feeling better — it's about measurable epigenetic change. The protocol has done what no single supplement could.", metric:"Bio Age",    rvn:"-6yr", std:"-1yr",  color:"#C8A94A" },
+    { week:3,  supp:"NAD+ (NMN/NR)",     why:"NAD+ levels are rising in every cell. Sirtuin pathways activating — these are the same pathways that caloric restriction activates. Cellular energy is measurably higher.", metric:"Cellular ATP", rvn:"+24%", std:"+2%",  color:null },
+    { week:6,  supp:"Resveratrol",       why:"Resveratrol has activated AMPK and SIRT1. Inflammation biomarkers are measurably lower. Cells are beginning to clear damaged components (autophagy).", metric:"Inflammation", rvn:"-31%", std:"-5%",  color:null },
+    { week:9,  supp:"Omega-3 + CoQ10",   why:"Mitochondrial membranes are now omega-3 enriched — more fluid, more efficient. CoQ10 is the final electron carrier in ATP synthesis. Energy per cell is at its peak.", metric:"Mitochondria", rvn:"+38%", std:"+4%",  color:null },
+    { week:12, supp:"Full Bio-Stack",    why:"Biological age markers have shifted. This isn't about feeling better — it's about measurable epigenetic change. The protocol has done what no single supplement could.", metric:"Bio Age",    rvn:"-6yr", std:"-1yr",  color:null },
   ],
   fat_loss: [
-    { week:3,  supp:"Thermogenic Stack", why:"Core temperature is 0.4°C higher at rest. This isn't subtle — it's an additional 200 calories per day being oxidised. The thermogenic effect is now active 24/7.", metric:"Resting Burn", rvn:"+200cal", std:"+40cal", color:"#FF9F0A" },
-    { week:6,  supp:"L-Carnitine",       why:"Fat is being physically transported into mitochondria at a measurably higher rate. Mobilised fat that used to recirculate is now being burned.", metric:"Fat Oxidation", rvn:"+34%", std:"+6%",  color:"#0A84FF" },
-    { week:9,  supp:"CLA",               why:"CLA is selectively targeting adipose tissue while preserving lean muscle. This is the compound that prevents the 'skinny-fat' outcome of standard dieting.", metric:"Muscle Sparing", rvn:"+19%", std:"+2%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",     why:"22 lbs of fat lost. Muscle maintained. This result is only achievable when every link in the metabolic chain is supported simultaneously.", metric:"Fat Lost",   rvn:"-22lbs", std:"-6lbs", color:"#C8A94A" },
+    { week:3,  supp:"Thermogenic Stack", why:"Core temperature is 0.4°C higher at rest. This isn't subtle — it's an additional 200 calories per day being oxidised. The thermogenic effect is now active 24/7.", metric:"Resting Burn", rvn:"+200cal", std:"+40cal", color:null },
+    { week:6,  supp:"L-Carnitine",       why:"Fat is being physically transported into mitochondria at a measurably higher rate. Mobilised fat that used to recirculate is now being burned.", metric:"Fat Oxidation", rvn:"+34%", std:"+6%",  color:null },
+    { week:9,  supp:"CLA",               why:"CLA is selectively targeting adipose tissue while preserving lean muscle. This is the compound that prevents the 'skinny-fat' outcome of standard dieting.", metric:"Muscle Sparing", rvn:"+19%", std:"+2%",  color:null },
+    { week:12, supp:"Full Protocol",     why:"22 lbs of fat lost. Muscle maintained. This result is only achievable when every link in the metabolic chain is supported simultaneously.", metric:"Fat Lost",   rvn:"-22lbs", std:"-6lbs", color:null },
   ],
   muscle_build: [
-    { week:3,  supp:"Creatine Monohydrate",why:"Muscle creatine stores are now fully saturated. This translates to an immediate and measurable increase in strength output during compound lifts.", metric:"1RM Strength", rvn:"+16%", std:"+4%",  color:"#0A84FF" },
-    { week:6,  supp:"Whey Isolate",      why:"Protein synthesis rate is elevated around the clock. You're now building muscle tissue even on rest days — which never happens without adequate protein.", metric:"Lean Tissue", rvn:"+7lbs",  std:"+2lbs", color:"#30D158" },
-    { week:9,  supp:"ZMA (Zinc+Mag)",    why:"Testosterone and IGF-1 are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now clean.", metric:"Hormonal",  rvn:"+22%", std:"+3%",  color:"#FF9F0A" },
-    { week:12, supp:"Full Stack",        why:"31 lbs of lean mass in 12 weeks. The stack compounds — creatine drives strength, protein drives synthesis, ZMA optimises the hormonal environment for maximum uptake.", metric:"Total Mass", rvn:"+31lbs", std:"+8lbs", color:"#C8A94A" },
+    { week:3,  supp:"Creatine Monohydrate",why:"Muscle creatine stores are now fully saturated. This translates to an immediate and measurable increase in strength output during compound lifts.", metric:"1RM Strength", rvn:"+16%", std:"+4%",  color:null },
+    { week:6,  supp:"Whey Isolate",      why:"Protein synthesis rate is elevated around the clock. You're now building muscle tissue even on rest days — which never happens without adequate protein.", metric:"Lean Tissue", rvn:"+7lbs",  std:"+2lbs", color:null },
+    { week:9,  supp:"ZMA (Zinc+Mag)",    why:"Testosterone and IGF-1 are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now clean.", metric:"Hormonal",  rvn:"+22%", std:"+3%",  color:null },
+    { week:12, supp:"Full Stack",        why:"31 lbs of lean mass in 12 weeks. The stack compounds — creatine drives strength, protein drives synthesis, ZMA optimises the hormonal environment for maximum uptake.", metric:"Total Mass", rvn:"+31lbs", std:"+8lbs", color:null },
   ],
   // ── New men's archetypes ──────────────────────────────────────────────────────
   chest_arms: [
-    { week:3,  supp:"Creatine Mono",       why:"Muscles are now creatine-saturated. Bench press has jumped 10–15 lbs in 3 weeks. The number will keep climbing.", metric:"Bench Press",  rvn:"+14%", std:"+4%",  color:"#0A84FF" },
-    { week:6,  supp:"Whey Isolate",        why:"Bicep peak is visibly more defined. Protein synthesis is running around the clock — chest and arm mass is being laid down.", metric:"Arm Size",    rvn:"+0.8in",std:"+0.2in",color:"#FF9F0A" },
-    { week:9,  supp:"Citrulline Stack",    why:"Vascularity is emerging. Blood flow to the arms during training is 40% higher. Every rep is better fed, better pumped.", metric:"Definition",  rvn:"+29%", std:"+7%",  color:"#FF9F0A" },
-    { week:12, supp:"Full Stack",          why:"Chest is thicker, arms are full. The combination of creatine strength + protein synthesis + pump compounds into visible transformation.", metric:"Total Gains", rvn:"+35%", std:"+10%", color:"#C8A94A" },
+    { week:3,  supp:"Creatine Mono",       why:"Muscles are now creatine-saturated. Bench press has jumped 10–15 lbs in 3 weeks. The number will keep climbing.", metric:"Bench Press",  rvn:"+14%", std:"+4%",  color:null },
+    { week:6,  supp:"Whey Isolate",        why:"Bicep peak is visibly more defined. Protein synthesis is running around the clock — chest and arm mass is being laid down.", metric:"Arm Size",    rvn:"+0.8in",std:"+0.2in",color:null },
+    { week:9,  supp:"Citrulline Stack",    why:"Vascularity is emerging. Blood flow to the arms during training is 40% higher. Every rep is better fed, better pumped.", metric:"Definition",  rvn:"+29%", std:"+7%",  color:null },
+    { week:12, supp:"Full Stack",          why:"Chest is thicker, arms are full. The combination of creatine strength + protein synthesis + pump compounds into visible transformation.", metric:"Total Gains", rvn:"+35%", std:"+10%", color:null },
   ],
   powerlifter: [
-    { week:3,  supp:"Creatine HMB",        why:"Creatine phosphate stores are now full. Your max squat has jumped — setting PRs in week 3 of 12. That is the creatine loading effect.", metric:"1RM Squat",   rvn:"+12%", std:"+3%",  color:"#BF5AF2" },
-    { week:6,  supp:"Joint Complex",       why:"Connective tissue is being rebuilt. Heavy bilateral loading is getting more comfortable. Knee and hip discomfort between sessions is measurably lower.", metric:"Joint Health",rvn:"+41%", std:"+8%",  color:"#0A84FF" },
-    { week:9,  supp:"ZMA Protocol",        why:"Testosterone baseline is restored. Zinc correction in heavy athletes accounts for a 22% hormonal improvement — recovery between sessions is faster.", metric:"Recovery",   rvn:"+22%", std:"+4%",  color:"#30D158" },
-    { week:12, supp:"Full Stack",          why:"Every major lift is at an all-time PR. ATP resynthesis + joint health + testosterone optimization is what competition-ready looks like.", metric:"Total PRs",  rvn:"+28%", std:"+7%",  color:"#C8A94A" },
+    { week:3,  supp:"Creatine HMB",        why:"Creatine phosphate stores are now full. Your max squat has jumped — setting PRs in week 3 of 12. That is the creatine loading effect.", metric:"1RM Squat",   rvn:"+12%", std:"+3%",  color:null },
+    { week:6,  supp:"Joint Complex",       why:"Connective tissue is being rebuilt. Heavy bilateral loading is getting more comfortable. Knee and hip discomfort between sessions is measurably lower.", metric:"Joint Health",rvn:"+41%", std:"+8%",  color:null },
+    { week:9,  supp:"ZMA Protocol",        why:"Testosterone baseline is restored. Zinc correction in heavy athletes accounts for a 22% hormonal improvement — recovery between sessions is faster.", metric:"Recovery",   rvn:"+22%", std:"+4%",  color:null },
+    { week:12, supp:"Full Stack",          why:"Every major lift is at an all-time PR. ATP resynthesis + joint health + testosterone optimization is what competition-ready looks like.", metric:"Total PRs",  rvn:"+28%", std:"+7%",  color:null },
   ],
   shred: [
     { week:3,  supp:"L-Carnitine",         why:"Fat oxidation during training is now measurably higher. The carnitine transport system is running at capacity — mobilized fat is being burned, not recycled.", metric:"Fat Burn",   rvn:"+22%", std:"+5%",  color:"#FF3B30" },
-    { week:6,  supp:"Thermo Complex",      why:"Resting metabolic rate is elevated around the clock. 140 extra calories per day adds up to almost 1 additional lb per week of fat loss on top of training.", metric:"Resting Burn",rvn:"+140cal",std:"+30cal",color:"#FF9F0A" },
-    { week:9,  supp:"CLA Protocol",        why:"Fat cells are structurally smaller. CLA does not just burn fat — it changes how fat cells behave, making it harder for them to expand again after the cut.", metric:"Body Comp",  rvn:"-14%BF",std:"-4%BF",color:"#30D158" },
-    { week:12, supp:"Full Stack",          why:"The shred is complete. Muscle is preserved. The stack ensured fat loss not muscle loss — and the body composition change is permanent, not just water weight.", metric:"Fat Lost",   rvn:"-20lbs",std:"-5lbs",color:"#C8A94A" },
+    { week:6,  supp:"Thermo Complex",      why:"Resting metabolic rate is elevated around the clock. 140 extra calories per day adds up to almost 1 additional lb per week of fat loss on top of training.", metric:"Resting Burn",rvn:"+140cal",std:"+30cal",color:null },
+    { week:9,  supp:"CLA Protocol",        why:"Fat cells are structurally smaller. CLA does not just burn fat — it changes how fat cells behave, making it harder for them to expand again after the cut.", metric:"Body Comp",  rvn:"-14%BF",std:"-4%BF",color:null },
+    { week:12, supp:"Full Stack",          why:"The shred is complete. Muscle is preserved. The stack ensured fat loss not muscle loss — and the body composition change is permanent, not just water weight.", metric:"Fat Lost",   rvn:"-20lbs",std:"-5lbs",color:null },
   ],
   calisthenics: [
     { week:3,  supp:"Collagen + Joints",   why:"Tendons and ligaments are beginning to adapt. Elbow and wrist discomfort from lever exercises is significantly reduced. The collagen framework is being rebuilt.", metric:"Joint Health",rvn:"+35%", std:"+7%",  color:"#5AC8FA" },
-    { week:6,  supp:"Magnesium",           why:"Neural recovery is full between sessions. Isometric holds last longer. Magnesium has eliminated the neuromuscular tension that was limiting skill progression.", metric:"Skill Level", rvn:"+44%", std:"+11%", color:"#0A84FF" },
-    { week:9,  supp:"EAA Complex",         why:"Mid-workout catabolism is gone. EAAs protect muscle during long skill sessions where protein breakdown would otherwise blunt adaptation gains.", metric:"Strength",   rvn:"+31%", std:"+8%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",       why:"Movements that were impossible at week 1 are now repeatable. Connective tissue + neural recovery + muscle preservation created compounding skill gains.", metric:"Total Skill", rvn:"+58%", std:"+14%", color:"#C8A94A" },
+    { week:6,  supp:"Magnesium",           why:"Neural recovery is full between sessions. Isometric holds last longer. Magnesium has eliminated the neuromuscular tension that was limiting skill progression.", metric:"Skill Level", rvn:"+44%", std:"+11%", color:null },
+    { week:9,  supp:"EAA Complex",         why:"Mid-workout catabolism is gone. EAAs protect muscle during long skill sessions where protein breakdown would otherwise blunt adaptation gains.", metric:"Strength",   rvn:"+31%", std:"+8%",  color:null },
+    { week:12, supp:"Full Protocol",       why:"Movements that were impossible at week 1 are now repeatable. Connective tissue + neural recovery + muscle preservation created compounding skill gains.", metric:"Total Skill", rvn:"+58%", std:"+14%", color:null },
   ],
   // ── New women's archetypes ────────────────────────────────────────────────────
   lower_build: [
-    { week:3,  supp:"Creatine Mono",       why:"Squat and deadlift numbers are already up. Creatine saturation in the leg muscles means more ATP for heavy compound work — every session ends heavier.", metric:"Leg Strength",rvn:"+16%", std:"+4%",  color:"#BF5AF2" },
-    { week:6,  supp:"Whey Isolate",        why:"Quads and hamstrings are visibly developing. Protein synthesis in the lower body is running above baseline — muscle tissue is being built between sessions.", metric:"Leg Mass",   rvn:"+5lbs",std:"+1.2lbs",color:"#30D158" },
-    { week:9,  supp:"Joint Support",       why:"Heavy lower body work taxes hips and knees. Glucosamine + collagen has rebuilt the cartilage layer — heavy sessions are now feeling smoother and safer.", metric:"Joint Health",rvn:"+38%", std:"+7%",  color:"#0A84FF" },
-    { week:12, supp:"Full Stack",          why:"Visible quad sweep. Glute-hamstring tie-in defined. Three months of progressive overload supported by the right molecular environment.", metric:"Total Gains", rvn:"+34%", std:"+9%",  color:"#C8A94A" },
+    { week:3,  supp:"Creatine Mono",       why:"Squat and deadlift numbers are already up. Creatine saturation in the leg muscles means more ATP for heavy compound work — every session ends heavier.", metric:"Leg Strength",rvn:"+16%", std:"+4%",  color:null },
+    { week:6,  supp:"Whey Isolate",        why:"Quads and hamstrings are visibly developing. Protein synthesis in the lower body is running above baseline — muscle tissue is being built between sessions.", metric:"Leg Mass",   rvn:"+5lbs",std:"+1.2lbs",color:null },
+    { week:9,  supp:"Joint Support",       why:"Heavy lower body work taxes hips and knees. Glucosamine + collagen has rebuilt the cartilage layer — heavy sessions are now feeling smoother and safer.", metric:"Joint Health",rvn:"+38%", std:"+7%",  color:null },
+    { week:12, supp:"Full Stack",          why:"Visible quad sweep. Glute-hamstring tie-in defined. Three months of progressive overload supported by the right molecular environment.", metric:"Total Gains", rvn:"+34%", std:"+9%",  color:null },
   ],
   body_recomp: [
-    { week:3,  supp:"L-Carnitine",         why:"Your body is now using fat as the priority fuel source. Muscle tissue is being built simultaneously — the recomp effect is measurably active.", metric:"Fat Oxidation",rvn:"+24%", std:"+5%",  color:"#FF9F0A" },
-    { week:6,  supp:"Whey Isolate",        why:"Lean mass is up. Body fat is down. The scale may not move but measurements have changed — this is the definition of body recomposition.", metric:"Body Comp",  rvn:"+18%", std:"+4%",  color:"#30D158" },
-    { week:9,  supp:"Magnesium Stack",     why:"Cortisol is controlled. When cortisol is high, fat deposits around the waist and muscle breaks down. Magnesium fixed that — recomp efficiency is at its peak.", metric:"Lean Ratio",  rvn:"+27%", std:"+5%",  color:"#0A84FF" },
-    { week:12, supp:"Full Protocol",       why:"Less fat, more muscle, same or lower weight — this is what nobody tells you is possible, but the right stack made it happen.", metric:"Final Recomp",rvn:"+41%", std:"+10%", color:"#C8A94A" },
+    { week:3,  supp:"L-Carnitine",         why:"Your body is now using fat as the priority fuel source. Muscle tissue is being built simultaneously — the recomp effect is measurably active.", metric:"Fat Oxidation",rvn:"+24%", std:"+5%",  color:null },
+    { week:6,  supp:"Whey Isolate",        why:"Lean mass is up. Body fat is down. The scale may not move but measurements have changed — this is the definition of body recomposition.", metric:"Body Comp",  rvn:"+18%", std:"+4%",  color:null },
+    { week:9,  supp:"Magnesium Stack",     why:"Cortisol is controlled. When cortisol is high, fat deposits around the waist and muscle breaks down. Magnesium fixed that — recomp efficiency is at its peak.", metric:"Lean Ratio",  rvn:"+27%", std:"+5%",  color:null },
+    { week:12, supp:"Full Protocol",       why:"Less fat, more muscle, same or lower weight — this is what nobody tells you is possible, but the right stack made it happen.", metric:"Final Recomp",rvn:"+41%", std:"+10%", color:null },
   ],
   arms_back_f: [
     { week:3,  supp:"EAA Complex",         why:"Upper body muscle breakdown during training is stopped. Every set is now building, not just surviving. Arm and back definition is beginning to emerge.", metric:"Definition", rvn:"+17%", std:"+4%",  color:"#5AC8FA" },
-    { week:6,  supp:"Pump Formula",        why:"Arm vascularity is visible. Citrulline has increased blood flow to the bicep and lat significantly — muscles are better fed and responding faster.", metric:"Vascularity",rvn:"+34%", std:"+6%",  color:"#0A84FF" },
-    { week:9,  supp:"Omega-3 Stack",       why:"Recovery between upper body sessions is dramatically faster. Inflammation in the arms and shoulders is controlled — you can train with more frequency.", metric:"Recovery",   rvn:"+29%", std:"+7%",  color:"#30D158" },
-    { week:12, supp:"Full Protocol",       why:"Arms are defined. Back has width and depth. Building + pumping + recovering correctly compounded into the upper body transformation.", metric:"Total Gains", rvn:"+36%", std:"+10%", color:"#C8A94A" },
+    { week:6,  supp:"Pump Formula",        why:"Arm vascularity is visible. Citrulline has increased blood flow to the bicep and lat significantly — muscles are better fed and responding faster.", metric:"Vascularity",rvn:"+34%", std:"+6%",  color:null },
+    { week:9,  supp:"Omega-3 Stack",       why:"Recovery between upper body sessions is dramatically faster. Inflammation in the arms and shoulders is controlled — you can train with more frequency.", metric:"Recovery",   rvn:"+29%", std:"+7%",  color:null },
+    { week:12, supp:"Full Protocol",       why:"Arms are defined. Back has width and depth. Building + pumping + recovering correctly compounded into the upper body transformation.", metric:"Total Gains", rvn:"+36%", std:"+10%", color:null },
   ],
   full_body_f: [
-    { week:3,  supp:"Whey Isolate",        why:"Full body 3x/week demands protein after every session. Whey isolate delivers amino acids to every muscle group within 15 minutes of training ending.", metric:"Recovery",   rvn:"+21%", std:"+5%",  color:"#30D158" },
-    { week:6,  supp:"Magnesium",           why:"Recovery is happening fully between sessions. Deep sleep quality improved — this is when growth hormone peaks and the muscle building actually happens.", metric:"Sleep Quality",rvn:"+38%", std:"+8%",  color:"#0A84FF" },
-    { week:9,  supp:"L-Carnitine",         why:"Every full body session is now burning fat as the primary fuel. Body composition is shifting — less fat, more lean tissue, elevated metabolism.", metric:"Body Comp",  rvn:"+24%", std:"+6%",  color:"#FF9F0A" },
-    { week:12, supp:"Full Protocol",       why:"Total body transformation. Every muscle group has been trained 48 times in 12 weeks. With the right support, this is the fastest complete change available.", metric:"Total Change",rvn:"+38%", std:"+10%", color:"#C8A94A" },
+    { week:3,  supp:"Whey Isolate",        why:"Full body 3x/week demands protein after every session. Whey isolate delivers amino acids to every muscle group within 15 minutes of training ending.", metric:"Recovery",   rvn:"+21%", std:"+5%",  color:null },
+    { week:6,  supp:"Magnesium",           why:"Recovery is happening fully between sessions. Deep sleep quality improved — this is when growth hormone peaks and the muscle building actually happens.", metric:"Sleep Quality",rvn:"+38%", std:"+8%",  color:null },
+    { week:9,  supp:"L-Carnitine",         why:"Every full body session is now burning fat as the primary fuel. Body composition is shifting — less fat, more lean tissue, elevated metabolism.", metric:"Body Comp",  rvn:"+24%", std:"+6%",  color:null },
+    { week:12, supp:"Full Protocol",       why:"Total body transformation. Every muscle group has been trained 48 times in 12 weeks. With the right support, this is the fastest complete change available.", metric:"Total Change",rvn:"+38%", std:"+10%", color:null },
   ],
   smoothie: [
-    { week:3,  supp:"Collagen + Vitamin C",why:"Collagen synthesis requires vitamin C as a cofactor. Joint tissue is being rebuilt at the cellular level. Morning stiffness is measurably reduced.", metric:"Joint Health", rvn:"+28%", std:"+4%",  color:"#30D158" },
-    { week:6,  supp:"Spirulina + Chlorella",why:"Phytonutrient density is now at therapeutic levels. Heavy metal chelation is occurring. Mitochondrial efficiency has measurably improved.", metric:"Detox Score", rvn:"+41%", std:"+5%",  color:"#0A84FF" },
-    { week:9,  supp:"Adaptogens (Ashwagandha)",why:"Cortisol is measurably lower. HRV (heart rate variability) is improved. Your nervous system is no longer in a chronic stress state.", metric:"Stress Index", rvn:"-34%", std:"-5%",  color:"#FF9F0A" },
-    { week:12, supp:"Full Formula",      why:"Every biomarker has shifted. Energy, sleep, skin, digestion — all improved because the formula addressed every system simultaneously.", metric:"Wellness Score", rvn:"+52%", std:"+8%",  color:"#C8A94A" },
+    { week:3,  supp:"Collagen + Vitamin C",why:"Collagen synthesis requires vitamin C as a cofactor. Joint tissue is being rebuilt at the cellular level. Morning stiffness is measurably reduced.", metric:"Joint Health", rvn:"+28%", std:"+4%",  color:null },
+    { week:6,  supp:"Spirulina + Chlorella",why:"Phytonutrient density is now at therapeutic levels. Heavy metal chelation is occurring. Mitochondrial efficiency has measurably improved.", metric:"Detox Score", rvn:"+41%", std:"+5%",  color:null },
+    { week:9,  supp:"Adaptogens (Ashwagandha)",why:"Cortisol is measurably lower. HRV (heart rate variability) is improved. Your nervous system is no longer in a chronic stress state.", metric:"Stress Index", rvn:"-34%", std:"-5%",  color:null },
+    { week:12, supp:"Full Formula",      why:"Every biomarker has shifted. Energy, sleep, skin, digestion — all improved because the formula addressed every system simultaneously.", metric:"Wellness Score", rvn:"+52%", std:"+8%",  color:null },
   ],
 };
 
@@ -5477,7 +5477,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
           {milestones.map((ms, i) => {
             const isActive = week >= ms.week;
             const isCurrent = week >= ms.week && (i===milestones.length-1 || week < milestones[i+1].week);
-            const tileColor = isRVN ? ms.color : T.muted;
+            const tileColor = isRVN ? (ms.color || ac) : T.muted;
             const val = isRVN ? ms.rvn : ms.std;
             return (
               <motion.div key={ms.week}
@@ -5485,12 +5485,12 @@ function ABBioComparison({ archetypeId, theme, color }) {
                 transition={{ duration:.3 }}
                 onClick={() => setActiveMilestone(activeMilestone===i?null:i)}
                 style={{ cursor:"pointer", borderRadius:12, overflow:"hidden",
-                  border:`1.5px solid ${isActive ? tileColor+"55" : T.border}`,
+                  border:`1.5px solid ${isActive ? tileColor+"33" : T.border}`,
                   background: isActive && isRVN
-                    ? `linear-gradient(135deg,${ms.color}16 0%,${T.glass} 100%)`
+                    ? `linear-gradient(135deg,${ms.color||ac}16 0%,${T.glass} 100%)`
                     : T.glass,
                   opacity: isActive ? 1 : 0.38,
-                  boxShadow: (isCurrent && isRVN) ? `0 0 18px ${ms.color}33` : "none" }}>
+                  boxShadow: (isCurrent && isRVN) ? `0 0 18px ${ms.color||ac}33` : "none" }}>
                 <div style={{ padding:"10px 10px 8px" }}>
                   <div style={{ display:"flex", alignItems:"center",
                     justifyContent:"space-between", marginBottom:4 }}>
@@ -5499,8 +5499,8 @@ function ABBioComparison({ archetypeId, theme, color }) {
                     {isCurrent && isRVN && (
                       <motion.div animate={{ opacity:[0.7,1,0.7] }}
                         transition={{ duration:1.2, repeat:isMobile?0:Infinity }}
-                        style={{ fontSize:7, fontWeight:900, color:ms.color,
-                          background:`${ms.color}22`, padding:"1px 6px", borderRadius:8 }}>
+                        style={{ fontSize:7, fontWeight:900, color:ms.color||ac,
+                          background:`${ms.color||ac}22`, padding:"1px 6px", borderRadius:8 }}>
                         ACTIVE
                       </motion.div>
                     )}
@@ -5521,7 +5521,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       animate={{ height:"auto", opacity:1 }}
                       exit={{ height:0, opacity:0 }}
                       transition={{ duration:.25 }}
-                      style={{ borderTop:`1px solid ${ms.color}33`,
+                      style={{ borderTop:`1px solid ${ms.color||ac}33`,
                         padding:"8px 10px", fontSize:11.5,
                         color:T.muted, lineHeight:1.6 }}>
                       {ms.why}
@@ -9113,14 +9113,14 @@ const ONBOARDING_FACTS = {
       body: "Muscles don't grow during training — they grow during rest. Your off days are building you.",
     },
     low: {
-      stat: "2 sessions", color: "#30D158", visual: "bar_compare", lottie: "check",
+      stat: "2 sessions", color: null, visual: "bar_compare", lottie: "check",
       headline: "Done right, beats 5 done wrong. Every time.",
       body: "Two sessions with real progression outperforms daily training with poor recovery.",
     },
   },
   caffeine: {
     high: {
-      stat: "40min", color: "#FF9F0A", visual: "clock", lottie: "clock",
+      stat: "40min", color: null, visual: "clock", lottie: "clock",
       headline: "You've been timing your pre-workout wrong",
       body: "Caffeine peaks 30–45min after you take it. You should be warming up before it kicks in.",
     },
@@ -9130,7 +9130,7 @@ const ONBOARDING_FACTS = {
       body: "200mg maxes out training output. Most pre-workouts have double — that's anxiety, not energy.",
     },
     low: {
-      stat: "10 days", color: "#30D158", visual: "calendar_dots", lottie: "reset",
+      stat: "10 days", color: null, visual: "calendar_dots", lottie: "reset",
       headline: "Your next pre-workout will feel like the first time",
       body: "A 10-day reset returns your receptors to baseline. We'll cycle this in.",
     },
@@ -9154,25 +9154,25 @@ const ONBOARDING_FACTS = {
   },
   archetype: {
     // ── Male archetypes ───────────────────────────────────────────────────────
-    vtaper:       { stat: "12wks",  color: "#0A84FF",  visual: "v_shape",        headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
+    vtaper:       { stat: "12wks",  color: null,         visual: "v_shape",        headline: "People will ask what you changed",                        body: "Average V-Taper trainee adds 1.5\" to shoulders while losing 2\" from the waist in 12 weeks." },
     abs:          { stat: "1 layer",color: "#C8A94A",  visual: "layer_reveal",   headline: "You already have a six-pack. It's just hidden.",            body: "Abs emerge at 10–13% body fat. One layer of fat is all that's between you and them." },
     density:      { stat: "0.5lbs", color: "#FF453A",  visual: "muscle_cap",     headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
-    athletic:     { stat: "8%",     color: "#30D158",  visual: "bars_grow",      headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
-    chest_arms:   { stat: "8wks",   color: "#FF9F0A",  visual: "two_bars",       headline: "Your arms will look different in 8 weeks. Guaranteed.",   body: "Arms and chest respond faster than any other muscle. The gains are early, visible, and compound." },
+    athletic:     { stat: "8%",     color: null,         visual: "bars_grow",      headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
+    chest_arms:   { stat: "8wks",   color: null,         visual: "two_bars",       headline: "Your arms will look different in 8 weeks. Guaranteed.",   body: "Arms and chest respond faster than any other muscle. The gains are early, visible, and compound." },
     powerlifter:  { stat: "5g",     color: "#BF5AF2",  visual: "gauge",          headline: "Creatine has 400+ studies. No supplement is more proven.", body: "5g daily is all it takes. Your 1RM goes up within 2 weeks — not months." },
     shred:        { stat: "24hrs",  color: "#FF3B30",  visual: "battery",        headline: "Your metabolism stays elevated 24 hours after HIIT",      body: "This isn't about burning calories in the gym. HIIT reprograms your metabolic rate for the entire next day." },
     calisthenics: { stat: "∞",      color: "#5AC8FA",  visual: "timeline_dots",  headline: "Calisthenics is the only training with no ceiling",       body: "There's always a harder progression. Planche, one-arm pull-up, front lever — the skill chain never ends." },
     // ── Female archetypes ─────────────────────────────────────────────────────
     glutes:       { stat: "+40%",   color: "#BF5AF2",  visual: "glute_fill",     headline: "More activation. More growth. Better shape.",              body: "The right exercises and cues change glute activation by 40%+. Most people never learn them." },
     hourglass:    { stat: "12wks",  color: "#BF5AF2",  visual: "hourglass_form", headline: "Shoulder-waist-hip balance. Engineered.",                 body: "Shoulder width and hip shape are trainable. The hourglass is built — not found — in 12 weeks." },
-    lean_athlete: { stat: "+20%",   color: "#30D158",  visual: "bars_grow",      headline: "Your cycle is a training superpower",                     body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
-    tone_define:  { stat: "16wks",  color: "#30D158",  visual: "timeline_dots",  headline: "Visible definition by week 16. Week 8 if you're dialed.", body: "Muscle definition is about protocol precision, not just lifting more. Your hormonal environment is the key." },
-    lower_build:  { stat: "70%",    color: "#FF9F0A",  visual: "percent_fill",   headline: "Lower body is 70% of your total muscle mass",             body: "Training legs doesn't just build legs — it floods your entire body with anabolic hormones. Nothing drives results faster." },
-    body_recomp:  { stat: "Both",   color: "#FF9F0A",  visual: "split_arrows",   headline: "Lose fat and build muscle at the same time",              body: "Sports science denied it for decades. Your protocol is built around doing both simultaneously." },
+    lean_athlete: { stat: "+20%",   color: null,         visual: "bars_grow",      headline: "Your cycle is a training superpower",                     body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
+    tone_define:  { stat: "16wks",  color: null,         visual: "timeline_dots",  headline: "Visible definition by week 16. Week 8 if you're dialed.", body: "Muscle definition is about protocol precision, not just lifting more. Your hormonal environment is the key." },
+    lower_build:  { stat: "70%",    color: null,         visual: "percent_fill",   headline: "Lower body is 70% of your total muscle mass",             body: "Training legs doesn't just build legs — it floods your entire body with anabolic hormones. Nothing drives results faster." },
+    body_recomp:  { stat: "Both",   color: null,         visual: "split_arrows",   headline: "Lose fat and build muscle at the same time",              body: "Sports science denied it for decades. Your protocol is built around doing both simultaneously." },
     arms_back_f:  { stat: "8wks",   color: "#5AC8FA",  visual: "dumbbell",       headline: "Arms and back define the athletic feminine silhouette",   body: "Visible definition in arms and upper back reshapes how every outfit fits. 8 weeks to visible change." },
-    full_body_f:  { stat: "24wks",  color: "#30D158",  visual: "bars_grow",      headline: "At 24 weeks you're unrecognizable",                       body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
+    full_body_f:  { stat: "24wks",  color: null,         visual: "bars_grow",      headline: "At 24 weeks you're unrecognizable",                       body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
     // ── Fallback ──────────────────────────────────────────────────────────────
-    longevity:    { stat: "14yrs",   color: "#30D158", visual: "age_split",     headline: "People who train consistently are 14 years younger — biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed — all measurably younger. Your protocol builds a body that stays that way." },
+    longevity:    { stat: "14yrs",   color: null,        visual: "age_split",     headline: "People who train consistently are 14 years younger — biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed — all measurably younger. Your protocol builds a body that stays that way." },
     default:      { stat: "10×",     color: "#0A84FF", visual: "two_bars",      headline: "A protocol beats motivation every single time.",                  body: "Motivated people skip. Protocols run. People with a real system are 10× more likely to reach their goal. You just started building yours." },
   },
 };
@@ -10956,12 +10956,12 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
   const scanPct = Math.min(scoreFill / 100, 1);
   const circumference = 2 * Math.PI * 52;
 
-  // Personal stat cards
+  // Personal stat cards — only PROFILE SCORE gets the accent color; others are neutral
   const stats = [
-    { label:"DAILY PROTEIN",  value:`${proteinTarget}g`,   icon:"zap",      color:ac },
-    { label:"CALORIE TARGET", value:`${calorieTarget}`,    icon:"flame",    color:"#FF9F0A" },
-    { label:"TRAINING FREQ",  value:freqLabel,              icon:"dumbbell", color:"#30D158" },
-    { label:"PROFILE SCORE",   value:`${bioScore}`,          icon:"◈",  color:arch?.glow || ac },
+    { label:"DAILY PROTEIN",  value:`${proteinTarget}g`,   icon:"zap",      color:T.text },
+    { label:"CALORIE TARGET", value:`${calorieTarget}`,    icon:"flame",    color:T.text },
+    { label:"TRAINING FREQ",  value:freqLabel,              icon:"dumbbell", color:T.text },
+    { label:"PROFILE SCORE",  value:`${bioScore}`,          icon:"◈",        color:arch?.glow || ac },
   ];
 
   return (
@@ -11830,7 +11830,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const WORKOUT_TEMPLATES = [
     {
       id:"ppl-push", name:"Push Day", tag:"PPL", emoji:"🔺",
-      color:"#FF9F0A", duration:"55 min",
+      color:null, duration:"55 min",
       exercises:[
         { name:"Bench Press",        sets:4, reps:"6-8",  load:"80% 1RM" },
         { name:"Incline Dumbbell",   sets:3, reps:"10-12", load:"70% 1RM" },
@@ -11841,7 +11841,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     },
     {
       id:"ppl-pull", name:"Pull Day", tag:"PPL", emoji:"🔻",
-      color:"#30D158", duration:"55 min",
+      color:null, duration:"55 min",
       exercises:[
         { name:"Deadlift",           sets:3, reps:"3-5",   load:"85% 1RM" },
         { name:"Barbell Row",        sets:4, reps:"6-8",   load:"75% 1RM" },
@@ -11863,7 +11863,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     },
     {
       id:"531-squat", name:"5/3/1 Squat", tag:"5/3/1", emoji:"◈",
-      color:"#FF9F0A", duration:"45 min",
+      color:null, duration:"45 min",
       exercises:[
         { name:"Squat",              sets:3, reps:"5/3/1", load:"65/75/85% 1RM" },
         { name:"Squat (FSL)",        sets:5, reps:"5",     load:"65% 1RM" },
@@ -11873,7 +11873,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     },
     {
       id:"531-bench", name:"5/3/1 Bench", tag:"5/3/1", emoji:"◈",
-      color:"#FF9F0A", duration:"45 min",
+      color:null, duration:"45 min",
       exercises:[
         { name:"Bench Press",        sets:3, reps:"5/3/1", load:"65/75/85% 1RM" },
         { name:"Bench Press (FSL)",  sets:5, reps:"5",     load:"65% 1RM" },
@@ -15045,8 +15045,8 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:8 }}>
           {[
             { label:"BIO-SCORE",    val:calcBioScore(archetypeId, bioData), unit:"",  icon:"◉", color:arch.glow },
-            { label:"CIRCADIAN",    val:new Date().getHours()<12?"AM PEAK":"PM PRIME",unit:"", icon:"◑", color:T.blue||"#0A84FF" },
-            { label:"PROTOCOL",     val:arch.word||"ELITE",                 unit:"",  icon:"⬡", color:T.purple||"#BF5AF2" },
+            { label:"CIRCADIAN",    val:new Date().getHours()<12?"AM PEAK":"PM PRIME",unit:"", icon:"◑", color:T.dim },
+            { label:"PROTOCOL",     val:arch.word||"ELITE",                 unit:"",  icon:"⬡", color:T.dim },
           ].map((stat, i) => (
             <motion.div key={stat.label}
               initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }}

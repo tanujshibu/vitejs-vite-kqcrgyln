@@ -2154,7 +2154,7 @@ function GlobalStyles({ theme }) {
       html, body, #root { width:100%; height:100%; overflow:hidden; background:${T.bg}; }
       .os-dark { --depth-glow: #0D1A3A; }
       /* Obsidian base + deep navy radial depth for dark mode */
-      body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif; -webkit-font-smoothing:antialiased; }
+      body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; letter-spacing:-0.005em; }
       /* iOS-grade touch feel: no flash highlight, instant touch response, smooth color transitions */
       button, [role="button"], a {
         -webkit-tap-highlight-color: transparent;
@@ -2215,7 +2215,7 @@ function GlobalStyles({ theme }) {
       .os_heartbeat { animation: os_heartbeat 1.4s ease-in-out infinite; }
       body, html, #root, * { font-family: ${FONT_SANS}; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; font-feature-settings: "ss01","ss02","cv01","cv11"; }
       .os_serif, .os_serif * { font-family: ${FONT_SERIF} !important; font-feature-settings: "lnum","pnum"; }
-      .os_wordmark { font-family: ${FONT_WORD}; font-weight: 500; letter-spacing: .14em; font-feature-settings: "lnum"; }
+      .os_wordmark { font-family: ${FONT_WORD}; font-weight: 500; letter-spacing: .06em; font-feature-settings: "lnum"; }
       input[type=range] { -webkit-appearance:none; appearance:none; background:transparent; cursor:pointer; font-size:16px; }
       /* Scroll containers: contain rubber-band to the element, not the whole page */
       [data-scroll] { overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
@@ -2372,8 +2372,8 @@ function AITicker({ theme, mode }) {
       <motion.div
         animate={{ x:["0%","-50%"] }}
         transition={{ duration:28, ease:"linear", repeat:isMobile?0:Infinity }}
-        style={{ display:"inline-block", fontSize:9, fontWeight:700,
-          color:T.faint, letterSpacing:".12em", whiteSpace:"nowrap" }}>
+        style={{ display:"inline-block", fontSize:11, fontWeight:700,
+          color:T.faint, letterSpacing:".03em", whiteSpace:"nowrap" }}>
         {text}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{text}
       </motion.div>
     </div>
@@ -2468,7 +2468,7 @@ function NfcAutoLeaveTimer({ ac, T, onLeave }) {
   const hh = Math.floor(remaining / 3600000);
   const mm = Math.floor((remaining % 3600000) / 60000);
   return (
-    <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center", letterSpacing:".07em" }}>
+    <div style={{ fontSize:11, color:T.faint, marginTop:8, textAlign:"center", letterSpacing:".02em" }}>
       SESSION ACTIVE · AUTO-LEAVE IN {hh}h {mm}m
     </div>
   );
@@ -2489,7 +2489,7 @@ function GlassCard({ children, theme, glow, style={}, onClick }) {
         border:`1px solid ${glow ? glow+"55" : T.border}`,
         outline: `1px solid ${T.borderInner}`,
         outlineOffset:"-2px",
-        borderRadius:20,
+        borderRadius:16,
         boxShadow: glow
           ? `0 12px 48px ${glow}1A, 0 2px 12px ${glow}0F, inset 0 1px 0 ${glow}33`
           : `0 8px 32px rgba(0,0,0,.22), 0 1px 4px rgba(0,0,0,.12), inset 0 1px 0 ${T.borderHi}`,
@@ -2507,7 +2507,7 @@ function FuelRecipeScanner({ theme, T, arch, callClaudeAPI }) {
   const [recipeScan, setRecipeScan] = React.useState(false);
   return (
     <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
-      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
         RECIPE SCANNER
       </div>
       <div style={{ display:"flex", gap:8, marginBottom:10 }}>
@@ -2546,10 +2546,10 @@ function FuelRecipeScanner({ theme, T, arch, callClaudeAPI }) {
       </div>
       {recipeMacros && (
         <div style={{ background:T.glass, borderRadius:12, padding:"12px", display:"grid", gridTemplateColumns:"1fr 1fr 1fr 1fr", gap:8 }}>
-          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>CAL</div><div style={{ fontSize:14, fontWeight:900, color:arch.glow }}>{recipeMacros.calories}</div></div>
-          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>P</div><div style={{ fontSize:14, fontWeight:900, color:"#30D158" }}>{recipeMacros.protein}g</div></div>
-          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>C</div><div style={{ fontSize:14, fontWeight:900, color:T.blue }}>{recipeMacros.carbs}g</div></div>
-          <div><div style={{ fontSize:8, color:T.faint, fontWeight:700 }}>F</div><div style={{ fontSize:14, fontWeight:900, color:"#FF9F0A" }}>{recipeMacros.fat}g</div></div>
+          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>CAL</div><div style={{ fontSize:14, fontWeight:900, color:arch.glow }}>{recipeMacros.calories}</div></div>
+          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>P</div><div style={{ fontSize:14, fontWeight:900, color:"#30D158" }}>{recipeMacros.protein}g</div></div>
+          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>C</div><div style={{ fontSize:14, fontWeight:900, color:T.blue }}>{recipeMacros.carbs}g</div></div>
+          <div><div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>F</div><div style={{ fontSize:14, fontWeight:900, color:"#FF9F0A" }}>{recipeMacros.fat}g</div></div>
         </div>
       )}
     </GlassCard>
@@ -2562,7 +2562,7 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
   const [restScan, setRestScan] = React.useState(false);
   return (
     <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
-      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
         RESTAURANT MODE
       </div>
       <div style={{ display:"flex", gap:8, marginBottom:10 }}>
@@ -2603,7 +2603,7 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
       </div>
       {restRec && (
         <div style={{ background:T.glass, borderRadius:12, padding:"12px" }}>
-          <div style={{ fontSize:9, fontWeight:700, color:T.faint, marginBottom:6 }}>{restaurant.toUpperCase()}</div>
+          <div style={{ fontSize:11, fontWeight:700, color:T.faint, marginBottom:6 }}>{restaurant.toUpperCase()}</div>
           <div style={{ fontSize:12, color:T.text, lineHeight:1.5 }}>{restRec}</div>
         </div>
       )}
@@ -2651,7 +2651,7 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
 
   return (
     <div style={{ marginTop:22 }}>
-      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:8 }}>
+      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
         ◉ CLAIM CHECKER
       </div>
       <div style={{ fontSize:11, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
@@ -2669,11 +2669,11 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
             fontFamily:"inherit", lineHeight:1.5 }}
         />
         <div style={{ padding:"8px 12px", borderTop:`1px solid ${T.border}`, display:"flex", justifyContent:"flex-end", alignItems:"center", gap:8 }}>
-          {error && <div style={{ fontSize:10, color:"#FF3B30", flex:1 }}>{error}</div>}
+          {error && <div style={{ fontSize:11.5, color:"#FF3B30", flex:1 }}>{error}</div>}
           {result && (
             <button onClick={() => { setResult(null); setClaim(""); }}
               style={{ padding:"6px 12px", borderRadius:8, background:"transparent",
-                border:`1px solid ${T.border}`, color:T.muted, fontSize:10, cursor:"pointer" }}>
+                border:`1px solid ${T.border}`, color:T.muted, fontSize:11.5, cursor:"pointer" }}>
               Clear
             </button>
           )}
@@ -2683,7 +2683,7 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
               background:claim.trim() ? ac : T.glass,
               border:claim.trim() ? "none" : `1px solid ${T.border}`,
               color:claim.trim() ? "#fff" : T.muted,
-              opacity:loading ? 0.6 : 1, letterSpacing:".05em" }}>
+              opacity:loading ? 0.6 : 1, letterSpacing:".01em" }}>
             {loading ? "🔬 Checking…" : "⚡ FACT CHECK"}
           </motion.button>
         </div>
@@ -2711,7 +2711,7 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
             <div style={{ display:"flex", alignItems:"flex-start", gap:12, marginBottom:12 }}>
               <div style={{ fontSize:30, lineHeight:1 }}>{vc.icon}</div>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:10, fontWeight:900, color:vc.color, letterSpacing:".14em", marginBottom:3 }}>
+                <div style={{ fontSize:11.5, fontWeight:900, color:vc.color, letterSpacing:".04em", marginBottom:3 }}>
                   {vc.label}
                 </div>
                 <div style={{ fontSize:13, fontWeight:700, color:T.text, lineHeight:1.35 }}>
@@ -2720,7 +2720,7 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
               </div>
               <div style={{ textAlign:"center", flexShrink:0 }}>
                 <div style={{ fontSize:20, fontWeight:900, color:vc.color, lineHeight:1 }}>{result.confidence}%</div>
-                <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>CONFIDENCE</div>
+                <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>CONFIDENCE</div>
               </div>
             </div>
 
@@ -2734,11 +2734,11 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
             {/* Sources */}
             {result.sources?.length > 0 && (
               <div style={{ marginBottom:10 }}>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>
                   RESEARCH SOURCES
                 </div>
                 {result.sources.map((s, i) => (
-                  <div key={i} style={{ fontSize:9.5, color:T.muted, paddingLeft:10,
+                  <div key={i} style={{ fontSize:11.5, color:T.muted, paddingLeft:10,
                     borderLeft:`2px solid ${vc.color}44`, marginBottom:4, lineHeight:1.4 }}>
                     {s}
                   </div>
@@ -2748,7 +2748,7 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
 
             {/* Nuance / caveat */}
             {result.nuance && (
-              <div style={{ fontSize:10, color:T.faint, padding:"8px 10px",
+              <div style={{ fontSize:11.5, color:T.faint, padding:"8px 10px",
                 background:`${T.border}55`, borderRadius:8, fontStyle:"italic", lineHeight:1.5 }}>
                 ◈ {result.nuance}
               </div>
@@ -2791,7 +2791,7 @@ function BackBtn({ onBack, theme }) {
       style={{
         background:"none", border:"none", cursor:"pointer",
         color:T.muted, fontSize:12, fontWeight:600,
-        display:"flex", alignItems:"center", gap:5, letterSpacing:".05em",
+        display:"flex", alignItems:"center", gap:5, letterSpacing:".01em",
       }}>
       <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
         <path d="M9.5 2.5L5 7.5L9.5 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
@@ -2807,8 +2807,8 @@ function Pill({ label, color, theme }) {
   const c = color || T.blue;
   return (
     <span style={{
-      display:"inline-block", padding:"3px 9px", borderRadius:20,
-      fontSize:10, fontWeight:700, letterSpacing:".08em",
+      display:"inline-block", padding:"3px 9px", borderRadius:16,
+      fontSize:11.5, fontWeight:700, letterSpacing:".02em",
       color:c, border:`1px solid ${c}44`, background:`${c}18`,
     }}>{label}</span>
   );
@@ -2860,7 +2860,7 @@ function RVNLearningSummary({ archetypeId, theme }) {
   return (
     <motion.div {...FX.up} style={{ marginBottom: 14 }}>
       <GlassCard theme={theme} style={{ borderLeft: `3px solid ${T.gold}`, padding: "12px 14px" }}>
-        <div style={{ fontSize: 9, fontWeight: 700, color: T.gold, letterSpacing: ".1em", marginBottom: 8 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: T.gold, letterSpacing: ".03em", marginBottom: 8 }}>
           THIS WEEK · RVN LEARNED
         </div>
         <div style={{ fontSize: 12, color: T.text, lineHeight: 1.5, marginBottom: 8 }}>
@@ -2872,7 +2872,7 @@ function RVNLearningSummary({ archetypeId, theme }) {
             localStorage.removeItem("rvn_learning_cache");
             setSummary(null);
           }}
-          style={{ fontSize: 9, color: T.muted, background: "transparent", border: "none", cursor: "pointer", fontWeight: 700 }}>
+          style={{ fontSize: 11, color: T.muted, background: "transparent", border: "none", cursor: "pointer", fontWeight: 700 }}>
           Dismiss
         </motion.button>
       </GlassCard>
@@ -2900,7 +2900,7 @@ function CycleSyncCard({ theme }) {
   return (
     <motion.div {...FX.up} style={{ marginTop: 16 }}>
       <GlassCard theme={theme} style={{ padding: "14px 16px" }}>
-        <div style={{ fontSize: 10, fontWeight: 800, color: T.faint, letterSpacing: ".12em", marginBottom: 10 }}>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: T.faint, letterSpacing: ".03em", marginBottom: 10 }}>
           CYCLE SYNC
         </div>
         {!enabled ? (
@@ -2912,13 +2912,13 @@ function CycleSyncCard({ theme }) {
                 try { localStorage.setItem("rvn_cycle_sync_enabled", "true"); } catch {}
               }}
               style={{ padding: "6px 12px", borderRadius: 8, background: T.gold, color: theme === "dark" ? "#000" : "#fff",
-                border: "none", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+                border: "none", fontSize: 11.5, fontWeight: 700, cursor: "pointer" }}>
               ENABLE
             </motion.button>
           </div>
         ) : (
           <>
-            <div style={{ fontSize: 10, color: T.muted, marginBottom: 10 }}>Current phase:</div>
+            <div style={{ fontSize: 11.5, color: T.muted, marginBottom: 10 }}>Current phase:</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 12 }}>
               {Object.keys(phases).map(p => (
                 <motion.button key={p} whileTap={{ scale: .97 }}
@@ -2927,7 +2927,7 @@ function CycleSyncCard({ theme }) {
                     padding: "8px 10px", borderRadius: 10,
                     border: `1px solid ${phase === p ? T.gold : T.border}`,
                     background: phase === p ? `${T.gold}22` : T.glass,
-                    color: phase === p ? T.gold : T.muted, fontSize: 9, fontWeight: 700,
+                    color: phase === p ? T.gold : T.muted, fontSize: 11, fontWeight: 700,
                     cursor: "pointer", textTransform: "capitalize"
                   }}>
                   {p}
@@ -2951,7 +2951,7 @@ function StepProgress({ step, total, label, accent, theme }) {
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:5 }}>
       <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-        <div style={{ fontSize:9, fontWeight:700, letterSpacing:".14em", color:T.muted }}>
+        <div style={{ fontSize:11, fontWeight:700, letterSpacing:".04em", color:T.muted }}>
           STEP {step} OF {total}
         </div>
         <div style={{ flex:1, height:1.5, background:T.border, borderRadius:1, overflow:"hidden" }}>
@@ -2962,7 +2962,7 @@ function StepProgress({ step, total, label, accent, theme }) {
             transition={{ duration:.6, ease:[.22,1,.36,1] }}/>
         </div>
       </div>
-      {label && <div style={{ fontSize:10, fontWeight:600, letterSpacing:".1em", color:T.faint }}>{label}</div>}
+      {label && <div style={{ fontSize:11.5, fontWeight:600, letterSpacing:".03em", color:T.faint }}>{label}</div>}
     </div>
   );
 }
@@ -3039,7 +3039,7 @@ function HapticLog({ logged, onLog, theme, label = "LOG SESSION" }) {
           {logged ? "✓" : "◉"}
         </motion.button>
       </div>
-      <div style={{ fontSize:11, fontWeight:600, color: logged ? T.green : T.muted, letterSpacing:".08em" }}>
+      <div style={{ fontSize:11, fontWeight:600, color: logged ? T.green : T.muted, letterSpacing:".02em" }}>
         {logged ? "SESSION LOGGED" : label}
       </div>
     </div>
@@ -3084,7 +3084,7 @@ function BioRing({ score, color, size=110, theme, label="BIO-SCORE" }) {
         </motion.div>
         {showLabel && (
           <div style={{ fontSize:labelFontSize, fontWeight:700, color:T.faint,
-            letterSpacing:".06em", marginTop:1, textAlign:"center",
+            letterSpacing:".01em", marginTop:1, textAlign:"center",
             maxWidth:"90%", overflow:"hidden", whiteSpace:"nowrap",
             textOverflow:"clip" }}>
             {label}
@@ -3129,7 +3129,7 @@ function Radar({ scores, theme, size=150, accent }) {
         const x = cx + Math.cos(ang[i])*(R+15);
         const y = cy + Math.sin(ang[i])*(R+15);
         return <text key={i} x={x} y={y} textAnchor="middle" dominantBaseline="middle"
-          fill={T.faint} fontSize="7.5" fontWeight="700" style={{ fontFamily:"inherit", letterSpacing:".07em" }}>{l}</text>;
+          fill={T.faint} fontSize="7.5" fontWeight="700" style={{ fontFamily:"inherit", letterSpacing:".02em" }}>{l}</text>;
       })}
     </svg>
   );
@@ -4009,7 +4009,7 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
               <text x={c.a==="end"?c.x-12:c.x+12} y={c.y+1.5}
                 fontSize="4" fontWeight="800" fill={glow}
                 textAnchor={c.a} fontFamily="SF Pro Display,system-ui,sans-serif"
-                letterSpacing="0.06em">
+                letterSpacing="0.02em">
                 {c.t}
               </text>
             </g>
@@ -4028,7 +4028,7 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
           {active && (
             <text x="50" y="185" textAnchor="middle"
               fontSize="5.5" fontWeight="900" fill={glow} opacity="0.90"
-              letterSpacing="0.14em" fontFamily="SF Pro Display,system-ui,sans-serif">
+              letterSpacing="0.04em" fontFamily="SF Pro Display,system-ui,sans-serif">
               {A.label}
             </text>
           )}
@@ -4039,8 +4039,8 @@ function HoloAvatar({ archetypeId, gender="male", glow="#2E5BFF", size=160, acti
       {hovered && (
         <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
           style={{ position:"absolute", bottom:-20, left:0, right:0,
-            textAlign:"center", fontSize:8, color:glow,
-            letterSpacing:".12em", fontWeight:800, pointerEvents:"none" }}>
+            textAlign:"center", fontSize:11, color:glow,
+            letterSpacing:".03em", fontWeight:600, pointerEvents:"none" }}>
           360\u00b0 SCAN
         </motion.div>
       )}
@@ -4095,7 +4095,7 @@ function CellBattery({ active=true, color="#D4AF37", size=110 }) {
         </g>
         <path d="M42,32 L32,56 L40,56 L38,78 L52,50 L43,50 Z"
           fill={fillColor} opacity={0.8+charge*0.2} filter={`url(#${id}_glow)`}/>
-        <text x="40" y="106" textAnchor="middle" fontSize="10" fontWeight="900" fill={fillColor} letterSpacing="1">
+        <text x="40" y="106" textAnchor="middle" fontSize="10" fontWeight="900" fill={fillColor} letterSpacing="0.5">
           {Math.round(charge*100)}%
         </text>
       </svg>
@@ -4114,7 +4114,7 @@ function CellBattery({ active=true, color="#D4AF37", size=110 }) {
         <line x1={40-(8+charge*8)} y1={20-charge*2} x2={40+(8+charge*8)} y2={20-charge*2}
           stroke={fillColor} strokeWidth="1.2" strokeOpacity="0.45" strokeDasharray="2,2"/>
       </svg>
-      <div style={{ fontSize:9, fontWeight:800, letterSpacing:".14em", color:fillColor, textAlign:"center" }}>
+      <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:fillColor, textAlign:"center" }}>
         {charge>0.85?"APEX STATE":charge>0.5?"CHARGING":"DEPLETED"}
       </div>
     </div>
@@ -4144,7 +4144,7 @@ function BioMorphTimeline({ archetypeId, theme, color }) {
   return (
     <div style={{ padding:"14px 0 8px" }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-        <div style={{ fontSize:9.5, fontWeight:800, color:T.faint, letterSpacing:".14em" }}>6-MONTH PROJECTION</div>
+        <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em" }}>6-MONTH PROJECTION</div>
         <div style={{ fontSize:11, fontWeight:800, color }}>{marks[month]}</div>
       </div>
       <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:14 }}>
@@ -4172,9 +4172,9 @@ function BioMorphTimeline({ archetypeId, theme, color }) {
           {[0,1,2,3].map(i=><line key={i} x1="2" y1={28+i*22} x2="66" y2={28+i*22} stroke={color} strokeWidth="0.4" strokeOpacity="0.14"/>)}
         </svg>
         <div style={{ flex:1 }}>
-          <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".1em", marginBottom:3 }}>{tgt.label.toUpperCase()}</div>
+          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:3 }}>{tgt.label.toUpperCase()}</div>
           <div style={{ fontSize:24, fontWeight:900, color, fontVariantNumeric:"tabular-nums" }}>{Math.round(t*100)}%</div>
-          <div style={{ fontSize:10, color:T.muted, lineHeight:1.5, marginBottom:8 }}>{tgt.stat}</div>
+          <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.5, marginBottom:8 }}>{tgt.stat}</div>
           {[1,2,3,4,5,6].map(m=>(
             <div key={m} style={{ display:"flex", alignItems:"center", gap:5, marginBottom:3 }}>
               <div style={{ width:38, height:4, borderRadius:2, background:T.border, overflow:"hidden" }}>
@@ -4225,7 +4225,7 @@ function ThemeToggle({ theme, onToggle }) {
         style={{ position:"absolute", top:3, width:18, height:18,
           borderRadius:"50%", background:"#fff",
           display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:10 }}>
+          fontSize:11.5 }}>
         {isDark ? "◑" : "☀"}
       </motion.div>
     </motion.button>
@@ -4247,11 +4247,11 @@ function BioClockWidget({ theme, compact=false }) {
   if (compact) {
     return (
       <div style={{ display:"flex", alignItems:"center", gap:8,
-        padding:"5px 10px", borderRadius:20,
+        padding:"5px 10px", borderRadius:16,
         background:T.glass, border:`1px solid ${T.border}`,
         backdropFilter:isMobile?"none":"blur(12px)" }}>
-        <span style={{ fontSize:9, fontWeight:800, color:circ.color,
-          letterSpacing:".08em" }}>{circ.phase||circ.window}</span>
+        <span style={{ fontSize:11, fontWeight:600, color:circ.color,
+          letterSpacing:".02em" }}>{circ.phase||circ.window}</span>
         <span style={{ fontSize:11, fontWeight:700, color:T.text,
           fontVariantNumeric:"tabular-nums" }}>{hh}:{mm}</span>
       </div>
@@ -4259,13 +4259,13 @@ function BioClockWidget({ theme, compact=false }) {
   }
   return (
     <div style={{ textAlign:"center", padding:"12px 0 8px" }}>
-      <div style={{ fontSize:11, fontWeight:800, color:circ.color,
-        letterSpacing:".14em", marginBottom:3 }}>{(circ.phase||circ.window||"CIRCADIAN").toUpperCase()}</div>
+      <div style={{ fontSize:11, fontWeight:600, color:circ.color,
+        letterSpacing:".04em", marginBottom:3 }}>{(circ.phase||circ.window||"CIRCADIAN").toUpperCase()}</div>
       <div style={{ fontSize:28, fontWeight:900, color:T.text,
         fontVariantNumeric:"tabular-nums", letterSpacing:".04em" }}>
         {hh}:{mm}:{ss}
       </div>
-      <div style={{ fontSize:10, color:T.faint, marginTop:3 }}>{circ.advice||circ.note}</div>
+      <div style={{ fontSize:11.5, color:T.faint, marginTop:3 }}>{circ.advice||circ.note}</div>
     </div>
   );
 }
@@ -4341,7 +4341,7 @@ function BrandLogo({ brandId, size=48, style={} }) {
       <svg viewBox="0 0 200 44" width={s*4.5} height={s} style={style}>
         <rect x="4" y="8" width="7" height="28" rx="2" fill={color}/>
         <text x="20" y="30" fontFamily="Arial,sans-serif" fontSize="17" fontWeight="800"
-          fill={color} letterSpacing="1">TRANSPARENT LABS</text>
+          fill={color} letterSpacing="0.5">TRANSPARENT LABS</text>
       </svg>
     ),
     klean_athlete: ({ color, s }) => (
@@ -4372,9 +4372,9 @@ function BrandCertBadge({ cert, color, theme }) {
   return (
     <div style={{
       display:"inline-flex", alignItems:"center", gap:4,
-      padding:"3px 8px", borderRadius:20,
+      padding:"3px 8px", borderRadius:16,
       background:`${color}18`, border:`1px solid ${color}44`,
-      fontSize:8.5, fontWeight:800, color, letterSpacing:".1em",
+      fontSize:11.5, fontWeight:600, color, letterSpacing:".03em",
     }}>
       {icons[cert]||"◉"} {(cert||"").toUpperCase()}
     </div>
@@ -4429,7 +4429,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
 
       {/* "Video" frame */}
       <div style={{ width:"min(340px, 90vw)", aspectRatio:"9/16", maxHeight:"70vh",
-        borderRadius:20, overflow:"hidden", position:"relative",
+        borderRadius:16, overflow:"hidden", position:"relative",
         background:`linear-gradient(160deg, #0a0a0b 0%, ${color}22 50%, #0a0a0b 100%)`,
         border:`1.5px solid ${color}55` }}>
 
@@ -4452,7 +4452,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
             {review.avatar}
           </motion.div>
           <div style={{ fontSize:14, fontWeight:800, color:"#fff" }}>{review.name}</div>
-          <div style={{ fontSize:10, color:"rgba(255,255,255,.5)" }}>{review.handle}</div>
+          <div style={{ fontSize:11.5, color:"rgba(255,255,255,.5)" }}>{review.handle}</div>
         </div>
 
         {/* Transcript */}
@@ -4474,8 +4474,8 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
           animate={{ opacity:[0.7,1,0.7] }} transition={{ duration:2, repeat:isMobile?0:Infinity }}
           style={{ position:"absolute", top:14, left:14, zIndex:4,
             background:`${color}22`, border:`1px solid ${color}`,
-            borderRadius:20, padding:"4px 10px",
-            fontSize:9, fontWeight:800, color, letterSpacing:".1em" }}>
+            borderRadius:16, padding:"4px 10px",
+            fontSize:11, fontWeight:600, color, letterSpacing:".03em" }}>
           ✦ VERIFIED RESULT
         </motion.div>
 
@@ -4512,7 +4512,7 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
       <div style={{ marginTop:16, padding:"10px 20px",
         background:`${color}18`, border:`1px solid ${color}44`,
         borderRadius:12, textAlign:"center" }}>
-        <div style={{ fontSize:9, fontWeight:800, color, letterSpacing:".14em", marginBottom:3 }}>
+        <div style={{ fontSize:11, fontWeight:600, color, letterSpacing:".04em", marginBottom:3 }}>
           ◉ VERIFIED TRANSFORMATION
         </div>
         <div style={{ fontSize:13, color:"#fff", fontWeight:700 }}>
@@ -4550,8 +4550,8 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
       {/* Pinned ribbon */}
       {review.pinned && (
         <div style={{ position:"absolute", top:0, right:0,
-          background:color, color:"#000", fontSize:8, fontWeight:900,
-          letterSpacing:".1em", padding:"3px 10px 3px 14px",
+          background:color, color:"#000", fontSize:11, fontWeight:900,
+          letterSpacing:".03em", padding:"3px 10px 3px 14px",
           borderRadius:"0 18px 0 14px" }}>
           ★ FEATURED
         </div>
@@ -4574,19 +4574,19 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ display:"flex", alignItems:"center", gap:6 }}>
             <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{review.name}</div>
-            <div style={{ fontSize:8.5, color:T.faint }}>{review.daysAgo}d ago</div>
+            <div style={{ fontSize:11.5, color:T.faint }}>{review.daysAgo}d ago</div>
           </div>
-          <div style={{ fontSize:9.5, color:T.muted }}>{review.handle} · {review.location}</div>
+          <div style={{ fontSize:11.5, color:T.muted }}>{review.handle} · {review.location}</div>
         </div>
 
         {/* Stars */}
-        <div style={{ color:"#FFD700", fontSize:10, letterSpacing:1 }}>
+        <div style={{ color:"#FFD700", fontSize:11.5, letterSpacing:1 }}>
           {"★".repeat(review.rating)}
         </div>
       </div>
 
       {/* AI match line */}
-      <div style={{ fontSize:9.5, color, fontWeight:700, marginBottom:8,
+      <div style={{ fontSize:11.5, color, fontWeight:700, marginBottom:8,
         background:`${color}14`, borderRadius:8, padding:"5px 9px",
         border:`1px solid ${color}30` }}>
         ◉ {matchPct}% match to your {(userBenchRatio||0.77).toFixed(2)}x bench ratio · Bio-Score {bioScore}
@@ -4603,11 +4603,11 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
       <motion.div
         animate={{ opacity:[0.8,1,0.8] }} transition={{ duration:2.2, repeat:isMobile?0:Infinity }}
         style={{ display:"inline-flex", alignItems:"center", gap:5,
-          marginTop:10, padding:"5px 10px", borderRadius:20,
+          marginTop:10, padding:"5px 10px", borderRadius:16,
           background:`${review.resultBadgeColor}18`,
           border:`1px solid ${review.resultBadgeColor}55`,
-          fontSize:9, fontWeight:800, color:review.resultBadgeColor,
-          letterSpacing:".1em" }}>
+          fontSize:11, fontWeight:600, color:review.resultBadgeColor,
+          letterSpacing:".03em" }}>
         ✦ {review.verifiedResult}
       </motion.div>
 
@@ -4620,8 +4620,8 @@ function ReviewOrb({ review, userBenchRatio, bioScore, theme, onVideoPlay, compa
             onClick={e => { e.stopPropagation(); onVideoPlay(review); }}
             style={{ display:"flex", alignItems:"center", gap:5,
               background:`${color}22`, border:`1px solid ${color}55`,
-              borderRadius:20, padding:"4px 12px", cursor:"pointer",
-              fontSize:9.5, fontWeight:800, color, letterSpacing:".08em" }}>
+              borderRadius:16, padding:"4px 12px", cursor:"pointer",
+              fontSize:11.5, fontWeight:600, color, letterSpacing:".02em" }}>
             ▶ VIDEO REVIEW
           </motion.button>
         )}
@@ -4656,8 +4656,8 @@ function SocialProofEngine({ archetypeId, brandFilter, bioScore, userBenchRatio,
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
         marginBottom:12 }}>
         <div>
-          <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-            letterSpacing:".14em", marginBottom:2 }}>◉ VERIFIED RESULTS</div>
+          <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+            letterSpacing:".04em", marginBottom:2 }}>◉ VERIFIED RESULTS</div>
           <div style={{ fontSize:16, fontWeight:900, color:T.text }}>
             Real Customer Reviews
           </div>
@@ -4666,7 +4666,7 @@ function SocialProofEngine({ archetypeId, brandFilter, bioScore, userBenchRatio,
           <div style={{ fontSize:22, fontWeight:900, color:"#FFD700" }}>
             ★ {(4.8 + Math.random()*0.15).toFixed(1)}
           </div>
-          <div style={{ fontSize:9, color:T.faint }}>{allReviews.length} verified results</div>
+          <div style={{ fontSize:11, color:T.faint }}>{allReviews.length} verified results</div>
         </div>
       </div>
 
@@ -4694,7 +4694,7 @@ function SocialProofEngine({ archetypeId, brandFilter, bioScore, userBenchRatio,
           style={{ width:"100%", marginTop:12, padding:"10px",
             background:T.glass, border:`1px solid ${T.border}`,
             borderRadius:12, fontSize:11, fontWeight:700, color:T.muted,
-            cursor:"pointer", letterSpacing:".06em" }}>
+            cursor:"pointer", letterSpacing:".01em" }}>
           {showAll ? "↑ Show Less" : `↓ See ${allReviews.length - 3} More Reviews`}
         </motion.button>
       )}
@@ -4772,8 +4772,8 @@ function BeforeAfterMorph({ archetypeId, theme, color }) {
 
   return (
     <div style={{ padding:"16px 0 8px" }}>
-      <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-        letterSpacing:".14em", marginBottom:8 }}>3D TRANSFORMATION MORPH · {m.label.toUpperCase()}</div>
+      <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+        letterSpacing:".04em", marginBottom:8 }}>3D TRANSFORMATION MORPH · {m.label.toUpperCase()}</div>
 
       <div style={{ display:"flex", gap:16, alignItems:"flex-start" }}>
         {/* SVG body */}
@@ -4844,7 +4844,7 @@ function BeforeAfterMorph({ archetypeId, theme, color }) {
           ].map(s => (
             <div key={s.label} style={{ marginBottom:8 }}>
               <div style={{ display:"flex", justifyContent:"space-between",
-                fontSize:9.5, color:T.faint, marginBottom:3 }}>
+                fontSize:11.5, color:T.faint, marginBottom:3 }}>
                 <span>{s.label}</span>
                 <span style={{ color:s.color, fontWeight:700 }}>{s.val}{s.unit}</span>
               </div>
@@ -4866,7 +4866,7 @@ function BeforeAfterMorph({ archetypeId, theme, color }) {
                   boxShadow: week >= ms.w ? `0 0 8px ${bodyColor}` : "none",
                   transition:"all .3s" }}/>
                 <div style={{ fontSize:7.5, color: week >= ms.w ? bodyColor : T.faint,
-                  fontWeight:700, letterSpacing:".05em" }}>{ms.label}</div>
+                  fontWeight:700, letterSpacing:".01em" }}>{ms.label}</div>
               </div>
             ))}
           </div>
@@ -4881,8 +4881,8 @@ function BeforeAfterMorph({ archetypeId, theme, color }) {
             <motion.div initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
               style={{ marginTop:10, padding:"8px 12px",
                 background:`${bodyColor}18`, border:`1px solid ${bodyColor}55`,
-                borderRadius:10, fontSize:10, fontWeight:700,
-                color:bodyColor, letterSpacing:".06em", textAlign:"center" }}>
+                borderRadius:10, fontSize:11.5, fontWeight:700,
+                color:bodyColor, letterSpacing:".01em", textAlign:"center" }}>
               ✦ Protocol Complete · {m.label}
             </motion.div>
           )}
@@ -4940,7 +4940,7 @@ function MoACinematicLoop({ type, color, theme }) {
         <circle cx={40} cy={40} r={32+pulse*4} fill="none"
           stroke={color} strokeWidth={0.8} opacity={0.15+pulse*0.1}/>
       </svg>
-      <div style={{ fontSize:8, fontWeight:700, color, letterSpacing:".1em",
+      <div style={{ fontSize:11, fontWeight:700, color, letterSpacing:".03em",
         textTransform:"uppercase" }}>
         {type === "nad" ? "NAD+ ABSORPTION" : type === "omega" ? "CELL MEMBRANE UPTAKE" : "MITOCHONDRIAL ACTIVATION"}
       </div>
@@ -5123,11 +5123,11 @@ function BodySilhouette({ t, color, cx=55, isRVN=false, week, id="" }) {
         </>}
       </svg>
       {/* Week label */}
-      <div style={{ fontSize:9, fontWeight:900, color, letterSpacing:".06em", marginTop:2 }}>
+      <div style={{ fontSize:11, fontWeight:900, color, letterSpacing:".01em", marginTop:2 }}>
         {week===0?"START":week===12?"PEAK":`WK ${week}`}
       </div>
       {isRVN && curve > 0.01 && (
-        <div style={{ fontSize:7.5, fontWeight:800, color, opacity:.7, letterSpacing:".1em" }}>
+        <div style={{ fontSize:7.5, fontWeight:600, color, opacity:.7, letterSpacing:".03em" }}>
           {curve>0.7?"BIO-OPTIMIZED ✦":curve>0.42?"ACCELERATING ◉":"PRIMING →"}
         </div>
       )}
@@ -5360,9 +5360,9 @@ function ABBioComparison({ archetypeId, theme, color }) {
         {/* Section header */}
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:10 }}>
           <div style={{ flex:1, height:1, background:`${sColor}33` }}/>
-          <div style={{ fontSize:8.5, fontWeight:900, color:sColor, letterSpacing:".16em",
+          <div style={{ fontSize:11.5, fontWeight:900, color:sColor, letterSpacing:".04em",
             padding:"3px 10px", border:`1px solid ${sColor}44`,
-            borderRadius:20, whiteSpace:"nowrap" }}>
+            borderRadius:16, whiteSpace:"nowrap" }}>
             {isRVN ? "✦ WITH RVN VISION PROTOCOL" : "◌ WITHOUT SUPPLEMENTS · STANDARD"}
           </div>
           <div style={{ flex:1, height:1, background:`${sColor}33` }}/>
@@ -5372,8 +5372,8 @@ function ABBioComparison({ archetypeId, theme, color }) {
         <div style={{ background:T.glass, border:`1.5px solid ${isRVN ? ac+"44" : T.border}`,
           borderRadius:14, padding:"12px 14px 10px", marginBottom:10, overflow:"hidden",
           boxShadow: isRVN ? `0 0 24px ${ac}18` : "none" }}>
-          <div style={{ fontSize:8, fontWeight:800, color:isRVN ? ac : T.faint,
-            letterSpacing:".14em", marginBottom:8 }}>
+          <div style={{ fontSize:11, fontWeight:600, color:isRVN ? ac : T.faint,
+            letterSpacing:".04em", marginBottom:8 }}>
             {isRVN ? "◉ RVN VISION TRAJECTORY · EXPONENTIAL CURVE" : "◉ STANDARD TRAJECTORY · LINEAR"}
           </div>
           <svg width="100%" viewBox={`0 0 ${chartW} ${chartH+4}`}
@@ -5442,7 +5442,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
           {/* Progress bar */}
           <div style={{ margin:"8px 0 2px" }}>
             <div style={{ display:"flex", justifyContent:"space-between",
-              fontSize:8, color:isRVN?ac:T.muted, fontWeight:700, marginBottom:3 }}>
+              fontSize:11, color:isRVN?ac:T.muted, fontWeight:700, marginBottom:3 }}>
               <span>Week 0</span>
               <span style={{ fontSize:11, fontWeight:900 }}>{pct}% Progress</span>
               <span>Week 12</span>
@@ -5464,7 +5464,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
           background:T.glass, border:`1px solid ${isRVN ? ac+"33" : T.border}`,
           borderRadius:14, padding:"16px 12px 10px", marginBottom:10,
           boxShadow: isRVN ? `0 0 20px ${ac}14` : "none" }}>
-          <div style={{ fontSize:7.5, fontWeight:900, letterSpacing:".12em",
+          <div style={{ fontSize:7.5, fontWeight:900, letterSpacing:".03em",
             color:isRVN ? ac : T.faint, marginBottom:8, textAlign:"center" }}>
             {isRVN ? "RVN VISION BODY · BIO-OPTIMIZED" : "STANDARD · NO PROTOCOL"}
           </div>
@@ -5503,8 +5503,8 @@ function ABBioComparison({ archetypeId, theme, color }) {
                 <div style={{ padding:"10px 10px 8px" }}>
                   <div style={{ display:"flex", alignItems:"center",
                     justifyContent:"space-between", marginBottom:4 }}>
-                    <div style={{ fontSize:8, fontWeight:900, color:tileColor,
-                      letterSpacing:".1em" }}>WK {ms.week}</div>
+                    <div style={{ fontSize:11, fontWeight:900, color:tileColor,
+                      letterSpacing:".03em" }}>WK {ms.week}</div>
                     {isCurrent && isRVN && (
                       <motion.div animate={{ opacity:[0.7,1,0.7] }}
                         transition={{ duration:1.2, repeat:isMobile?0:Infinity }}
@@ -5515,11 +5515,11 @@ function ABBioComparison({ archetypeId, theme, color }) {
                     )}
                   </div>
                   {isRVN && (
-                    <div style={{ fontSize:10, fontWeight:900, color:T.text,
+                    <div style={{ fontSize:11.5, fontWeight:900, color:T.text,
                       lineHeight:1.2, marginBottom:5 }}>{ms.supp}</div>
                   )}
                   <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
-                    <div style={{ fontSize:8, color:T.faint }}>{ms.metric}:</div>
+                    <div style={{ fontSize:11, color:T.faint }}>{ms.metric}:</div>
                     <div style={{ fontSize:13, fontWeight:900, color:tileColor }}>{val}</div>
                   </div>
                 </div>
@@ -5531,7 +5531,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       exit={{ height:0, opacity:0 }}
                       transition={{ duration:.25 }}
                       style={{ borderTop:`1px solid ${ms.color}33`,
-                        padding:"8px 10px", fontSize:10,
+                        padding:"8px 10px", fontSize:11.5,
                         color:T.muted, lineHeight:1.6 }}>
                       {ms.why}
                     </motion.div>
@@ -5577,9 +5577,9 @@ function ABBioComparison({ archetypeId, theme, color }) {
         {/* Section divider */}
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
           <div style={{ flex:1, height:1, background:`${customColor}33` }}/>
-          <div style={{ fontSize:8.5, fontWeight:900, color:customColor, letterSpacing:".16em",
+          <div style={{ fontSize:11.5, fontWeight:900, color:customColor, letterSpacing:".04em",
             padding:"3px 12px", border:`1px solid ${customColor}55`,
-            borderRadius:20, whiteSpace:"nowrap",
+            borderRadius:16, whiteSpace:"nowrap",
             boxShadow:`0 0 14px ${customColor}33` }}>
             ◈ BUILD YOUR CUSTOM STACK
           </div>
@@ -5593,20 +5593,20 @@ function ABBioComparison({ archetypeId, theme, color }) {
           <div style={{ display:"flex", alignItems:"center",
             justifyContent:"space-between", marginBottom:10 }}>
             <div>
-              <div style={{ fontSize:8.5, fontWeight:900, color:customColor,
-                letterSpacing:".14em", marginBottom:2 }}>SELECT YOUR SUPPLEMENTS</div>
-              <div style={{ fontSize:9.5, color:T.muted }}>Stack any combination — chart updates live</div>
+              <div style={{ fontSize:11.5, fontWeight:900, color:customColor,
+                letterSpacing:".04em", marginBottom:2 }}>SELECT YOUR SUPPLEMENTS</div>
+              <div style={{ fontSize:11.5, color:T.muted }}>Stack any combination — chart updates live</div>
             </div>
             <div style={{ display:"flex", gap:6 }}>
               <motion.button whileTap={{ scale:.97 }}
                 onClick={() => setSelectedSupps(new Set(catalog.map(s=>s.id)))}
-                style={{ fontSize:8.5, padding:"4px 10px", borderRadius:10, cursor:"pointer",
+                style={{ fontSize:11.5, padding:"4px 10px", borderRadius:10, cursor:"pointer",
                   border:`1px solid ${ac}55`, background:`${ac}18`, color:ac, fontWeight:700 }}>
                 Full Stack
               </motion.button>
               <motion.button whileTap={{ scale:.97 }}
                 onClick={() => setSelectedSupps(new Set())}
-                style={{ fontSize:8.5, padding:"4px 10px", borderRadius:10, cursor:"pointer",
+                style={{ fontSize:11.5, padding:"4px 10px", borderRadius:10, cursor:"pointer",
                   border:`1px solid ${T.border}`, background:T.glass, color:T.faint, fontWeight:700 }}>
                 Clear
               </motion.button>
@@ -5624,19 +5624,19 @@ function ABBioComparison({ archetypeId, theme, color }) {
                     border:`1.5px solid ${on ? s.color : T.border}`,
                     background: on ? `${s.color}22` : T.glass,
                     color: on ? s.color : T.muted,
-                    fontSize:10, fontWeight:700,
+                    fontSize:11.5, fontWeight:700,
                     boxShadow: on ? `0 0 14px ${s.color}44` : "none",
                     transition:"all .18s" }}>
                   {on && <span style={{ marginRight:4 }}>✓</span>}
                   {s.name}
-                  <span style={{ fontSize:8, opacity:.7, marginLeft:5 }}>WK{s.week}</span>
+                  <span style={{ fontSize:11, opacity:.7, marginLeft:5 }}>WK{s.week}</span>
                 </motion.button>
               );
             })}
           </div>
           <div style={{ marginTop:10 }}>
             <div style={{ display:"flex", justifyContent:"space-between",
-              fontSize:8, color:T.faint, marginBottom:3 }}>
+              fontSize:11, color:T.faint, marginBottom:3 }}>
               <span>{selectedSupps.size} of {catalog.length} supplements selected</span>
               <span style={{ color:customColor, fontWeight:700 }}>
                 {Math.round(catalog.reduce((s,x) => selectedSupps.has(x.id) ? s+x.weight : s, 0) * 100)}% of max stack
@@ -5656,8 +5656,8 @@ function ABBioComparison({ archetypeId, theme, color }) {
         <div style={{ background:T.glass, border:`1.5px solid ${customColor}44`,
           borderRadius:14, padding:"12px 14px 10px", marginBottom:10,
           boxShadow:`0 0 20px ${customColor}18` }}>
-          <div style={{ fontSize:8, fontWeight:800, color:customColor,
-            letterSpacing:".14em", marginBottom:8 }}>◉ YOUR CUSTOM STACK TRAJECTORY</div>
+          <div style={{ fontSize:11, fontWeight:600, color:customColor,
+            letterSpacing:".04em", marginBottom:8 }}>◉ YOUR CUSTOM STACK TRAJECTORY</div>
           <svg width="100%" viewBox={`0 0 ${chartW} ${chartH+4}`}
             style={{ overflow:"visible", display:"block" }}>
             <defs>
@@ -5706,7 +5706,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
               { color:customColor,label:"Your Stack",          dash:false },
             ].map(({color,label,dash}) => (
               <div key={label} style={{ display:"flex", alignItems:"center",
-                gap:5, fontSize:8.5, color, fontWeight: dash?400:700 }}>
+                gap:5, fontSize:11.5, color, fontWeight: dash?400:700 }}>
                 <div style={{ width:16, height: dash?1.5:2.5, background:color,
                   borderRadius:1, opacity: dash?0.5:1,
                   boxShadow: !dash ? `0 0 6px ${color}` : "none" }}/>
@@ -5716,7 +5716,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
           </div>
           <div style={{ marginTop:10 }}>
             <div style={{ display:"flex", justifyContent:"space-between",
-              fontSize:8, color:customColor, fontWeight:700, marginBottom:3 }}>
+              fontSize:11, color:customColor, fontWeight:700, marginBottom:3 }}>
               <span>Your Stack · Week {week}</span>
               <span style={{ fontSize:13, fontWeight:900 }}>{cPct}%</span>
             </div>
@@ -5745,8 +5745,8 @@ function ABBioComparison({ archetypeId, theme, color }) {
 
         {/* Per-supplement science cards */}
         <div style={{ marginBottom:6 }}>
-          <div style={{ fontSize:8.5, fontWeight:800, color:T.faint,
-            letterSpacing:".14em", marginBottom:10 }}>
+          <div style={{ fontSize:11.5, fontWeight:600, color:T.faint,
+            letterSpacing:".04em", marginBottom:10 }}>
             ◉ SUPPLEMENT SCIENCE · WHY EACH ONE WORKS
           </div>
           {catalog.map((s) => {
@@ -5771,7 +5771,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:4 }}>
                         <div style={{ width:7, height:7, borderRadius:"50%", background:s.color,
                           flexShrink:0, boxShadow: fired ? `0 0 7px ${s.color}` : "none" }}/>
-                        <div style={{ fontSize:8.5, fontWeight:900, letterSpacing:".1em",
+                        <div style={{ fontSize:11.5, fontWeight:900, letterSpacing:".03em",
                           color: fired ? s.color : pending ? s.color+"88" : T.faint }}>
                           {fired ? `✓ WK ${s.week} — ACTIVE`
                            : pending ? `⏳ ACTIVATES WK ${s.week} · ${wLeft}wk away`
@@ -5788,7 +5788,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                         lineHeight:1.2, marginBottom: on ? 8 : 0 }}>{s.name}</div>
                     </div>
                     <div style={{ textAlign:"right", flexShrink:0 }}>
-                      <div style={{ fontSize:8, color:T.faint, marginBottom:2 }}>{s.metric}</div>
+                      <div style={{ fontSize:11, color:T.faint, marginBottom:2 }}>{s.metric}</div>
                       <div style={{ fontSize:18, fontWeight:900, color: on ? s.color : T.muted,
                         textShadow: fired ? `0 0 14px ${s.color}88` : "none" }}>{s.value}</div>
                       <div style={{ fontSize:7.5, color:T.faint }}>{Math.round(s.weight*100)}% stack weight</div>
@@ -5833,14 +5833,14 @@ function ABBioComparison({ archetypeId, theme, color }) {
     <div>
       {/* ─ Header ─ */}
       <div style={{ marginBottom:14 }}>
-        <div style={{ fontSize:8.5, fontWeight:800, color:T.faint,
-          letterSpacing:".16em", marginBottom:3 }}>◉ 12-WEEK TRANSFORMATION ANALYSIS</div>
+        <div style={{ fontSize:11.5, fontWeight:600, color:T.faint,
+          letterSpacing:".04em", marginBottom:3 }}>◉ 12-WEEK TRANSFORMATION ANALYSIS</div>
         <div style={{ fontSize:17, fontWeight:900, color:T.text, lineHeight:1.1 }}>
           Without Supplements{" "}
           <span style={{ color:T.faint, fontWeight:400 }}>vs</span>{" "}
           <span style={{ color:ac }}>RVN VISION Protocol</span>
         </div>
-        <div style={{ fontSize:10, color:T.muted, marginTop:3 }}>{label} · Both paths on the same timeline</div>
+        <div style={{ fontSize:11.5, color:T.muted, marginTop:3 }}>{label} · Both paths on the same timeline</div>
       </div>
 
       {/* ─ Combined divergence chart — both lines on same axes ─ */}
@@ -5848,7 +5848,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
         borderRadius:14, padding:"14px 14px 10px", marginBottom:14,
         boxShadow:`0 0 28px ${ac}14` }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-          <div style={{ fontSize:8, fontWeight:900, color:ac, letterSpacing:".13em" }}>◉ DIVERGENCE CHART</div>
+          <div style={{ fontSize:11, fontWeight:900, color:ac, letterSpacing:".04em" }}>◉ DIVERGENCE CHART</div>
           <div style={{ display:"flex", gap:10 }}>
             <div style={{ display:"flex", alignItems:"center", gap:4 }}>
               <div style={{ width:16, height:2.5, background:ac, borderRadius:2 }}/>
@@ -5958,7 +5958,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
             fontSize:11, fontWeight:900,
             color: animating ? T.faint : "#000",
             cursor: animating ? "not-allowed" : "pointer",
-            letterSpacing:".08em",
+            letterSpacing:".02em",
             boxShadow: animating ? "none" : `0 4px 20px ${ac}44` }}>
           {animating ? "▶ RUNNING 12-WEEK SIMULATION..." : "▶ RUN 12-WEEK SIMULATION · BOTH PATHS"}
         </motion.button>
@@ -5972,7 +5972,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
             borderRadius:10, padding:"8px 14px",
             display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div>
-            <div style={{ fontSize:8, color:T.faint, letterSpacing:".1em", marginBottom:2 }}>
+            <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em", marginBottom:2 }}>
               RVN VISION ADVANTAGE AT WEEK {week}
             </div>
             <div style={{ fontSize:10.5, color:T.muted }}>
@@ -6005,14 +6005,14 @@ function ABBioComparison({ archetypeId, theme, color }) {
                 <div style={{ display:"flex", alignItems:"center",
                   justifyContent:"space-between", marginBottom:8 }}>
                   <div>
-                    <div style={{ fontSize:9, fontWeight:900, color:ms.color,
-                      letterSpacing:".16em", marginBottom:2 }}>◉ WEEK {ms.week} — SUPPLEMENT ACTIVATING</div>
+                    <div style={{ fontSize:11, fontWeight:900, color:ms.color,
+                      letterSpacing:".04em", marginBottom:2 }}>◉ WEEK {ms.week} — SUPPLEMENT ACTIVATING</div>
                     <div style={{ fontSize:16, fontWeight:900, color:T.text, lineHeight:1.1 }}>{ms.supp}</div>
                   </div>
                   <div style={{ textAlign:"right" }}>
-                    <div style={{ fontSize:8, color:T.faint, marginBottom:3 }}>{ms.metric}</div>
+                    <div style={{ fontSize:11, color:T.faint, marginBottom:3 }}>{ms.metric}</div>
                     <div style={{ fontSize:22, fontWeight:900, color:ms.color }}>{ms.rvn}</div>
-                    <div style={{ fontSize:9, color:T.muted }}>vs {ms.std} standard</div>
+                    <div style={{ fontSize:11, color:T.muted }}>vs {ms.std} standard</div>
                   </div>
                 </div>
                 <div style={{ fontSize:11.5, color:T.text, lineHeight:1.7, opacity:.9 }}>{ms.why}</div>
@@ -6036,7 +6036,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       </div>
                       <div style={{ textAlign:"right" }}>
                         <div style={{ fontSize:26, fontWeight:900, color:arch.glow }}>{done}</div>
-                        <div style={{ fontSize:9, color:T.faint, fontWeight:700, letterSpacing:".06em" }}>THIS WEEK</div>
+                        <div style={{ fontSize:11, color:T.faint, fontWeight:700, letterSpacing:".01em" }}>THIS WEEK</div>
                       </div>
                     </div>
                     <div style={{ display:"flex", gap:6 }}>
@@ -6050,7 +6050,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                           }}>
                             {weekSessions[i] && <div style={{ fontSize:12 }}>✓</div>}
                           </div>
-                          <div style={{ fontSize:9, color:T.faint, fontWeight:700 }}>{d}</div>
+                          <div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>{d}</div>
                         </div>
                       ))}
                     </div>
@@ -6097,7 +6097,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                         <div style={{ display:"flex", gap:6, marginBottom:10 }}>
                           {days.map((d, i) => (
                             <div key={i} style={{ flex:1, textAlign:"center" }}>
-                              <div style={{ fontSize:9, color:T.faint, marginBottom:3 }}>{d}</div>
+                              <div style={{ fontSize:11, color:T.faint, marginBottom:3 }}>{d}</div>
                               <input
                                 type="number" min="0" max="12" step="0.1"
                                 value={draftSleep?.[i] ?? sleepDays[i]}
@@ -6195,7 +6195,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       style={{
                         marginTop:18, width:"100%", padding:"11px",
                         background:"#FF9F0A", border:"none", borderRadius:12,
-                        color:"#fff", fontWeight:900, fontSize:13, cursor:"pointer", letterSpacing:".05em",
+                        color:"#fff", fontWeight:900, fontSize:13, cursor:"pointer", letterSpacing:".01em",
                       }}
                     >LET'S GO ✦</motion.button>
                   </motion.div>
@@ -6231,21 +6231,21 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       <div style={{ marginBottom:18 }}>
                         <div style={{ display:"flex", alignItems:"center", gap:14, justifyContent:"center" }}>
                           <button onClick={() => setSleepLogHours(h => String(Math.max(0, parseFloat(h)-0.5)))}
-                            style={{ width:40, height:40, borderRadius:20, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:20, cursor:"pointer" }}>−</button>
+                            style={{ width:40, height:40, borderRadius:16, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:20, cursor:"pointer" }}>−</button>
                           <div style={{ fontSize:36, fontWeight:900, color:T.text, minWidth:80, textAlign:"center" }}>{parseFloat(sleepLogHours).toFixed(1)}h</div>
                           <button onClick={() => setSleepLogHours(h => String(Math.min(12, parseFloat(h)+0.5)))}
-                            style={{ width:40, height:40, borderRadius:20, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:20, cursor:"pointer" }}>+</button>
+                            style={{ width:40, height:40, borderRadius:16, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:20, cursor:"pointer" }}>+</button>
                         </div>
                       </div>
                     ) : (
                       <div style={{ display:"flex", gap:12, marginBottom:18 }}>
                         <div style={{ flex:1 }}>
-                          <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:6 }}>BEDTIME</div>
+                          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:6 }}>BEDTIME</div>
                           <input type="time" value={sleepLogBed} onChange={e=>setSleepLogBed(e.target.value)}
                             style={{ width:"100%", padding:"10px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:16, outline:"none" }}/>
                         </div>
                         <div style={{ flex:1 }}>
-                          <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:6 }}>WAKE TIME</div>
+                          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:6 }}>WAKE TIME</div>
                           <input type="time" value={sleepLogWake} onChange={e=>setSleepLogWake(e.target.value)}
                             style={{ width:"100%", padding:"10px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:16, outline:"none" }}/>
                         </div>
@@ -6295,12 +6295,12 @@ function ABBioComparison({ archetypeId, theme, color }) {
                     </div>
 
                     <div style={{ marginBottom:20 }}>
-                      <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:8 }}>I NEED TO WAKE UP AT</div>
+                      <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:8 }}>I NEED TO WAKE UP AT</div>
                       <input type="time" value={cycleWakeTime} onChange={e => setCycleWakeTime(e.target.value)}
                         style={{ width:"100%", padding:"12px 16px", borderRadius:12, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:22, fontWeight:800, outline:"none", textAlign:"center" }}/>
                     </div>
 
-                    <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:10 }}>GO TO BED AT…</div>
+                    <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:10 }}>GO TO BED AT…</div>
                     <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                       {options.map(opt => (
                         <div key={opt.cycles} style={{
@@ -6311,17 +6311,17 @@ function ABBioComparison({ archetypeId, theme, color }) {
                         }}>
                           <div>
                             <div style={{ fontSize:22, fontWeight:900, color:T.text }}>{opt.bedtime}</div>
-                            <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>{opt.label}</div>
+                            <div style={{ fontSize:11.5, color:T.muted, marginTop:2 }}>{opt.label}</div>
                           </div>
                           <div style={{ textAlign:"right" }}>
-                            <div style={{ fontSize:10, fontWeight:800, color:opt.color, letterSpacing:".08em" }}>{opt.quality}</div>
-                            <div style={{ fontSize:10, color:T.faint, marginTop:2 }}>{opt.cycles} × 90 min + 15 min</div>
+                            <div style={{ fontSize:11.5, fontWeight:600, color:opt.color, letterSpacing:".02em" }}>{opt.quality}</div>
+                            <div style={{ fontSize:11.5, color:T.faint, marginTop:2 }}>{opt.cycles} × 90 min + 15 min</div>
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div style={{ fontSize:10, color:T.faint, textAlign:"center", marginTop:14, lineHeight:1.5 }}>
+                    <div style={{ fontSize:11.5, color:T.faint, textAlign:"center", marginTop:14, lineHeight:1.5 }}>
                       Set your phone alarm manually at your chosen bedtime's matching wake time ({cycleWakeTime}).<br/>
                       Native app will handle this automatically.
                     </div>
@@ -6351,7 +6351,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                     </div>
                     {editingHealth ? (
                       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                        <div style={{ fontSize:10, color:T.muted, marginBottom:4 }}>
+                        <div style={{ fontSize:11.5, color:T.muted, marginBottom:4 }}>
                           Enter data from Apple Health, Garmin, Whoop, or any wearable. Kailu uses this to personalize every response.
                         </div>
                         {[
@@ -6362,13 +6362,13 @@ function ABBioComparison({ archetypeId, theme, color }) {
                           <div key={key} style={{ display:"flex", alignItems:"center", gap:10 }}>
                             <div style={{ display:"flex" }}><LI n={icon} size={18} color={color}/></div>
                             <div style={{ flex:1 }}>
-                              <div style={{ fontSize:9, fontWeight:700, color:T.faint, letterSpacing:".07em", marginBottom:3 }}>{label}</div>
+                              <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".02em", marginBottom:3 }}>{label}</div>
                               <div style={{ display:"flex", gap:6, alignItems:"center" }}>
                                 <input type="number" value={draft[key] || ""}
                                   onChange={e => setDraftHealth(d => ({ ...d, [key]: parseFloat(e.target.value) || 0 }))}
                                   placeholder={placeholder}
                                   style={{ flex:1, padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:13, fontWeight:700, outline:"none" }}/>
-                                <span style={{ fontSize:10, color:T.faint }}>{unit}</span>
+                                <span style={{ fontSize:11.5, color:T.faint }}>{unit}</span>
                               </div>
                             </div>
                           </div>
@@ -6379,7 +6379,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                         }} style={{ padding:"9px", borderRadius:10, background:T.teal, color:"#fff", border:"none", fontSize:12, fontWeight:800, cursor:"pointer" }}>
                           SAVE HEALTH DATA
                         </button>
-                        <div style={{ fontSize:9, color:T.faint, textAlign:"center" }}>
+                        <div style={{ fontSize:11, color:T.faint, textAlign:"center" }}>
                           ◈ Full wearable sync (Apple Health, Whoop, Garmin) coming in a future update.
                         </div>
                       </div>
@@ -6395,7 +6395,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                               <div key={label} style={{ flex:1, textAlign:"center", padding:"10px 6px", background:T.glass, borderRadius:10 }}>
                                 <div style={{ display:"flex", justifyContent:"center", marginBottom:2 }}><LI n={icon} size={16} color={color}/></div>
                                 <div style={{ fontSize:14, fontWeight:900, color }}>{val}</div>
-                                <div style={{ fontSize:8, color:T.faint, letterSpacing:".07em" }}>{label}</div>
+                                <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>{label}</div>
                               </div>
                             ))}
                           </div>
@@ -6405,7 +6405,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                           </div>
                         )}
                         {hd.lastSync && (
-                          <div style={{ fontSize:9, color:T.faint, marginTop:8, textAlign:"center" }}>
+                          <div style={{ fontSize:11, color:T.faint, marginTop:8, textAlign:"center" }}>
                             Last synced {new Date(hd.lastSync).toLocaleString()}
                           </div>
                         )}
@@ -6430,8 +6430,8 @@ function ABBioComparison({ archetypeId, theme, color }) {
                     <div style={{ display:"flex", alignItems:"flex-start", gap:10, marginBottom:8 }}>
                       <span style={{ fontSize:20, lineHeight:1 }}>{narrative.icon}</span>
                       <div>
-                        <div style={{ fontSize:9.5, fontWeight:900, color:narrative.color,
-                          letterSpacing:".1em", marginBottom:3 }}>SESSION DEBRIEF</div>
+                        <div style={{ fontSize:11.5, fontWeight:900, color:narrative.color,
+                          letterSpacing:".03em", marginBottom:3 }}>SESSION DEBRIEF</div>
                         <div style={{ fontSize:14, fontWeight:800, color:T.text, lineHeight:1.3 }}>
                           {narrative.headline}
                         </div>
@@ -6454,14 +6454,14 @@ function ABBioComparison({ archetypeId, theme, color }) {
                   style={{ marginBottom:12 }}>
                   <div style={{ padding:"14px 16px", borderRadius:14,
                     background:`${arch.glow}14`, border:`1.5px solid ${arch.glow}55` }}>
-                    <div style={{ fontSize:9, fontWeight:900, color:arch.glow,
-                      letterSpacing:".14em", marginBottom:6 }}>◉ TIME TO LEVEL UP?</div>
+                    <div style={{ fontSize:11, fontWeight:900, color:arch.glow,
+                      letterSpacing:".04em", marginBottom:6 }}>◉ TIME TO LEVEL UP?</div>
                     <div style={{ fontSize:15, fontWeight:800, color:T.text, marginBottom:6 }}>
                       Next phase: <span style={{ color:arch.glow }}>{evo.next}</span>
                     </div>
                     <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.6 }}>{evo.message}</div>
                     <div style={{ marginTop:10, padding:"8px 12px", background:T.glass,
-                      borderRadius:8, fontSize:10, color:arch.glow, fontWeight:700 }}>
+                      borderRadius:8, fontSize:11.5, color:arch.glow, fontWeight:700 }}>
                       Ask your coach or retake the quiz to unlock your next protocol.
                     </div>
                   </div>
@@ -6477,8 +6477,8 @@ function ABBioComparison({ archetypeId, theme, color }) {
                   style={{ marginBottom:12 }}>
                   <div style={{ padding:"14px 16px", borderRadius:14,
                     background:T.glass, border:`1px solid ${T.border}` }}>
-                    <div style={{ fontSize:9, fontWeight:900, color:T.faint,
-                      letterSpacing:".14em", marginBottom:8 }}>PEOPLE LIKE YOU</div>
+                    <div style={{ fontSize:11, fontWeight:900, color:T.faint,
+                      letterSpacing:".04em", marginBottom:8 }}>PEOPLE LIKE YOU</div>
                     <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
                       <div style={{ fontSize:32, fontWeight:900, color:arch.glow, lineHeight:1 }}>
                         {proof.pct}<span style={{ fontSize:18 }}>%</span>
@@ -6507,14 +6507,14 @@ function ABBioComparison({ archetypeId, theme, color }) {
                 <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.25 }}
                   style={{ marginBottom:20 }}>
                   <GlassCard theme={theme} glow={fc} style={{ padding:"14px 16px" }}>
-                    <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-                      letterSpacing:".14em", marginBottom:8 }}>YOUR WEEK AHEAD</div>
+                    <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+                      letterSpacing:".04em", marginBottom:8 }}>YOUR WEEK AHEAD</div>
                     <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
                       <div style={{ textAlign:"center" }}>
                         <div style={{ fontSize:32, fontWeight:900, color:fc, lineHeight:1 }}>
                           {forecast.projected}
                         </div>
-                        <div style={{ fontSize:8, color:T.faint, fontWeight:700, marginTop:2 }}>
+                        <div style={{ fontSize:11, color:T.faint, fontWeight:700, marginTop:2 }}>
                           PROJECTED SCORE
                         </div>
                       </div>
@@ -6597,12 +6597,12 @@ function HistoryFeed({ email, theme, accentColor }) {
     </div>
   );
   if (error) return (
-    <div style={{ fontSize:10, color:T.red, padding:"8px 14px", textAlign:"center" }}>
+    <div style={{ fontSize:11.5, color:T.red, padding:"8px 14px", textAlign:"center" }}>
       ⚠ Could not load history — {error}
     </div>
   );
   if (!sessions.length) return (
-    <div style={{ fontSize:10, color:T.muted, textAlign:"center", padding:"12px 0" }}>
+    <div style={{ fontSize:11.5, color:T.muted, textAlign:"center", padding:"12px 0" }}>
       No past sessions yet. Complete your first workout to see history here.
     </div>
   );
@@ -6626,22 +6626,22 @@ function HistoryFeed({ email, theme, accentColor }) {
               padding:      "11px 14px",
             }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-              <div style={{ fontSize:11, fontWeight:800, color:T.text, letterSpacing:".04em" }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.text, letterSpacing:".04em" }}>
                 {(s.archetype_id || "session").toUpperCase().replace("_"," ")}
               </div>
-              <div style={{ fontSize:9, color:T.muted }}>
+              <div style={{ fontSize:11, color:T.muted }}>
                 {dateStr}  ·  {timeStr}
               </div>
             </div>
             <div style={{ display:"flex", gap:14 }}>
-              <div style={{ fontSize:10, color:ac, fontWeight:700 }}>
+              <div style={{ fontSize:11.5, color:ac, fontWeight:700 }}>
                 ◈ {s.bio_score ?? "—"} BIO
               </div>
-              <div style={{ fontSize:10, color:T.dim }}>
+              <div style={{ fontSize:11.5, color:T.dim }}>
                 {doneCnt}/{totalCnt} sets
               </div>
               {s.notes && (
-                <div style={{ fontSize:10, color:T.muted, fontStyle:"italic" }}>
+                <div style={{ fontSize:11.5, color:T.muted, fontStyle:"italic" }}>
                   "{s.notes}"
                 </div>
               )}
@@ -6701,7 +6701,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
         }}>
           <BackBtn onBack={onBack} theme={theme}/>
           <div style={{ marginTop:14 }}>
-            <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".16em" }}>
+            <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em" }}>
               {dayLabel.toUpperCase()} · {dateLabel.toUpperCase()}
             </div>
             <div style={{ fontSize:26, fontWeight:900, color:T.text, marginTop:4, lineHeight:1.25, letterSpacing:"-.01em" }}>
@@ -6717,11 +6717,11 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
           <motion.div {...FX.stagger(0, .05)}>
             <GlassCard theme={theme} glow={readiness.color} style={{ padding:"16px" }}>
               <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em" }}>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em" }}>
                   TODAY{"'"}S READINESS
                 </div>
                 <div style={{
-                  fontSize:9, fontWeight:900, color:readiness.color, letterSpacing:".1em",
+                  fontSize:11, fontWeight:900, color:readiness.color, letterSpacing:".03em",
                   background:`${readiness.color}18`, padding:"2px 10px", borderRadius:4,
                 }}>
                   {readiness.label}
@@ -6751,7 +6751,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
                   {circWarn.icon}
                 </span>
                 <div>
-                  <div style={{ fontSize:9, fontWeight:900, color:circWarn.color, letterSpacing:".12em", marginBottom:3 }}>
+                  <div style={{ fontSize:11, fontWeight:900, color:circWarn.color, letterSpacing:".03em", marginBottom:3 }}>
                     {circWarn.title.toUpperCase()}
                   </div>
                   <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>{circWarn.msg}</div>
@@ -6764,7 +6764,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
           <motion.div {...FX.stagger(2, .05)}>
             <GlassCard theme={theme} glow={forecast.trend === "up" ? "#30D158" : forecast.trend === "down" ? "#FF6B35" : T.blue}
               style={{ padding:"14px" }}>
-              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:6 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>
                 YOUR WEEK AHEAD
               </div>
               <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:8 }}>
@@ -6773,8 +6773,8 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
                   {forecast.projected}
                 </div>
                 <div>
-                  <div style={{ fontSize:8.5, fontWeight:700, color:T.faint, letterSpacing:".08em" }}>PROJECTED BIO-SCORE</div>
-                  <div style={{ fontSize:8, color:T.faint, marginTop:2 }}>END OF WEEK</div>
+                  <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".02em" }}>PROJECTED BIO-SCORE</div>
+                  <div style={{ fontSize:11, color:T.faint, marginTop:2 }}>END OF WEEK</div>
                 </div>
               </div>
               <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>{forecast.message}</div>
@@ -6783,7 +6783,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
 
           {/* Action plan */}
           <motion.div {...FX.stagger(3, .05)}>
-            <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:8 }}>
+            <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
               TODAY{"'"}S ACTION PLAN
             </div>
             {actions.map((a, i) => (
@@ -6801,7 +6801,7 @@ function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack
                   <span style={{ fontSize:16, color:a.color }}>{a.icon}</span>
                 </div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:8, fontWeight:900, color:a.color, letterSpacing:".12em", marginBottom:3 }}>
+                  <div style={{ fontSize:11, fontWeight:900, color:a.color, letterSpacing:".03em", marginBottom:3 }}>
                     {a.time}
                   </div>
                   <div style={{ fontSize:11.5, color:T.text, lineHeight:1.55, fontWeight:500 }}>{a.text}</div>
@@ -6833,13 +6833,13 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
         padding:"14px 18px 12px", display:"flex", alignItems:"center", gap:12 }}>
         <motion.button whileTap={{ scale:.97 }} onClick={onBack}
           style={{ background:"none", border:`1px solid ${T.border}`, borderRadius:8,
-            padding:"6px 12px", color:T.muted, fontSize:10, fontWeight:800,
-            letterSpacing:".1em", cursor:"pointer" }}>
+            padding:"6px 12px", color:T.muted, fontSize:11.5, fontWeight:600,
+            letterSpacing:".03em", cursor:"pointer" }}>
           &lt;&lt; BACK
         </motion.button>
         <div style={{ flex:1 }}>
-          <div style={{ fontSize:8.5, fontWeight:800, color:T.faint,
-            letterSpacing:".16em" }}>SUPPLEMENT PROTOCOL</div>
+          <div style={{ fontSize:11.5, fontWeight:600, color:T.faint,
+            letterSpacing:".04em" }}>SUPPLEMENT PROTOCOL</div>
           <div style={{ fontSize:16, fontWeight:900, color:ac, lineHeight:1.1 }}>
             {arch ? arch.name : "RVN VISION"} · 12-Week Analysis
           </div>
@@ -6884,12 +6884,12 @@ function BugReportButton({ email, screen, stateSnapshot, theme }) {
       <motion.button whileTap={{ scale:.96 }} onClick={() => setOpen(o => !o)}
         style={{
           display:        "flex", alignItems:"center", gap:5,
-          fontSize:       9, fontWeight:800, letterSpacing:".1em",
+          fontSize:       11, fontWeight:600, letterSpacing:".03em",
           color:          sent ? T.green : T.muted,
           background:     "transparent", border:"none", cursor:"pointer",
           padding:        "4px 0",
         }}>
-        <span style={{ fontSize:10 }}>{sent ? "✓" : "⚑"}</span>
+        <span style={{ fontSize:11.5 }}>{sent ? "✓" : "⚑"}</span>
         {sent ? "REPORT SENT" : "REPORT BUG"}
       </motion.button>
 
@@ -6905,7 +6905,7 @@ function BugReportButton({ email, screen, stateSnapshot, theme }) {
               borderRadius:14, padding:"16px 18px",
               boxShadow:  `0 8px 40px #00000066`,
             }}>
-            <div style={{ fontSize:10, fontWeight:800, color:T.text, letterSpacing:".1em", marginBottom:10 }}>
+            <div style={{ fontSize:11.5, fontWeight:600, color:T.text, letterSpacing:".03em", marginBottom:10 }}>
               ⚑ REPORT A BUG
             </div>
             <textarea
@@ -6923,20 +6923,20 @@ function BugReportButton({ email, screen, stateSnapshot, theme }) {
               <motion.button whileTap={{ scale:.97 }} onClick={handleSend} disabled={busy}
                 style={{
                   flex:1, padding:"10px", background:T.blue, border:"none",
-                  borderRadius:8, fontSize:10, fontWeight:800, color:"#fff",
-                  cursor:"pointer", letterSpacing:".08em",
+                  borderRadius:8, fontSize:11.5, fontWeight:600, color:"#fff",
+                  cursor:"pointer", letterSpacing:".02em",
                 }}>
                 {busy ? "SENDING…" : "SEND REPORT"}
               </motion.button>
               <motion.button whileTap={{ scale:.97 }} onClick={() => setOpen(false)}
                 style={{
                   padding:"10px 14px", background:T.glass, border:`1px solid ${T.border}`,
-                  borderRadius:8, fontSize:10, color:T.muted, cursor:"pointer",
+                  borderRadius:8, fontSize:11.5, color:T.muted, cursor:"pointer",
                 }}>
                 ✕
               </motion.button>
             </div>
-            <div style={{ fontSize:8.5, color:T.faint, marginTop:8, textAlign:"center" }}>
+            <div style={{ fontSize:11.5, color:T.faint, marginTop:8, textAlign:"center" }}>
               Current screen state is captured automatically.
             </div>
           </motion.div>
@@ -7034,7 +7034,7 @@ function TosScreen({ onBack, theme, initialTab = "tos" }) {
       }}>
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:10 }}>
           <BackBtn onBack={onBack} theme={theme}/>
-          <div style={{ fontSize:10, fontWeight:800, color:T.muted, letterSpacing:".12em" }}>
+          <div style={{ fontSize:11.5, fontWeight:600, color:T.muted, letterSpacing:".03em" }}>
             LEGAL · RVN OS
           </div>
         </div>
@@ -7043,7 +7043,7 @@ function TosScreen({ onBack, theme, initialTab = "tos" }) {
           {["tos","privacy"].map(t => (
             <motion.button key={t} whileTap={{ scale:.97 }} onClick={() => setTab(t)}
               style={{
-                fontSize:9, fontWeight:800, letterSpacing:".1em",
+                fontSize:11, fontWeight:600, letterSpacing:".03em",
                 padding:"6px 14px", borderRadius:8, cursor:"pointer",
                 border:`1px solid ${tab===t ? T.blue : T.border}`,
                 background: tab===t ? T.blue+"22" : "transparent",
@@ -7059,7 +7059,7 @@ function TosScreen({ onBack, theme, initialTab = "tos" }) {
         <div style={{ fontSize:20, fontWeight:900, color:T.text, marginBottom:4 }}>
           {doc.title}
         </div>
-        <div style={{ fontSize:9.5, color:T.muted, marginBottom:28, letterSpacing:".06em" }}>
+        <div style={{ fontSize:11.5, color:T.muted, marginBottom:28, letterSpacing:".01em" }}>
           Last updated: {doc.updated}
         </div>
 
@@ -7069,8 +7069,8 @@ function TosScreen({ onBack, theme, initialTab = "tos" }) {
             transition={{ delay: i * 0.04 }}
             style={{ marginBottom:22 }}>
             <div style={{
-              fontSize:11, fontWeight:800, color:T.text,
-              letterSpacing:".06em", marginBottom:7,
+              fontSize:11, fontWeight:600, color:T.text,
+              letterSpacing:".01em", marginBottom:7,
             }}>
               {s.heading}
             </div>
@@ -7145,7 +7145,7 @@ function AuthScreen({ theme, onAuth }) {
         <div style={{ fontSize: 36, fontWeight: 900, letterSpacing: "-0.03em", color: T.text }}>
           RVN<span style={{ color: T.blue }}>OS</span>
         </div>
-        <div style={{ fontSize: 12, color: T.muted, letterSpacing: ".15em", marginTop: 4 }}>
+        <div style={{ fontSize: 12, color: T.muted, letterSpacing: ".04em", marginTop: 4 }}>
           PERFORMANCE INTELLIGENCE
         </div>
       </div>
@@ -7274,7 +7274,7 @@ function SplashScreen({ onDone, theme }) {
         initial={{ opacity:0 }} animate={{ opacity: phase === 2 ? 0.55 : 0 }}
         transition={{ duration:1, delay:0.5 }}
         style={{
-          position:"absolute", bottom:60, fontSize:12, letterSpacing:"0.35em",
+          position:"absolute", bottom:60, fontSize:12, letterSpacing:"0.06em",
           color: "rgba(255,255,255,.55)",
           textTransform:"uppercase",
           fontFamily: FONT_SERIF, fontWeight: 400,
@@ -7323,8 +7323,8 @@ function LandingPhoneMockup({ ac, theme }) {
       <div style={{ padding:"12px 12px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:9 }}>
         {/* header */}
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-          <span style={{ fontSize:10, fontWeight:900, color:gold, letterSpacing:".1em" }}>⚡ TRAIN</span>
-          <span style={{ fontSize:8.5, color:"#ff6b35", fontWeight:700 }}>🔥 7 STREAK</span>
+          <span style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em" }}>⚡ TRAIN</span>
+          <span style={{ fontSize:11.5, color:"#ff6b35", fontWeight:700 }}>🔥 7 STREAK</span>
         </div>
         {/* progress bar */}
         <div style={{ height:2.5, background:"#222", borderRadius:1.5 }}>
@@ -7342,8 +7342,8 @@ function LandingPhoneMockup({ ac, theme }) {
             <text x="20" y="24" textAnchor="middle" fill={gold} fontSize="10" fontWeight="900">82</text>
           </svg>
           <div>
-            <div style={{ fontSize:8.5, color:"#666", letterSpacing:".08em" }}>TARGET</div>
-            <div style={{ fontSize:10, color:"#fff", fontWeight:700 }}>Chest · Triceps</div>
+            <div style={{ fontSize:11.5, color:"#666", letterSpacing:".02em" }}>TARGET</div>
+            <div style={{ fontSize:11.5, color:"#fff", fontWeight:700 }}>Chest · Triceps</div>
           </div>
         </div>
         {/* exercises */}
@@ -7353,8 +7353,8 @@ function LandingPhoneMockup({ ac, theme }) {
         ].map((ex, ei) => (
           <div key={ei} style={{ padding:"9px 10px", background:"#111", borderRadius:10 }}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-              <span style={{ fontSize:10, color:"#fff", fontWeight:700 }}>{ex.name}</span>
-              <span style={{ fontSize:8.5, color:gold }}>{ex.sets} @ {ex.weight}</span>
+              <span style={{ fontSize:11.5, color:"#fff", fontWeight:700 }}>{ex.name}</span>
+              <span style={{ fontSize:11.5, color:gold }}>{ex.sets} @ {ex.weight}</span>
             </div>
             <div style={{ display:"flex", gap:5 }}>
               {ex.done.map((d, di) => (
@@ -7364,7 +7364,7 @@ function LandingPhoneMockup({ ac, theme }) {
                     background: d ? gold : "transparent",
                     border:`1.5px solid ${d ? gold : "#444"}`,
                     display:"flex", alignItems:"center", justifyContent:"center" }}>
-                  {d && <span style={{ fontSize:8, color:"#000" }}>✓</span>}
+                  {d && <span style={{ fontSize:11, color:"#000" }}>✓</span>}
                 </motion.div>
               ))}
             </div>
@@ -7375,7 +7375,7 @@ function LandingPhoneMockup({ ac, theme }) {
 
     fuel: (
       <div style={{ padding:"12px 12px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:10 }}>
-        <div style={{ fontSize:10, fontWeight:900, color:gold, letterSpacing:".1em" }}>🍽️ FUEL</div>
+        <div style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em" }}>🍽️ FUEL</div>
         {/* calorie ring */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12 }}>
           <svg width="64" height="64" viewBox="0 0 64 64">
@@ -7388,8 +7388,8 @@ function LandingPhoneMockup({ ac, theme }) {
             <text x="32" y="41" textAnchor="middle" fill="#666" fontSize="7.5">/ 2400</text>
           </svg>
           <div>
-            <div style={{ fontSize:8.5, color:"#666" }}>kcal today</div>
-            <div style={{ fontSize:10, color:"#30D158", fontWeight:700 }}>On track ✓</div>
+            <div style={{ fontSize:11.5, color:"#666" }}>kcal today</div>
+            <div style={{ fontSize:11.5, color:"#30D158", fontWeight:700 }}>On track ✓</div>
           </div>
         </div>
         {/* macro bars */}
@@ -7400,8 +7400,8 @@ function LandingPhoneMockup({ ac, theme }) {
         ].map((m, mi) => (
           <div key={mi}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
-              <span style={{ fontSize:8.5, color:"#888", letterSpacing:".08em" }}>{m.label}</span>
-              <span style={{ fontSize:8.5, color:m.color, fontWeight:700 }}>{m.val}g / {m.goal}g</span>
+              <span style={{ fontSize:11.5, color:"#888", letterSpacing:".02em" }}>{m.label}</span>
+              <span style={{ fontSize:11.5, color:m.color, fontWeight:700 }}>{m.val}g / {m.goal}g</span>
             </div>
             <div style={{ height:5, background:"#1a1a1a", borderRadius:3 }}>
               <motion.div key={animKey+"m"+mi}
@@ -7416,7 +7416,7 @@ function LandingPhoneMockup({ ac, theme }) {
 
     sleep: (
       <div style={{ padding:"12px 12px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:10 }}>
-        <div style={{ fontSize:10, fontWeight:900, color:"#BF5AF2", letterSpacing:".1em" }}>◑ SLEEP</div>
+        <div style={{ fontSize:11.5, fontWeight:900, color:"#BF5AF2", letterSpacing:".03em" }}>◑ SLEEP</div>
         {/* big score */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
           <svg width="88" height="88" viewBox="0 0 88 88">
@@ -7437,8 +7437,8 @@ function LandingPhoneMockup({ ac, theme }) {
         ].map((s, si) => (
           <div key={si}>
             <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-              <span style={{ fontSize:8.5, color:"#888" }}>{s.label}</span>
-              <span style={{ fontSize:8.5, color:s.color, fontWeight:700 }}>{s.val}</span>
+              <span style={{ fontSize:11.5, color:"#888" }}>{s.label}</span>
+              <span style={{ fontSize:11.5, color:s.color, fontWeight:700 }}>{s.val}</span>
             </div>
             <div style={{ height:4, background:"#1a1a1a", borderRadius:2 }}>
               <motion.div key={animKey+"s"+si}
@@ -7449,28 +7449,28 @@ function LandingPhoneMockup({ ac, theme }) {
           </div>
         ))}
         <div style={{ padding:"8px 10px", background:"#1a1a1a", borderRadius:10, textAlign:"center" }}>
-          <span style={{ fontSize:8.5, color:"#30D158", fontWeight:700 }}>✓ Recovery score: 84 — GOOD</span>
+          <span style={{ fontSize:11.5, color:"#30D158", fontWeight:700 }}>✓ Recovery score: 84 — GOOD</span>
         </div>
       </div>
     ),
 
     progress: (
       <div style={{ padding:"12px 12px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:9 }}>
-        <div style={{ fontSize:10, fontWeight:900, color:gold, letterSpacing:".1em" }}>📈 PROGRESS</div>
+        <div style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em" }}>📈 PROGRESS</div>
         {/* weight stat */}
         <div style={{ display:"flex", justifyContent:"space-between", padding:"9px 10px", background:"#111", borderRadius:10 }}>
           <div>
-            <div style={{ fontSize:8.5, color:"#666" }}>Body Weight</div>
-            <div style={{ fontSize:18, color:"#fff", fontWeight:900 }}>78.4<span style={{ fontSize:10, color:"#888" }}>kg</span></div>
+            <div style={{ fontSize:11.5, color:"#666" }}>Body Weight</div>
+            <div style={{ fontSize:18, color:"#fff", fontWeight:900 }}>78.4<span style={{ fontSize:11.5, color:"#888" }}>kg</span></div>
           </div>
           <div style={{ textAlign:"right" }}>
-            <div style={{ fontSize:8.5, color:"#666" }}>4 weeks</div>
+            <div style={{ fontSize:11.5, color:"#666" }}>4 weeks</div>
             <div style={{ fontSize:13, color:"#30D158", fontWeight:800 }}>↑ +2.1kg</div>
           </div>
         </div>
         {/* mini chart */}
         <div style={{ flex:1, padding:"8px 10px", background:"#111", borderRadius:10, position:"relative", overflow:"hidden" }}>
-          <div style={{ fontSize:8.5, color:"#666", marginBottom:5 }}>8-week trend</div>
+          <div style={{ fontSize:11.5, color:"#666", marginBottom:5 }}>8-week trend</div>
           <svg width="100%" height="72" viewBox="0 0 120 60" preserveAspectRatio="none">
             <defs>
               <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
@@ -7492,8 +7492,8 @@ function LandingPhoneMockup({ ac, theme }) {
         </div>
         {/* bio score */}
         <div style={{ display:"flex", justifyContent:"space-between", padding:"8px 10px", background:"#111", borderRadius:10 }}>
-          <span style={{ fontSize:8.5, color:"#666" }}>Bio Score</span>
-          <span style={{ fontSize:10, color:gold, fontWeight:900 }}>82 ↑ +8 this month</span>
+          <span style={{ fontSize:11.5, color:"#666" }}>Bio Score</span>
+          <span style={{ fontSize:11.5, color:gold, fontWeight:900 }}>82 ↑ +8 this month</span>
         </div>
       </div>
     ),
@@ -7532,11 +7532,11 @@ function LandingPhoneMockup({ ac, theme }) {
           display:"flex", alignItems:"center", justifyContent:"space-between",
           padding:"0 18px", flexShrink:0, zIndex:5,
         }}>
-          <span style={{ fontSize:8.5, color:"#fff", fontWeight:700 }}>9:41</span>
+          <span style={{ fontSize:11.5, color:"#fff", fontWeight:700 }}>9:41</span>
           <div style={{ display:"flex", gap:4, alignItems:"center" }}>
-            <span style={{ fontSize:8, color:"#fff" }}>●●●</span>
-            <span style={{ fontSize:8, color:"#fff" }}>▲</span>
-            <span style={{ fontSize:8, color:"#fff" }}>▌▌▌</span>
+            <span style={{ fontSize:11, color:"#fff" }}>●●●</span>
+            <span style={{ fontSize:11, color:"#fff" }}>▲</span>
+            <span style={{ fontSize:11, color:"#fff" }}>▌▌▌</span>
           </div>
         </div>
         {/* Screen content with AnimatePresence */}
@@ -7573,7 +7573,7 @@ function LandingPhoneMockup({ ac, theme }) {
       </div>
 
       {/* Slide label */}
-      <div style={{ marginTop:6, fontSize:9, fontWeight:700, color:ac, letterSpacing:".12em" }}>
+      <div style={{ marginTop:6, fontSize:11, fontWeight:700, color:ac, letterSpacing:".03em" }}>
         {labels[slide]}
       </div>
     </motion.div>
@@ -7643,7 +7643,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <RVNLogo size={38} glow={ac}/>
           <div>
-            <div style={{ fontSize:15, fontWeight:800, color:T.text, letterSpacing:"-.01em" }}>
+            <div style={{ fontSize:15, fontWeight:600, color:T.text, letterSpacing:"-.01em" }}>
               {storeName || "RVN VISION"}
             </div>
           </div>
@@ -7716,7 +7716,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onModeChang
             <button onClick={onSignIn}
               style={{
                 background:"transparent", border:"none", cursor:"pointer",
-                fontSize:12, fontWeight:800, color:ac, letterSpacing:".06em", padding:"4px 6px",
+                fontSize:12, fontWeight:600, color:ac, letterSpacing:".01em", padding:"4px 6px",
               }}>
               Sign in →
             </button>
@@ -7864,12 +7864,12 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
         {/* Logo row */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:22 }}>
           <RVNLogo size={28} glow={ac}/>
-          <div style={{ fontSize:8, fontWeight:800, letterSpacing:".16em", color:ac, opacity:0.7 }}>RVN OS · PROTOCOL</div>
+          <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac, opacity:0.7 }}>RVN OS · PROTOCOL</div>
         </div>
 
         {/* Archetype */}
         <div style={{ marginBottom:20 }}>
-          <div style={{ fontSize:10, fontWeight:700, letterSpacing:".14em", color:ac, opacity:0.8, marginBottom:5 }}>ARCHETYPE</div>
+          <div style={{ fontSize:11.5, fontWeight:700, letterSpacing:".04em", color:ac, opacity:0.8, marginBottom:5 }}>ARCHETYPE</div>
           <div style={{ fontSize:34, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1 }}>
             {archName.toUpperCase()}
           </div>
@@ -7888,7 +7888,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
               flex:1, padding:"14px 14px", borderRadius:16,
               background:`${ac}10`, border:`1px solid ${ac}25`,
             }}>
-              <div style={{ fontSize:8.5, fontWeight:800, letterSpacing:".13em", color:ac, marginBottom:6, opacity:0.85 }}>{item.l}</div>
+              <div style={{ fontSize:11.5, fontWeight:600, letterSpacing:".04em", color:ac, marginBottom:6, opacity:0.85 }}>{item.l}</div>
               <div style={{ fontSize:38, fontWeight:900, color:ac, lineHeight:1 }}>
                 {item.v}<span style={{ fontSize:16 }}>{item.suffix}</span>
               </div>
@@ -7907,14 +7907,14 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
               flex:1, textAlign:"center", padding:"10px 4px", borderRadius:12,
               background:`${ac}08`, border:`1px solid ${ac}15`,
             }}>
-              <div style={{ fontSize:7, fontWeight:800, letterSpacing:".1em", color:ac, opacity:0.65, marginBottom:4 }}>{s.l}</div>
+              <div style={{ fontSize:7, fontWeight:600, letterSpacing:".03em", color:ac, opacity:0.65, marginBottom:4 }}>{s.l}</div>
               <div style={{ fontSize:16, fontWeight:900, color:T.text }}>{s.v}</div>
             </div>
           ))}
         </div>
 
         {/* Footer */}
-        <div style={{ textAlign:"center", fontSize:9.5, color:T.faint, letterSpacing:".1em" }}>
+        <div style={{ textAlign:"center", fontSize:11.5, color:T.faint, letterSpacing:".03em" }}>
           rvnos.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
         </div>
       </motion.div>
@@ -7931,7 +7931,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
             background: ac, color:"#fff",
             border:"none", borderRadius:16,
             fontSize:15, fontWeight:900,
-            cursor:"pointer", letterSpacing:".06em",
+            cursor:"pointer", letterSpacing:".01em",
             boxShadow:`0 8px 32px ${ac}44`,
           }}>
           SHARE MY PROTOCOL →
@@ -7986,7 +7986,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
 
       ctx.font = "700 26px -apple-system, sans-serif";
       ctx.fillStyle = "#ffffff55";
-      ctx.letterSpacing = "0.18em";
+      ctx.letterSpacing = "0.04em";
       ctx.fillText("PERFORMANCE PROTOCOL", 80, 200);
 
       // Archetype
@@ -8118,7 +8118,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
           <div style={{ fontSize:20, fontWeight:900, letterSpacing:"-.02em", color:T.text }}>
             RVN<span style={{ color:ac }}>OS</span>
           </div>
-          <div style={{ fontSize:8, fontWeight:800, letterSpacing:".14em", color:ac, opacity:.7 }}>WORKOUT COMPLETE</div>
+          <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac, opacity:.7 }}>WORKOUT COMPLETE</div>
         </div>
 
         {/* Archetype */}
@@ -8138,7 +8138,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
               background:`${ac}10`, border:`1px solid ${ac}22`,
               textAlign:"center",
             }}>
-              <div style={{ fontSize:7.5, fontWeight:800, letterSpacing:".1em", color:ac, opacity:.8, marginBottom:4 }}>{s.label}</div>
+              <div style={{ fontSize:7.5, fontWeight:600, letterSpacing:".03em", color:ac, opacity:.8, marginBottom:4 }}>{s.label}</div>
               <div style={{ fontSize:18, fontWeight:900, color:ac, lineHeight:1 }}>{s.value}</div>
             </div>
           ))}
@@ -8162,13 +8162,13 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
                 {(setsDone?.[`${i}`]||setsDone?.[ex.name]) ? "✓" : "○"}
               </div>
               <div style={{ fontSize:11, color:T.text, flex:1, fontWeight:700 }}>{ex.name}</div>
-              <div style={{ fontSize:10, color:T.faint }}>{ex.sets}×{ex.reps}</div>
+              <div style={{ fontSize:11.5, color:T.faint }}>{ex.sets}×{ex.reps}</div>
             </div>
           ))}
         </div>
 
         {/* Footer */}
-        <div style={{ textAlign:"center", fontSize:9, color:T.faint, letterSpacing:".1em" }}>
+        <div style={{ textAlign:"center", fontSize:11, color:T.faint, letterSpacing:".03em" }}>
           rvnvision.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
         </div>
       </motion.div>
@@ -8188,13 +8188,13 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
               color:"#fff", border:"none", borderRadius:16,
               fontSize:14, fontWeight:900,
               cursor: exporting ? "not-allowed" : "pointer",
-              letterSpacing:".06em",
+              letterSpacing:".01em",
               boxShadow:`0 8px 32px ${ac}44`,
             }}>
             {exporting ? "Generating…" : "📲 EXPORT FOR STORIES →"}
           </motion.button>
         )}
-        <div style={{ textAlign:"center", marginTop:8, fontSize:10, color:T.faint }}>
+        <div style={{ textAlign:"center", marginTop:8, fontSize:11.5, color:T.faint }}>
           Saves as 1080×1920 PNG · perfect for Instagram Stories
         </div>
       </motion.div>
@@ -8291,7 +8291,7 @@ function FactVisual({ type, color: C }) {
         {/* ▲ PEAK label */}
         <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.7 }}
           style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)",
-            fontSize:8, fontWeight:900, color:C, letterSpacing:".08em", whiteSpace:"nowrap" }}>
+            fontSize:11, fontWeight:900, color:C, letterSpacing:".02em", whiteSpace:"nowrap" }}>
           ▲ PEAK
         </motion.div>
         {bars.map((b,i) => (
@@ -8310,7 +8310,7 @@ function FactVisual({ type, color: C }) {
                   boxShadow: b.peak ? `0 0 16px ${C}88` : "none",
                 }}/>
             </div>
-            <div style={{ fontSize:9, fontWeight:700, color:C, opacity:0.85, letterSpacing:".04em" }}>{b.l}</div>
+            <div style={{ fontSize:11, fontWeight:700, color:C, opacity:0.85, letterSpacing:".04em" }}>{b.l}</div>
           </div>
         ))}
       </div>
@@ -8340,7 +8340,7 @@ function FactVisual({ type, color: C }) {
                   boxShadow: b.peak ? `0 0 18px ${C}88` : "none",
                 }}/>
             </div>
-            <div style={{ fontSize:9, fontWeight:700, color:C, opacity:0.85, letterSpacing:".06em" }}>{b.l}</div>
+            <div style={{ fontSize:11, fontWeight:700, color:C, opacity:0.85, letterSpacing:".01em" }}>{b.l}</div>
             {b.peak && (
               <motion.div initial={{ opacity:0, scale:0 }} animate={{ opacity:1, scale:1 }}
                 transition={{ delay:0.75, type:"spring", stiffness:260 }}
@@ -8404,7 +8404,7 @@ function FactVisual({ type, color: C }) {
       </div>
       {/* Label */}
       <motion.div initial={{ opacity:0 }} animate={{ opacity:0.55 }} transition={{ delay:1.4 }}
-        style={{ position:"absolute", left:40, top:22, fontSize:10, fontWeight:900,
+        style={{ position:"absolute", left:40, top:22, fontSize:11.5, fontWeight:900,
           color:C, letterSpacing:".04em" }}>30% LEFT</motion.div>
     </div>
   );
@@ -9322,7 +9322,7 @@ function OBCard({ option, selected, onPick, index = 0, theme, fill = false }) {
           : T.glass,
         backdropFilter:isMobile?"none":"blur(16px)",
         border:`1.5px solid ${isSelected ? accentColor : T.border}`,
-        borderRadius:20, cursor:"pointer",
+        borderRadius:16, cursor:"pointer",
         display:"flex", alignItems:"center", gap:16,
         textAlign:"left", transition:"background .15s, border .15s",
         boxShadow: isSelected ? `0 0 32px ${accentColor}33` : "none",
@@ -9337,7 +9337,7 @@ function OBCard({ option, selected, onPick, index = 0, theme, fill = false }) {
         </div>
       )}
       <div style={{ flex:1 }}>
-        <div style={{ fontSize:18, fontWeight:800, letterSpacing:"-.01em",
+        <div style={{ fontSize:18, fontWeight:600, letterSpacing:"-.01em",
           color: isSelected ? accentColor : T.text }}>
           {option.label}
         </div>
@@ -9548,12 +9548,12 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                 <motion.div animate={{ opacity:[1,.3,1] }} transition={{ duration:1.4, repeat:Infinity }}
                   style={{ width:8, height:8, borderRadius:"50%", background:ac,
                     boxShadow:`0 0 8px ${ac}` }}/>
-                <div style={{ fontSize:9, fontWeight:800, letterSpacing:".16em", color:ac }}>
+                <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac }}>
                   YOUR PROTOCOL
                 </div>
               </div>
               <motion.div animate={{ opacity:[0.4,0.8,0.4] }} transition={{ duration:2.2, repeat:Infinity }}>
-                <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em" }}>SCANNING...</div>
+                <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>SCANNING...</div>
               </motion.div>
             </div>
 
@@ -9573,7 +9573,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                     borderRadius:14, padding:"12px 14px",
                     border:`1px solid ${T.border}`,
                   }}>
-                  <div style={{ fontSize:8, fontWeight:700, letterSpacing:".1em", color:T.faint, marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, letterSpacing:".03em", color:T.faint, marginBottom:6 }}>
                     {m.label}
                   </div>
                   <div style={{
@@ -9595,7 +9595,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                     borderRadius:3, boxShadow:`0 0 10px ${ac}` }}/>
               </div>
               <motion.div animate={{ opacity:[0.7,1,0.7] }} transition={{ duration:1.2, repeat:Infinity }}>
-                <div style={{ fontSize:9, fontWeight:700, color:ac, letterSpacing:".08em" }}>BUILDING...</div>
+                <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".02em" }}>BUILDING...</div>
               </motion.div>
             </div>
           </div>
@@ -9886,7 +9886,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
                     : T.glass,
                   backdropFilter:isMobile?"none":"blur(20px)",
                   border: `1.5px solid ${isActive ? arch.glow+"88" : T.border}`,
-                  borderRadius:20, padding:"16px 18px",
+                  borderRadius:16, padding:"16px 18px",
                   cursor:"pointer", textAlign:"left",
                   boxShadow: isActive ? `0 6px 32px ${arch.glow}28` : "none",
                   transition:"all .2s ease",
@@ -9899,7 +9899,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
                 {/* Center: text */}
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:3 }}>
-                    <div style={{ fontSize:15, fontWeight:800, color:T.text, letterSpacing:"-.01em" }}>{arch.name}</div>
+                    <div style={{ fontSize:15, fontWeight:600, color:T.text, letterSpacing:"-.01em" }}>{arch.name}</div>
                     <Pill label={arch.word} color={arch.glow} theme={theme}/>
                   </div>
                   <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", lineHeight:1.4 }}>{arch.sub}</div>
@@ -10066,9 +10066,9 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
                 backdropFilter:isMobile?"none":"blur(8px)",
                 border:`1px solid ${sel===m.id ? ac : T.border}`,
                 borderRadius:10, cursor:"pointer",
-                fontSize:10, fontWeight:800,
+                fontSize:11.5, fontWeight:600,
                 color: sel===m.id ? (theme==="dark"?"#000":"#fff") : T.muted,
-                letterSpacing:".06em",
+                letterSpacing:".01em",
                 boxShadow: sel===m.id ? `0 0 16px ${ac}55` : "none",
               }}>
               {m.label.split(" ")[0].toUpperCase()}
@@ -10086,11 +10086,11 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
               color:T.text, lineHeight:1,
               textShadow: theme==="dark" ? `0 0 50px ${ac}44` : "none",
             }}>{val}</div>
-            <div style={{ fontSize:16, fontWeight:600, color:T.faint, letterSpacing:".14em", marginTop:-6 }}>
+            <div style={{ fontSize:16, fontWeight:600, color:T.faint, letterSpacing:".04em", marginTop:-6 }}>
               {metric.unit.toUpperCase()}
             </div>
             {metric.note && (
-              <div style={{ fontSize:10, color:T.faint, marginTop:8, fontStyle:"italic", maxWidth:260, textAlign:"center", lineHeight:1.4 }}>
+              <div style={{ fontSize:11.5, color:T.faint, marginTop:8, fontStyle:"italic", maxWidth:260, textAlign:"center", lineHeight:1.4 }}>
                 {metric.note}
               </div>
             )}
@@ -10116,8 +10116,8 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
               onChange={e => setVals(p => ({ ...p, [sel]:Number(e.target.value) }))}
               style={{ width:"100%", marginTop:-22, position:"relative", zIndex:2, height:28, background:"transparent" }}/>
             <div style={{ display:"flex", justifyContent:"space-between", marginTop:-4 }}>
-              <span style={{ fontSize:10, color:T.faint }}>{metric.min}{metric.unit}</span>
-              <span style={{ fontSize:10, color:T.faint }}>{metric.max}{metric.unit}</span>
+              <span style={{ fontSize:11.5, color:T.faint }}>{metric.min}{metric.unit}</span>
+              <span style={{ fontSize:11.5, color:T.faint }}>{metric.max}{metric.unit}</span>
             </div>
           </div>
         </div>
@@ -10370,7 +10370,7 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
               </div>
               <div style={{ flex:1 }}>
                 <div style={{
-                  fontSize:17, fontWeight:800,
+                  fontSize:17, fontWeight:600,
                   color: isSelected ? (theme==="dark" ? "#000" : "#fff") : T.text,
                   letterSpacing:"-.01em",
                 }}>{opt.label}</div>
@@ -10541,8 +10541,8 @@ function DigitalKey({ color="#D4AF37", theme }) {
         initial={{ opacity:0, y:6 }}
         animate={{ opacity:unlocked?1:0, y:unlocked?0:6 }}
         transition={{ delay:.7, duration:.5 }}
-        style={{ position:"absolute", bottom:0, fontSize:9, fontWeight:800,
-          letterSpacing:".18em", color }}>
+        style={{ position:"absolute", bottom:0, fontSize:11, fontWeight:600,
+          letterSpacing:".04em", color }}>
         BIO-VAULT OPEN
       </motion.div>
     </div>
@@ -10651,7 +10651,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
           <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
             style={{ marginTop:24, textAlign:"center", display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
             <AITyping theme={theme}/>
-            <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".16em", animation:"os_pulse 1s ease-in-out infinite" }}>
+            <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".04em", animation:"os_pulse 1s ease-in-out infinite" }}>
               SETTING UP YOUR ACCOUNT
             </div>
           </motion.div>
@@ -10676,7 +10676,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             <GlassCard theme={theme}
               style={{ padding:"14px 16px", marginBottom:10,
                 border:`1px solid ${ac}44`, boxShadow:`0 0 16px ${ac}18` }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                 YOUR NAME <span style={{ color:T.red }}>*</span>
               </div>
               <input value={name} onChange={e => setName(e.target.value)}
@@ -10689,7 +10689,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             <GlassCard theme={theme}
               style={{ padding:"14px 16px", marginBottom:10,
                 border:`1px solid ${ac}22` }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                 EMAIL <span style={{ color:T.red }}>*</span>
               </div>
               <input value={email} onChange={e => { setEmail(e.target.value); setPwErr(""); }}
@@ -10702,7 +10702,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             <GlassCard theme={theme}
               style={{ padding:"14px 16px", marginBottom:14,
                 border:`1px solid ${ac}22` }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                 PASSWORD <span style={{ color:T.red }}>*</span>
                 <span style={{ color:T.faint, fontWeight:500, marginLeft:6 }}>min 8 chars</span>
               </div>
@@ -10715,7 +10715,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                   style={{
                     background:"transparent", border:`1px solid ${T.border}`,
                     borderRadius:8, padding:"3px 8px", cursor:"pointer",
-                    fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".08em", flexShrink:0,
+                    fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".02em", flexShrink:0,
                   }}>
                   {showPw ? "HIDE" : "SHOW"}
                 </button>
@@ -10734,12 +10734,12 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             <div style={{ marginBottom:14 }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
                 <div style={{ flex:1, height:1, background:T.border }}/>
-                <span style={{ fontSize:9, color:T.faint, letterSpacing:".12em" }}>OPTIONAL · GYM MEMBER?</span>
+                <span style={{ fontSize:11, color:T.faint, letterSpacing:".03em" }}>OPTIONAL · GYM MEMBER?</span>
                 <div style={{ flex:1, height:1, background:T.border }}/>
               </div>
               <GlassCard theme={theme} style={{ padding:"14px 16px",
                 border:`1px solid ${gymInfo ? T.green+"66" : ac+"11"}` }}>
-                <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
+                <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                   GYM CODE
                   <span style={{ fontWeight:500, color:T.faint, marginLeft:6 }}>— enter if your gym is on RVN</span>
                 </div>
@@ -10748,13 +10748,13 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                     onChange={e => { setGymCode(e.target.value.toUpperCase()); setGymInfo(null); setGymErr(""); }}
                     onBlur={() => checkGymCode(gymCode)}
                     placeholder="e.g. IRONHAUS"
-                    style={{ flex:1, fontSize:17, fontWeight:700, letterSpacing:".08em" }}/>
-                  {gymChecking && <span style={{ fontSize:10, color:T.faint, letterSpacing:".1em" }}>CHECKING…</span>}
-                  {gymInfo && <span style={{ fontSize:10, fontWeight:800, color:T.green, letterSpacing:".1em" }}>✓ VERIFIED</span>}
+                    style={{ flex:1, fontSize:17, fontWeight:700, letterSpacing:".02em" }}/>
+                  {gymChecking && <span style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em" }}>CHECKING…</span>}
+                  {gymInfo && <span style={{ fontSize:11.5, fontWeight:600, color:T.green, letterSpacing:".03em" }}>✓ VERIFIED</span>}
                 </div>
-                {gymErr && <div style={{ fontSize:10, color:T.red, marginTop:4 }}>{gymErr}</div>}
+                {gymErr && <div style={{ fontSize:11.5, color:T.red, marginTop:4 }}>{gymErr}</div>}
                 {gymInfo && (
-                  <div style={{ fontSize:10, color:T.green, marginTop:4, letterSpacing:".06em" }}>
+                  <div style={{ fontSize:11.5, color:T.green, marginTop:4, letterSpacing:".01em" }}>
                     {gymInfo.name} · {(gymInfo.tier||"").toUpperCase()} · FREE ACCESS UNLOCKED
                   </div>
                 )}
@@ -10792,7 +10792,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
               <div style={{ display:"flex", alignItems:"center", gap:8, justifyContent:"center",
                 marginBottom:10 }}>
                 <div style={{ flex:1, height:"1px", background:T.border }}/>
-                <span style={{ fontSize:9, color:T.faint, letterSpacing:".12em" }}>OR</span>
+                <span style={{ fontSize:11, color:T.faint, letterSpacing:".03em" }}>OR</span>
                 <div style={{ flex:1, height:"1px", background:T.border }}/>
               </div>
               <motion.button whileHover={{ scale:1.02 }} whileTap={{ scale:.97 }}
@@ -10800,11 +10800,11 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                 style={{
                   background:"none", border:`1px solid ${T.border}`, borderRadius:14,
                   padding:"11px 24px", cursor:"pointer", width:"100%",
-                  fontSize:12, fontWeight:700, color:T.muted, letterSpacing:".06em",
+                  fontSize:12, fontWeight:700, color:T.muted, letterSpacing:".01em",
                 }}>
                 Create Your Account
               </motion.button>
-              <div style={{ fontSize:9.5, color:T.faint, marginTop:8, lineHeight:1.6 }}>
+              <div style={{ fontSize:11.5, color:T.faint, marginTop:8, lineHeight:1.6 }}>
                 Save your protocol. Track progress. Sync across devices.
               </div>
             </div>
@@ -10847,8 +10847,8 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                   <GlassCard key={f.label} theme={theme}
                     style={{ padding:"12px 16px", marginBottom:10,
                       border:`1px solid ${vaultEmail&&f.label==="EMAIL ADDRESS"?ac+"44":T.border}` }}>
-                    <div style={{ fontSize:8.5, fontWeight:800, color:T.faint,
-                      letterSpacing:".14em", marginBottom:5 }}>{f.label}</div>
+                    <div style={{ fontSize:11.5, fontWeight:600, color:T.faint,
+                      letterSpacing:".04em", marginBottom:5 }}>{f.label}</div>
                     <input value={f.val} onChange={e => f.set(e.target.value)}
                       placeholder={f.ph} type={f.type}
                       style={{ width:"100%", fontSize:16, fontWeight:600,
@@ -10865,7 +10865,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                     "\u25c9  Progress tracked over 6-month timeline",
                     "\u25c9  Early access to new RVN OS features",
                   ].map(line => (
-                    <div key={line} style={{ fontSize:10, color:T.muted,
+                    <div key={line} style={{ fontSize:11.5, color:T.muted,
                       marginBottom:5, lineHeight:1.5 }}>{line}</div>
                   ))}
                 </div>
@@ -10880,7 +10880,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                   disabled={!(vaultName&&vaultEmail&&vaultPass.length>=8)}/>
 
                 <div style={{ textAlign:"center", marginTop:10,
-                  fontSize:8.5, color:T.faint, lineHeight:1.6 }}>
+                  fontSize:11.5, color:T.faint, lineHeight:1.6 }}>
                   Your data never leaves this device without your consent.
                 </div>
               </>
@@ -10933,11 +10933,12 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
   const [statsVisible, setStatsVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  // Build personalized stats from bioData
-  const bw = bioData?.all?.bw || bioData?.bw || 175;
+  // Build personalized stats — read from saved profile so calorie target matches FUEL tab
+  const _savedMg = (() => { try { return JSON.parse(localStorage.getItem("rvn_profile")||"{}").macroGoals || {}; } catch { return {}; } })();
+  const bw = bioData?.all?.bw || bioData?.bw || (() => { try { const p=JSON.parse(localStorage.getItem("rvn_profile")||"{}"); return p.weight||175; } catch { return 175; } })();
   const bwKg = Math.round(bw * 0.453592);
-  const proteinTarget = Math.round(bwKg * 2.0);
-  const calorieTarget = Math.round(bwKg * 10 * 1.55 + 300); // approx muscle-build TDEE
+  const proteinTarget = _savedMg.protein || Math.round(bwKg * 2.0);
+  const calorieTarget = _savedMg.calories || Math.round((_savedMg.protein||proteinTarget)*4 + (_savedMg.carbs||265)*4 + (_savedMg.fats||68)*9);
   const frequency = biology?.frequency;
   const freqLabel = frequency === "high" ? "5–6×/week" : frequency === "med" ? "3–4×/week" : "1–2×/week";
 
@@ -10969,7 +10970,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
     { label:"DAILY PROTEIN",  value:`${proteinTarget}g`,   icon:"zap",      color:ac },
     { label:"CALORIE TARGET", value:`${calorieTarget}`,    icon:"flame",    color:"#FF9F0A" },
     { label:"TRAINING FREQ",  value:freqLabel,              icon:"dumbbell", color:"#30D158" },
-    { label:"BIO SCORE",      value:`${bioScore}`,          icon:"◈",  color:arch?.glow || ac },
+    { label:"PROFILE SCORE",   value:`${bioScore}`,          icon:"◈",  color:arch?.glow || ac },
   ];
 
   return (
@@ -11016,8 +11017,8 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
                 initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
                 transition={{ delay:.3 }}
                 style={{ textAlign:"center" }}>
-                <div style={{ fontSize:11, fontWeight:800, color:ac,
-                  letterSpacing:".18em", textTransform:"uppercase" }}>
+                <div style={{ fontSize:11, fontWeight:600, color:ac,
+                  letterSpacing:".04em", textTransform:"uppercase" }}>
                   Analyzing Your Profile
                 </div>
                 <div style={{ fontSize:12, color:T.muted, marginTop:6, lineHeight:1.5 }}>
@@ -11038,7 +11039,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
               <motion.button whileTap={{ scale:.96 }} onClick={onBack}
                 initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.2 }}
                 style={{ background:"none", border:"none", cursor:"pointer",
-                  fontSize:11, color:T.faint, padding:"0 0 16px", letterSpacing:".06em",
+                  fontSize:11, color:T.faint, padding:"0 0 16px", letterSpacing:".01em",
                   textAlign:"left" }}>
                 ← BACK
               </motion.button>
@@ -11053,8 +11054,8 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
                   background:`${ac}18`, border:`1px solid ${ac}44`,
                   borderRadius:100, padding:"5px 12px",
                 }}>
-                  <span style={{ fontSize:10 }}>🔓</span>
-                  <span style={{ fontSize:9.5, fontWeight:800, color:ac, letterSpacing:".12em" }}>
+                  <span style={{ fontSize:11.5 }}>🔓</span>
+                  <span style={{ fontSize:11.5, fontWeight:600, color:ac, letterSpacing:".03em" }}>
                     ATHLETE PROFILE UNLOCKED
                   </span>
                 </div>
@@ -11096,7 +11097,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
                 transition={{ delay:.55, duration:.5, ease:[.22,1,.36,1] }}
                 style={{ display:"flex", alignItems:"center", gap:20, marginBottom:20,
                   background:T.glass, border:`1.5px solid ${arch?.glow || ac}33`,
-                  borderRadius:20, padding:"16px 20px",
+                  borderRadius:16, padding:"16px 20px",
                   boxShadow: theme==="dark" ? `0 0 32px ${arch?.glow || ac}22` : "none",
                 }}>
                 {/* Ring */}
@@ -11117,13 +11118,13 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
                     <div style={{ fontSize:20, fontWeight:900, color:arch?.glow || ac, lineHeight:1 }}>
                       {scoreFill}
                     </div>
-                    <div style={{ fontSize:7.5, color:T.faint, letterSpacing:".08em" }}>BIO SCORE</div>
+                    <div style={{ fontSize:7.5, color:T.faint, letterSpacing:".02em" }}>BIO SCORE</div>
                   </div>
                 </div>
                 {/* Text */}
                 <div>
-                  <div style={{ fontSize:9.5, fontWeight:800, color:T.faint,
-                    letterSpacing:".12em", marginBottom:4 }}>BIOLOGICAL READINESS</div>
+                  <div style={{ fontSize:11.5, fontWeight:600, color:T.faint,
+                    letterSpacing:".03em", marginBottom:4 }}>BIOLOGICAL READINESS</div>
                   <div style={{ fontSize:16, fontWeight:900, color:T.text, lineHeight:1.2 }}>
                     {scoreFill >= 85 ? "Elite-tier" : scoreFill >= 70 ? "Advanced" : "Building phase"}
                   </div>
@@ -11156,7 +11157,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
                         <div style={{ fontSize:18, fontWeight:900, color:s.color, letterSpacing:"-.01em" }}>
                           {s.value}
                         </div>
-                        <div style={{ fontSize:8.5, color:T.faint, letterSpacing:".1em", marginTop:1, fontWeight:700 }}>
+                        <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginTop:1, fontWeight:700 }}>
                           {s.label}
                         </div>
                       </motion.div>
@@ -11226,7 +11227,7 @@ function RestTimer({ seconds, theme }) {
             style={{ transition:"stroke-dashoffset .9s linear" }}/>
         </svg>
         <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:10, fontWeight:800, color:active?T.green:T.blue }}>{remaining}</div>
+          fontSize:11.5, fontWeight:800, color:active?T.green:T.blue }}>{remaining}</div>
       </div>
       <motion.button whileTap={{ scale:.96 }}
         onClick={() => { if (active) { setActive(false); setRemaining(seconds); } else setActive(true); }}
@@ -11234,7 +11235,7 @@ function RestTimer({ seconds, theme }) {
           background: active ? `${T.red}22` : `${T.blue}22`,
           border:`1px solid ${active?T.red:T.blue}44`,
           borderRadius:8, padding:"4px 10px", cursor:"pointer",
-          fontSize:10, fontWeight:700, color:active?T.red:T.blue, letterSpacing:".06em",
+          fontSize:11.5, fontWeight:700, color:active?T.red:T.blue, letterSpacing:".01em",
         }}>
         {active ? "RESET" : "REST"}
       </motion.button>
@@ -11280,10 +11281,10 @@ function BioGraph({ moa, arch, theme }) {
   return (
     <div style={{ marginTop:14 }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-        <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".1em" }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em" }}>
           6-MONTH PROGRESS PROJECTION
         </div>
-        <div style={{ fontSize:9, color:T.faint }}>% of goal reached</div>
+        <div style={{ fontSize:11, color:T.faint }}>% of goal reached</div>
       </div>
       <div style={{ background:T.glass, borderRadius:12, padding:"12px 14px 8px", overflow:"hidden" }}>
         <svg width="100%" viewBox={"0 0 "+(W+34)+" "+(H+22)} style={{ display:"block", overflow:"visible" }}>
@@ -11333,13 +11334,13 @@ function BioGraph({ moa, arch, theme }) {
           borderTop:"1px solid "+T.border, alignItems:"center" }}>
           <div style={{ display:"flex", alignItems:"center", gap:5 }}>
             <svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke="#666" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.6"/></svg>
-            <div style={{ fontSize:9, color:T.faint }}>Natural Path</div>
+            <div style={{ fontSize:11, color:T.faint }}>Natural Path</div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:5 }}>
             <svg width="18" height="6"><line x1="0" y1="3" x2="18" y2="3" stroke={moa.color} strokeWidth="2.5"/></svg>
-            <div style={{ fontSize:9, color:moa.color, fontWeight:700 }}>RVN Protocol</div>
+            <div style={{ fontSize:11, color:moa.color, fontWeight:700 }}>RVN Protocol</div>
           </div>
-          <motion.div style={{ marginLeft:"auto", fontSize:9, fontWeight:900, color:moa.color }}
+          <motion.div style={{ marginLeft:"auto", fontSize:11, fontWeight:900, color:moa.color }}
             animate={{ opacity:[0.6,1,0.6] }} transition={{ duration:2, repeat:isMobile?0:Infinity }}>
             +55% ADVANTAGE
           </motion.div>
@@ -11348,7 +11349,7 @@ function BioGraph({ moa, arch, theme }) {
       <motion.div initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} transition={{ delay:1.8 }}
         style={{ marginTop:8, padding:"7px 11px",
           background:moa.color+"11", borderRadius:8,
-          fontSize:10, color:moa.color, fontWeight:700, letterSpacing:".03em" }}>
+          fontSize:11.5, color:moa.color, fontWeight:700, letterSpacing:".03em" }}>
         Without {moa.name}: 35% goal progress in 6 months — vs 90% with RVN (1.8× clinical absorption rate)
       </motion.div>
     </div>
@@ -11389,9 +11390,9 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
       <div style={{ borderBottom:"1px solid "+T.border, padding:"14px 18px 12px",
         display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div>
-          <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em" }}>AGILE PROTOCOL EDITOR</div>
+          <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em" }}>AGILE PROTOCOL EDITOR</div>
           <div style={{ fontSize:17, fontWeight:900, color:T.text, marginTop:1 }}>Customize Your Workout</div>
-          <div style={{ fontSize:10, color:arch.glow, marginTop:2 }}>← swipe left to remove  ·  tap + or - to adjust sets</div>
+          <div style={{ fontSize:11.5, color:arch.glow, marginTop:2 }}>← swipe left to remove  ·  tap + or - to adjust sets</div>
         </div>
         <motion.button whileTap={{ scale:.86 }} onClick={onClose}
           style={{ width:34, height:34, borderRadius:10, background:T.glass,
@@ -11424,7 +11425,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
                 <div style={{ fontSize:13, fontWeight:900, color:arch.glow, letterSpacing:".02em" }}>
                   Auto-Generate My Workout
                 </div>
-                <div style={{ fontSize:10, color:T.muted, marginTop:2, lineHeight:1.4 }}>
+                <div style={{ fontSize:11.5, color:T.muted, marginTop:2, lineHeight:1.4 }}>
                   Build from your {arch.label} protocol · {exercises.length} exercises
                 </div>
               </div>
@@ -11450,7 +11451,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
                   <div style={{ flex:1, minWidth:0 }}>
                     <div style={{ fontSize:12, fontWeight:800, color:T.text,
                       overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{ex.name}</div>
-                    <div style={{ fontSize:9, color:T.faint, marginTop:1, lineHeight:1.3 }}>{ex.cue}</div>
+                    <div style={{ fontSize:11, color:T.faint, marginTop:1, lineHeight:1.3 }}>{ex.cue}</div>
                   </div>
                   <div style={{ display:"flex", alignItems:"center", gap:5 }}>
                     <motion.button whileTap={{ scale:.78 }} onClick={() => adjustSets(ex._uid, -1)}
@@ -11505,7 +11506,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
                         cursor:"pointer" }}>
                       <div style={{ flex:1, minWidth:0 }}>
                         <div style={{ fontSize:12, fontWeight:700, color:T.text }}>{ex.name}</div>
-                        <div style={{ fontSize:9, color:T.faint, marginTop:1 }}>{ex.sets}</div>
+                        <div style={{ fontSize:11, color:T.faint, marginTop:1 }}>{ex.sets}</div>
                       </div>
                       <div style={{ fontSize:11, fontWeight:800, color:arch.glow, marginLeft:10 }}>+ ADD</div>
                     </motion.div>
@@ -11531,7 +11532,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
             <div style={{ fontSize:16, lineHeight:1, marginTop:1 }}>✦</div>
             <div>
               <div style={{ fontSize:11, fontWeight:800, color:arch.glow, marginBottom:3 }}>DON'T SEE WHAT YOU NEED?</div>
-              <div style={{ fontSize:10, color:T.muted, lineHeight:1.5 }}>
+              <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.5 }}>
                 Tell Kailu: <span style={{ color:arch.glow, fontWeight:700 }}>"Add [exercise] to my protocol"</span> and it will appear in your workout bank automatically.
               </div>
             </div>
@@ -11546,7 +11547,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
             background:"linear-gradient(90deg, "+arch.glow+"dd, "+arch.glow+")",
             border:"none", borderRadius:12, fontSize:14, fontWeight:900,
             color: theme==="dark" ? "#000" : "#fff",
-            cursor:"pointer", letterSpacing:".05em",
+            cursor:"pointer", letterSpacing:".01em",
             boxShadow:"0 4px 24px "+arch.glow+"55" }}>
           SAVE CUSTOM PROTOCOL  ✶
         </motion.button>
@@ -12122,9 +12123,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 style={{ background:"transparent", border:"none", color:T.text, fontSize:20, cursor:"pointer", lineHeight:1 }}>‹</button>
               <div style={{ flex:1 }}>
                 <div style={{ fontSize:14, fontWeight:900, color:T.text, letterSpacing:".04em" }}>PROGRESS</div>
-                <div style={{ fontSize:10, color:T.faint }}>Weekly visual check-in</div>
+                <div style={{ fontSize:11.5, color:T.faint }}>Weekly visual check-in</div>
               </div>
-              <div style={{ fontSize:10, fontWeight:700, color:"#BF5AF2" }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:"#BF5AF2" }}>
                 {ppPhotos.length > 0 ? `${ppPhotos.length} check-in${ppPhotos.length !== 1 ? "s" : ""}` : ""}
               </div>
             </div>
@@ -12136,7 +12137,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 padding:"16px 18px", borderRadius:16,
                 background:"#BF5AF215", border:"1px solid #BF5AF233",
               }}>
-                <div style={{ fontSize:11, fontWeight:900, color:"#BF5AF2", letterSpacing:".08em", marginBottom:8 }}>
+                <div style={{ fontSize:11, fontWeight:900, color:"#BF5AF2", letterSpacing:".02em", marginBottom:8 }}>
                   WHY ONCE A WEEK?
                 </div>
                 <div style={{ fontSize:13, fontWeight:700, color:T.text, lineHeight:1.55, marginBottom:8 }}>
@@ -12145,7 +12146,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>
                   Your body changes on a 7–14 day cycle. Checking daily creates noise — lighting, hydration, bloat, and pump all skew perception. Weekly photos taken under the same conditions give you the actual signal. Studies show people who track weekly stay consistent 3× longer than those who check daily.
                 </div>
-                <div style={{ marginTop:10, fontSize:10, color:"#BF5AF2", fontWeight:700, letterSpacing:".06em" }}>
+                <div style={{ marginTop:10, fontSize:11.5, color:"#BF5AF2", fontWeight:700, letterSpacing:".01em" }}>
                   ✦ SAME DAY · SAME LIGHTING · SAME TIME
                 </div>
               </div>
@@ -12178,7 +12179,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   }}>
                     <span style={{ fontSize:36 }}>📷</span>
                     {ppDaysSinceLast >= 999 ? "TAKE YOUR FIRST PHOTO" : `WEEK ${ppPhotos.length + 1} CHECK-IN`}
-                    <span style={{ fontSize:10, fontWeight:400, color:T.muted }}>Same pose, same lighting as last time</span>
+                    <span style={{ fontSize:11.5, fontWeight:400, color:T.muted }}>Same pose, same lighting as last time</span>
                     <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -12210,15 +12211,15 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               {/* Side-by-side comparison */}
               {ppPhotos.length >= 2 && (
                 <div>
-                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>TRANSFORMATION</div>
+                  <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>TRANSFORMATION</div>
                   <div style={{ display:"flex", gap:10 }}>
                     <div style={{ flex:1, textAlign:"center" }}>
                       <img src={ppPhotos[0].dataUrl} alt="before" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
-                      <div style={{ fontSize:9, color:T.faint, marginTop:4 }}>WEEK 1</div>
+                      <div style={{ fontSize:11, color:T.faint, marginTop:4 }}>WEEK 1</div>
                     </div>
                     <div style={{ flex:1, textAlign:"center" }}>
                       <img src={ppPhotos[ppPhotos.length-1].dataUrl} alt="latest" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
-                      <div style={{ fontSize:9, color:T.faint, marginTop:4 }}>WEEK {ppPhotos.length}</div>
+                      <div style={{ fontSize:11, color:T.faint, marginTop:4 }}>WEEK {ppPhotos.length}</div>
                     </div>
                   </div>
                   <div style={{ textAlign:"center", marginTop:12, padding:"10px", borderRadius:12, background:"#BF5AF210", border:"1px solid #BF5AF233" }}>
@@ -12232,12 +12233,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               {/* Full timeline */}
               {ppPhotos.length > 0 && (
                 <div>
-                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>ALL CHECK-INS</div>
+                  <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>ALL CHECK-INS</div>
                   <div style={{ display:"flex", flexWrap:"wrap", gap:8 }}>
                     {[...ppPhotos].reverse().map((p, i) => (
                       <div key={i} style={{ width:"calc(33% - 6px)", textAlign:"center" }}>
                         <img src={p.dataUrl} alt="" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:10 }}/>
-                        <div style={{ fontSize:8, color:T.faint, marginTop:3 }}>Wk {ppPhotos.length - i}</div>
+                        <div style={{ fontSize:11, color:T.faint, marginTop:3 }}>Wk {ppPhotos.length - i}</div>
                       </div>
                     ))}
                   </div>
@@ -12263,16 +12264,16 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 style={{
                   background:`${arch.glow}18`, border:`1px solid ${arch.glow}44`,
                   borderRadius:8, padding:"5px 11px", cursor:"pointer",
-                  fontSize:8.5, fontWeight:800, color:arch.glow, letterSpacing:".1em",
+                  fontSize:11.5, fontWeight:600, color:arch.glow, letterSpacing:".03em",
                 }}>
                 ◉ TODAY
               </motion.button>
             )}
             <div style={{ textAlign:"right" }}>
-              <div style={{ fontSize:11, fontWeight:800, color:T.text, letterSpacing:".04em" }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.text, letterSpacing:".04em" }}>
                 {user?.name ? `${user.name.split(" ")[0]}'s` : ""} {arch.name} Protocol
               </div>
-              <div style={{ fontSize:9, color:arch.glow, fontWeight:700, letterSpacing:".08em" }}>
+              <div style={{ fontSize:11, color:arch.glow, fontWeight:700, letterSpacing:".02em" }}>
                 GYM MODE · ACTIVE
               </div>
             </div>
@@ -12308,7 +12309,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 flex:1, padding:"12px 2px", minHeight:44, border:"none", cursor:"pointer",
                 background: activeGymTab === t.id ? arch.glow : "transparent",
                 color: activeGymTab === t.id ? "#fff" : T.muted,
-                fontSize:8, fontWeight:900, letterSpacing:".07em",
+                fontSize:11, fontWeight:900, letterSpacing:".02em",
                 display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:2,
               }}>
               <LI n={t.icon} size={13} color={activeGymTab === t.id ? "#fff" : undefined}/>
@@ -12322,18 +12323,18 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           <div style={{
             display:"flex", alignItems:"center", gap:6,
             background:`${arch.glow}12`, border:`1px solid ${arch.glow}30`,
-            borderRadius:20, padding:"5px 12px",
+            borderRadius:16, padding:"5px 12px",
           }}>
             <span style={{ fontSize:14 }}>🔥</span>
             <span style={{ fontSize:12, fontWeight:900, color:arch.glow }}>{streaks.session}</span>
-            <span style={{ fontSize:9, fontWeight:700, color:arch.glow, opacity:0.7, letterSpacing:".08em" }}>DAY STREAK</span>
+            <span style={{ fontSize:11, fontWeight:700, color:arch.glow, opacity:0.7, letterSpacing:".02em" }}>DAY STREAK</span>
           </div>
           {checkInDone && (
             <div style={{
               flex:1, padding:"6px 14px",
               background:`${arch.glow}15`, border:`1px solid ${arch.glow}30`,
-              borderRadius:20, fontSize:11, fontWeight:900,
-              color:arch.glow, letterSpacing:".08em", textAlign:"center",
+              borderRadius:16, fontSize:11, fontWeight:900,
+              color:arch.glow, letterSpacing:".02em", textAlign:"center",
             }}>
               ✓ NFC SESSION ACTIVE
             </div>
@@ -12346,7 +12347,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             <motion.div style={{ height:"100%", background:arch.glow, borderRadius:2 }}
               animate={{ width:`${progress}%` }} transition={{ duration:.3 }}/>
           </div>
-          <div style={{ fontSize:10, fontWeight:700, color:arch.glow, minWidth:36 }}>
+          <div style={{ fontSize:11.5, fontWeight:700, color:arch.glow, minWidth:36 }}>
             {Math.round(progress)}%
           </div>
         </div>
@@ -12360,7 +12361,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <BioRing score={calcBioScore(archetypeId, bioData, biology)} color={arch.glow} size={60} theme={theme}/>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".1em" }}>TARGET MUSCLES</div>
+                <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em" }}>TARGET MUSCLES</div>
                 <div style={{ fontSize:13, fontWeight:700, color:T.text, marginTop:2 }}>{arch.muscles.join(" · ")}</div>
                 <div style={{ fontSize:11, color:arch.glow, marginTop:2, fontWeight:600 }}>{arch.signature}</div>
               </div>
@@ -12384,7 +12385,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               }}>
                 <span style={{ fontSize:16, color:circWarn.color, lineHeight:1, marginTop:1 }}>{circWarn.icon}</span>
                 <div>
-                  <div style={{ fontSize:8.5, fontWeight:900, color:circWarn.color, letterSpacing:".12em", marginBottom:2 }}>
+                  <div style={{ fontSize:11.5, fontWeight:900, color:circWarn.color, letterSpacing:".03em", marginBottom:2 }}>
                     {circWarn.title.toUpperCase()}
                   </div>
                   <div style={{ fontSize:10.5, color:T.muted, lineHeight:1.55 }}>{circWarn.msg}</div>
@@ -12441,7 +12442,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               }}>
                 <div style={{ fontSize:28 }}>📈</div>
                 <div style={{ flex:1 }}>
-                  <div style={{ fontSize:10, fontWeight:800, color:arch.glow, letterSpacing:".1em", marginBottom:4 }}>
+                  <div style={{ fontSize:11.5, fontWeight:600, color:arch.glow, letterSpacing:".03em", marginBottom:4 }}>
                     WEEKLY RECAP
                   </div>
                   <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:3 }}>
@@ -12472,7 +12473,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             display:"flex", alignItems:"center", gap:14,
           }}>
             <div style={{ flex:1 }}>
-              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:4 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:4 }}>
                 BODY WEIGHT
               </div>
               {todayBW ? (
@@ -12515,7 +12516,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 style={{
                   padding:"8px 14px", borderRadius:10,
                   background:`#30D15815`, border:`1px solid #30D15830`,
-                  color:"#30D158", fontSize:10, fontWeight:800, cursor:"pointer",
+                  color:"#30D158", fontSize:11.5, fontWeight:800, cursor:"pointer",
                 }}>
                 History →
               </motion.button>
@@ -12553,10 +12554,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             <motion.div {...FX.stagger(0, .12)} style={{ marginBottom:16 }}>
               <div style={{
                 background:`linear-gradient(135deg, ${arch.glow}20 0%, ${arch.glow}08 100%)`,
-                borderRadius:20, padding:"20px",
+                borderRadius:16, padding:"20px",
                 border:`1px solid ${arch.glow}50`,
               }}>
-                <div style={{ fontSize:10, fontWeight:800, color:arch.glow, letterSpacing:".12em", marginBottom:8 }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:arch.glow, letterSpacing:".03em", marginBottom:8 }}>
                   ◉ WELCOME TO YOUR PROTOCOL
                 </div>
                 <div style={{ fontSize:18, fontWeight:900, color:T.text, marginBottom:6, lineHeight:1.2 }}>
@@ -12574,13 +12575,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         {customExercises === null ? (
           /* No workout selected yet — show three setup options */
           <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} style={{ marginTop:14 }}>
-            <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", marginBottom:10 }}>
+            <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
               TODAY'S WORKOUT
             </div>
             {[
               {
                 icon:"zap", label:"Use My Protocol",
-                sub:`${arch.exercises.length} exercises from your ${arch.label} plan`,
+                sub:`${arch.exercises.length} exercises from your ${arch.name} plan`,
                 action: () => setCustomExercises(arch.exercises.map((e,i) => ({ ...e, _uid:`p_${i}` }))),
               },
               {
@@ -12623,20 +12624,20 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         ) : (
           <>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8, marginTop:14 }}>
-              <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em" }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em" }}>
                 STRENGTH PROTOCOL  ·  {exercises.length} EXERCISES
               </div>
               <div style={{ display:"flex", gap:6 }}>
                 <motion.button whileTap={{ scale:.86 }} onClick={() => setCustomExercises(null)}
-                  style={{ fontSize:9, fontWeight:800, color:T.muted,
+                  style={{ fontSize:11, fontWeight:600, color:T.muted,
                     background:T.glass, border:"1px solid "+T.border,
-                    borderRadius:7, padding:"5px 10px", cursor:"pointer", letterSpacing:".06em" }}>
+                    borderRadius:7, padding:"5px 10px", cursor:"pointer", letterSpacing:".01em" }}>
                   CHANGE
                 </motion.button>
                 <motion.button whileTap={{ scale:.86 }} onClick={() => setEditMode(true)}
-                  style={{ fontSize:9, fontWeight:800, color:arch.glow,
+                  style={{ fontSize:11, fontWeight:600, color:arch.glow,
                     background:arch.glow+"18", border:"1px solid "+arch.glow+"44",
-                    borderRadius:7, padding:"5px 11px", cursor:"pointer", letterSpacing:".07em" }}>
+                    borderRadius:7, padding:"5px 11px", cursor:"pointer", letterSpacing:".02em" }}>
                   CUSTOMIZE ✶
                 </motion.button>
               </div>
@@ -12667,14 +12668,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   }}>{exIdx+1}</div>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{ex.name}</div>
-                    <div style={{ fontSize:10, color:T.muted, marginTop:1 }}>{ex.cue}</div>
+                    <div style={{ fontSize:11.5, color:T.muted, marginTop:1 }}>{ex.cue}</div>
                   </div>
                   <div style={{ textAlign:"right", display:"flex", flexDirection:"column", alignItems:"flex-end", gap:4 }}>
                     <div style={{ fontSize:14, fontWeight:900, color:allDone ? T.green : arch.glow }}>{ex.sets}</div>
                     <a href={`https://www.youtube.com/results?search_query=${ex.ytq}`}
                       target="_blank" rel="noreferrer"
                       onClick={e => e.stopPropagation()}
-                      style={{ fontSize:9, color:T.faint, textDecoration:"none", letterSpacing:".06em" }}>
+                      style={{ fontSize:11, color:T.faint, textDecoration:"none", letterSpacing:".01em" }}>
                       ▶ DEMO
                     </a>
                   </div>
@@ -12687,7 +12688,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       exit={{ height:0, opacity:0 }} transition={{ duration:.25 }}
                       style={{ borderTop:`1px solid ${T.border}`, padding:"10px 14px 12px" }}>
                       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
-                        <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".1em" }}>SET TRACKER</div>
+                        <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em" }}>SET TRACKER</div>
                         <RestTimer seconds={ex.rest || 120} theme={theme}/>
                       </div>
                       <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
@@ -12727,12 +12728,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               border:`1.5px solid ${arch.glow}55`, borderRadius:16,
               cursor:"pointer", textAlign:"left",
               boxShadow:`0 4px 24px ${arch.glow}18` }}>
-            <div style={{ fontSize:8, fontWeight:900, color:arch.glow,
-              letterSpacing:".16em", marginBottom:5 }}>◉ SUPPLEMENT PROTOCOL</div>
+            <div style={{ fontSize:11, fontWeight:900, color:arch.glow,
+              letterSpacing:".04em", marginBottom:5 }}>◉ SUPPLEMENT PROTOCOL</div>
             <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:6 }}>
               See Your 12-Week Results
             </div>
-            <div style={{ fontSize:10, color:T.muted, marginBottom:10 }}>
+            <div style={{ fontSize:11.5, color:T.muted, marginBottom:10 }}>
               Compare your trajectory with vs without the RVN supplement stack —
               week-by-week divergence, milestone activations, and final outcome gap.
             </div>
@@ -12742,7 +12743,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 <div style={{ width:"28%", height:"100%", borderRadius:2,
                   background:T.muted, opacity:.6 }}/>
               </div>
-              <div style={{ fontSize:7.5, fontWeight:800, color:T.muted }}>WITHOUT</div>
+              <div style={{ fontSize:7.5, fontWeight:600, color:T.muted }}>WITHOUT</div>
               <div style={{ width:20 }}/>
               <div style={{ flex:1, height:3, borderRadius:2, overflow:"hidden",
                 background:T.border }}>
@@ -12752,8 +12753,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </div>
               <div style={{ fontSize:7.5, fontWeight:800, color:arch.glow }}>WITH RVN</div>
             </div>
-            <div style={{ marginTop:10, fontSize:9, fontWeight:800, color:arch.glow,
-              letterSpacing:".08em" }}>
+            <div style={{ marginTop:10, fontSize:11, fontWeight:600, color:arch.glow,
+              letterSpacing:".02em" }}>
               VIEW FULL ANALYSIS {"->"}
             </div>
           </motion.button>
@@ -12773,7 +12774,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         {logged && !saving && (
           <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
             style={{ textAlign:"center", fontSize:11, color:saveErr ? T.red : T.green,
-              fontWeight:700, marginBottom:8, letterSpacing:".06em" }}>
+              fontWeight:700, marginBottom:8, letterSpacing:".01em" }}>
             {saveErr ? `⚠ ${saveErr}` : "SESSION LOGGED  ·  BIO-REQUIREMENTS UNLOCKED"}
           </motion.div>
         )}
@@ -12788,8 +12789,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 display:"flex", alignItems:"center", gap:8,
                 background:`${arch.glow}14`, border:`1px solid ${arch.glow}44`,
                 borderRadius:14, padding:"10px 20px",
-                color:arch.glow, fontSize:12, fontWeight:800,
-                cursor:"pointer", letterSpacing:".06em",
+                color:arch.glow, fontSize:12, fontWeight:600,
+                cursor:"pointer", letterSpacing:".01em",
               }}>
               📲 Share Workout Story
             </motion.button>
@@ -12808,11 +12809,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               transition={{ delay:.6, type:"spring", stiffness:380, damping:34 }}
               style={{ marginBottom:20 }}>
               <div style={{
-                background:T.card, borderRadius:20, padding:"16px",
+                background:T.card, borderRadius:16, padding:"16px",
                 border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
               }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em" }}>
+                  <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em" }}>
                     POST-WORKOUT PROTOCOL
                   </div>
                   <motion.button whileTap={{ scale:.96 }} onClick={() => setSuppUpsellShown(true)}
@@ -12828,12 +12829,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     <div style={{ fontSize:22, width:32, textAlign:"center" }}>{s.emoji}</div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{s.name}</div>
-                      <div style={{ fontSize:10, color:T.muted }}>{s.timing}</div>
+                      <div style={{ fontSize:11.5, color:T.muted }}>{s.timing}</div>
                     </div>
                     <div style={{
-                      padding:"4px 10px", borderRadius:20,
+                      padding:"4px 10px", borderRadius:16,
                       background:`${s.color}18`, border:`1px solid ${s.color}40`,
-                      fontSize:9, fontWeight:800, color:s.color,
+                      fontSize:11, fontWeight:800, color:s.color,
                     }}>
                       {s.tag}
                     </div>
@@ -12844,8 +12845,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   style={{
                     width:"100%", marginTop:14, padding:"12px", borderRadius:13,
                     background:`${arch.glow}18`, border:`1px solid ${arch.glow}40`,
-                    color:arch.glow, fontSize:12, fontWeight:800, cursor:"pointer",
-                    letterSpacing:".06em",
+                    color:arch.glow, fontSize:12, fontWeight:600, cursor:"pointer",
+                    letterSpacing:".01em",
                   }}>
                   VIEW FULL SUPPLEMENT PROTOCOL →
                 </motion.button>
@@ -12869,9 +12870,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 const cite = calcLogicCitation(archetypeId, bioData);
                 return (
                   <div style={{ textAlign:"center", marginBottom:18 }}>
-                    <motion.div initial={{ letterSpacing:".5em", opacity:0 }} animate={{ letterSpacing:".18em", opacity:1 }}
+                    <motion.div initial={{ letterSpacing:".5em", opacity:0 }} animate={{ letterSpacing:".04em", opacity:1 }}
                       transition={{ duration:.8 }}
-                      style={{ fontSize:9.5, fontWeight:700, color:T.faint }}>
+                      style={{ fontSize:11.5, fontWeight:700, color:T.faint }}>
                       BIOLOGICAL SUPPORT PROTOCOL
                     </motion.div>
                     <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
@@ -12899,22 +12900,22 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         <div style={{ background:T.glass, border:"1px solid "+T.border,
                           borderRadius:10, padding:"10px 14px", textAlign:"center", minWidth:80 }}>
                           <div style={{ fontSize:22, fontWeight:900, color:arch.glow }}>{req.optimal}</div>
-                          <div style={{ fontSize:8.5, fontWeight:700, color:T.faint, letterSpacing:".08em" }}>g PROTEIN/DAY</div>
-                          <div style={{ fontSize:8, color:T.faint, marginTop:2 }}>OPTIMAL TARGET</div>
+                          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".02em" }}>g PROTEIN/DAY</div>
+                          <div style={{ fontSize:11, color:T.faint, marginTop:2 }}>OPTIMAL TARGET</div>
                         </div>
                         <div style={{ background:T.glass, border:"1px solid "+T.border,
                           borderRadius:10, padding:"10px 14px", textAlign:"center", minWidth:80 }}>
                           <div style={{ fontSize:22, fontWeight:900, color:T.blue }}>{bwKg}</div>
-                          <div style={{ fontSize:8.5, fontWeight:700, color:T.faint, letterSpacing:".08em" }}>KG BODY MASS</div>
-                          <div style={{ fontSize:8, color:T.faint, marginTop:2 }}>{req.mult}g × KG</div>
+                          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".02em" }}>KG BODY MASS</div>
+                          <div style={{ fontSize:11, color:T.faint, marginTop:2 }}>{req.mult}g × KG</div>
                         </div>
                         <div style={{ background:T.glass, border:"1px solid "+T.border,
                           borderRadius:10, padding:"10px 14px", textAlign:"center", minWidth:80 }}>
                           <div style={{ fontSize:22, fontWeight:900, color:T.green }}>
                             {calcBioScore(archetypeId, bioData, biology)}
                           </div>
-                          <div style={{ fontSize:8.5, fontWeight:700, color:T.faint, letterSpacing:".08em" }}>BIO-SCORE</div>
-                          <div style={{ fontSize:8, color:T.faint, marginTop:2 }}>CALCULATED</div>
+                          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".02em" }}>BIO-SCORE</div>
+                          <div style={{ fontSize:11, color:T.faint, marginTop:2 }}>CALCULATED</div>
                         </div>
                       </motion.div>
                     )}
@@ -12924,8 +12925,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         style={{ marginTop:12, padding:"10px 14px",
                           background:T.glass, borderRadius:10,
                           border:"1px solid "+T.border, textAlign:"left" }}>
-                        <div style={{ fontSize:8.5, fontWeight:800, color:arch.glow,
-                          letterSpacing:".1em", marginBottom:4 }}>LOGIC CITATION</div>
+                        <div style={{ fontSize:11.5, fontWeight:600, color:arch.glow,
+                          letterSpacing:".03em", marginBottom:4 }}>LOGIC CITATION</div>
                         <div style={{ fontSize:10.5, color:T.muted, lineHeight:1.6 }}>{cite}</div>
                       </motion.div>
                     )}
@@ -12962,7 +12963,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             {/* Account info */}
             <div style={{ padding:"12px 14px", borderRadius:12, background:T.glass,
               border:`1px solid ${T.border}`, marginBottom:12 }}>
-              <div style={{ fontSize:10, color:T.faint, letterSpacing:".06em", marginBottom:4 }}>SIGNED IN AS</div>
+              <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".01em", marginBottom:4 }}>SIGNED IN AS</div>
               <div style={{ fontSize:13, fontWeight:700, color:T.text }}>
                 {(() => { try { return JSON.parse(atob((supabase.auth.getSession && "") || ""))?.email; } catch { return "your account"; } })()}
               </div>
@@ -13002,7 +13003,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
                 border:`1px solid ${T.border}`, color:T.text, fontSize:13, fontWeight:700,
                 cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-              🚀 What's New &nbsp;<span style={{ fontSize:9, background:"#e85d04", color:"#fff", borderRadius:20, padding:"1px 7px", fontWeight:800 }}>v6.1</span>
+              🚀 What's New &nbsp;<span style={{ fontSize:11, background:"#e85d04", color:"#fff", borderRadius:16, padding:"1px 7px", fontWeight:800 }}>v6.1</span>
             </button>
 
             {/* Sign out */}
@@ -13049,9 +13050,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             <motion.div {...FX.page}>
               <RVNLearningSummary archetypeId={archetypeId} theme={theme}/>
               {/* Body weight card */}
-              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+              <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
-                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>BODY WEIGHT</div>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>BODY WEIGHT</div>
                 {todayWeight ? (
                   <div style={{ display:"flex", alignItems:"center", gap:16, marginBottom:10 }}>
                     <div>
@@ -13063,7 +13064,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     {w14.length >= 2 && (
                       <div style={{ flex:1 }}>
                         <Sparkline data={w14} color="#30D158" width={120} height={36} strokeWidth={2.5}/>
-                        <div style={{ fontSize:10, marginTop:4,
+                        <div style={{ fontSize:11.5, marginTop:4,
                           color: trend2 < -0.3 ? "#30D158" : trend2 > 0.3 ? "#FF6B35" : T.muted, fontWeight:700 }}>
                           {trend2 > 0 ? "+" : ""}{trend2.toFixed(1)}{weightUnit} / {recent14.length}d
                         </div>
@@ -13100,24 +13101,24 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     <div style={{ fontSize:12, color: closingIn ? "#30D158" : T.muted, fontWeight:700 }}>
                       {closingIn ? `🎯 ${distToGoal}${weightUnit} away from your goal — you're closing in!` : `${distToGoal}${weightUnit} from goal weight`}
                     </div>
-                    {closingIn && <div style={{ fontSize:10, color:T.muted, marginTop:3 }}>Stay consistent. You're trending in the right direction.</div>}
+                    {closingIn && <div style={{ fontSize:11.5, color:T.muted, marginTop:3 }}>Stay consistent. You're trending in the right direction.</div>}
                   </div>
                 )}
                 {/* Water weight note */}
-                <div style={{ fontSize:10, color:T.faint, marginTop:10, padding:"8px 12px",
+                <div style={{ fontSize:11.5, color:T.faint, marginTop:10, padding:"8px 12px",
                   borderRadius:10, background:T.glass, lineHeight:1.5 }}>
                   💧 Daily fluctuations of 1–4lbs are normal — mostly water, sodium, and digestion. Track weekly trends, not daily numbers.
                 </div>
                 <motion.button whileTap={{ scale:.97 }} onClick={() => onBodyWeight && onBodyWeight()}
                   style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
                     background:T.glass, border:`1px solid ${T.border}`,
-                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                    color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
                   View Full Log & Trend →
                 </motion.button>
               </div>
 
               {/* Streak heatmap */}
-              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+              <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
                 <StreakHeatmap theme={theme} accentColor={arch.glow}/>
               </div>
@@ -13128,10 +13129,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 const avgSleep = (sleepDays.reduce((a,b)=>a+b,0)/sleepDays.length).toFixed(1);
                 const sleepColor = avgSleep >= 7.5 ? "#30D158" : avgSleep >= 6.5 ? "#FF9F0A" : "#FF3B30";
                 return (
-                  <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                  <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                     border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
                     <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-                      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em" }}>SLEEP AVG</div>
+                      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em" }}>SLEEP AVG</div>
                       <div style={{ fontSize:22, fontWeight:900, color:sleepColor }}>{avgSleep}h</div>
                     </div>
                     <div style={{ display:"flex", gap:4 }}>
@@ -13140,7 +13141,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                           <div style={{ height: Math.round((h/10)*40), borderRadius:4,
                             background: h >= 7.5 ? "#30D158" : h >= 6 ? "#FF9F0A" : "#FF3B30",
                             minHeight:4, marginBottom:4 }}/>
-                          <div style={{ fontSize:9, color:T.faint, fontWeight:700 }}>
+                          <div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>
                             {["M","T","W","T","F","S","S"][i] || i}
                           </div>
                         </div>
@@ -13149,7 +13150,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     <motion.button whileTap={{ scale:.97 }} onClick={() => setSleepLogOpen(true)}
                       style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
                         background:T.glass, border:`1px solid ${T.border}`,
-                        color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                        color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
                       📝 Log Tonight's Sleep
                     </motion.button>
                   </div>
@@ -13160,9 +13161,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               {(() => {
                 const hd2 = profile.healthData || {};
                 return hd2.lastSync ? (
-                  <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+                  <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                     border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
-                    <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>HEALTH DATA</div>
+                    <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>HEALTH DATA</div>
                     <div style={{ display:"flex", justifyContent:"space-around" }}>
                       {[
                         { icon:"activity", label:"STEPS", val:hd2.steps?.toLocaleString()||"—", color:T.blue   },
@@ -13174,13 +13175,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                             <LI n={item.icon} size={20} color={item.color}/>
                           </div>
                           <div style={{ fontSize:16, fontWeight:900, color:item.color }}>{item.val}</div>
-                          <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>{item.label}</div>
+                          <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>{item.label}</div>
                         </div>
                       ))}
                     </div>
                   </div>
                 ) : (
-                  <div style={{ background:T.card, borderRadius:20, padding:"18px",
+                  <div style={{ background:T.card, borderRadius:16, padding:"18px",
                     border:`1px solid ${T.border}`, textAlign:"center" }}>
                     <div style={{ fontSize:24, marginBottom:8 }}>⌚</div>
                     <div style={{ fontSize:13, color:T.muted }}>Connect a wearable in Settings to see steps, HRV, and sleep data here.</div>
@@ -13189,7 +13190,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               })()}
 
               {/* ── CLAIM CHECKER ──────────────────────────────────────────── */}
-              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginTop:14,
+              <div style={{ background:T.card, borderRadius:16, padding:"18px", marginTop:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
                 <FitnessClaimChecker theme={theme} T={T} color={arch.glow}/>
               </div>
@@ -13233,15 +13234,15 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       } catch {}
                     }}
                     style={{ padding:"6px 14px", borderRadius:10, background:T.orange, color:theme==="dark"?"#000":"#fff",
-                      border:"none", fontSize:10, fontWeight:700, cursor:"pointer" }}>
+                      border:"none", fontSize:11.5, fontWeight:700, cursor:"pointer" }}>
                     APPLY
                   </motion.button>
                 </motion.div>
               )}
               {/* Macro rings */}
-              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+              <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
-                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:14 }}>
                   TODAY'S MACROS
                 </div>
                 {macros.map((m, i) => {
@@ -13249,7 +13250,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   return (
                     <div key={m.label} style={{ marginBottom:14 }}>
                       <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                        <span style={{ fontSize:11, fontWeight:800, color:T.muted, letterSpacing:".08em" }}>{m.label}</span>
+                        <span style={{ fontSize:11, fontWeight:600, color:T.muted, letterSpacing:".02em" }}>{m.label}</span>
                         <span style={{ fontSize:12, fontWeight:900, color:m.color }}>{m.current}{m.unit} <span style={{ color:T.faint, fontWeight:600 }}>/ {m.goal}{m.unit}</span></span>
                       </div>
                       <div style={{ height:8, borderRadius:4, background:T.glass, overflow:"hidden" }}>
@@ -13266,14 +13267,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingMacros(e=>!e)}
                   style={{ width:"100%", marginTop:4, padding:"10px", borderRadius:12,
                     background:T.glass, border:`1px solid ${T.border}`,
-                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                    color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
                   ✏️ Edit Goals & Today's Log
                 </motion.button>
               </div>
 
               {/* Meal plan link */}
               <motion.button whileTap={{ scale:.97 }} onClick={() => onMealPlan && onMealPlan()}
-                style={{ width:"100%", marginBottom:14, padding:"16px 18px", borderRadius:20,
+                style={{ width:"100%", marginBottom:14, padding:"16px 18px", borderRadius:16,
                   background:`linear-gradient(135deg, #BF5AF218, #BF5AF208)`,
                   border:`1px solid #BF5AF240`, cursor:"pointer",
                   display:"flex", alignItems:"center", gap:14 }}>
@@ -13292,9 +13293,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               <FuelRestaurantMode theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI} profile={profile}/>
 
               {/* Custom meals quick-log */}
-              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+              <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadowSm }}>
-                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                   SAVED MEALS
                 </div>
                 {customMeals.length === 0 ? (
@@ -13306,7 +13307,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     padding:"10px 0", borderBottom: i < Math.min(customMeals.length,4)-1 ? `1px solid ${T.border}` : "none" }}>
                     <div>
                       <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{meal.emoji} {meal.name}</div>
-                      <div style={{ fontSize:10, color:T.muted }}>{meal.p}g P · {meal.c}g C · {meal.f}g F · <span style={{ color:"#FF6B6B" }}>{meal.cal || Math.round((meal.p||0)*4+(meal.c||0)*4+(meal.f||0)*9)} kcal</span></div>
+                      <div style={{ fontSize:11.5, color:T.muted }}>{meal.p}g P · {meal.c}g C · {meal.f}g F · <span style={{ color:"#FF6B6B" }}>{meal.cal || Math.round((meal.p||0)*4+(meal.c||0)*4+(meal.f||0)*9)} kcal</span></div>
                     </div>
                     <motion.button whileTap={{ scale:.96 }} onClick={() => logCustomMeal(meal)}
                       style={{ padding:"7px 14px", borderRadius:10, background:`${arch.glow}18`,
@@ -13319,16 +13320,16 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setShowMealBuilder(true)}
                   style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
                     background:T.glass, border:`1px solid ${T.border}`,
-                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                    color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
                   + Add New Meal
                 </motion.button>
               </div>
 
               {/* Grocery list */}
               {groceryList && (
-                <div style={{ background:T.card, borderRadius:20, padding:"18px",
+                <div style={{ background:T.card, borderRadius:16, padding:"18px",
                   border:`1px solid ${T.border}` }}>
-                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+                  <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                     GROCERY LIST
                   </div>
                   {groceryList.map((item, i) => (
@@ -13365,7 +13366,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                         {/* Calories — read-only computed row */}
                         <div>
-                          <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:4 }}>CALORIES <span style={{ fontWeight:500 }}>(auto-calculated)</span></div>
+                          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:4 }}>CALORIES <span style={{ fontWeight:500 }}>(auto-calculated)</span></div>
                           <div style={{ display:"flex", gap:8 }}>
                             <div style={{ flex:1, padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`, background:T.glass, textAlign:"center", fontSize:14, fontWeight:700, color:"#FF6B6B" }}>
                               {Math.round(((draftMacros?.today?.protein||mt.protein||0)*4) + ((draftMacros?.today?.carbs||mt.carbs||0)*4) + ((draftMacros?.today?.fats||mt.fats||0)*9))} kcal
@@ -13377,16 +13378,16 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         </div>
                         {["protein","carbs","fats"].map(k => (
                           <div key={k}>
-                            <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:4 }}>{k.toUpperCase()}</div>
+                            <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:4 }}>{k.toUpperCase()}</div>
                             <div style={{ display:"flex", gap:8 }}>
                               <div style={{ flex:1 }}>
-                                <div style={{ fontSize:9, color:T.faint, marginBottom:2 }}>TODAY</div>
+                                <div style={{ fontSize:11, color:T.faint, marginBottom:2 }}>TODAY</div>
                                 <input type="number" value={draftMacros?.today[k]??mt[k]}
                                   onChange={e => setDraftMacros(d=>({...d, today:{...d.today,[k]:parseInt(e.target.value)||0}}))}
                                   style={{ width:"100%", padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:14, fontWeight:700, outline:"none", textAlign:"center" }}/>
                               </div>
                               <div style={{ flex:1 }}>
-                                <div style={{ fontSize:9, color:T.faint, marginBottom:2 }}>GOAL</div>
+                                <div style={{ fontSize:11, color:T.faint, marginBottom:2 }}>GOAL</div>
                                 <input type="number" value={draftMacros?.goals[k]??mg[k]}
                                   onChange={e => setDraftMacros(d=>({...d, goals:{...d.goals,[k]:parseInt(e.target.value)||0}}))}
                                   style={{ width:"100%", padding:"7px 10px", borderRadius:8, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:14, fontWeight:700, outline:"none", textAlign:"center" }}/>
@@ -13407,8 +13408,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                             return (
                               <div key={m.label}>
                                 <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
-                                  <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em" }}>{m.label}</div>
-                                  <div style={{ fontSize:10, fontWeight:800, color:m.color }}>
+                                  <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em" }}>{m.label}</div>
+                                  <div style={{ fontSize:11.5, fontWeight:800, color:m.color }}>
                                     {m.current}{m.unit} <span style={{ color:T.faint }}>/ {m.goal}{m.unit}</span>
                                   </div>
                                 </div>
@@ -13421,7 +13422,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         </div>
                         {/* Quick-add food chips */}
                         <div style={{ marginTop:12 }}>
-                          <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:8 }}>QUICK LOG</div>
+                          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:8 }}>QUICK LOG</div>
                           <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                             {[
                               { label:"🍗 Chicken",  p:30, c:0,  f:3,  cal:185 },
@@ -13441,7 +13442,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                   }});
                                 }}
                                 style={{
-                                  padding:"6px 10px", borderRadius:20,
+                                  padding:"6px 10px", borderRadius:16,
                                   border:`1px solid ${T.border}`, background:T.glass,
                                   color:T.text, fontSize:11, cursor:"pointer",
                                   whiteSpace:"nowrap",
@@ -13450,7 +13451,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                               </button>
                             ))}
                           </div>
-                          <div style={{ marginTop:8, fontSize:10, color:T.faint, fontStyle:"italic" }}>
+                          <div style={{ marginTop:8, fontSize:11.5, color:T.faint, fontStyle:"italic" }}>
                             Or tell Kailu: <span style={{ color:arch.glow }}>"I just ate a coconut Built bar"</span> — macros auto-log.
                           </div>
                           {/* Photo food logging — Premium */}
@@ -13506,9 +13507,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                   reader.readAsDataURL(file);
                                 }}
                               />
-                              {photoFoodLogging && <span style={{ fontSize:10, opacity:.7 }}>Analyzing…</span>}
+                              {photoFoodLogging && <span style={{ fontSize:11.5, opacity:.7 }}>Analyzing…</span>}
                             </label>
-                            <div style={{ fontSize:9, color:T.faint, textAlign:"center", marginTop:4 }}>
+                            <div style={{ fontSize:11, color:T.faint, textAlign:"center", marginTop:4 }}>
                               ✦ Premium — AI reads your plate and logs macros automatically
                             </div>
                           </div>
@@ -13517,11 +13518,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         {/* ── Custom Meal Library (Menu Fit) ─────────────── */}
                         <div style={{ marginTop:14 }}>
                           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
-                            <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".06em" }}>MY MEALS</div>
+                            <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em" }}>MY MEALS</div>
                             <motion.button whileTap={{ scale:.96 }}
                               onClick={() => { setMealDraft({ name:"", emoji:"🍽", p:"", c:"", f:"" }); setShowMealBuilder(b=>!b); }}
-                              style={{ fontSize:9, fontWeight:800, color:arch.glow, background:arch.glow+"18",
-                                border:"none", borderRadius:8, padding:"4px 9px", cursor:"pointer", letterSpacing:".06em" }}>
+                              style={{ fontSize:11, fontWeight:600, color:arch.glow, background:arch.glow+"18",
+                                border:"none", borderRadius:8, padding:"4px 9px", cursor:"pointer", letterSpacing:".01em" }}>
                               {showMealBuilder ? "CANCEL" : "+ CREATE MEAL"}
                             </motion.button>
                           </div>
@@ -13532,7 +13533,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                 exit={{ height:0, opacity:0 }} transition={{ duration:.2 }}
                                 style={{ overflow:"hidden", marginBottom:10 }}>
                                 <GlassCard theme={theme} style={{ padding:"12px" }}>
-                                  <div style={{ fontSize:10, fontWeight:800, color:arch.glow, marginBottom:8, letterSpacing:".06em" }}>NEW CUSTOM MEAL</div>
+                                  <div style={{ fontSize:11.5, fontWeight:600, color:arch.glow, marginBottom:8, letterSpacing:".01em" }}>NEW CUSTOM MEAL</div>
                                   <div style={{ display:"flex", gap:6, marginBottom:8 }}>
                                     <input value={mealDraft.emoji}
                                       onChange={e => setMealDraft(d=>({...d, emoji:e.target.value}))}
@@ -13551,7 +13552,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                       { key:"f", label:"FATS (g)",    color:"#FF9F0A" },
                                     ].map(({ key, label, color }) => (
                                       <div key={key}>
-                                        <div style={{ fontSize:8, fontWeight:700, color:T.faint, marginBottom:3, letterSpacing:".06em" }}>{label}</div>
+                                        <div style={{ fontSize:11, fontWeight:700, color:T.faint, marginBottom:3, letterSpacing:".01em" }}>{label}</div>
                                         <input type="number" placeholder="0"
                                           value={mealDraft[key]}
                                           onChange={e => setMealDraft(d=>({...d, [key]:e.target.value}))}
@@ -13577,7 +13578,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                     }}
                                     style={{ width:"100%", padding:"9px", background:`linear-gradient(90deg,${arch.glow}cc,${arch.glow})`,
                                       border:"none", borderRadius:10, fontSize:12, fontWeight:900,
-                                      color:"#000", cursor:"pointer", letterSpacing:".06em" }}>
+                                      color:"#000", cursor:"pointer", letterSpacing:".01em" }}>
                                     SAVE TO MY MEALS
                                   </motion.button>
                                 </GlassCard>
@@ -13594,7 +13595,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                   <div style={{ fontSize:18 }}>{meal.emoji}</div>
                                   <div style={{ flex:1, minWidth:0 }}>
                                     <div style={{ fontSize:11, fontWeight:700, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{meal.name}</div>
-                                    <div style={{ fontSize:9, color:T.faint, marginTop:1 }}>
+                                    <div style={{ fontSize:11, color:T.faint, marginTop:1 }}>
                                       {meal.p}g P · {meal.c}g C · {meal.f}g F
                                     </div>
                                   </div>
@@ -13602,27 +13603,27 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                     onClick={() => logCustomMeal(meal)}
                                     style={{ padding:"5px 10px", borderRadius:8, background:arch.glow+"22",
                                       border:`1px solid ${arch.glow}55`, color:arch.glow,
-                                      fontSize:10, fontWeight:800, cursor:"pointer" }}>
+                                      fontSize:11.5, fontWeight:800, cursor:"pointer" }}>
                                     LOG
                                   </motion.button>
                                   <motion.button whileTap={{ scale:.95 }}
                                     onClick={() => saveCustomMeals(customMeals.filter(m => m.id !== meal.id))}
                                     style={{ padding:"5px 8px", borderRadius:8, background:T.red+"18",
                                       border:`1px solid ${T.red}44`, color:T.red,
-                                      fontSize:10, cursor:"pointer" }}>
+                                      fontSize:11.5, cursor:"pointer" }}>
                                     ✕
                                   </motion.button>
                                 </div>
                               ))}
                             </div>
                           ) : (
-                            <div style={{ fontSize:10, color:T.faint, fontStyle:"italic", textAlign:"center", padding:"8px 0" }}>
+                            <div style={{ fontSize:11.5, color:T.faint, fontStyle:"italic", textAlign:"center", padding:"8px 0" }}>
                               No saved meals yet — create your first lean option above
                             </div>
                           )}
                         </div>
 
-                        <div style={{ marginTop:10, fontSize:10, color:T.faint, fontStyle:"italic" }}>
+                        <div style={{ marginTop:10, fontSize:11.5, color:T.faint, fontStyle:"italic" }}>
                           ◈ Hit protein goal to maximize {arch.name.toLowerCase()} gains today.
                         </div>
                       </>
@@ -13633,7 +13634,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             })()}
 
             {/* ── Top 2 Supplement Cards ──────────────────────────────────── */}
-            <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", marginBottom:10 }}>
+            <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
               RECOMMENDED SUPPLEMENTS
             </div>
             {SUPPLEMENT_MOA.slice(0, 2).map((moa, i) => (
@@ -13655,7 +13656,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     <div style={{ flex:1 }}>
                       <Pill label={moa.tag} color={moa.tagColor} theme={theme}/>
                       <div style={{ fontSize:14, fontWeight:800, color:T.text, marginTop:4 }}>{moa.headline}</div>
-                      <div style={{ fontSize:10, color:T.faint }}>{moa.brand}</div>
+                      <div style={{ fontSize:11.5, color:T.faint }}>{moa.brand}</div>
                       {moa.hook && (
                         <div style={{
                           fontSize:11.5, color:moa.color, marginTop:6, lineHeight:1.5,
@@ -13697,7 +13698,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
             {/* Product cards */}
             <div style={{ marginTop:18 }}>
-              <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
                 AVAILABLE AT THIS LOCATION
               </div>
               {products.map((prod, i) => (
@@ -13743,7 +13744,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                           border:"none", borderRadius:10,
                           fontSize:13, fontWeight:900,
                           color:theme==="dark"?"#000":"#fff",
-                          cursor:"pointer", letterSpacing:".06em",
+                          cursor:"pointer", letterSpacing:".01em",
                           boxShadow:`0 4px 24px ${arch.glow}55`,
                         }}>
                         SECURE AT COUNTER  →
@@ -13780,9 +13781,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           return (
             <motion.div {...FX.page}>
               {/* PR summary */}
-              <div style={{ background:T.card, borderRadius:20, padding:"18px", marginBottom:14,
+              <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
-                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>PERSONAL RECORDS</div>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:14 }}>PERSONAL RECORDS</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
                   {[
                     { lift:"Bench",    val:prs2.bench,    color:"#FF6B35" },
@@ -13795,7 +13796,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       <div style={{ fontSize:22, fontWeight:900, color:pr.color }}>
                         {pr.val || "—"}{pr.val ? "lb" : ""}
                       </div>
-                      <div style={{ fontSize:9, color:T.faint, fontWeight:800, letterSpacing:".08em", marginTop:3 }}>
+                      <div style={{ fontSize:11, color:T.faint, fontWeight:600, letterSpacing:".02em", marginTop:3 }}>
                         {pr.lift.toUpperCase()}
                       </div>
                     </div>
@@ -13804,7 +13805,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingPRs(true)}
                   style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
                     background:T.glass, border:`1px solid ${T.border}`,
-                    color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                    color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
                   ✏️ Update PRs
                 </motion.button>
               </div>
@@ -13826,15 +13827,15 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       <LI n={item.icon} size={22} color={item.color}/>
                     </div>
                     <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{item.label}</div>
-                    <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>{item.sub}</div>
+                    <div style={{ fontSize:11.5, color:T.muted, marginTop:2 }}>{item.sub}</div>
                   </motion.button>
                 ))}
               </div>
 
               {/* Progress photos */}
-              <div style={{ background:T.card, borderRadius:20, padding:"18px",
+              <div style={{ background:T.card, borderRadius:16, padding:"18px",
                 border:`1px solid ${T.border}` }}>
-                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                   PROGRESS PHOTOS
                 </div>
                 {ppPhotos2.length === 0 ? (
@@ -13854,18 +13855,18 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       <div style={{ display:"flex", gap:10, marginBottom:14 }}>
                         <div style={{ flex:1 }}>
                           <img src={ppPhotos2[0].dataUrl} alt="before" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
-                          <div style={{ fontSize:9, color:T.faint, textAlign:"center", marginTop:4 }}>WEEK 1</div>
+                          <div style={{ fontSize:11, color:T.faint, textAlign:"center", marginTop:4 }}>WEEK 1</div>
                         </div>
                         <div style={{ flex:1 }}>
                           <img src={ppPhotos2[ppPhotos2.length-1].dataUrl} alt="latest" style={{ width:"100%", aspectRatio:"3/4", objectFit:"cover", borderRadius:12 }}/>
-                          <div style={{ fontSize:9, color:T.faint, textAlign:"center", marginTop:4 }}>LATEST</div>
+                          <div style={{ fontSize:11, color:T.faint, textAlign:"center", marginTop:4 }}>LATEST</div>
                         </div>
                       </div>
                     )}
                     <motion.button whileTap={{ scale:.97 }} onClick={() => setProgressPhotoTab("open")}
                       style={{ width:"100%", padding:"10px", borderRadius:12,
                         background:T.glass, border:`1px solid ${T.border}`,
-                        color:T.muted, fontSize:11, fontWeight:800, cursor:"pointer" }}>
+                        color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
                       + Add Photo Check-In
                     </motion.button>
                   </div>
@@ -13956,8 +13957,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         <Pill label="PROGRESS PHOTOS" color="#BF5AF2" theme={theme}/>
                         <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                           {locked
-                            ? <span style={{ fontSize:10, color:T.faint, fontWeight:700 }}>🔒 {daysUntilUnlock}d</span>
-                            : <span style={{ fontSize:10, color:"#BF5AF2", fontWeight:700 }}>
+                            ? <span style={{ fontSize:11.5, color:T.faint, fontWeight:700 }}>🔒 {daysUntilUnlock}d</span>
+                            : <span style={{ fontSize:11.5, color:"#BF5AF2", fontWeight:700 }}>
                                 {daysSinceLast >= 999 ? "First photo ✦" : `Week ${photos.length + 1} ready`}
                               </span>
                           }
@@ -13968,7 +13969,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         {photos.length === 0 ? (
                           <div style={{ flex:1, height:60, borderRadius:10, background:"#BF5AF210", border:"1px dashed #BF5AF244",
                             display:"flex", alignItems:"center", justifyContent:"center",
-                            fontSize:10, color:"#BF5AF2", fontWeight:700 }}>
+                            fontSize:11.5, color:"#BF5AF2", fontWeight:700 }}>
                             📷 Start your timeline
                           </div>
                         ) : (
@@ -13978,7 +13979,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         )}
                       </div>
                       {photos.length >= 2 && (
-                        <div style={{ marginTop:8, fontSize:10, color:"#BF5AF2", fontWeight:700, textAlign:"center" }}>
+                        <div style={{ marginTop:8, fontSize:11.5, color:"#BF5AF2", fontWeight:700, textAlign:"center" }}>
                           {photos.length} check-ins · {Math.floor((new Date(photos[photos.length-1].date) - new Date(photos[0].date)) / 86400000)} days
                         </div>
                       )}
@@ -14035,7 +14036,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </div>
             </div>
             <div style={{ flex:1 }}>
-              <div style={{ fontSize:11, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:2 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:2 }}>
                 REST TIMER
               </div>
               <div style={{ fontSize:16, fontWeight:900, color:T.text }}>
@@ -14050,7 +14051,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     background: restTarget === s ? arch.glow : T.glass,
                     border: `1px solid ${restTarget === s ? arch.glow : T.border}`,
                     color: restTarget === s ? "#fff" : T.muted,
-                    fontSize:9, fontWeight:800, cursor:"pointer", whiteSpace:"nowrap",
+                    fontSize:11, fontWeight:800, cursor:"pointer", whiteSpace:"nowrap",
                   }}>
                   {s < 60 ? `${s}s` : `${s/60}m`}
                 </motion.button>
@@ -14097,14 +14098,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 </div>
                 <div>
                   <div style={{ fontSize:15, fontWeight:900, color:T.text }}>Import from Instagram</div>
-                  <div style={{ fontSize:10, color:T.muted }}>Paste a workout post or Reel link</div>
+                  <div style={{ fontSize:11.5, color:T.muted }}>Paste a workout post or Reel link</div>
                 </div>
               </div>
 
               <AnimatePresence mode="wait">
                 {igStep === "paste" ? (
                   <motion.div key="paste" initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}>
-                    <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
+                    <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:8 }}>
                       INSTAGRAM LINK
                     </div>
                     <input
@@ -14133,7 +14134,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     )}
                     <div style={{ marginTop:14, padding:"12px 14px", borderRadius:12,
                       background:T.glass, border:`1px solid ${T.border}` }}>
-                      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:4 }}>
+                      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".02em", marginBottom:4 }}>
                         HOW IT WORKS
                       </div>
                       <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>
@@ -14293,7 +14294,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   { label:"lbs",  val:qlWeight, set:setQlWeight, ph:"135" },
                 ].map(({ label, val, set, ph }) => (
                   <div key={label} style={{ flex:1 }}>
-                    <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:5 }}>
+                    <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                       {label.toUpperCase()}
                     </div>
                     <input type="number" value={val} onChange={e => set(e.target.value)}
@@ -14309,7 +14310,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </div>
 
               {/* Rest timer presets */}
-              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:8 }}>
                 START REST AFTER LOGGING
               </div>
               <div style={{ display:"flex", gap:8, marginBottom:16 }}>
@@ -14321,7 +14322,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       background: restTarget === s ? arch.glow : T.glass,
                       border: `1px solid ${restTarget === s ? arch.glow : T.border}`,
                       color: restTarget === s ? "#fff" : T.muted,
-                      fontSize:10, fontWeight:800, cursor:"pointer",
+                      fontSize:11.5, fontWeight:800, cursor:"pointer",
                     }}>
                     {s < 60 ? `${s}s` : `${s/60}m`}
                   </motion.button>
@@ -14377,7 +14378,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       background: (activeTemplate === tag || (tag==="All" && !activeTemplate)) ? arch.glow : T.glass,
                       border:`1px solid ${(activeTemplate === tag || (tag==="All" && !activeTemplate)) ? arch.glow : T.border}`,
                       color: (activeTemplate === tag || (tag==="All" && !activeTemplate)) ? "#fff" : T.muted,
-                      fontSize:10, fontWeight:800, cursor:"pointer",
+                      fontSize:11.5, fontWeight:800, cursor:"pointer",
                     }}>
                     {tag}
                   </motion.button>
@@ -14396,7 +14397,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         <div style={{ fontSize:22 }}>{tmpl.emoji}</div>
                         <div>
                           <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{tmpl.name}</div>
-                          <div style={{ fontSize:10, color:T.muted }}>
+                          <div style={{ fontSize:11.5, color:T.muted }}>
                             <span style={{
                               padding:"2px 7px", borderRadius:6,
                               background:`${tmpl.color}20`, color:tmpl.color,
@@ -14592,7 +14593,7 @@ function StoreBrandBottle({ color, theme }) {
           stroke={color} strokeWidth="1" strokeOpacity="0.6"/>
         {/* Brand name */}
         <text x="27" y="44" textAnchor="middle" fill={color}
-          fontSize="7" fontWeight="900" letterSpacing="2" opacity="0.95">RVN</text>
+          fontSize="7" fontWeight="900" letterSpacing="0.8" opacity="0.95">RVN</text>
         <text x="27" y="54" textAnchor="middle" fill={color}
           fontSize="5" fontWeight="700" letterSpacing="1.5" opacity="0.8">ELITE</text>
         {/* Rim light */}
@@ -14625,7 +14626,7 @@ function TruthEngine({ comparisons, theme }) {
   return (
     <div style={{ margin:"22px 0 12px" }}>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
-        <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em" }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em" }}>
           TRUTH COMPARISON ENGINE
         </div>
         <Pill label="EXCLUSIVE" color={T.gold} theme={theme}/>
@@ -14648,7 +14649,7 @@ function TruthEngine({ comparisons, theme }) {
               transition:"all .3s ease" }}>
             <div>
               <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{comp.name}</div>
-              <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>
+              <div style={{ fontSize:11.5, color:T.muted, marginTop:2 }}>
                 {comp.generic.brand} <span style={{ color:T.red, fontWeight:700 }}>vs</span> {comp.store.brand}
               </div>
             </div>
@@ -14658,10 +14659,10 @@ function TruthEngine({ comparisons, theme }) {
                   ? { scale:[1, 1.15, 1], background:[T.gold+"33", T.gold+"88", T.gold+"33"] }
                   : {}}
                 transition={{ duration:.5 }}
-                style={{ padding:"4px 10px", borderRadius:20,
+                style={{ padding:"4px 10px", borderRadius:16,
                   background: activeIdx===i ? T.gold+"22" : T.glass,
                   border:`1px solid ${T.gold}66`,
-                  fontSize:9, fontWeight:800, color:T.gold, letterSpacing:".1em" }}>
+                  fontSize:11, fontWeight:600, color:T.gold, letterSpacing:".03em" }}>
                 {activeIdx===i ? "CLOSE ✕" : "COMPARE"}
               </motion.div>
               <motion.span
@@ -14721,8 +14722,8 @@ function TruthEngine({ comparisons, theme }) {
                       borderRadius:12, padding:"12px 10px",
                       backdropFilter:isMobile?"none":"blur(12px)" }}>
                     {/* Red border glow */}
-                    <div style={{ fontSize:9, fontWeight:800, color:T.red,
-                      letterSpacing:".12em", marginBottom:8 }}>GENERIC</div>
+                    <div style={{ fontSize:11, fontWeight:600, color:T.red,
+                      letterSpacing:".03em", marginBottom:8 }}>GENERIC</div>
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
                       <GenericBottle theme={theme}/>
                     </div>
@@ -14732,14 +14733,14 @@ function TruthEngine({ comparisons, theme }) {
                     <div style={{ fontSize:11, fontWeight:700, color:T.text, marginBottom:2 }}>
                       {comp.generic.name}
                     </div>
-                    <div style={{ fontSize:9.5, color:T.muted, marginBottom:10, lineHeight:1.5 }}>
+                    <div style={{ fontSize:11.5, color:T.muted, marginBottom:10, lineHeight:1.5 }}>
                       {comp.generic.brand}
                     </div>
 
                     {/* Broken progress bar */}
                     <div style={{ marginBottom:6 }}>
                       <div style={{ display:"flex", justifyContent:"space-between",
-                        fontSize:8.5, color:T.faint, marginBottom:3, letterSpacing:".08em" }}>
+                        fontSize:11.5, color:T.faint, marginBottom:3, letterSpacing:".02em" }}>
                         <span>BIOAVAILABILITY</span>
                         <span style={{ color:T.red }}>{comp.generic.bioavail}%</span>
                       </div>
@@ -14761,7 +14762,7 @@ function TruthEngine({ comparisons, theme }) {
                     </div>
 
                     {/* Key stats */}
-                    <div style={{ fontSize:9, color:T.faint, lineHeight:1.7 }}>
+                    <div style={{ fontSize:11, color:T.faint, lineHeight:1.7 }}>
                       {Object.entries(comp.generic)
                         .filter(([k]) => !["name","brand","bioavail"].includes(k))
                         .slice(0,3)
@@ -14779,7 +14780,7 @@ function TruthEngine({ comparisons, theme }) {
                         {comp.generic.bioavail}%
                       </div>
                       <div style={{ fontSize:7.5, color:T.faint,
-                        letterSpacing:".1em", marginTop:1 }}>BIOAVAILABILITY</div>
+                        letterSpacing:".03em", marginTop:1 }}>BIOAVAILABILITY</div>
                     </div>
                   </motion.div>
 
@@ -14794,8 +14795,8 @@ function TruthEngine({ comparisons, theme }) {
                       borderRadius:12, padding:"12px 10px",
                       backdropFilter:isMobile?"none":"blur(12px)",
                       boxShadow:`0 0 20px ${T.gold}18` }}>
-                    <div style={{ fontSize:9, fontWeight:800, color:T.gold,
-                      letterSpacing:".12em", marginBottom:8 }}>STORE BRAND</div>
+                    <div style={{ fontSize:11, fontWeight:600, color:T.gold,
+                      letterSpacing:".03em", marginBottom:8 }}>STORE BRAND</div>
                     <div style={{ display:"flex", justifyContent:"center", marginBottom:10 }}>
                       <StoreBrandBottle color={T.gold} theme={theme}/>
                     </div>
@@ -14805,14 +14806,14 @@ function TruthEngine({ comparisons, theme }) {
                     <div style={{ fontSize:11, fontWeight:700, color:T.text, marginBottom:2 }}>
                       {comp.store.name}
                     </div>
-                    <div style={{ fontSize:9.5, color:T.muted, marginBottom:10, lineHeight:1.5 }}>
+                    <div style={{ fontSize:11.5, color:T.muted, marginBottom:10, lineHeight:1.5 }}>
                       {comp.store.brand}
                     </div>
 
                     {/* Smooth pulsing gold progress bar */}
                     <div style={{ marginBottom:6 }}>
                       <div style={{ display:"flex", justifyContent:"space-between",
-                        fontSize:8.5, color:T.faint, marginBottom:3, letterSpacing:".08em" }}>
+                        fontSize:11.5, color:T.faint, marginBottom:3, letterSpacing:".02em" }}>
                         <span>BIOAVAILABILITY</span>
                         <span style={{ color:T.gold }}>{comp.store.bioavail}%</span>
                       </div>
@@ -14831,7 +14832,7 @@ function TruthEngine({ comparisons, theme }) {
                     </div>
 
                     {/* Key stats */}
-                    <div style={{ fontSize:9, color:T.faint, lineHeight:1.7 }}>
+                    <div style={{ fontSize:11, color:T.faint, lineHeight:1.7 }}>
                       {Object.entries(comp.store)
                         .filter(([k]) => !["name","brand","bioavail"].includes(k))
                         .slice(0,3)
@@ -14849,7 +14850,7 @@ function TruthEngine({ comparisons, theme }) {
                         {comp.store.bioavail}%
                       </div>
                       <div style={{ fontSize:7.5, color:T.faint,
-                        letterSpacing:".1em", marginTop:1 }}>BIOAVAILABILITY</div>
+                        letterSpacing:".03em", marginTop:1 }}>BIOAVAILABILITY</div>
                     </div>
                   </motion.div>
                 </div>
@@ -14857,7 +14858,7 @@ function TruthEngine({ comparisons, theme }) {
                 {/* Purity gap bar */}
                 <div style={{ padding:"12px 14px 0" }}>
                   <div style={{ display:"flex", justifyContent:"space-between",
-                    fontSize:8.5, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>
+                    fontSize:11.5, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>
                     <span>PURITY GAP</span>
                     <span style={{ color:T.gold, fontWeight:700 }}>
                       +{comp.store.bioavail - comp.generic.bioavail}% ADVANTAGE
@@ -14892,8 +14893,8 @@ function TruthEngine({ comparisons, theme }) {
                   }}>
                     <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
                       <span style={{ fontSize:15 }}>⚠️</span>
-                      <span style={{ fontSize:9.5, fontWeight:900, color:T.red,
-                        letterSpacing:".12em" }}>VERDICT</span>
+                      <span style={{ fontSize:11.5, fontWeight:900, color:T.red,
+                        letterSpacing:".03em" }}>VERDICT</span>
                     </div>
                     <div style={{ fontSize:11, color:T.text, lineHeight:1.7 }}>
                       <span style={{ color:T.gold, fontWeight:700 }}>◈ </span>
@@ -15018,15 +15019,15 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
               left:"-30%", width:"60%", height:"200%",
               background:`linear-gradient(105deg, transparent 40%, ${arch.glow}10 50%, transparent 60%)`,
               pointerEvents:"none", transition:"top .1s linear" }}/>
-            <div style={{ fontSize:8.5, fontWeight:800, color:T.faint,
-              letterSpacing:".16em", marginBottom:6 }}>◉ BIO-ASSESSMENT</div>
+            <div style={{ fontSize:11.5, fontWeight:600, color:T.faint,
+              letterSpacing:".04em", marginBottom:6 }}>◉ BIO-ASSESSMENT</div>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <BioRing score={calcBioScore(archetypeId, bioData)}
                 color={arch.glow} size={72} theme={theme}/>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:15, fontWeight:900, color:T.text,
                   lineHeight:1.1, marginBottom:3 }}>{arch.name}</div>
-                <div style={{ fontSize:10, color:arch.glow, fontWeight:600,
+                <div style={{ fontSize:11.5, color:arch.glow, fontWeight:600,
                   lineHeight:1.4 }}>{arch.signature}</div>
               </div>
             </div>
@@ -15042,8 +15043,8 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
               alignItems:"center", justifyContent:"center",
               padding:"10px 4px", gap:4 }}>
             <BioAvatar id={arch.id} active={true} glow={arch.glow} size={60}/>
-            <div style={{ fontSize:7, fontWeight:800, color:arch.glow,
-              letterSpacing:".1em", textAlign:"center" }}>
+            <div style={{ fontSize:7, fontWeight:600, color:arch.glow,
+              letterSpacing:".03em", textAlign:"center" }}>
               {arch.word||"ELITE"}
             </div>
           </motion.div>
@@ -15067,7 +15068,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
               <div style={{ fontSize:stat.val.toString().length>5 ? 9 : 15,
                 fontWeight:900, color:T.text, lineHeight:1 }}>{stat.val}</div>
               <div style={{ fontSize:7, fontWeight:700, color:T.faint,
-                letterSpacing:".1em", marginTop:3 }}>{stat.label}</div>
+                letterSpacing:".03em", marginTop:3 }}>{stat.label}</div>
             </motion.div>
           ))}
         </div>
@@ -15083,16 +15084,16 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
             display:"flex", alignItems:"center", gap:10 }}>
           <div style={{ fontSize:22, color:arch.glow }}>{arch.icon||"◉"}</div>
           <div>
-            <div style={{ fontSize:8, fontWeight:800, color:T.faint,
-              letterSpacing:".14em", marginBottom:3 }}>ARCHETYPE SIGNATURE</div>
+            <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+              letterSpacing:".04em", marginBottom:3 }}>ARCHETYPE SIGNATURE</div>
             <div style={{ fontSize:12, color:T.text, fontStyle:"italic",
               lineHeight:1.6 }}>"{arch.signature}"</div>
           </div>
         </motion.div>
 
         {/* Row 4: Lifestyle protocol — 2-col bento grid */}
-        <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-          letterSpacing:".13em", marginBottom:8 }}>LIFESTYLE PROTOCOL</div>
+        <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+          letterSpacing:".04em", marginBottom:8 }}>LIFESTYLE PROTOCOL</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
           {(arch.lifestyle||[]).map((item, i) => (
             <motion.div key={i}
@@ -15111,7 +15112,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{item.name}</div>
-                  <div style={{ fontSize:10, color:T.faint, marginTop:1 }}>{item.cue}</div>
+                  <div style={{ fontSize:11.5, color:T.faint, marginTop:1 }}>{item.cue}</div>
                 </div>
                 <div style={{ fontSize:11, fontWeight:800, color:arch.glow }}>{item.dur}</div>
               </div>
@@ -15167,7 +15168,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
               transition={{ duration:.7, ease:[.22,1,.36,1] }}>
 
               <div style={{ textAlign:"center", margin:"20px 0 16px" }}>
-                <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".18em", marginBottom:6 }}>
+                <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>
                   YOUR BIOLOGICAL REQUIREMENTS
                 </div>
                 <div style={{ fontSize:22, fontWeight:900, color:T.text }}>
@@ -15178,28 +15179,28 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
 
               {/* Brand selector */}
               <div style={{ marginBottom:14 }}>
-                <div style={{ fontSize:9, fontWeight:700, color:T.faint,
-                  letterSpacing:".13em", marginBottom:8 }}>PREMIUM BRAND SELECTION</div>
+                <div style={{ fontSize:11, fontWeight:700, color:T.faint,
+                  letterSpacing:".04em", marginBottom:8 }}>PREMIUM BRAND SELECTION</div>
                 <div style={{ display:"flex", gap:7, overflowX:"auto", paddingBottom:4 }}>
                   <motion.button whileTap={{ scale:.96 }} onClick={() => setBrandFilter(null)}
-                    style={{ padding:"8px 12px", borderRadius:20, whiteSpace:"nowrap", flexShrink:0,
+                    style={{ padding:"8px 12px", borderRadius:16, whiteSpace:"nowrap", flexShrink:0,
                       background:brandFilter===null ? T.gold+"22" : T.glass,
                       border:`1.5px solid ${brandFilter===null ? T.gold : T.border}`,
-                      cursor:"pointer", fontSize:9, fontWeight:800,
-                      color:brandFilter===null ? T.gold : T.muted, letterSpacing:".08em" }}>
+                      cursor:"pointer", fontSize:11, fontWeight:600,
+                      color:brandFilter===null ? T.gold : T.muted, letterSpacing:".02em" }}>
                     ALL BRANDS
                   </motion.button>
                   {BRANDS.map(br => (
                     <motion.button key={br.id} whileTap={{ scale:.96 }}
                       onClick={() => setBrandFilter(brandFilter===br.id ? null : br.id)}
-                      style={{ padding:"7px 11px", borderRadius:20, whiteSpace:"nowrap", flexShrink:0,
+                      style={{ padding:"7px 11px", borderRadius:16, whiteSpace:"nowrap", flexShrink:0,
                         background:brandFilter===br.id ? `${br.color}22` : T.glass,
                         border:`1.5px solid ${brandFilter===br.id ? br.color : T.border}`,
                         cursor:"pointer", display:"flex", alignItems:"center", gap:6,
                         boxShadow:brandFilter===br.id ? `0 0 14px ${br.color}33` : "none" }}>
                       <BrandLogo brandId={br.id} size={18}/>
                       <div style={{ textAlign:"left" }}>
-                        <div style={{ fontSize:8.5, fontWeight:800,
+                        <div style={{ fontSize:11.5, fontWeight:800,
                           color:brandFilter===br.id ? br.color : T.text }}>{br.name}</div>
                         <div style={{ fontSize:7, color:T.faint }}>{br.badge}</div>
                       </div>
@@ -15216,10 +15217,10 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                       <BrandLogo brandId={br.id} size={28}/>
                       <div style={{ flex:1 }}>
                         <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:2 }}>
-                          <div style={{ fontSize:10, fontWeight:800, color:br.color }}>{br.tier}</div>
+                          <div style={{ fontSize:11.5, fontWeight:800, color:br.color }}>{br.tier}</div>
                           <BrandCertBadge cert={br.badge} color={br.color} theme={theme}/>
                         </div>
-                        <div style={{ fontSize:9, color:T.muted, marginBottom:4 }}>{br.tagline}</div>
+                        <div style={{ fontSize:11, color:T.muted, marginBottom:4 }}>{br.tagline}</div>
                         <div style={{ display:"flex", gap:4, flexWrap:"wrap" }}>
                           {br.certs.map(c => (
                             <BrandCertBadge key={c} cert={c} color={br.color} theme={theme}/>
@@ -15233,8 +15234,8 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
 
               {/* 4. MoA Science — bento 2-col grid, tap to expand full cinematic detail */}
               <div style={{ marginBottom:12 }}>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-                  letterSpacing:".14em", marginBottom:10 }}>◉ MECHANISM OF ACTION · WHY IT WORKS</div>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+                  letterSpacing:".04em", marginBottom:10 }}>◉ MECHANISM OF ACTION · WHY IT WORKS</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8 }}>
                   {SUPPLEMENT_MOA.filter(moa => !brandFilter || (moa.brand||"").toLowerCase().includes(brandFilter.replace("_"," "))).map((moa,i) => (
                     <motion.div key={moa.id}
@@ -15259,8 +15260,8 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                           <div style={{ fontSize:10.5, fontWeight:800, color:T.text,
                             lineHeight:1.3, marginBottom:4 }}>{moa.headline}</div>
                           <Pill label={moa.tag} color={moa.tagColor} theme={theme}/>
-                          <div style={{ fontSize:8.5, color:moa.color, marginTop:6,
-                            fontWeight:700, letterSpacing:".06em" }}>
+                          <div style={{ fontSize:11.5, color:moa.color, marginTop:6,
+                            fontWeight:700, letterSpacing:".01em" }}>
                             {expandMoa===moa.id?"↑ COLLAPSE":"↓ DEEP DIVE"}
                           </div>
                         </div>
@@ -15297,8 +15298,8 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
 
               {/* 5. PRODUCTS — price & CTA (last, after full value case is made) */}
               <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:18, marginBottom:12 }}>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-                  letterSpacing:".14em", marginBottom:4 }}>◈ YOUR PERSONALISED PROTOCOL</div>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+                  letterSpacing:".04em", marginBottom:4 }}>◈ YOUR PERSONALISED PROTOCOL</div>
                 <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:14 }}>
                   Exactly what your biology needs —{" "}
                   <span style={{ color:arch.glow }}>secured at the counter</span>
@@ -15323,7 +15324,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                           {prod.stock<=3 && <Pill label={`ONLY ${prod.stock} LEFT`} color={T.red} theme={theme}/>}
                         </div>
                         <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{prod.name}</div>
-                        <div style={{ fontSize:10, color:T.faint }}>{prod.brand}</div>
+                        <div style={{ fontSize:11.5, color:T.faint }}>{prod.brand}</div>
                       </div>
                       <div style={{ fontSize:22, fontWeight:900, color:T.text, marginLeft:14 }}>${prod.price}</div>
                     </div>
@@ -15346,13 +15347,13 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                             background:`linear-gradient(90deg,${arch.glow}dd,${arch.glow})`,
                             backgroundSize:"200% auto", animation:"os_shimmer 2.5s linear infinite",
                             border:"none", borderRadius:10, fontSize:13, fontWeight:900,
-                            color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".06em",
+                            color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".01em",
                             boxShadow:`0 4px 24px ${arch.glow}55`,
                             opacity: stripeLoading ? 0.7 : 1 }}>
                           {stripeLoading ? <CobaltSpinner size={16} color={theme==="dark"?"#000":"#fff"}/> : "SECURE AT COUNTER  →"}
                         </motion.button>
                         {stripeError && (
-                          <div style={{ fontSize:9.5, color:T.red, marginTop:6, textAlign:"center" }}>
+                          <div style={{ fontSize:11.5, color:T.red, marginTop:6, textAlign:"center" }}>
                             {stripeError}
                           </div>
                         )}
@@ -15418,7 +15419,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
         </motion.div>
 
         {/* State selector */}
-        <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", margin:"18px 0 10px" }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", margin:"18px 0 10px" }}>
           CURRENT BIOLOGICAL STATE
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:9 }}>
@@ -15436,7 +15437,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
               }}>
               <div style={{ fontSize:20, color:s.color, marginBottom:5 }}>{s.icon}</div>
               <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{s.label}</div>
-              <div style={{ fontSize:10, color:T.faint, marginTop:2, lineHeight:1.4 }}>{s.desc}</div>
+              <div style={{ fontSize:11.5, color:T.faint, marginTop:2, lineHeight:1.4 }}>{s.desc}</div>
             </motion.button>
           ))}
         </div>
@@ -15489,7 +15490,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
                         <div key={m.label} style={{ flex:1, textAlign:"center", padding:"6px 0",
                           background:T.glass, borderRadius:8, border:`1px solid ${T.border}` }}>
                           <div style={{ fontSize:13, fontWeight:900, color:m.color }}>{m.value}</div>
-                          <div style={{ fontSize:8, color:T.faint, fontWeight:700, letterSpacing:".06em" }}>{m.label}</div>
+                          <div style={{ fontSize:11, color:T.faint, fontWeight:700, letterSpacing:".01em" }}>{m.label}</div>
                         </div>
                       ))}
                     </div>
@@ -15502,7 +15503,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
               })()}
 
               {/* Add-ons */}
-              <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
                 BIOLOGICAL ADD-ONS
               </div>
 
@@ -15528,7 +15529,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
                       </div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{addon.name}</div>
-                        <div style={{ fontSize:10, color:T.faint, marginTop:1, lineHeight:1.4 }}>{addon.why}</div>
+                        <div style={{ fontSize:11.5, color:T.faint, marginTop:1, lineHeight:1.4 }}>{addon.why}</div>
                       </div>
                       <div style={{ fontSize:13, fontWeight:800, color:formula.color }}>${addon.price.toFixed(2)}</div>
                     </div>
@@ -15541,8 +15542,8 @@ function SmoothieProtocol({ user, onBack, theme }) {
                 <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
                   <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                     <div>
-                      <div style={{ fontSize:11, color:T.faint, letterSpacing:".06em" }}>FORMULA TOTAL</div>
-                      <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>
+                      <div style={{ fontSize:11, color:T.faint, letterSpacing:".01em" }}>FORMULA TOTAL</div>
+                      <div style={{ fontSize:11.5, color:T.muted, marginTop:2 }}>
                         Base $6.50 + {selectedAddons.length} add-on{selectedAddons.length!==1?"s":""}
                       </div>
                     </div>
@@ -16612,7 +16613,7 @@ function RVNVisionOverlay() {
                 ? "linear-gradient(180deg, rgba(18,22,30,.94), rgba(10,12,18,.94))"
                 : "linear-gradient(180deg, rgba(255,255,255,.94), rgba(245,247,252,.94))",
               border: `1px solid ${T.border}`,
-              borderRadius: 20,
+              borderRadius: 16,
               boxShadow: `0 32px 80px rgba(0,0,0,.45), 0 0 0 1px ${ac}22`,
               backdropFilter:isMobile?"none":"blur(24px)",
               display: "flex", flexDirection: "column",
@@ -16640,7 +16641,7 @@ function RVNVisionOverlay() {
                 <div style={{ fontSize: 12, fontWeight: 800, color: T.text, letterSpacing: "-.01em" }}>
                   {persona.title}
                 </div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: T.faint, letterSpacing: ".12em" }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: T.faint, letterSpacing: ".03em" }}>
                   READINESS {bioLogic.readiness} · {M ? M.label : "PERSONAL MODE"}
                 </div>
               </div>
@@ -16698,7 +16699,7 @@ function RVNVisionOverlay() {
                 ].map(a => (
                   <motion.button key={a.label} whileTap={{ scale:.95 }}
                     onClick={() => { setDraft(a.prompt); }}
-                    style={{ flexShrink:0, padding:"7px 13px", borderRadius:20, border:`1px solid ${T.border}`,
+                    style={{ flexShrink:0, padding:"7px 13px", borderRadius:16, border:`1px solid ${T.border}`,
                       background:T.glass, backdropFilter:isMobile?"none":"blur(8px)", cursor:"pointer",
                       display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }}>
                     <LI n={a.icon} size={13} color={T.muted}/>
@@ -16713,9 +16714,9 @@ function RVNVisionOverlay() {
               <div style={{
                 display:"flex", alignItems:"center", justifyContent:"space-between",
                 padding:"5px 14px 3px",
-                fontSize:10, color: tokenState.tokens <= 3 ? T.red : T.faint,
+                fontSize:11.5, color: tokenState.tokens <= 3 ? T.red : T.faint,
               }}>
-                <span style={{ fontWeight:700, letterSpacing:".07em" }}>
+                <span style={{ fontWeight:700, letterSpacing:".02em" }}>
                   {tokenState.tokens > 0
                     ? `◉ ${tokenState.tokens} message${tokenState.tokens !== 1 ? "s" : ""} remaining`
                     : `⊘ Refills in ${formatRefillTime(tokenState.msUntilRefill)}`}
@@ -16752,7 +16753,7 @@ function RVNVisionOverlay() {
                   border: `1px solid ${draft.trim() && (getProfileRaw().isPremium || tokenState.tokens > 0) ? ac : T.border}`,
                   borderRadius: 12, padding: "0 14px",
                   color: draft.trim() && (getProfileRaw().isPremium || tokenState.tokens > 0) ? "#fff" : T.faint,
-                  fontWeight: 800, fontSize: 12, letterSpacing: ".06em", cursor: "pointer",
+                  fontWeight: 800, fontSize: 12, letterSpacing: ".01em", cursor: "pointer",
                 }}>SEND</motion.button>
             </div>
 
@@ -16790,8 +16791,8 @@ function RVNVisionBubble({ m, ac, T, theme, onLock }) {
       }}>
         {!isUser && (
           <div style={{
-            fontSize: 8.5, fontWeight: 800, color: ac,
-            letterSpacing: ".14em", marginBottom: 3,
+            fontSize: 11.5, fontWeight: 800, color: ac,
+            letterSpacing: ".04em", marginBottom: 3,
             display: "flex", alignItems: "center", gap: 5,
           }}>
             <img src="data:image/png;base64,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IyBBDx8npRIBERABERABhyYgQXfo7rFv5VS6CIiACIhA1CEgQY86famWiIAIiIAIuDABCboLd759m67SRUAEREAEIpOABD0yaeteIiACIiACImAnAhJ0O4FVsfYloNJFQAREQAT+SUCC/k8eOhMBERABERABpyQgQXfKblOl7UtApYuACIiA8xGQoDtfn6nGIiACIiACIvAvAhL0fyFRhAjYl4BKFwEREAF7EJCg24OqyhQBERABERCBSCYgQY9k4LqdCNiXgEoXARFwVQISdFftebVbBERABEQgShGQoEep7lRjRMC+BFS6CIiA4xKQoDtu36hmIiACIiACIhBuAhL0cKNSQhEQAfsSUOkiIAKvQ0CC/jr0lFcEREAEREAEHISABN1BOkLVEAERsC8BlS4CUZ2ABD2q97DaJwIiIAIi4BIEJOgu0c1qpAiIgH0JqHQRePMEJOhvvg9UAxEQAREQARF4bQIS9NdGqAJEQAREwL4EVLoIhIeABD08lJRGBERABERABBycgATdwTtI1RMBERAB+xJQ6VGFgAQ9qvSk2iECIiACIuDSBCToLt39arwIiIAI2JeASo88AhL0yGOtO4mACIiACIiA3QhI0O2GVgWLgAiIgAjYl4BKtyUgQbeloWMREAEREAERcFICEnQn7ThVWwREQAREwL4EnK10Cbqz9ZjqKwIiIAIiIALPICBBfwYURYmACIiACIiAfQlEfOkS9IhnqhJFQAREQAREINIJSNAjHbluKAIiIAIiIAIRT8BW0CO+dJUoAiIgAiIgAiIQKQQk6JGCWTcRAREQAREQAfsSiDxBt287VLoIiIAIiIAIuDQBCbpLd78aLwIiIAIiEFUIRBVBjyr9oXaIgAiIgAiIwCsRkKC/EjZlEgEREAEREAHHIiBBD09/KI0IiIAIiIAIODgBCbqDd5CqJwIiIAIiIALhISBBDw8l+6ZR6SIgAiIgAiLw2gQk6K+NUAWIgAiIgAiIwJsnIEF/831g3xqodBEQAREQAZcgIEF3iW5WI0VABERABKI6AQl6VO9h+7ZPpYuACIiACDgIAQm6g3SEqiECIiACIiACr0NAgv469JTXvgRUugiIgAiIQLgJSNDDjUoJRUAEREAERMBxCUjQHbdvVDP7ElDpIiACIhClCEjQo1R3qjEiIAIiIAKuSkCC7qo9r3bbl4BKFwEREIFIJiBBj2Tgup0IiIAIiIAI2IOABN0eVFWmCNiXgEoXAREQgX8RkKD/C4kiREAEREAERMD5CEjQna/PVGMRsC8BlS4CIuCUBCToTtltqrQIiIAIiIAI/JOABP2fPHQmAiJgXwIqXQREwE4EJOh2AqtiRUAEREAERCAyCUjQI5O27iUCImBfAipdBFyYgATdhTtfTRcBERABEYg6BCToUacv1RIREAH7ElDpIuDQBCToDt09qpwIiIAIiIAIhI+ABD18nJRKBERABOxLQKWLwGsSkKC/JkBlFwEREAEREAFHICBBd4ReUB1EQAREwL4EVLoLEJCgu0Anq4kiIAIiIAJRn4AEPer3sVooAiIgAvYloNIdgoAE3SG6QZUQAREQAREQgdcjIEF/PX7KLQIiIAIiYF8CKj2cBCTo4QSlZCIgAiIgAiLgyAQk6I7cO6qbCIiACIiAfQlEodIl6FGoM9UUERABERAB1yUgQXfdvlfLRUAEREAE7EsgUkuXoEcqbt1MBERABERABOxDQIJuH64qVQREQAREQATsSyBM6RL0MEB0KgIiIAIiIALOSECC7oy9pjqLgAiIgAiIQBgCESzoYUrXqQiIgAiIgAiIQKQQkKBHCmbdRAREQAREQATsS8CpBN2+KFS6CIiACIiACDgvAQm68/adai4CIiACIiACoQQk6KEodCACIiACIiACzktAgu68faeai4AIiIAIiEAoAQl6KAr7Hqh0ERABERABEbAnAQm6PemqbBEQAREQARGIJAIS9EgCbd/bqHQREAEREAFXJyBBd/VXgNovAiIgAiIQJQhI0KNEN9q3ESpdBERABETA8QlI0B2/j1RDERABERABEfhPAhL0/0SkBPYloNJFQAREQAQigoAEPSIoqgwREAEREAEReMMEJOhvuAN0e/sSUOkiIAIi4CoEJOiu0tNqpwiIgAiIQJQmIEGP0t2rxtmXgEoXAREQAcchIEF3nL5QTURABERABETglQn8HwAAAP//B9EchgAAAAZJREFUAwBjQUwQr9LEGQAAAABJRU5ErkJggg==" alt="" style={{ width: 11, height: 11, objectFit: "contain" }}/>
@@ -16825,7 +16826,7 @@ function RVNVisionBubble({ m, ac, T, theme, onLock }) {
                 style={{
                   marginTop: 8, padding: "7px 12px", borderRadius: 8,
                   background: ac, color: "#000", border: "none",
-                  fontSize: 10.5, fontWeight: 900, letterSpacing: ".14em",
+                  fontSize: 10.5, fontWeight: 900, letterSpacing: ".04em",
                   textTransform: "uppercase", cursor: "pointer",
                 }}>
                 LOCK IT IN → DASHBOARD
@@ -16839,22 +16840,22 @@ function RVNVisionBubble({ m, ac, T, theme, onLock }) {
         {/* Grocery list card */}
         {m.appliedDelta?.kind === "groceryList" && m.appliedDelta.items?.length > 0 && (
           <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:8 }}>
-            <div style={{ fontSize:10, fontWeight:800, color:ac, letterSpacing:".1em", marginBottom:8 }}>🛒 WEEKLY GROCERY LIST</div>
+            <div style={{ fontSize:11.5, fontWeight:600, color:ac, letterSpacing:".03em", marginBottom:8 }}>🛒 WEEKLY GROCERY LIST</div>
             {m.appliedDelta.items.map((item, i) => (
               item === "" ? <div key={i} style={{ height:6 }}/> :
               item === item.toUpperCase() && !item.startsWith("✦") && !item.startsWith("◉") && !item.startsWith("◈") && !item.startsWith("●") && !item.startsWith("→")
-                ? <div key={i} style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".1em", marginTop:4 }}>{item}</div>
+                ? <div key={i} style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginTop:4 }}>{item}</div>
                 : <div key={i} style={{ fontSize:11.5, color:T.text, padding:"2px 0", lineHeight:1.5 }}>{item}</div>
             ))}
-            <div style={{ marginTop:8, fontSize:9.5, color:T.faint, fontStyle:"italic" }}>
+            <div style={{ marginTop:8, fontSize:11.5, color:T.faint, fontStyle:"italic" }}>
               Calibrated to your {JSON.parse(localStorage.getItem("rvn_profile")||"{}").macroGoals?.protein || 180}g protein target.
             </div>
           </div>
         )}
         {m.appliedDelta && m.appliedDelta.kind !== "schedulePending" && (
           <div style={{
-            marginTop: 6, fontSize: 10, color: T.faint,
-            letterSpacing: ".08em", textTransform: "uppercase",
+            marginTop: 6, fontSize: 11.5, color: T.faint,
+            letterSpacing: ".02em", textTransform: "uppercase",
           }}>
             → {deltaLabel(m.appliedDelta)}
           </div>
@@ -16875,21 +16876,21 @@ function WorkoutPlanCard({ plan, ac, T, theme }) {
     <div style={{ marginTop:10, background: theme==="dark"?"rgba(255,255,255,.03)":"rgba(0,0,0,.03)", border:`1px solid ${T.border}`, borderRadius:12, padding:12 }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
         <div>
-          <div style={{ fontSize:12, fontWeight:800, color:ac, letterSpacing:".1em" }}>{plan.name.toUpperCase()}</div>
-          <div style={{ fontSize:10, color:T.faint }}>{plan.duration} · Readiness {plan.readiness}%</div>
+          <div style={{ fontSize:12, fontWeight:600, color:ac, letterSpacing:".03em" }}>{plan.name.toUpperCase()}</div>
+          <div style={{ fontSize:11.5, color:T.faint }}>{plan.duration} · Readiness {plan.readiness}%</div>
         </div>
         <motion.button whileTap={{ scale:.97 }} onClick={handleAdd} disabled={added}
-          style={{ padding:"6px 12px", background:added?T.glass:ac, color:added?T.faint:"#000", border:`1px solid ${added?T.border:ac}`, borderRadius:8, fontSize:10, fontWeight:800, cursor:added?"default":"pointer" }}>
+          style={{ padding:"6px 12px", background:added?T.glass:ac, color:added?T.faint:"#000", border:`1px solid ${added?T.border:ac}`, borderRadius:8, fontSize:11.5, fontWeight:600, cursor:added?"default":"pointer" }}>
           {added ? "✓ ADDED" : "+ PROTOCOL"}
         </motion.button>
       </div>
       {plan.exercises.map((ex,i) => (
         <div key={i} style={{ display:"flex", gap:10, alignItems:"flex-start", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}`:"none" }}>
-          <div style={{ minWidth:18, fontSize:10, color:T.faint, paddingTop:1 }}>{i+1}</div>
+          <div style={{ minWidth:18, fontSize:11.5, color:T.faint, paddingTop:1 }}>{i+1}</div>
           <div style={{ flex:1 }}>
             <div style={{ fontSize:12, fontWeight:700, color:T.text }}>{ex.exercise}</div>
             <div style={{ fontSize:10.5, color:T.muted, marginTop:2 }}>{ex.sets} sets × {ex.reps} · Rest {ex.rest}</div>
-            {ex.notes && <div style={{ fontSize:10, color:T.faint, marginTop:1, fontStyle:"italic" }}>{ex.notes}</div>}
+            {ex.notes && <div style={{ fontSize:11.5, color:T.faint, marginTop:1, fontStyle:"italic" }}>{ex.notes}</div>}
           </div>
         </div>
       ))}
@@ -17470,12 +17471,12 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           <button onClick={onBack} style={{
             padding: "7px 14px", borderRadius: 10,
             border: `1px solid ${T.border}`, background: "transparent",
-            color: T.faint, fontSize: 10, letterSpacing: ".22em", fontWeight: 800,
+            color: T.faint, fontSize: 11.5, letterSpacing: ".22em", fontWeight: 600,
             cursor: "pointer", flexShrink: 0,
           }}>← EXIT</button>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div style={{ fontSize: 9, letterSpacing: ".2em", color: T.faint, fontWeight: 700 }}>
+            <div style={{ fontSize: 11, letterSpacing: ".2em", color: T.faint, fontWeight: 700 }}>
               {metrics.fps} FPS
             </div>
             <button
@@ -17498,7 +17499,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
             boxShadow: `0 0 8px ${status.startsWith("TELEMETRY") ? "#30D158" : ac}`,
           }}/>
           <div style={{
-            fontSize: 9, letterSpacing: ".24em", fontWeight: 800, color: ac,
+            fontSize: 11, letterSpacing: ".04em", fontWeight: 700, color: ac,
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "85vw",
           }}>
             GHOST BAR · {status.startsWith("DEMO") ? "DEMO MODE · POINT CAMERA TO START" : status}
@@ -17553,7 +17554,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
               style={{
                 padding:"14px 32px", borderRadius:14, background:ac,
                 border:"none", color:"#fff", fontSize:14, fontWeight:900,
-                letterSpacing:".06em", cursor:"pointer",
+                letterSpacing:".01em", cursor:"pointer",
                 boxShadow:`0 0 24px ${ac}66`,
               }}>
               ENABLE CAMERA
@@ -17564,7 +17565,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         {/* Velocity class — top-left corner */}
         <div style={{
           position: "absolute", top: 14, left: 16, zIndex: 4, pointerEvents: "none",
-          fontSize: 9, letterSpacing: ".22em", fontWeight: 800,
+          fontSize: 11, letterSpacing: ".04em", fontWeight: 700,
           background: "rgba(0,0,0,0.55)", backdropFilter:isMobile?"none":"blur(8px)",
           color: "rgba(255,255,255,0.75)", padding: "5px 10px", borderRadius: 8,
           border: "1px solid rgba(255,255,255,0.12)",
@@ -17577,8 +17578,8 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           {playbackUrl && (
             <button onClick={() => setShowPlayback(true)} style={{
               padding:"6px 12px", borderRadius:8, border:`1px solid rgba(255,255,255,0.25)`,
-              background:"rgba(0,0,0,0.6)", color:"#fff", fontSize:10, fontWeight:800,
-              cursor:"pointer", letterSpacing:".1em",
+              background:"rgba(0,0,0,0.6)", color:"#fff", fontSize:11.5, fontWeight:600,
+              cursor:"pointer", letterSpacing:".03em",
             }}>▶ PLAYBACK</button>
           )}
           <button
@@ -17606,8 +17607,8 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
               padding:"6px 14px", borderRadius:8,
               border:`1px solid ${isRecording ? "#FF453A" : "rgba(255,255,255,0.25)"}`,
               background: isRecording ? "rgba(255,69,58,0.25)" : "rgba(0,0,0,0.6)",
-              color: isRecording ? "#FF453A" : "#fff", fontSize:10, fontWeight:800,
-              cursor:"pointer", letterSpacing:".1em",
+              color: isRecording ? "#FF453A" : "#fff", fontSize:11.5, fontWeight:600,
+              cursor:"pointer", letterSpacing:".03em",
               boxShadow: isRecording ? "0 0 16px rgba(255,69,58,0.5)" : "none",
             }}>
             {isRecording ? "⏹ STOP" : "⏺ REC"}
@@ -17621,7 +17622,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
             background:"rgba(0,0,0,0.92)", backdropFilter:isMobile?"none":"blur(12px)",
             display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:16,
           }}>
-            <div style={{ fontSize:10, letterSpacing:".2em", color:"rgba(255,255,255,0.5)", fontWeight:800 }}>SET PLAYBACK</div>
+            <div style={{ fontSize:11.5, letterSpacing:".2em", color:"rgba(255,255,255,0.5)", fontWeight:800 }}>SET PLAYBACK</div>
             <video src={playbackUrl} controls playsInline loop
               style={{ width:"100%", maxHeight:"70vh", borderRadius:12, border:"1px solid rgba(255,255,255,0.15)" }}/>
             <div style={{ display:"flex", gap:12 }}>
@@ -17630,7 +17631,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
                 a.download = `ghostbar-set-${Date.now()}.webm`; a.click();
               }} style={{
                 padding:"10px 22px", borderRadius:10, background:ac, border:"none",
-                color:"#fff", fontSize:11, fontWeight:800, cursor:"pointer", letterSpacing:".08em",
+                color:"#fff", fontSize:11, fontWeight:600, cursor:"pointer", letterSpacing:".02em",
               }}>↓ SAVE</button>
               <button onClick={() => setShowPlayback(false)} style={{
                 padding:"10px 22px", borderRadius:10, background:"transparent",
@@ -17649,7 +17650,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
               position: "absolute", top: 14, right: 16, zIndex: 4,
               padding: "8px 12px", borderRadius: 10,
               border: "1px solid #FF453A", background: "rgba(255,69,58,0.18)",
-              color: "#FF453A", fontSize: 10, fontWeight: 900, letterSpacing: ".16em",
+              color: "#FF453A", fontSize: 11.5, fontWeight: 900, letterSpacing: ".04em",
               boxShadow: "0 0 20px #FF453A44",
             }}>
             ⚠ KNEE CAVE · {Math.round(metrics.kneeAngle)}°
@@ -17676,18 +17677,18 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
                 border: "1px solid rgba(255,255,255,0.15)",
                 backdropFilter:isMobile?"none":"blur(12px)",
               }}>
-                <div style={{ fontSize: 8, letterSpacing: ".18em", color: "rgba(255,255,255,0.5)", fontWeight: 800, marginBottom: 4 }}>{label}</div>
+                <div style={{ fontSize: 11, letterSpacing: ".04em", color: "rgba(255,255,255,0.5)", fontWeight: 800, marginBottom: 4 }}>{label}</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color, fontVariantNumeric: "tabular-nums", lineHeight: 1 }}>
                   {value}
                 </div>
-                {u ? <div style={{ fontSize: 9, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{u}</div> : null}
+                {u ? <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>{u}</div> : null}
               </div>
             ))}
           </div>
 
           {/* Bar path drift — thin line */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ fontSize: 8, letterSpacing: ".2em", color: "rgba(255,255,255,0.7)", fontWeight: 800, whiteSpace: "nowrap", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>BAR DRIFT</div>
+            <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,0.7)", fontWeight: 800, whiteSpace: "nowrap", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>BAR DRIFT</div>
             <div style={{ flex: 1, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
               <div style={{
                 height: "100%", borderRadius: 2,
@@ -17714,7 +17715,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
       }}>
         {/* Weight input row */}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <div style={{ fontSize: 9, letterSpacing: ".24em", color: T.faint, fontWeight: 800, whiteSpace: "nowrap" }}>LOAD</div>
+          <div style={{ fontSize: 11, letterSpacing: ".04em", color: T.faint, fontWeight: 600, whiteSpace: "nowrap" }}>LOAD</div>
           <input
             value={weightInput}
             onChange={(e) => setWeightInput(e.target.value.replace(/[^\d.]/g, ""))}
@@ -17731,7 +17732,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
             style={{
               padding: "10px 16px", borderRadius: 10,
               border: `1px solid ${T.border}`, background: "transparent",
-              color: T.text, fontSize: 11, fontWeight: 900, letterSpacing: ".18em", cursor: "pointer",
+              color: T.text, fontSize: 11, fontWeight: 900, letterSpacing: ".04em", cursor: "pointer",
             }}>{unit.toUpperCase()}</button>
         </div>
 
@@ -17745,7 +17746,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           T={T}
         />
 
-        <div style={{ fontSize: 9, color: T.ghost, letterSpacing: ".14em", textAlign: "center", marginTop: -4 }}>
+        <div style={{ fontSize: 11, color: T.ghost, letterSpacing: ".04em", textAlign: "center", marginTop: -4 }}>
           RVN · GHOST BAR v1.0 · {massKg.toFixed(1)} kg
         </div>
       </div>
@@ -17757,12 +17758,12 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
 function Stat({ label, value, unit, accent, T }) {
   return (
     <div>
-      <div style={{ fontSize: 9, letterSpacing: ".22em", color: T.faint, fontWeight: 800 }}>{label}</div>
+      <div style={{ fontSize: 11, letterSpacing: ".04em", color: T.faint, fontWeight: 600 }}>{label}</div>
       <div style={{
         fontSize: 34, fontWeight: 800, color: accent, letterSpacing: "-0.02em", lineHeight: 1.05,
         fontVariantNumeric: "tabular-nums", marginTop: 2,
       }}>
-        {value}<span style={{ fontSize: 12, color: T.faint, marginLeft: 6, fontWeight: 700, letterSpacing: ".08em" }}>{unit}</span>
+        {value}<span style={{ fontSize: 12, color: T.faint, marginLeft: 6, fontWeight: 700, letterSpacing: ".02em" }}>{unit}</span>
       </div>
     </div>
   );
@@ -17778,9 +17779,9 @@ function Gauge({ label, value, unit, min, max, warnAbove, alarmAbove, warnBelow,
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <span style={{ fontSize: 9, letterSpacing: ".22em", color: T.faint, fontWeight: 800 }}>{label}</span>
+        <span style={{ fontSize: 11, letterSpacing: ".04em", color: T.faint, fontWeight: 600 }}>{label}</span>
         <span style={{ fontSize: 13, fontWeight: 800, color, fontVariantNumeric: "tabular-nums" }}>
-          {value}<span style={{ fontSize: 10, color: T.faint, marginLeft: 4 }}>{unit}</span>
+          {value}<span style={{ fontSize: 11.5, color: T.faint, marginLeft: 4 }}>{unit}</span>
         </span>
       </div>
       <div style={{ marginTop: 6, height: 4, background: T.border, borderRadius: 2, overflow: "hidden" }}>
@@ -17884,7 +17885,7 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
         {/* Saved profiles */}
         {profiles.length > 0 && (
           <motion.div {...FX.up} style={{ width:"100%", maxWidth:360, marginBottom:16 }}>
-            <div style={{ fontSize:9.5, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:8, paddingLeft:4 }}>
+            <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:8, paddingLeft:4 }}>
               SAVED PROFILES · THIS DEVICE
             </div>
             <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -17910,10 +17911,10 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
                       }}>{(label[0] || "A").toUpperCase()}</div>
                       <div>
                         <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{label}</div>
-                        <div style={{ fontSize:10, color:T.muted, letterSpacing:".06em", marginTop:2 }}>{sub}</div>
+                        <div style={{ fontSize:11.5, color:T.muted, letterSpacing:".01em", marginTop:2 }}>{sub}</div>
                       </div>
                     </div>
-                    <div style={{ fontSize:10, fontWeight:800, color:ac, letterSpacing:".14em" }}>SIGN IN →</div>
+                    <div style={{ fontSize:11.5, fontWeight:600, color:ac, letterSpacing:".04em" }}>SIGN IN →</div>
                   </motion.button>
                 );
               })}
@@ -17924,7 +17925,7 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
         {/* Manual lookup */}
         <motion.div {...FX.up} style={{ width:"100%", maxWidth:360 }}>
           <GlassCard theme={theme} style={{ padding:"14px 16px", border:`1px solid ${ac}22` }}>
-            <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
+            <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
               EMAIL OR VAULT ALIAS
             </div>
             <input value={query}
@@ -17950,15 +17951,15 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
 
           {/* First-time link */}
           <div style={{ textAlign:"center", marginTop:16 }}>
-            <div style={{ fontSize:10, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>
+            <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>
               FIRST TIME ON RVN?
             </div>
             <motion.button whileTap={{ scale:.96 }}
               onClick={onNewUser}
               style={{
                 background:"transparent", border:`1px solid ${T.border}`,
-                borderRadius:20, padding:"8px 16px", cursor:"pointer",
-                fontSize:11, fontWeight:800, color:T.text, letterSpacing:".1em",
+                borderRadius:16, padding:"8px 16px", cursor:"pointer",
+                fontSize:11, fontWeight:600, color:T.text, letterSpacing:".03em",
               }}>
               CREATE MY VAULT →
             </motion.button>
@@ -18154,7 +18155,7 @@ function TGSegmented({ value, onChange, options, theme, accent }) {
               padding:"6px 12px", borderRadius:8,
               background: active ? accent : "transparent",
               border:"none", cursor:"pointer",
-              fontSize:10, fontWeight:800, letterSpacing:".1em",
+              fontSize:11.5, fontWeight:600, letterSpacing:".03em",
               color: active ? (theme==="dark" ? "#000" : "#fff") : T.muted,
               transition:"background .2s, color .2s",
             }}>
@@ -18189,7 +18190,7 @@ function TGHeatBar({ value, max, theme }) {
       </div>
       <div style={{
         display:"flex", justifyContent:"space-between",
-        fontSize:8.5, fontWeight:800, letterSpacing:".12em",
+        fontSize:11.5, fontWeight:600, letterSpacing:".03em",
         color: T.faint, marginTop:5,
       }}>
         <span>HEAT</span>
@@ -18268,20 +18269,20 @@ function TGGymHeatMap({ data, theme, accent }) {
                 {isTop && (
                   <div style={{
                     position:"absolute", top:4, right:4,
-                    fontSize:8, fontWeight:900, color,
+                    fontSize:11, fontWeight:900, color,
                     background:`${T.bg}ee`, padding:"2px 5px", borderRadius:4,
-                    letterSpacing:".1em",
+                    letterSpacing:".03em",
                   }}>#{rank}</div>
                 )}
                 <div style={{
-                  fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".1em",
+                  fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em",
                 }}>{s.zone}</div>
                 <div>
-                  <div style={{ fontSize:9.5, fontWeight:800, color:T.text, lineHeight:1.1 }}>
+                  <div style={{ fontSize:11.5, fontWeight:800, color:T.text, lineHeight:1.1 }}>
                     {s.label}
                   </div>
-                  <div style={{ fontSize:10, fontWeight:900, color, marginTop:3 }}>
-                    {s.taps.toLocaleString()}<span style={{ fontSize:7, color:T.faint, marginLeft:3, letterSpacing:".1em" }}>TAPS</span>
+                  <div style={{ fontSize:11.5, fontWeight:900, color, marginTop:3 }}>
+                    {s.taps.toLocaleString()}<span style={{ fontSize:7, color:T.faint, marginLeft:3, letterSpacing:".03em" }}>TAPS</span>
                   </div>
                 </div>
               </motion.div>
@@ -18293,8 +18294,8 @@ function TGGymHeatMap({ data, theme, accent }) {
       {/* Top-3 High-Traffic Zones */}
       <div style={{ marginBottom:6 }}>
         <div style={{
-          fontSize:9.5, fontWeight:800, color:T.faint,
-          letterSpacing:".14em", marginBottom:8,
+          fontSize:11.5, fontWeight:600, color:T.faint,
+          letterSpacing:".04em", marginBottom:8,
         }}>TOP 3 · HIGH-TRAFFIC ZONES</div>
         <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
           {top3.map((s, i) => {
@@ -18320,13 +18321,13 @@ function TGGymHeatMap({ data, theme, accent }) {
                 }}>#{i+1}</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{s.label}</div>
-                  <div style={{ fontSize:9, color:T.faint, letterSpacing:".1em" }}>{s.zone}</div>
+                  <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em" }}>{s.zone}</div>
                 </div>
                 <div style={{ textAlign:"right" }}>
                   <div style={{ fontSize:14, fontWeight:900, color }}>
                     {s.taps.toLocaleString()}
                   </div>
-                  <div style={{ fontSize:8, color:T.faint, letterSpacing:".14em" }}>TAP VELOCITY</div>
+                  <div style={{ fontSize:11, color:T.faint, letterSpacing:".04em" }}>TAP VELOCITY</div>
                 </div>
               </motion.div>
             );
@@ -18363,16 +18364,16 @@ function TGVelocityList({ data, theme, accent, unitLabel = "UNITS" }) {
             <div style={{ display:"flex", alignItems:"baseline", justifyContent:"space-between", marginBottom:6 }}>
               <div style={{ display:"flex", alignItems:"baseline", gap:8 }}>
                 <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{it.name}</div>
-                <div style={{ fontSize:8.5, fontWeight:800, color:T.faint, letterSpacing:".14em" }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em" }}>
                   {it.category}
                 </div>
               </div>
               <div style={{ textAlign:"right" }}>
                 <div style={{ fontSize:12, fontWeight:900, color }}>
-                  {it.units.toLocaleString()} <span style={{ fontSize:8, color:T.faint, letterSpacing:".14em" }}>{unitLabel}</span>
+                  {it.units.toLocaleString()} <span style={{ fontSize:11, color:T.faint, letterSpacing:".04em" }}>{unitLabel}</span>
                 </div>
                 {typeof it.revenue === "number" && (
-                  <div style={{ fontSize:9, color:T.muted, marginTop:1 }}>
+                  <div style={{ fontSize:11, color:T.muted, marginTop:1 }}>
                     ${it.revenue.toLocaleString()}
                   </div>
                 )}
@@ -18415,14 +18416,14 @@ function TGStatCard({ label, value, sub, accent, theme }) {
         position:"absolute", top:0, left:0, right:0, height:2,
         background:`linear-gradient(90deg, transparent, ${accent}, transparent)`,
       }}/>
-      <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:6 }}>
+      <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>
         {label}
       </div>
       <div style={{ fontSize:22, fontWeight:900, color:T.text, letterSpacing:"-.01em" }}>
         {value}
       </div>
       {sub && (
-        <div style={{ fontSize:9.5, color:accent, marginTop:3, letterSpacing:".06em", fontWeight:700 }}>
+        <div style={{ fontSize:11.5, color:accent, marginTop:3, letterSpacing:".01em", fontWeight:700 }}>
           {sub}
         </div>
       )}
@@ -18520,10 +18521,10 @@ function TelemetryGrid({ mode = "gym", theme = "dark", analyticsData }) {
             boxShadow:`0 0 12px ${COBALT}`,
           }}/>
           <div>
-            <div style={{ fontSize:11, fontWeight:900, color:T.text, letterSpacing:".12em" }}>
+            <div style={{ fontSize:11, fontWeight:900, color:T.text, letterSpacing:".03em" }}>
               TELEMETRY · {mode.toUpperCase()} MODE
             </div>
-            <div style={{ fontSize:9, color:T.faint, letterSpacing:".12em", marginTop:1 }}>
+            <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em", marginTop:1 }}>
               {mode === "gym"
                 ? "NFC FLOOR HEAT MAP · RANKED BY TAP VELOCITY"
                 : "SKU VELOCITY · RANKED BY UNITS MOVED"}
@@ -18862,16 +18863,16 @@ function CalorieMonitor({
             width:7, height:7, borderRadius:4, background:COBALT,
             boxShadow:`0 0 10px ${COBALT}`,
           }}/>
-          <div style={{ fontSize:10, fontWeight:900, color:T.text, letterSpacing:".14em" }}>
+          <div style={{ fontSize:11.5, fontWeight:900, color:T.text, letterSpacing:".04em" }}>
             CALORIE MONITOR
           </div>
-          <div style={{ fontSize:9, color:T.faint, letterSpacing:".1em" }}>
+          <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em" }}>
             · {goalsKey.toUpperCase()}
           </div>
         </div>
         <div style={{
           fontFamily: RVN_MONO, fontSize: 11, color: T.faint,
-          letterSpacing:".06em",
+          letterSpacing:".01em",
         }}>
           {Math.round(percent*100)}%
         </div>
@@ -18970,15 +18971,15 @@ function CalorieMonitor({
           }}>
           <div style={{
             fontSize:14, fontWeight:900,
-            color: beyond ? T.red : COBALT, letterSpacing:".1em",
+            color: beyond ? T.red : COBALT, letterSpacing:".03em",
             flexShrink:0, fontFamily: RVN_MONO,
           }}>
             {beyond ? "⚠" : "◉"}
           </div>
           <div style={{ flex:1 }}>
             <div style={{
-              fontSize:10, fontWeight:900,
-              color: beyond ? T.red : COBALT, letterSpacing:".16em", marginBottom:4,
+              fontSize:11.5, fontWeight:900,
+              color: beyond ? T.red : COBALT, letterSpacing:".04em", marginBottom:4,
             }}>
               {beyond ? "GOAL EXCEEDED · HALT FUEL" : "CAL BUFFER · HOLD HERE"}
             </div>
@@ -18993,7 +18994,7 @@ function CalorieMonitor({
                   background:"transparent", border:`1px solid ${beyond ? T.red : COBALT}`,
                   color: beyond ? T.red : COBALT,
                   borderRadius:10, padding:"6px 12px",
-                  fontSize:10, fontWeight:800, letterSpacing:".12em",
+                  fontSize:11.5, fontWeight:600, letterSpacing:".03em",
                   cursor:"pointer", fontFamily: RVN_MONO,
                 }}>
                 ACKNOWLEDGE
@@ -19022,18 +19023,18 @@ function Readout({ label, value, unit, accent, theme, signed }) {
       borderRadius:10,
     }}>
       <div style={{
-        fontSize:8.5, fontWeight:800, color:T.faint,
-        letterSpacing:".16em", marginBottom:3,
+        fontSize:11.5, fontWeight:600, color:T.faint,
+        letterSpacing:".04em", marginBottom:3,
       }}>{label}</div>
       <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
         <div style={{
           fontFamily: RVN_MONO,
-          fontSize: 17, fontWeight: 800, color: accent,
+          fontSize: 17, fontWeight: 600, color: accent,
           letterSpacing:".02em",
         }}>{display}</div>
         <div style={{
           fontFamily: RVN_MONO,
-          fontSize: 9, color: T.faint, letterSpacing:".1em",
+          fontSize: 11, color: T.faint, letterSpacing:".03em",
         }}>{unit}</div>
       </div>
     </div>
@@ -19130,7 +19131,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
     <Screen theme={theme} style={{ overflowY:"auto" }}>
       <div style={{ padding:"20px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <BackBtn onBack={onBack} theme={theme}/>
-        <div style={{ fontSize:11, fontWeight:900, color:T.text, letterSpacing:".14em" }}>
+        <div style={{ fontSize:11, fontWeight:900, color:T.text, letterSpacing:".04em" }}>
           SURGICAL VISION
         </div>
         <RVNLogo size={28}/>
@@ -19162,7 +19163,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
           background: T.glass, border:`1px solid ${T.border}`, borderRadius:16,
           padding:14,
         }}>
-          <div style={{ fontSize:10, fontWeight:900, color:T.text, letterSpacing:".16em", marginBottom:10 }}>
+          <div style={{ fontSize:11.5, fontWeight:900, color:T.text, letterSpacing:".04em", marginBottom:10 }}>
             AGENTIC VISION · MULTI-MODAL CAPTURE
           </div>
 
@@ -19186,11 +19187,11 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                 position:"absolute", inset:0,
                 display:"flex", flexDirection:"column",
                 alignItems:"center", justifyContent:"center",
-                gap:8, color:T.muted, fontSize:11, letterSpacing:".14em",
+                gap:8, color:T.muted, fontSize:11, letterSpacing:".04em",
               }}>
                 <div style={{ fontSize:34, color:COBALT, fontFamily: RVN_MONO }}>◉</div>
                 <div>AWAITING CAPTURE</div>
-                <div style={{ fontSize:10, color:T.faint }}>
+                <div style={{ fontSize:11.5, color:T.faint }}>
                   PROTEIN BAR · MEAL · SUPPLEMENT LABEL
                 </div>
               </div>
@@ -19214,7 +19215,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                   flex:1, padding:"11px 10px", borderRadius:12,
                   background: COBALT, border:`1px solid ${COBALT}`,
                   color: theme==="dark" ? "#000" : "#fff",
-                  fontSize:11, fontWeight:900, letterSpacing:".14em",
+                  fontSize:11, fontWeight:900, letterSpacing:".04em",
                   cursor:"pointer", fontFamily: RVN_MONO,
                 }}>
                 START CAMERA
@@ -19227,7 +19228,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                     flex:1, padding:"11px 10px", borderRadius:12,
                     background: COBALT, border:`1px solid ${COBALT}`,
                     color: theme==="dark" ? "#000" : "#fff",
-                    fontSize:11, fontWeight:900, letterSpacing:".14em",
+                    fontSize:11, fontWeight:900, letterSpacing:".04em",
                     cursor:"pointer", fontFamily: RVN_MONO,
                     opacity: status === "analyzing" ? .6 : 1,
                   }}>
@@ -19237,7 +19238,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                   style={{
                     padding:"11px 14px", borderRadius:12,
                     background:"transparent", border:`1px solid ${T.border}`,
-                    color: T.muted, fontSize:11, fontWeight:800, letterSpacing:".1em",
+                    color: T.muted, fontSize:11, fontWeight:600, letterSpacing:".03em",
                     cursor:"pointer", fontFamily: RVN_MONO,
                   }}>
                   STOP
@@ -19249,7 +19250,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
               style={{
                 padding:"11px 14px", borderRadius:12,
                 background:"transparent", border:`1px solid ${T.border}`,
-                color: T.muted, fontSize:11, fontWeight:800, letterSpacing:".1em",
+                color: T.muted, fontSize:11, fontWeight:600, letterSpacing:".03em",
                 cursor:"pointer", fontFamily: RVN_MONO,
               }}>
               UPLOAD
@@ -19263,7 +19264,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
             <div style={{
               marginTop:10, padding:"8px 10px", borderRadius:10,
               background:`${T.red}18`, border:`1px solid ${T.red}55`,
-              color:T.red, fontSize:11, letterSpacing:".06em", fontFamily: RVN_MONO,
+              color:T.red, fontSize:11, letterSpacing:".01em", fontFamily: RVN_MONO,
             }}>
               VISION ERROR · {error}
             </div>
@@ -19284,20 +19285,20 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
             }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
               <div style={{
-                fontSize:9.5, fontWeight:900,
+                fontSize:11.5, fontWeight:900,
                 color: rationale.bioImpact >= 4 ? T.green :
                        rationale.bioImpact >= 0 ? "#FFC43C" : T.red,
-                letterSpacing:".16em",
+                letterSpacing:".04em",
               }}>
                 {rationale.verdict}
               </div>
               <div style={{
-                fontSize:10, fontFamily: RVN_MONO, color:T.faint, letterSpacing:".1em",
+                fontSize:11.5, fontFamily: RVN_MONO, color:T.faint, letterSpacing:".03em",
               }}>
                 CONF {Math.round((result.confidence ?? 0.82) * 100)}%
               </div>
             </div>
-            <div style={{ fontSize:15, fontWeight:800, color:T.text, letterSpacing:"-.01em" }}>
+            <div style={{ fontSize:15, fontWeight:600, color:T.text, letterSpacing:"-.01em" }}>
               {result.raw.name}
             </div>
             <div style={{ fontSize:12, color:T.muted, marginTop:6, lineHeight:1.55 }}>
@@ -19320,13 +19321,13 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                   borderRadius:8, padding:"6px 4px", textAlign:"center",
                 }}>
                   <div style={{
-                    fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".14em",
+                    fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em",
                   }}>{label}</div>
                   <div style={{
                     fontFamily: RVN_MONO, fontSize:13, fontWeight:800, color:T.text,
                   }}>
                     {result.raw.macros[k] ?? 0}
-                    {k !== "kcal" && <span style={{ fontSize:8, color:T.faint }}>g</span>}
+                    {k !== "kcal" && <span style={{ fontSize:11, color:T.faint }}>g</span>}
                   </div>
                 </div>
               ))}
@@ -19337,14 +19338,14 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
               <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginTop:10 }}>
                 {rationale.wins.map((w, i) => (
                   <span key={`w${i}`} style={{
-                    fontSize:9.5, fontWeight:800, color:T.green, letterSpacing:".06em",
+                    fontSize:11.5, fontWeight:600, color:T.green, letterSpacing:".01em",
                     padding:"3px 8px", borderRadius:14,
                     background:`${T.green}14`, border:`1px solid ${T.green}55`,
                   }}>+ {w}</span>
                 ))}
                 {rationale.flags.map((f, i) => (
                   <span key={`f${i}`} style={{
-                    fontSize:9.5, fontWeight:800, color:T.red, letterSpacing:".06em",
+                    fontSize:11.5, fontWeight:600, color:T.red, letterSpacing:".01em",
                     padding:"3px 8px", borderRadius:14,
                     background:`${T.red}14`, border:`1px solid ${T.red}55`,
                   }}>− {f}</span>
@@ -19358,7 +19359,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
               marginTop:12, paddingTop:10, borderTop:`1px solid ${T.border}`,
             }}>
               <div>
-                <div style={{ fontSize:8.5, fontWeight:800, color:T.faint, letterSpacing:".16em" }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em" }}>
                   BIOSCORE
                 </div>
                 <div style={{ fontFamily: RVN_MONO, fontSize:15, fontWeight:900, color:T.text }}>
@@ -19367,7 +19368,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
               </div>
               <div style={{
                 fontFamily: RVN_MONO, fontSize:11, fontWeight:900,
-                letterSpacing:".08em",
+                letterSpacing:".02em",
                 color: rationale.bioImpact >= 0 ? T.green : T.red,
                 background: rationale.bioImpact >= 0 ? `${T.green}18` : `${T.red}18`,
                 border:`1px solid ${(rationale.bioImpact >= 0 ? T.green : T.red)}55`,
@@ -19379,7 +19380,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                 style={{
                   marginLeft:"auto",
                   background:"transparent", border:`1px solid ${T.border}`,
-                  color:T.muted, fontSize:10, fontWeight:800, letterSpacing:".1em",
+                  color:T.muted, fontSize:11.5, fontWeight:600, letterSpacing:".03em",
                   borderRadius:10, padding:"5px 10px", cursor:"pointer",
                   fontFamily: RVN_MONO,
                 }}>
@@ -19393,8 +19394,8 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
         {nutrition.entries.length > 0 && (
           <div>
             <div style={{
-              fontSize:9.5, fontWeight:900, color:T.faint,
-              letterSpacing:".16em", marginBottom:8, paddingLeft:4,
+              fontSize:11.5, fontWeight:900, color:T.faint,
+              letterSpacing:".04em", marginBottom:8, paddingLeft:4,
             }}>
               TODAY · LOGGED {nutrition.entries.length}
             </div>
@@ -19407,7 +19408,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{e.name}</div>
-                    <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".08em" }}>
+                    <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".02em" }}>
                       {new Date(e.t).toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" })}
                       · {(e.source || "vision").toUpperCase()}
                     </div>
@@ -19415,7 +19416,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                   <div style={{
                     fontFamily: RVN_MONO, fontSize:13, fontWeight:900, color:COBALT,
                   }}>
-                    {e.kcal}<span style={{ fontSize:9, color:T.faint, marginLeft:2 }}>kcal</span>
+                    {e.kcal}<span style={{ fontSize:11, color:T.faint, marginLeft:2 }}>kcal</span>
                   </div>
                 </div>
               ))}
@@ -19425,7 +19426,7 @@ function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
                 style={{
                   marginTop:10,
                   background:"transparent", border:`1px solid ${T.border}`,
-                  color:T.muted, fontSize:10, fontWeight:800, letterSpacing:".12em",
+                  color:T.muted, fontSize:11.5, fontWeight:600, letterSpacing:".03em",
                   borderRadius:10, padding:"6px 12px", cursor:"pointer",
                   fontFamily: RVN_MONO,
                 }}>
@@ -19449,7 +19450,7 @@ function MetaBlock({ label, value, unit, accent, theme }) {
       borderRadius:12,
     }}>
       <div style={{
-        fontSize:8.5, fontWeight:800, color:T.faint, letterSpacing:".16em", marginBottom:3,
+        fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:3,
       }}>{label}</div>
       <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
         <div style={{
@@ -19457,7 +19458,7 @@ function MetaBlock({ label, value, unit, accent, theme }) {
           color: accent || T.text,
         }}>{value}</div>
         <div style={{
-          fontFamily: RVN_MONO, fontSize:9, color:T.faint, letterSpacing:".1em",
+          fontFamily: RVN_MONO, fontSize:11, color:T.faint, letterSpacing:".03em",
         }}>{unit}</div>
       </div>
     </div>
@@ -19949,7 +19950,7 @@ function SupaStatusBadge({ theme }) {
         boxShadow: status === "online" ? `0 0 8px ${color}` : "none",
         animation: status === "connecting" ? "os_pulse 1.2s ease-in-out infinite" : "none",
       }}/>
-      <span style={{ fontSize:9, fontWeight:800, color, letterSpacing:".14em" }}>{label}</span>
+      <span style={{ fontSize:11, fontWeight:600, color, letterSpacing:".04em" }}>{label}</span>
     </div>
   );
 }
@@ -20055,7 +20056,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
             {/* Saved profiles list */}
             {!loadingList && profiles.length > 0 && (
               <motion.div {...FX.up} style={{ width:"100%", maxWidth:360, marginBottom:14 }}>
-                <div style={{ fontSize:9.5, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:8, paddingLeft:4 }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:8, paddingLeft:4 }}>
                   SAVED PROFILES · CLOUD + DEVICE
                 </div>
                 <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -20081,10 +20082,10 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
                           }}>{(label[0] || "A").toUpperCase()}</div>
                           <div>
                             <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{label}</div>
-                            <div style={{ fontSize:10, color:T.muted, letterSpacing:".06em", marginTop:2 }}>{sub}</div>
+                            <div style={{ fontSize:11.5, color:T.muted, letterSpacing:".01em", marginTop:2 }}>{sub}</div>
                           </div>
                         </div>
-                        <div style={{ fontSize:10, fontWeight:800, color:ac, letterSpacing:".14em" }}>SIGN IN →</div>
+                        <div style={{ fontSize:11.5, fontWeight:600, color:ac, letterSpacing:".04em" }}>SIGN IN →</div>
                       </motion.button>
                     );
                   })}
@@ -20093,7 +20094,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
             )}
 
             {loadingList && (
-              <div style={{ color:T.faint, fontSize:11, letterSpacing:".12em", marginBottom:14 }}>
+              <div style={{ color:T.faint, fontSize:11, letterSpacing:".03em", marginBottom:14 }}>
                 SYNCING VAULT…
               </div>
             )}
@@ -20101,7 +20102,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
             {/* Email lookup */}
             <motion.div {...FX.up} style={{ width:"100%", maxWidth:360 }}>
               <GlassCard theme={theme} style={{ padding:"14px 16px", border:`1px solid ${ac}22`, marginBottom:10 }}>
-                <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
+                <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                   EMAIL
                 </div>
                 <input value={email} type="email"
@@ -20120,12 +20121,12 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
                 disabled={busy || !email.trim()}/>
 
               <div style={{ textAlign:"center", marginTop:14 }}>
-                <div style={{ fontSize:10, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>FIRST TIME ON RVN?</div>
+                <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>FIRST TIME ON RVN?</div>
                 <motion.button whileTap={{ scale:.96 }} onClick={onNewUser}
                   style={{
                     background:"transparent", border:`1px solid ${T.border}`,
-                    borderRadius:20, padding:"8px 16px", cursor:"pointer",
-                    fontSize:11, fontWeight:800, color:T.text, letterSpacing:".1em",
+                    borderRadius:16, padding:"8px 16px", cursor:"pointer",
+                    fontSize:11, fontWeight:600, color:T.text, letterSpacing:".03em",
                   }}>
                   CREATE MY VAULT →
                 </motion.button>
@@ -20139,13 +20140,13 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
           <motion.div {...FX.up} style={{ width:"100%", maxWidth:360 }}>
             {/* Account pill */}
             <GlassCard theme={theme} style={{ padding:"12px 14px", marginBottom:10, border:`1px solid ${ac}33` }}>
-              <div style={{ fontSize:9, color:T.faint, letterSpacing:".14em", marginBottom:3 }}>VAULT FOUND</div>
+              <div style={{ fontSize:11, color:T.faint, letterSpacing:".04em", marginBottom:3 }}>VAULT FOUND</div>
               <div style={{ fontSize:15, fontWeight:800, color:T.text }}>{email}</div>
             </GlassCard>
 
             {/* Password field */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:8, border:`1px solid ${ac}22` }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:5 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                 PASSWORD
               </div>
               <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -20164,7 +20165,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
                   style={{
                     background:"transparent", border:`1px solid ${T.border}`,
                     borderRadius:8, padding:"4px 9px", cursor:"pointer",
-                    fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".08em",
+                    fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".02em",
                     flexShrink:0,
                   }}>
                   {showPass ? "HIDE" : "SHOW"}
@@ -20201,7 +20202,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
                   disabled={resetBusy}
                   style={{
                     background:"transparent", border:"none",
-                    color:T.blue, fontSize:11, cursor:"pointer", letterSpacing:".06em",
+                    color:T.blue, fontSize:11, cursor:"pointer", letterSpacing:".01em",
                     textDecoration:"underline",
                   }}>
                   {resetBusy ? "Sending…" : "Forgot password?"}
@@ -20230,7 +20231,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
                     boxShadow:"0 1px 3px rgba(0,0,0,.3)",
                   }}/>
                 </div>
-                <span style={{ fontSize:11, color:T.muted, letterSpacing:".08em", fontWeight:700 }}>
+                <span style={{ fontSize:11, color:T.muted, letterSpacing:".02em", fontWeight:700 }}>
                   KEEP ME SIGNED IN
                 </span>
               </button>
@@ -20238,7 +20239,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
               <button onClick={() => { setPhase("lookup"); setPassword(""); setMsg(""); setResetSent(false); try { localStorage.removeItem("rvn_saved_email"); } catch {} }}
                 style={{
                   background:"transparent", border:"none",
-                  color:T.muted, fontSize:11, cursor:"pointer", letterSpacing:".08em",
+                  color:T.muted, fontSize:11, cursor:"pointer", letterSpacing:".02em",
                 }}>
                 ← DIFFERENT ACCOUNT
               </button>
@@ -20474,7 +20475,7 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
     }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: 36 }}>
-        <div style={{ fontSize: 10, letterSpacing: 4, color: "#444", marginBottom: 10 }}>
+        <div style={{ fontSize: 11.5, letterSpacing: 4, color: "#444", marginBottom: 10 }}>
           RVN OS · SUBSCRIPTION
         </div>
         <div style={{ fontSize: 24, fontWeight: 800, letterSpacing: 1, marginBottom: 6 }}>
@@ -20519,14 +20520,14 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
                   {/* Badge */}
                   <div style={{
                     display: "inline-block",
-                    fontSize: 8, fontWeight: 700, letterSpacing: 2,
+                    fontSize: 11, fontWeight: 700, letterSpacing: 2,
                     color: plan.badgeClr, background: `${plan.badgeClr}18`,
                     border: `1px solid ${plan.badgeClr}44`,
                     borderRadius: 4, padding: "2px 7px", marginBottom: 6,
                   }}>
                     {plan.badge}
                   </div>
-                  <div style={{ fontSize: 10, letterSpacing: 3, color: "#666", marginBottom: 5 }}>
+                  <div style={{ fontSize: 11.5, letterSpacing: 3, color: "#666", marginBottom: 5 }}>
                     {plan.label}
                   </div>
                   <div style={{ fontSize: 11, color: "#444", lineHeight: 1.6, maxWidth: 240 }}>
@@ -20539,7 +20540,7 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
                   <div style={{ fontSize: 26, fontWeight: 800, color: "#fff", lineHeight: 1 }}>
                     {plan.price}
                   </div>
-                  <div style={{ fontSize: 9, color: "#444", marginTop: 3 }}>
+                  <div style={{ fontSize: 11, color: "#444", marginTop: 3 }}>
                     {plan.period}
                   </div>
                 </div>
@@ -20552,7 +20553,7 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
       {/* Error */}
       {error && (
         <div style={{
-          color: "#ff4444", fontSize: 10, marginTop: 14, textAlign: "center",
+          color: "#ff4444", fontSize: 11.5, marginTop: 14, textAlign: "center",
           background: "#1a0000", border: "1px solid #440000",
           borderRadius: 6, padding: "8px 14px", maxWidth: 420, width: "100%",
         }}>
@@ -20583,7 +20584,7 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
           {loading ? "REDIRECTING TO STRIPE…" : "START FREE TRIAL →"}
         </motion.button>
 
-        <div style={{ textAlign: "center", fontSize: 9, color: "#333", marginTop: 10, lineHeight: 1.6 }}>
+        <div style={{ textAlign: "center", fontSize: 11, color: "#333", marginTop: 10, lineHeight: 1.6 }}>
           Secured by Stripe · No card charged during trial · Cancel anytime
         </div>
       </div>
@@ -20596,7 +20597,7 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
           style={{
             marginTop: 28,
             background: "none", border: "none",
-            color: "#333", fontSize: 10,
+            color: "#333", fontSize: 11.5,
             fontFamily: RVN_MONO,
             cursor: "pointer", letterSpacing: 2,
           }}
@@ -20621,7 +20622,7 @@ function SubscriptionGate({ userId, email, onBack, theme, children }) {
         minHeight: "100dvh", background: "#0a0a0a",
         fontFamily: RVN_MONO,
       }}>
-        <div style={{ color: "#333", fontSize: 10, letterSpacing: 4 }}>
+        <div style={{ color: "#333", fontSize: 11.5, letterSpacing: 4 }}>
           VERIFYING ACCESS…
         </div>
       </div>
@@ -20685,7 +20686,7 @@ function CheckoutSuccessBanner({ onDismiss }) {
       <div style={{ fontSize: 11, color: "#22c55e", letterSpacing: 2, fontWeight: 700 }}>
         SUBSCRIPTION ACTIVE
       </div>
-      <div style={{ fontSize: 10, color: "#166534", letterSpacing: 1 }}>
+      <div style={{ fontSize: 11.5, color: "#166534", letterSpacing: 1 }}>
         · WELCOME TO RVN OS
       </div>
       <motion.button
@@ -20737,7 +20738,7 @@ function CheckoutCancelBanner({ onDismiss }) {
       <div style={{ fontSize: 11, color: "#f87171", letterSpacing: 2 }}>
         CHECKOUT CANCELLED
       </div>
-      <div style={{ fontSize: 10, color: "#4a1a1a", letterSpacing: 1 }}>
+      <div style={{ fontSize: 11.5, color: "#4a1a1a", letterSpacing: 1 }}>
         · No charge was made
       </div>
       <motion.button
@@ -21549,9 +21550,9 @@ function RVNVideoPlayer({ video, onClose, theme }) {
         <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
           {(video.tags || []).map(tag => (
             <span key={tag} style={{
-              padding: "3px 8px", borderRadius: 20,
+              padding: "3px 8px", borderRadius: 16,
               background: "rgba(255,255,255,.05)",
-              fontSize: 10, color: "#666",
+              fontSize: 11.5, color: "#666",
               border: "1px solid #222",
             }}>{tag}</span>
           ))}
@@ -21606,7 +21607,7 @@ function ContentCard({ video, onPlay, theme, highlighted }) {
           position: "absolute", bottom: 8, right: 8,
           background: "rgba(0,0,0,.7)",
           borderRadius: 6, padding: "2px 6px",
-          fontSize: 10, color: "#fff",
+          fontSize: 11.5, color: "#fff",
         }}>{video.duration}</div>
         {/* Creator badge */}
         {video.creator === "RVN" && (
@@ -21614,8 +21615,8 @@ function ContentCard({ video, onPlay, theme, highlighted }) {
             position: "absolute", top: 8, left: 8,
             background: color,
             borderRadius: 6, padding: "2px 6px",
-            fontSize: 9, fontWeight: 800, color: "#000",
-            letterSpacing: ".1em",
+            fontSize: 11, fontWeight: 800, color: "#000",
+            letterSpacing: ".03em",
           }}>RVN ORIGINAL</div>
         )}
         {highlighted && (
@@ -21623,8 +21624,8 @@ function ContentCard({ video, onPlay, theme, highlighted }) {
             position: "absolute", top: 8, right: 8,
             background: color,
             borderRadius: 6, padding: "2px 6px",
-            fontSize: 9, fontWeight: 800, color: "#000",
-            letterSpacing: ".1em",
+            fontSize: 11, fontWeight: 800, color: "#000",
+            letterSpacing: ".03em",
           }}>RECOMMENDED</div>
         )}
       </div>
@@ -21721,11 +21722,11 @@ function ContentScreen({ profile, gymContent, onBack, theme }) {
               whileTap={{ scale: .93 }}
               onClick={() => setCategory(cat.id)}
               style={{
-                padding: "6px 14px", borderRadius: 20, whiteSpace: "nowrap",
+                padding: "6px 14px", borderRadius: 16, whiteSpace: "nowrap",
                 background: category === cat.id ? T.blue : T.card,
                 border: `1px solid ${category === cat.id ? T.blue : T.border}`,
                 color: category === cat.id ? "#fff" : T.muted,
-                fontSize: 10, fontWeight: 700, letterSpacing: ".06em",
+                fontSize: 11.5, fontWeight: 700, letterSpacing: ".01em",
                 cursor: "pointer",
               }}
             >
@@ -21738,8 +21739,8 @@ function ContentScreen({ profile, gymContent, onBack, theme }) {
         {svRecs.length > 0 && category === "all" && !searchQuery && (
           <div style={{ marginBottom: 24 }}>
             <div style={{
-              fontSize: 10, fontWeight: 800, color: T.muted,
-              letterSpacing: ".14em", marginBottom: 12,
+              fontSize: 11.5, fontWeight: 600, color: T.muted,
+              letterSpacing: ".04em", marginBottom: 12,
             }}>
               ⚡ RECOMMENDED FOR YOU · BASED ON YOUR DATA
             </div>
@@ -21756,7 +21757,7 @@ function ContentScreen({ profile, gymContent, onBack, theme }) {
         )}
 
         {/* All / Filtered Content */}
-        <div style={{ fontSize: 10, fontWeight: 800, color: T.muted, letterSpacing: ".14em", marginBottom: 12 }}>
+        <div style={{ fontSize: 11.5, fontWeight: 600, color: T.muted, letterSpacing: ".04em", marginBottom: 12 }}>
           {category === "all" && !searchQuery ? "ALL CONTENT" : "RESULTS"} ({filtered.length})
         </div>
         {filtered.length === 0 ? (
@@ -21823,7 +21824,7 @@ function GymContentManager({ gymContent, onAddContent, onRemoveContent, theme })
 
   return (
     <div style={{ padding: "16px 0" }}>
-      <div style={{ fontSize: 10, fontWeight: 800, color: T.faint, letterSpacing: ".14em", marginBottom: 14 }}>
+      <div style={{ fontSize: 11.5, fontWeight: 600, color: T.faint, letterSpacing: ".04em", marginBottom: 14 }}>
         UPLOAD CONTENT
       </div>
 
@@ -21914,7 +21915,7 @@ function GymContentManager({ gymContent, onAddContent, onRemoveContent, theme })
       {/* Existing gym content list */}
       {(gymContent || []).length > 0 && (
         <div style={{ marginTop: 20 }}>
-          <div style={{ fontSize: 10, fontWeight: 800, color: T.faint, letterSpacing: ".14em", marginBottom: 10 }}>
+          <div style={{ fontSize: 11.5, fontWeight: 600, color: T.faint, letterSpacing: ".04em", marginBottom: 10 }}>
             YOUR CONTENT ({gymContent.length})
           </div>
           {gymContent.map(v => (
@@ -21925,7 +21926,7 @@ function GymContentManager({ gymContent, onAddContent, onRemoveContent, theme })
             }}>
               <div>
                 <div style={{ fontSize: 12, fontWeight: 700, color: T.text }}>{v.title}</div>
-                <div style={{ fontSize: 10, color: T.faint }}>{v.category} · {v.duration}</div>
+                <div style={{ fontSize: 11.5, color: T.faint }}>{v.category} · {v.duration}</div>
               </div>
               <motion.button
                 whileTap={{ scale: .9 }}
@@ -22029,14 +22030,14 @@ function CalorieEntropyBar({ food, theme, whoopStrain }) {
     <div>
       {/* Header row */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
-        <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em" }}>
+        <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em" }}>
           CALORIE TRACKING
         </div>
         <div style={{
-          fontSize:9, fontWeight:800, color:metrics.gradeColor,
+          fontSize:11, fontWeight:800, color:metrics.gradeColor,
           background:`${metrics.gradeColor}18`, padding:"2px 8px",
           borderRadius:6, border:`1px solid ${metrics.gradeColor}44`,
-          letterSpacing:".07em",
+          letterSpacing:".02em",
         }}>
           {metrics.grade}
         </div>
@@ -22078,14 +22079,14 @@ function CalorieEntropyBar({ food, theme, whoopStrain }) {
         <div style={{ display:"flex", gap:12 }}>
           <div style={{ display:"flex", alignItems:"center", gap:4 }}>
             <div style={{ width:8, height:8, borderRadius:2, background:COBALT }}/>
-            <div style={{ fontSize:9, color:T.faint, fontWeight:700 }}>{metrics.primary} LABEL</div>
+            <div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>{metrics.primary} LABEL</div>
           </div>
           <div style={{ display:"flex", alignItems:"center", gap:4 }}>
             <div style={{ width:8, height:8, borderRadius:2, background:GHOST, opacity:.7 }}/>
-            <div style={{ fontSize:9, color:T.faint, fontWeight:700 }}>+{metrics.hidden} HIDDEN</div>
+            <div style={{ fontSize:11, color:T.faint, fontWeight:700 }}>+{metrics.hidden} HIDDEN</div>
           </div>
         </div>
-        <div style={{ fontSize:10, fontWeight:900, color:COBALT }}>
+        <div style={{ fontSize:11.5, fontWeight:900, color:COBALT }}>
           {metrics.effective} kcal effective
         </div>
       </div>
@@ -22104,7 +22105,7 @@ function CalorieEntropyBar({ food, theme, whoopStrain }) {
               background:T.glass, borderRadius:10,
               border:`1px solid ${T.border}`,
             }}>
-              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 HIDDEN CALORIE BREAKDOWN
               </div>
               {breakdown.map(r => (
@@ -22116,13 +22117,13 @@ function CalorieEntropyBar({ food, theme, whoopStrain }) {
                     </div>
                     <span style={{ fontSize:11, fontWeight:900, color:GHOST }}>+{r.value} kcal</span>
                   </div>
-                  <div style={{ fontSize:9.5, color:T.faint, marginLeft:19, marginTop:1 }}>{r.desc}</div>
+                  <div style={{ fontSize:11.5, color:T.faint, marginLeft:19, marginTop:1 }}>{r.desc}</div>
                 </div>
               ))}
               <div style={{
                 marginTop:10, paddingTop:10,
                 borderTop:`1px solid ${T.border}`,
-                fontSize:10, color:T.muted, lineHeight:1.55, fontStyle:"italic",
+                fontSize:11.5, color:T.muted, lineHeight:1.55, fontStyle:"italic",
               }}>
                 ◈ Surgical Vision calculates your true metabolic cost — not just what the label says.
                 {metrics.strainPenalty > 0 && " Your WHOOP strain is elevated — digestion efficiency is reduced post-workout."}
@@ -22346,7 +22347,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
             <div style={{ fontSize:14, fontWeight:900, color:T.text, letterSpacing:"-.01em" }}>
               Wearable Sync
             </div>
-            <div style={{ fontSize:9, color:ac, fontWeight:700, letterSpacing:".12em" }}>
+            <div style={{ fontSize:11, color:ac, fontWeight:700, letterSpacing:".03em" }}>
               SURGICAL VISION · LIVE DATA
             </div>
           </div>
@@ -22399,25 +22400,25 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
                   </div>
                   <div>
                     <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{w.name}</div>
-                    <div style={{ fontSize:10, color:T.faint }}>{w.tagline}</div>
+                    <div style={{ fontSize:11.5, color:T.faint }}>{w.tagline}</div>
                   </div>
                 </div>
                 {w.isConnected ? (
                   <div style={{
-                    fontSize:10, fontWeight:800, color:w.color,
+                    fontSize:11.5, fontWeight:800, color:w.color,
                     background:`${w.color}18`, padding:"5px 11px",
                     borderRadius:8, border:`1px solid ${w.color}44`,
-                    letterSpacing:".06em",
+                    letterSpacing:".01em",
                   }}>
                     ✓ LIVE
                   </div>
                 ) : (
                   w.id === "whoop" ? (
                     <div style={{
-                      fontSize:10, fontWeight:800, color:T.gold,
+                      fontSize:11.5, fontWeight:800, color:T.gold,
                       background:`${T.gold}18`, padding:"5px 11px",
                       borderRadius:8, border:`1px solid ${T.gold}44`,
-                      letterSpacing:".06em",
+                      letterSpacing:".01em",
                     }}>
                       ◈ COMING SOON
                     </div>
@@ -22429,9 +22430,9 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
                         padding:"9px 18px",
                         background: connecting === w.id ? `${w.color}11` : `${w.color}22`,
                         border:`1px solid ${w.color}66`,
-                        borderRadius:10, fontSize:11, fontWeight:800,
+                        borderRadius:10, fontSize:11, fontWeight:600,
                         color:w.color, cursor: connecting ? "not-allowed" : "pointer",
-                        letterSpacing:".06em",
+                        letterSpacing:".01em",
                         opacity: connecting && connecting !== w.id ? .5 : 1,
                       }}>
                       {connecting === w.id ? "CONNECTING..." : "CONNECT"}
@@ -22449,7 +22450,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
                       background:T.glass, borderRadius:9,
                       border:`1px solid ${T.border}`,
                     }}>
-                      <div style={{ fontSize:8.5, fontWeight:700, color:T.faint, letterSpacing:".09em", marginBottom:3 }}>{m.label}</div>
+                      <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".09em", marginBottom:3 }}>{m.label}</div>
                       <div style={{ fontSize:17, fontWeight:900, color:m.color }}>{m.value}</div>
                     </div>
                   ))}
@@ -22459,7 +22460,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
               {/* Note for Apple Health on web */}
               {w.note && !w.isConnected && (
                 <div style={{
-                  marginTop:10, fontSize:10, color:T.faint,
+                  marginTop:10, fontSize:11.5, color:T.faint,
                   lineHeight:1.5, fontStyle:"italic",
                   borderTop:`1px solid ${T.border}`, paddingTop:10,
                 }}>
@@ -22499,7 +22500,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
         {/* How Entropy works (always visible) */}
         <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:.5 }}
           style={{ marginTop:18 }}>
-          <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".13em", marginBottom:10 }}>
+          <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
             HOW CALORIE TRACKING WORKS
           </div>
           {[
@@ -22647,7 +22648,7 @@ function CameraModeSel({ mode, onChange, ac }) {
             flex: 1, padding: "8px 4px", border: "none", cursor: "pointer",
             background: mode === m.id ? ac : "transparent",
             color: mode === m.id ? "#000" : ac,
-            fontSize: 8.5, fontWeight: 800, letterSpacing: ".08em",
+            fontSize: 11.5, fontWeight: 800, letterSpacing: ".02em",
             transition: "all .2s",
           }}>
           {m.label}
@@ -22743,7 +22744,7 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
             <div key={label} style={{ display:"flex", alignItems:"center", gap:6,
               background:"rgba(0,0,0,0.72)", borderRadius:6, padding:"4px 8px",
               border:`1px solid ${skeletonColor}55` }}>
-              <span style={{ fontSize:7.5, letterSpacing:".1em", color:skeletonColor, fontWeight:800 }}>{label}</span>
+              <span style={{ fontSize:7.5, letterSpacing:".03em", color:skeletonColor, fontWeight:800 }}>{label}</span>
               <span style={{ fontSize:13, fontWeight:900, color:"#fff", fontFamily:"SF Mono, monospace" }}>{val}</span>
             </div>
           ))}
@@ -22752,7 +22753,7 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
         {/* Symmetry badge */}
         <div style={{ position:"absolute", bottom:60, left:"50%", transform:"translateX(-50%)",
           background:"rgba(0,0,0,0.78)", borderRadius:8, padding:"5px 16px",
-          fontSize:9, color:skeletonColor, fontWeight:800, letterSpacing:".12em",
+          fontSize:11, color:skeletonColor, fontWeight:600, letterSpacing:".03em",
           border:`1px solid ${skeletonColor}66`,
           textShadow:`0 0 8px ${skeletonColor}` }}>
           FORM SYMMETRY  92%
@@ -22775,41 +22776,41 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
         initial={{ opacity:0, scale:0.8 }} animate={{ opacity:1, scale:1 }}
         style={{ position:"absolute", top:12, left:"50%", transform:"translateX(-50%)",
           background:`${cobalt}22`, border:`1px solid ${cobalt}88`, borderRadius:6,
-          padding:"3px 12px", fontSize:9, fontWeight:800, letterSpacing:".14em", color:cobalt }}>
+          padding:"3px 12px", fontSize:11, fontWeight:600, letterSpacing:".04em", color:cobalt }}>
         {tel.phase}
       </motion.div>
 
       {/* Left HUD panel — velocity + zone */}
       <div style={{ position:"absolute", top:44, left:12, display:"flex", flexDirection:"column", gap:2 }}>
-        <div style={{ fontSize:8, letterSpacing:".12em", color:cobalt, fontWeight:700 }}>MEAN VEL</div>
+        <div style={{ fontSize:11, letterSpacing:".03em", color:cobalt, fontWeight:700 }}>MEAN VEL</div>
         <motion.div
           key={tel.velocity}
           initial={{ opacity:0.4 }} animate={{ opacity:1 }}
           style={{ fontSize:32, fontWeight:900, color:cobalt, fontFamily:"SF Mono, monospace", lineHeight:1 }}>
           {isRecording ? tel.velocity : "—"}
         </motion.div>
-        <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", letterSpacing:".06em" }}>m/s</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,0.4)", letterSpacing:".01em" }}>m/s</div>
         <div style={{
           marginTop:4, background:`${zoneColor}22`, border:`1px solid ${zoneColor}66`,
-          borderRadius:4, padding:"2px 8px", fontSize:8, fontWeight:800,
-          color:zoneColor, letterSpacing:".1em" }}>
+          borderRadius:4, padding:"2px 8px", fontSize:11, fontWeight:600,
+          color:zoneColor, letterSpacing:".03em" }}>
           {isRecording ? velZone : "IDLE"}
         </div>
       </div>
 
       {/* Right HUD panel — power + deviancy */}
       <div style={{ position:"absolute", top:44, right:12, display:"flex", flexDirection:"column", gap:2, alignItems:"flex-end" }}>
-        <div style={{ fontSize:8, letterSpacing:".12em", color:cobalt, fontWeight:700 }}>PEAK PWR</div>
+        <div style={{ fontSize:11, letterSpacing:".03em", color:cobalt, fontWeight:700 }}>PEAK PWR</div>
         <motion.div
           key={tel.power}
           initial={{ opacity:0.4 }} animate={{ opacity:1 }}
           style={{ fontSize:32, fontWeight:900, color:cobalt, fontFamily:"SF Mono, monospace", lineHeight:1 }}>
           {isRecording ? tel.power : "—"}
         </motion.div>
-        <div style={{ fontSize:9, color:"rgba(255,255,255,0.4)", letterSpacing:".06em" }}>watts</div>
+        <div style={{ fontSize:11, color:"rgba(255,255,255,0.4)", letterSpacing:".01em" }}>watts</div>
 
         <div style={{ marginTop:6 }}>
-          <div style={{ fontSize:8, letterSpacing:".12em", color:cobalt, fontWeight:700, textAlign:"right" }}>FORM DEV</div>
+          <div style={{ fontSize:11, letterSpacing:".03em", color:cobalt, fontWeight:700, textAlign:"right" }}>FORM DEV</div>
           <div style={{ fontSize:20, fontWeight:900, color: parseInt(tel.deviancy) > 12 ? "#FF453A" : cobalt,
             fontFamily:"SF Mono, monospace", textAlign:"right" }}>
             {isRecording ? `${tel.deviancy}%` : "—"}
@@ -22827,7 +22828,7 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
         <div style={{ position:"absolute", inset:10, border:`1px solid ${cobalt}88`, borderRadius:2 }}/>
       </div>
       <div style={{ position:"absolute", bottom:30, left:"50%", transform:"translateX(-50%)",
-        fontSize:7.5, letterSpacing:".12em", color:`${cobalt}99`, fontWeight:700 }}>
+        fontSize:7.5, letterSpacing:".03em", color:`${cobalt}99`, fontWeight:700 }}>
         TRACKING {stationCfg.vbt.landmark.toUpperCase()}
       </div>
     </div>
@@ -22869,8 +22870,8 @@ function VBTCameraModule({ stationCfg, exerciseIdx, onClose, theme }) {
           <div style={{ width:"100%", height:"100%", background:"#0a0a0a",
             display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:8 }}>
             <div style={{ fontSize:36, opacity:0.2 }}>📷</div>
-            <div style={{ fontSize:10, color:"#444", letterSpacing:".12em" }}>CAMERA UNAVAILABLE</div>
-            <div style={{ fontSize:8, color:"#333", letterSpacing:".08em" }}>SIMULATING TELEMETRY</div>
+            <div style={{ fontSize:11.5, color:"#444", letterSpacing:".03em" }}>CAMERA UNAVAILABLE</div>
+            <div style={{ fontSize:11, color:"#333", letterSpacing:".02em" }}>SIMULATING TELEMETRY</div>
           </div>
         )}
 
@@ -22906,11 +22907,11 @@ function VBTCameraModule({ stationCfg, exerciseIdx, onClose, theme }) {
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
             <div style={{ width:6, height:6, borderRadius:"50%", background: isRecording ? "#FF453A" : "#666",
               boxShadow: isRecording ? "0 0 8px #FF453A" : "none" }}/>
-            <span style={{ fontSize:9, letterSpacing:".14em", color:isRecording ? "#FF453A" : "#666", fontWeight:700 }}>
+            <span style={{ fontSize:11, letterSpacing:".04em", color:isRecording ? "#FF453A" : "#666", fontWeight:700 }}>
               {isRecording ? "LIVE" : "STANDBY"}
             </span>
           </div>
-          <div style={{ fontSize:9, letterSpacing:".1em", color:ac, fontWeight:800 }}>
+          <div style={{ fontSize:11, letterSpacing:".03em", color:ac, fontWeight:800 }}>
             {stationCfg.exercises[exerciseIdx]?.toUpperCase()}
           </div>
           <motion.button whileTap={{ scale:.85 }} onClick={onClose}
@@ -22936,7 +22937,7 @@ function VBTCameraModule({ stationCfg, exerciseIdx, onClose, theme }) {
             background: isRecording ? "#FF453A" : ac,
             boxShadow: isRecording ? "0 0 20px #FF453A88" : `0 0 20px ${ac}88`,
             display:"flex", alignItems:"center", justifyContent:"center",
-            fontSize:10, fontWeight:900, color:"#000", letterSpacing:".08em",
+            fontSize:11.5, fontWeight:900, color:"#000", letterSpacing:".02em",
           }}>
           {isRecording ? "STOP" : "REC"}
         </motion.button>
@@ -22958,7 +22959,7 @@ function SetRepCounter({ ac }) {
 
   const Spinner = ({ label, value, onUp, onDown, unit }) => (
     <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
-      <div style={{ fontSize:8, letterSpacing:".14em", color:"rgba(255,255,255,0.35)", fontWeight:700 }}>{label}</div>
+      <div style={{ fontSize:11, letterSpacing:".04em", color:"rgba(255,255,255,0.35)", fontWeight:700 }}>{label}</div>
       <motion.button whileTap={{ scale:.8 }} onClick={onUp}
         style={{ background:"none", border:`1px solid ${ac}44`, borderRadius:6, width:32, height:24,
           cursor:"pointer", color:ac, fontSize:14, display:"flex", alignItems:"center", justifyContent:"center" }}>
@@ -22967,7 +22968,7 @@ function SetRepCounter({ ac }) {
       <div style={{ fontSize:28, fontWeight:900, color:"#fff", fontFamily:"SF Mono, ui-monospace, monospace",
         minWidth:56, textAlign:"center", lineHeight:1 }}>
         {value}
-        <span style={{ fontSize:10, color:"rgba(255,255,255,0.3)", marginLeft:2 }}>{unit}</span>
+        <span style={{ fontSize:11.5, color:"rgba(255,255,255,0.3)", marginLeft:2 }}>{unit}</span>
       </div>
       <motion.button whileTap={{ scale:.8 }} onClick={onDown}
         style={{ background:"none", border:`1px solid ${ac}44`, borderRadius:6, width:32, height:24,
@@ -22988,7 +22989,7 @@ function SetRepCounter({ ac }) {
       </div>
       <motion.button whileTap={{ scale:.97 }} onClick={logSet}
         style={{ background:ac, border:"none", borderRadius:12, padding:"12px", cursor:"pointer",
-          fontSize:12, fontWeight:800, color:"#000", letterSpacing:".1em" }}>
+          fontSize:12, fontWeight:600, color:"#000", letterSpacing:".03em" }}>
         LOG SET
       </motion.button>
       {loggedSets.length > 0 && (
@@ -22996,11 +22997,11 @@ function SetRepCounter({ ac }) {
           {loggedSets.map((s, i) => (
             <div key={s.ts} style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
               padding:"6px 10px", borderRadius:8, background:"rgba(255,255,255,0.04)" }}>
-              <span style={{ fontSize:9, color:"rgba(255,255,255,0.35)", letterSpacing:".06em" }}>SET {loggedSets.length - i}</span>
+              <span style={{ fontSize:11, color:"rgba(255,255,255,0.35)", letterSpacing:".01em" }}>SET {loggedSets.length - i}</span>
               <span style={{ fontSize:12, fontWeight:700, color:"rgba(255,255,255,0.7)", fontFamily:"SF Mono, monospace" }}>
                 {s.reps} × {s.weight}kg
               </span>
-              <span style={{ fontSize:9, color:ac, fontWeight:700 }}>✓</span>
+              <span style={{ fontSize:11, color:ac, fontWeight:700 }}>✓</span>
             </div>
           ))}
         </div>
@@ -23026,7 +23027,7 @@ function StationLeaderboard({ stationCfg, theme }) {
             style={{ flex:1, padding:"8px", border:"none", cursor:"pointer",
               background: tab===t ? ac : "transparent",
               color: tab===t ? "#000" : ac,
-              fontSize:9, fontWeight:800, letterSpacing:".1em" }}>
+              fontSize:11, fontWeight:600, letterSpacing:".03em" }}>
             APEX {t.toUpperCase()}
           </motion.button>
         ))}
@@ -23051,7 +23052,7 @@ function StationLeaderboard({ stationCfg, theme }) {
           <div style={{ fontSize:14, fontWeight:900, color:ac, fontFamily:"SF Mono, monospace" }}>
             {row.kg}kg
           </div>
-          <div style={{ fontSize:9, color:"rgba(255,255,255,0.3)", fontFamily:"SF Mono, monospace" }}>
+          <div style={{ fontSize:11, color:"rgba(255,255,255,0.3)", fontFamily:"SF Mono, monospace" }}>
             {row.vel}
           </div>
         </motion.div>
@@ -23113,12 +23114,12 @@ function StationLanding({ stationId, theme, onBack, user }) {
           <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
             <motion.button whileTap={{ scale:.96 }} onClick={onBack}
               style={{ background:"none", border:"none", cursor:"pointer",
-                fontSize:11, color:T.faint, padding:0, letterSpacing:".06em" }}>
+                fontSize:11, color:T.faint, padding:0, letterSpacing:".01em" }}>
               ← BACK
             </motion.button>
             {/* Station badge */}
             <div style={{ background:`${ac}22`, border:`1px solid ${ac}66`, borderRadius:6,
-              padding:"3px 10px", fontSize:9, fontWeight:900, color:ac, letterSpacing:".14em" }}>
+              padding:"3px 10px", fontSize:11, fontWeight:900, color:ac, letterSpacing:".04em" }}>
               {cfg.badge}
             </div>
           </div>
@@ -23130,7 +23131,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
               <div style={{ fontSize:24, fontWeight:900, color:"#fff", letterSpacing:"-.01em" }}>
                 {cfg.label}
               </div>
-              <div style={{ fontSize:9, color:ac, letterSpacing:".18em", fontWeight:700, marginTop:2 }}>
+              <div style={{ fontSize:11, color:ac, letterSpacing:".04em", fontWeight:700, marginTop:2 }}>
                 NFC LINKED · {stationId?.toUpperCase()}
               </div>
             </div>
@@ -23143,10 +23144,10 @@ function StationLanding({ stationId, theme, onBack, user }) {
               <motion.button key={ex} whileTap={{ scale:.97 }}
                 onClick={() => setSelectedEx(i)}
                 style={{
-                  flexShrink:0, padding:"6px 14px", borderRadius:20, border:"none", cursor:"pointer",
+                  flexShrink:0, padding:"6px 14px", borderRadius:16, border:"none", cursor:"pointer",
                   background: selectedEx===i ? ac : `${ac}18`,
                   color: selectedEx===i ? "#000" : ac,
-                  fontSize:10, fontWeight:700, letterSpacing:".04em", whiteSpace:"nowrap",
+                  fontSize:11.5, fontWeight:700, letterSpacing:".04em", whiteSpace:"nowrap",
                 }}>
                 {ex}
               </motion.button>
@@ -23160,7 +23161,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
             <motion.button key={id} whileTap={{ scale:.96 }} onClick={() => setTab(id)}
               style={{ flex:1, padding:"12px 0", border:"none", cursor:"pointer", background:"transparent",
                 color: tab===id ? ac : T.faint,
-                fontSize:10, fontWeight:800, letterSpacing:".1em",
+                fontSize:11.5, fontWeight:600, letterSpacing:".03em",
                 borderBottom: tab===id ? `2px solid ${ac}` : "2px solid transparent" }}>
               {label}
             </motion.button>
@@ -23179,7 +23180,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
                     background:`${ac}0E`, border:`1.5px solid ${ac}44`,
                     display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                   <div>
-                    <div style={{ fontSize:8.5, fontWeight:900, color:ac, letterSpacing:".14em", marginBottom:4 }}>
+                    <div style={{ fontSize:11.5, fontWeight:900, color:ac, letterSpacing:".04em", marginBottom:4 }}>
                       ◉ LAST TIME HERE · {(lastSession.day || "").toUpperCase()}
                     </div>
                     <div style={{ fontSize:16, fontWeight:900, color:"#fff", marginBottom:2 }}>
@@ -23190,11 +23191,11 @@ function StationLanding({ stationId, theme, onBack, user }) {
                     </div>
                   </div>
                   <div style={{ textAlign:"center" }}>
-                    <div style={{ fontSize:10, fontWeight:900, color:ac, letterSpacing:".06em",
+                    <div style={{ fontSize:11.5, fontWeight:900, color:ac, letterSpacing:".01em",
                       background:`${ac}22`, borderRadius:8, padding:"6px 10px" }}>
                       BEAT IT?
                     </div>
-                    <div style={{ fontSize:9, color:"rgba(255,255,255,.35)", marginTop:4 }}>
+                    <div style={{ fontSize:11, color:"rgba(255,255,255,.35)", marginTop:4 }}>
                       Try +{Math.round(lastSession.weight * 0.05)} lbs
                     </div>
                   </div>
@@ -23208,11 +23209,11 @@ function StationLanding({ stationId, theme, onBack, user }) {
                 style={{ background:`${ac}14`, border:`1px solid ${ac}33`, borderRadius:14,
                   padding:"14px 16px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
                 <div>
-                  <div style={{ fontSize:10, color:ac, fontWeight:800, letterSpacing:".1em" }}>ACTIVE EXERCISE</div>
+                  <div style={{ fontSize:11.5, color:ac, fontWeight:600, letterSpacing:".03em" }}>ACTIVE EXERCISE</div>
                   <div style={{ fontSize:18, fontWeight:900, color:"#fff", marginTop:2 }}>
                     {cfg.exercises[selectedEx]}
                   </div>
-                  <div style={{ fontSize:8.5, color:T.faint, marginTop:4, letterSpacing:".08em" }}>
+                  <div style={{ fontSize:11.5, color:T.faint, marginTop:4, letterSpacing:".02em" }}>
                     TRACKING {cfg.vbt.landmark.toUpperCase()} · {cfg.vbt.barPathAxis.toUpperCase()} AXIS
                   </div>
                 </div>
@@ -23221,7 +23222,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
                   style={{ background:ac, border:"none", borderRadius:12, padding:"10px 14px",
                     cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
                   <span style={{ fontSize:18 }}>📷</span>
-                  <span style={{ fontSize:8, fontWeight:800, color:"#000", letterSpacing:".08em" }}>VBT</span>
+                  <span style={{ fontSize:11, fontWeight:600, color:"#000", letterSpacing:".02em" }}>VBT</span>
                 </motion.button>
               </motion.div>
 
@@ -23232,7 +23233,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
                   ["SPEED",    cfg.vbt.velocityThresholds.speed,    "#30D158"]].map(([z,v,c]) => (
                   <div key={z} style={{ flex:1, background:`${c}14`, border:`1px solid ${c}33`,
                     borderRadius:8, padding:"8px", textAlign:"center" }}>
-                    <div style={{ fontSize:7, fontWeight:800, color:c, letterSpacing:".1em" }}>{z}</div>
+                    <div style={{ fontSize:7, fontWeight:600, color:c, letterSpacing:".03em" }}>{z}</div>
                     <div style={{ fontSize:14, fontWeight:900, color:c, fontFamily:"SF Mono, monospace" }}>
                       {v}+
                     </div>
@@ -23243,7 +23244,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
 
               {/* Set / Rep Counter */}
               <div style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:16, padding:"16px" }}>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:10 }}>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
                   SET TRACKER
                 </div>
                 <SetRepCounter ac={ac}/>
@@ -23253,7 +23254,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
 
           {tab === "leaderboard" && (
             <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}>
-              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:12 }}>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:12 }}>
                 {cfg.label.toUpperCase()} · APEX RANKINGS
               </div>
               <StationLeaderboard stationCfg={cfg} theme={theme}/>
@@ -23296,7 +23297,7 @@ function ManagerPIN({ onUnlock, onBack, theme }) {
       </div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:32 }}>
         <RVNLogo size={48} style={{ marginBottom:18 }}/>
-        <div style={{ fontSize:10, fontWeight:700, letterSpacing:".18em", color:T.faint, marginBottom:6 }}>
+        <div style={{ fontSize:11.5, fontWeight:700, letterSpacing:".04em", color:T.faint, marginBottom:6 }}>
           MANAGER ACCESS
         </div>
         <div style={{ fontSize:28, fontWeight:900, color:T.text, marginBottom:8 }}>Command Center</div>
@@ -23356,8 +23357,8 @@ function AnalyticsBar({ label, value, max, color, theme }) {
   return (
     <div style={{ marginBottom:8 }}>
       <div style={{ display:"flex", justifyContent:"space-between", marginBottom:3 }}>
-        <span style={{ fontSize:10, color:T.muted, fontWeight:600 }}>{label}</span>
-        <span style={{ fontSize:10, color, fontWeight:800 }}>{value}</span>
+        <span style={{ fontSize:11.5, color:T.muted, fontWeight:600 }}>{label}</span>
+        <span style={{ fontSize:11.5, color, fontWeight:800 }}>{value}</span>
       </div>
       <div style={{ height:4, background:T.glass, borderRadius:2, overflow:"hidden" }}>
         <motion.div
@@ -23549,7 +23550,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:10 }}>
           <BackBtn onBack={onBack} theme={theme}/>
           <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
-            <div style={{ fontSize:12, fontWeight:800, color:T.text, letterSpacing:".1em" }}>COMMAND CENTER</div>
+            <div style={{ fontSize:12, fontWeight:600, color:T.text, letterSpacing:".03em" }}>COMMAND CENTER</div>
           </div>
           <ThemeToggle theme={theme} onToggle={onThemeChange}/>
         </div>
@@ -23564,7 +23565,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 backdropFilter:isMobile?"none":"blur(8px)",
                 border:`1px solid ${hubTab===ht.id ? T.blue : T.border}`,
                 borderRadius:9, cursor:"pointer",
-                fontSize:9, fontWeight:800, letterSpacing:".08em",
+                fontSize:11, fontWeight:600, letterSpacing:".02em",
                 color: hubTab===ht.id ? (theme==="dark"?"#000":"#fff") : T.muted,
                 display:"flex", alignItems:"center", justifyContent:"center", gap:4,
                 whiteSpace:"nowrap",
@@ -23592,14 +23593,14 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   style={{ padding:"14px", textAlign:"center" }}>
                   <div style={{ fontSize:20, color:stat.color, marginBottom:4 }}>{stat.icon}</div>
                   <div style={{ fontSize:20, fontWeight:900, color:T.text }}>{stat.value}</div>
-                  <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em", marginTop:2 }}>{stat.label}</div>
+                  <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", marginTop:2 }}>{stat.label}</div>
                 </GlassCard>
               ))}
             </div>
 
             {/* Session breakdown */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                 SESSION BREAKDOWN
               </div>
               <AnalyticsBar label="GYM MODE"     value={analytics.sessions.gym}      max={150} color={T.blue}   theme={theme}/>
@@ -23609,7 +23610,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Top sellers */}
             <GlassCard theme={theme} style={{ padding:"14px 16px" }}>
-              <div style={{ fontSize:10, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                 TOP REVENUE PRODUCTS
               </div>
               {analytics.topSellers.map((s, i) => (
@@ -23636,7 +23637,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     backdropFilter:isMobile?"none":"blur(8px)",
                     border:`1px solid ${mode===mId ? T[m.accentKey] : T.border}`,
                     borderRadius:10, cursor:"pointer",
-                    fontSize:10, fontWeight:800, letterSpacing:".06em",
+                    fontSize:11.5, fontWeight:600, letterSpacing:".01em",
                     color: mode===mId ? (theme==="dark"?"#000":"#fff") : T.muted,
                   }}>
                   {m.icon} {m.label.split(" ")[0]}
@@ -23652,11 +23653,11 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     <motion.button key={a.id} whileTap={{ scale:.97 }}
                       onClick={() => setTab(a.id)}
                       style={{
-                        padding:"6px 12px", borderRadius:20, whiteSpace:"nowrap",
+                        padding:"6px 12px", borderRadius:16, whiteSpace:"nowrap",
                         background: tab===a.id ? a.glow : T.glass,
                         backdropFilter:isMobile?"none":"blur(8px)",
                         border:`1px solid ${tab===a.id ? a.glow : T.border}`,
-                        cursor:"pointer", fontSize:10, fontWeight:700, letterSpacing:".06em",
+                        cursor:"pointer", fontSize:11.5, fontWeight:700, letterSpacing:".01em",
                         color: tab===a.id ? (theme==="dark"?"#000":"#fff") : T.muted,
                       }}>
                       {a.name.toUpperCase()}
@@ -23675,7 +23676,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                         <div style={{ flex:1 }}>
                           <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{prod.name}</div>
-                          <div style={{ fontSize:10, color:T.faint, marginTop:1 }}>
+                          <div style={{ fontSize:11.5, color:T.faint, marginTop:1 }}>
                             {prod.brand} · ${prod.price} · Stock: {prod.stock}
                           </div>
                         </div>
@@ -23724,8 +23725,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
         {/* BRANDS TAB */}
         {hubTab === "brands" && (
           <motion.div key="brands" {...FX.up}>
-            <div style={{ fontSize:10, fontWeight:700, color:T.faint,
-              letterSpacing:".14em", marginBottom:14 }}>
+            <div style={{ fontSize:11.5, fontWeight:700, color:T.faint,
+              letterSpacing:".04em", marginBottom:14 }}>
               SHELF BRAND CURATION
             </div>
             <div style={{ fontSize:11, color:T.muted, marginBottom:16, lineHeight:1.6 }}>
@@ -23761,7 +23762,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                           {br.tier}
                         </span>
                       </div>
-                      <div style={{ fontSize:10, color:T.faint }}>{br.badge}</div>
+                      <div style={{ fontSize:11.5, color:T.faint }}>{br.badge}</div>
                       <div style={{ display:"flex", gap:4, marginTop:4, flexWrap:"wrap" }}>
                         {br.certs.map(c => (
                           <span key={c} style={{ fontSize:7.5, color:T.muted,
@@ -23794,12 +23795,12 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
             {/* Active brand summary */}
             <GlassCard theme={theme} style={{ padding:"12px 16px", marginTop:6 }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
-                <div style={{ fontSize:10, color:T.muted }}>Brands on shelf</div>
+                <div style={{ fontSize:11.5, color:T.muted }}>Brands on shelf</div>
                 <div style={{ fontSize:16, fontWeight:900, color:T.gold }}>
                   {Object.values(activeBrands).filter(Boolean).length} / {BRANDS.length}
                 </div>
               </div>
-              <div style={{ fontSize:9, color:T.faint, marginTop:4 }}>
+              <div style={{ fontSize:11, color:T.faint, marginTop:4 }}>
                 Changes apply to the customer-facing catalog immediately.
               </div>
             </GlassCard>
@@ -23818,12 +23819,12 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   style={{ width:"100%", padding:"9px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:13, fontWeight:700, outline:"none", boxSizing:"border-box" }}/>
                 <div style={{ display:"flex", gap:8 }}>
                   <div style={{ flex:1 }}>
-                    <div style={{ fontSize:9, color:T.faint, marginBottom:3, letterSpacing:".08em" }}>TARGET CHECK-INS</div>
+                    <div style={{ fontSize:11, color:T.faint, marginBottom:3, letterSpacing:".02em" }}>TARGET CHECK-INS</div>
                     <input type="number" value={challengeForm.target} onChange={e => setChallengeForm(f=>({...f,target:parseInt(e.target.value)||0}))}
                       style={{ width:"100%", padding:"9px 10px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:14, fontWeight:700, outline:"none", textAlign:"center", boxSizing:"border-box" }}/>
                   </div>
                   <div style={{ flex:2 }}>
-                    <div style={{ fontSize:9, color:T.faint, marginBottom:3, letterSpacing:".08em" }}>DEADLINE</div>
+                    <div style={{ fontSize:11, color:T.faint, marginBottom:3, letterSpacing:".02em" }}>DEADLINE</div>
                     <input type="date" value={challengeForm.deadline} onChange={e => setChallengeForm(f=>({...f,deadline:e.target.value}))}
                       style={{ width:"100%", padding:"9px 10px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:12, outline:"none", boxSizing:"border-box" }}/>
                   </div>
@@ -23837,7 +23838,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     saveChallenges([...challenges, { ...challengeForm, id: Date.now(), createdAt: new Date().toISOString() }]);
                     setChallengeForm({ name:"", target:20, reward:"", deadline:"" });
                   }}
-                  style={{ padding:"10px", borderRadius:10, background:"#FF9F0A", color:"#fff", border:"none", fontSize:12, fontWeight:900, cursor:"pointer", letterSpacing:".06em" }}>
+                  style={{ padding:"10px", borderRadius:10, background:"#FF9F0A", color:"#fff", border:"none", fontSize:12, fontWeight:900, cursor:"pointer", letterSpacing:".01em" }}>
                   LAUNCH CHALLENGE ✦
                 </motion.button>
               </div>
@@ -23858,38 +23859,38 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     <div style={{ display:"flex", gap:8, marginBottom:8 }}>
                       <div style={{ flex:1, textAlign:"center", padding:"8px", background:T.glass, borderRadius:8 }}>
                         <div style={{ fontSize:18, fontWeight:900, color:"#FF9F0A" }}>{ch.target}</div>
-                        <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>CHECK-INS</div>
+                        <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>CHECK-INS</div>
                       </div>
                       {ch.deadline && (
                         <div style={{ flex:1, textAlign:"center", padding:"8px", background:T.glass, borderRadius:8 }}>
                           <div style={{ fontSize:11, fontWeight:700, color:T.text }}>{new Date(ch.deadline).toLocaleDateString()}</div>
-                          <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>DEADLINE</div>
+                          <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>DEADLINE</div>
                         </div>
                       )}
                     </div>
                     {ch.reward && (
-                      <div style={{ fontSize:10, color:"#FF9F0A", fontWeight:700, padding:"6px 10px", background:"#FF9F0A15", borderRadius:8 }}>
+                      <div style={{ fontSize:11.5, color:"#FF9F0A", fontWeight:700, padding:"6px 10px", background:"#FF9F0A15", borderRadius:8 }}>
                         🎁 {ch.reward}
                       </div>
                     )}
                     {/* Leaderboard — populated by NFC tap check-ins only */}
                     <div style={{ marginTop:10 }}>
                       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
-                        <div style={{ fontSize:9, fontWeight:700, color:T.faint, letterSpacing:".1em" }}>LEADERBOARD</div>
-                        <div style={{ fontSize:8, color:T.faint, fontStyle:"italic" }}>NFC taps only</div>
+                        <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".03em" }}>LEADERBOARD</div>
+                        <div style={{ fontSize:11, color:T.faint, fontStyle:"italic" }}>NFC taps only</div>
                       </div>
                       {(ch.leaderboard && ch.leaderboard.length > 0) ? (
                         ch.leaderboard.sort((a,b) => b.checkins - a.checkins).slice(0,5).map((u, j) => (
                           <div key={u.name} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"5px 8px", borderRadius:7, background: j===0 ? "#FF9F0A18" : T.glass, marginBottom:3 }}>
-                            <span style={{ fontSize:10, fontWeight:700, color: j===0 ? "#FF9F0A" : T.text }}>#{j+1} {u.name}</span>
+                            <span style={{ fontSize:11.5, fontWeight:700, color: j===0 ? "#FF9F0A" : T.text }}>#{j+1} {u.name}</span>
                             <div style={{ display:"flex", alignItems:"center", gap:6 }}>
                               <div style={{ height:4, width:Math.round((u.checkins/ch.target)*60), borderRadius:2, background:"#FF9F0A", maxWidth:60 }}/>
-                              <span style={{ fontSize:10, color:T.muted }}>{u.checkins}/{ch.target}</span>
+                              <span style={{ fontSize:11.5, color:T.muted }}>{u.checkins}/{ch.target}</span>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <div style={{ textAlign:"center", padding:"12px 0", fontSize:10, color:T.faint, fontStyle:"italic" }}>
+                        <div style={{ textAlign:"center", padding:"12px 0", fontSize:11.5, color:T.faint, fontStyle:"italic" }}>
                           No check-ins yet — members tap NFC to register
                         </div>
                       )}
@@ -23905,7 +23906,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
         {hubTab === "qr" && (
           <motion.div key="qr" {...FX.up}>
             <GlassCard theme={theme} style={{ padding:"16px", marginBottom:12 }}>
-              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+              <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                 MEMBER QR ONBOARDING
               </div>
               <div style={{ fontSize:12, color:T.muted, marginBottom:16, lineHeight:1.6 }}>
@@ -23914,12 +23915,12 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
               {/* Gym info preview */}
               <div style={{ background:`${T.blue}10`, border:`1px solid ${T.blue}30`, borderRadius:12, padding:"12px 14px", marginBottom:14 }}>
-                <div style={{ fontSize:9, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>WILL EMBED</div>
+                <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>WILL EMBED</div>
                 <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{venueBrand.gymName || storeName || "Your Gym Name"}</div>
                 <div style={{ fontSize:11, color:T.muted, marginTop:2 }}>{venueBrand.welcomeMsg || "Set welcome message in Brands tab"}</div>
                 <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:8 }}>
                   <div style={{ width:16, height:16, borderRadius:"50%", background:venueBrand.accentColor || "#2E5BFF" }}/>
-                  <span style={{ fontSize:10, color:T.faint }}>{venueBrand.accentColor || "#2E5BFF"}</span>
+                  <span style={{ fontSize:11.5, color:T.faint }}>{venueBrand.accentColor || "#2E5BFF"}</span>
                 </div>
               </div>
 
@@ -23970,7 +23971,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         return <rect key={`d${i}`} x={x} y={y} width="1" height="1" fill="#000"/>;
                       })}
                     </svg>
-                    <div style={{ fontSize:8, color:"#666", fontWeight:700, letterSpacing:".1em" }}>RVN OS · SCAN TO JOIN</div>
+                    <div style={{ fontSize:11, color:"#666", fontWeight:700, letterSpacing:".03em" }}>RVN OS · SCAN TO JOIN</div>
                   </div>
 
                   {/* Copyable link */}
@@ -23979,7 +23980,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     borderRadius:10, padding:"10px 12px",
                     display:"flex", alignItems:"center", gap:8,
                   }}>
-                    <div style={{ flex:1, fontSize:10, color:T.muted, wordBreak:"break-all", textAlign:"left" }}>
+                    <div style={{ flex:1, fontSize:11.5, color:T.muted, wordBreak:"break-all", textAlign:"left" }}>
                       {qrDataUrl.slice(0, 60)}…
                     </div>
                     <motion.button whileTap={{ scale:.96 }}
@@ -23987,7 +23988,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       style={{
                         flexShrink:0, background:T.blue, color: theme==="dark"?"#000":"#fff",
                         border:"none", borderRadius:8, padding:"6px 10px",
-                        fontSize:10, fontWeight:800, cursor:"pointer",
+                        fontSize:11.5, fontWeight:800, cursor:"pointer",
                       }}>
                       COPY
                     </motion.button>
@@ -24001,7 +24002,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Instructions */}
             <GlassCard theme={theme} style={{ padding:"14px 16px" }}>
-              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 HOW IT WORKS
               </div>
               {[
@@ -24015,7 +24016,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     width:22, height:22, borderRadius:"50%",
                     background:`${T.blue}22`, border:`1px solid ${T.blue}44`,
                     display:"flex", alignItems:"center", justifyContent:"center",
-                    fontSize:10, fontWeight:900, color:T.blue, flexShrink:0,
+                    fontSize:11.5, fontWeight:900, color:T.blue, flexShrink:0,
                   }}>{step.n}</div>
                   <div style={{ fontSize:12, color:T.muted, lineHeight:1.5 }}>{step.text}</div>
                 </div>
@@ -24029,20 +24030,20 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
           <motion.div key="coach" {...FX.up}>
             {/* Assign workout */}
             <GlassCard theme={theme} style={{ padding:"16px", marginBottom:12 }}>
-              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+              <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                 ASSIGN PROGRAM TO MEMBER
               </div>
 
               {/* Member picker */}
               {coachRoster.length > 0 ? (
                 <div style={{ marginBottom:10 }}>
-                  <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>SELECT MEMBER</div>
+                  <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>SELECT MEMBER</div>
                   <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                     {coachRoster.slice(0,8).map(m => (
                       <motion.button key={m.id} whileTap={{ scale:.97 }}
                         onClick={() => setCoachForm(f => ({ ...f, memberId:m.id, memberName:m.name }))}
                         style={{
-                          padding:"6px 12px", borderRadius:20, fontSize:10, fontWeight:700,
+                          padding:"6px 12px", borderRadius:16, fontSize:11.5, fontWeight:700,
                           background: coachForm.memberId===m.id ? T.blue : T.glass,
                           border:`1px solid ${coachForm.memberId===m.id ? T.blue : T.border}`,
                           color: coachForm.memberId===m.id ? (theme==="dark"?"#000":"#fff") : T.muted,
@@ -24055,7 +24056,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 </div>
               ) : (
                 <div style={{ marginBottom:10 }}>
-                  <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>MEMBER NAME</div>
+                  <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>MEMBER NAME</div>
                   <input
                     value={coachForm.memberName}
                     onChange={e => setCoachForm(f => ({ ...f, memberName:e.target.value }))}
@@ -24067,7 +24068,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
               {/* Program picker */}
               <div style={{ marginBottom:10 }}>
-                <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>PROGRAM</div>
+                <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>PROGRAM</div>
                 <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
                   {COACH_PROGRAMS.map(p => (
                     <motion.button key={p.id} whileTap={{ scale:.98 }}
@@ -24080,9 +24081,9 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       }}>
                       <div>
                         <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{p.label}</div>
-                        <div style={{ fontSize:10, color:T.muted }}>{p.desc}</div>
+                        <div style={{ fontSize:11.5, color:T.muted }}>{p.desc}</div>
                       </div>
-                      <div style={{ fontSize:10, color:T.faint }}>{p.days}d/wk</div>
+                      <div style={{ fontSize:11.5, color:T.faint }}>{p.days}d/wk</div>
                     </motion.button>
                   ))}
                 </div>
@@ -24090,7 +24091,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
               {/* Week */}
               <div style={{ marginBottom:10 }}>
-                <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>STARTING WEEK</div>
+                <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>STARTING WEEK</div>
                 <div style={{ display:"flex", gap:6 }}>
                   {[1,2,3,4].map(w => (
                     <motion.button key={w} whileTap={{ scale:.97 }}
@@ -24110,7 +24111,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
               {/* Notes */}
               <div style={{ marginBottom:14 }}>
-                <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".1em", marginBottom:6 }}>COACH NOTES (optional)</div>
+                <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>COACH NOTES (optional)</div>
                 <textarea
                   value={coachForm.notes}
                   onChange={e => setCoachForm(f => ({ ...f, notes:e.target.value }))}
@@ -24137,7 +24138,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
             {/* Active assignments */}
             {coachAssignments.length > 0 && (
               <GlassCard theme={theme} style={{ padding:"14px 16px" }}>
-                <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                   ACTIVE ASSIGNMENTS ({coachAssignments.length})
                 </div>
                 {coachAssignments.slice(0,5).map((a, i) => (
@@ -24154,15 +24155,15 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     }}>🎯</div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{a.memberName}</div>
-                      <div style={{ fontSize:10, color:T.muted }}>
+                      <div style={{ fontSize:11.5, color:T.muted }}>
                         {COACH_PROGRAMS.find(p=>p.id===a.program)?.label || a.program} · Week {a.week}
                       </div>
-                      {a.notes && <div style={{ fontSize:10, color:T.faint, marginTop:2 }}>{a.notes}</div>}
+                      {a.notes && <div style={{ fontSize:11.5, color:T.faint, marginTop:2 }}>{a.notes}</div>}
                     </div>
                     <div style={{
-                      fontSize:9, fontWeight:800, color:T.green,
+                      fontSize:11, fontWeight:800, color:T.green,
                       background:`${T.green}14`, border:`1px solid ${T.green}33`,
-                      borderRadius:20, padding:"2px 8px",
+                      borderRadius:16, padding:"2px 8px",
                     }}>ACTIVE</div>
                   </div>
                 ))}
@@ -24175,7 +24176,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
           <motion.div key="settings" {...FX.up}>
             {/* Appearance */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                 APPEARANCE
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -24201,7 +24202,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                           {opt.label}
                         </div>
                         {opt.sub && (
-                          <div style={{ fontSize:10, color:T.muted, marginTop:1 }}>{opt.sub}</div>
+                          <div style={{ fontSize:11.5, color:T.muted, marginTop:1 }}>{opt.sub}</div>
                         )}
                       </div>
                       <div style={{
@@ -24221,7 +24222,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Store name */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:7 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:7 }}>
                 STORE NAME
               </div>
               <div style={{ display:"flex", gap:8 }}>
@@ -24232,33 +24233,33 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   onClick={() => onStoreName(nameEdit)}
                   style={{
                     background:T.blue, border:"none", borderRadius:9,
-                    padding:"7px 14px", fontSize:11, fontWeight:800,
-                    color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".06em",
+                    padding:"7px 14px", fontSize:11, fontWeight:600,
+                    color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".01em",
                   }}>SAVE</motion.button>
               </div>
             </GlassCard>
 
             {/* Change PIN */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 CHANGE PIN
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
                 <div>
-                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>CURRENT PIN</div>
+                  <div style={{ fontSize:11, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>CURRENT PIN</div>
                   <input type="password" value={pinForm.current} onChange={e => setPinForm({...pinForm, current: e.target.value})}
                     placeholder="Enter current PIN"
                     style={{ width:"100%", padding:"8px 10px", fontSize:14, borderRadius:8, border:`1px solid ${T.border}`, background:T.glass }}/>
                 </div>
                 <div>
-                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>NEW PIN (4 digits)</div>
+                  <div style={{ fontSize:11, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>NEW PIN (4 digits)</div>
                   <input type="password" value={pinForm.next} onChange={e => setPinForm({...pinForm, next: e.target.value})}
                     placeholder="Enter new PIN"
                     maxLength="4"
                     style={{ width:"100%", padding:"8px 10px", fontSize:14, borderRadius:8, border:`1px solid ${T.border}`, background:T.glass }}/>
                 </div>
                 <div>
-                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>CONFIRM PIN</div>
+                  <div style={{ fontSize:11, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>CONFIRM PIN</div>
                   <input type="password" value={pinForm.confirm} onChange={e => setPinForm({...pinForm, confirm: e.target.value})}
                     placeholder="Confirm new PIN"
                     maxLength="4"
@@ -24295,29 +24296,29 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   }}
                   style={{
                     background:T.blue, border:"none", borderRadius:9,
-                    padding:"7px 14px", fontSize:11, fontWeight:800,
-                    color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".06em",
+                    padding:"7px 14px", fontSize:11, fontWeight:600,
+                    color:theme==="dark"?"#000":"#fff", cursor:"pointer", letterSpacing:".01em",
                   }}>SAVE PIN</motion.button>
               </div>
             </GlassCard>
 
             {/* Venue Branding */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 VENUE BRANDING
               </div>
-              <div style={{ fontSize:10, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
+              <div style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
                 When members NFC tap into your gym, they'll see your logo, colors, and welcome message.
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
                 <div>
-                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>GYM NAME</div>
+                  <div style={{ fontSize:11, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>GYM NAME</div>
                   <input value={venueBrand.gymName} onChange={e => saveVenueBrand({ gymName: e.target.value })}
                     placeholder="e.g. Iron Republic Fitness"
                     style={{ width:"100%", padding:"9px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:13, fontWeight:700, outline:"none", boxSizing:"border-box" }}/>
                 </div>
                 <div>
-                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>ACCENT COLOR</div>
+                  <div style={{ fontSize:11, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>ACCENT COLOR</div>
                   <div style={{ display:"flex", gap:8, alignItems:"center" }}>
                     <input type="color" value={venueBrand.accentColor} onChange={e => saveVenueBrand({ accentColor: e.target.value })}
                       style={{ width:44, height:36, borderRadius:8, border:`1px solid ${T.border}`, padding:2, cursor:"pointer", background:T.glass }}/>
@@ -24330,13 +24331,13 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>WELCOME MESSAGE</div>
+                  <div style={{ fontSize:11, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>WELCOME MESSAGE</div>
                   <input value={venueBrand.welcomeMsg} onChange={e => saveVenueBrand({ welcomeMsg: e.target.value })}
                     placeholder="e.g. Welcome to Iron Republic. Let's build."
                     style={{ width:"100%", padding:"9px 12px", borderRadius:10, border:`1px solid ${T.border}`, background:T.glass, color:T.text, fontSize:12, outline:"none", boxSizing:"border-box" }}/>
                 </div>
                 <div>
-                  <div style={{ fontSize:9, color:T.faint, marginBottom:4, letterSpacing:".08em" }}>LOGO</div>
+                  <div style={{ fontSize:11, color:T.faint, marginBottom:4, letterSpacing:".02em" }}>LOGO</div>
                   <label style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 12px", borderRadius:10, border:`1px dashed ${T.border}`, cursor:"pointer", background:T.glass }}>
                     {venueBrand.logoDataUrl
                       ? <img src={venueBrand.logoDataUrl} alt="logo" style={{ height:32, objectFit:"contain", borderRadius:4 }}/>
@@ -24351,12 +24352,12 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 {/* Preview */}
                 {(venueBrand.gymName || venueBrand.logoDataUrl) && (
                   <div style={{ padding:"12px 14px", borderRadius:12, background:`${venueBrand.accentColor}15`, border:`1px solid ${venueBrand.accentColor}44` }}>
-                    <div style={{ fontSize:9, color:T.faint, letterSpacing:".08em", marginBottom:6 }}>PREVIEW — MEMBER VIEW</div>
+                    <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", marginBottom:6 }}>PREVIEW — MEMBER VIEW</div>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       {venueBrand.logoDataUrl && <img src={venueBrand.logoDataUrl} alt="logo" style={{ height:28, objectFit:"contain" }}/>}
                       <div>
                         <div style={{ fontSize:13, fontWeight:800, color:venueBrand.accentColor }}>{venueBrand.gymName || "Your Gym"}</div>
-                        {venueBrand.welcomeMsg && <div style={{ fontSize:10, color:T.muted }}>{venueBrand.welcomeMsg}</div>}
+                        {venueBrand.welcomeMsg && <div style={{ fontSize:11.5, color:T.muted }}>{venueBrand.welcomeMsg}</div>}
                       </div>
                     </div>
                   </div>
@@ -24366,7 +24367,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Mode selector */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 ENVIRONMENT MODE
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -24385,7 +24386,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       <div style={{ fontSize:20, color:T[m.accentKey] }}>{m.icon}</div>
                       <div>
                         <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{m.label}</div>
-                        <div style={{ fontSize:10, color:T.faint }}>{m.tagline}</div>
+                        <div style={{ fontSize:11.5, color:T.faint }}>{m.tagline}</div>
                       </div>
                       {mode===mId && <Pill label="ACTIVE" color={T[m.accentKey]} theme={theme}/>}
                     </div>
@@ -24396,7 +24397,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Theme + OS info */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 APPEARANCE
               </div>
               <div style={{ display:"flex", gap:8 }}>
@@ -24409,7 +24410,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       backdropFilter:isMobile?"none":"blur(8px)",
                       border:`1px solid ${theme===th ? T.blue : T.border}`,
                       borderRadius:10, cursor:"pointer",
-                      fontSize:11, fontWeight:700, letterSpacing:".06em",
+                      fontSize:11, fontWeight:700, letterSpacing:".01em",
                       color: theme===th ? (theme==="dark"?"#000":"#fff") : T.muted,
                     }}>
                     {th==="dark" ? "◑ DARK" : "☀ LIGHT"}
@@ -24420,10 +24421,10 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Demo Bypass */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12, border:`1px solid #D4AF3744` }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:"#D4AF37", letterSpacing:".12em", marginBottom:4 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:"#D4AF37", letterSpacing:".03em", marginBottom:4 }}>
                 DEMO MODE
               </div>
-              <div style={{ fontSize:10, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
+              <div style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
                 Loads a fully seeded investor demo profile — bypasses login and fills all screens with realistic data. Use this to walk investors or reviewers through the app.
               </div>
               <motion.button whileTap={{ scale:.97 }}
@@ -24435,7 +24436,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   width:"100%", padding:"13px",
                   background:"linear-gradient(135deg, #D4AF37cc, #D4AF37)",
                   border:"none", borderRadius:11, cursor:"pointer",
-                  fontSize:12, fontWeight:900, color:"#000", letterSpacing:".06em",
+                  fontSize:12, fontWeight:900, color:"#000", letterSpacing:".01em",
                   boxShadow:"0 4px 18px #D4AF3744",
                 }}>
                 ⚡ LAUNCH DEMO MODE
@@ -24453,7 +24454,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     width:"100%", marginTop:8, padding:"10px",
                     background:"transparent", border:`1px solid ${T.border}`,
                     borderRadius:11, cursor:"pointer",
-                    fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".05em",
+                    fontSize:11, fontWeight:700, color:T.muted, letterSpacing:".01em",
                   }}>
                   ✕ EXIT DEMO MODE
                 </motion.button>
@@ -24462,7 +24463,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {/* Contact + Support */}
             <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:12 }}>
-              <div style={{ fontSize:9.5, fontWeight:700, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 SUPPORT
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
@@ -24481,7 +24482,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     <LI n={item.icon} size={18} color={T.muted}/>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{item.label}</div>
-                      <div style={{ fontSize:10, color:T.muted, marginTop:1 }}>{item.sub}</div>
+                      <div style={{ fontSize:11.5, color:T.muted, marginTop:1 }}>{item.sub}</div>
                     </div>
                     <span style={{ fontSize:12, color:T.faint }}>›</span>
                   </motion.button>
@@ -24490,10 +24491,10 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
             </GlassCard>
 
             <GlassCard theme={theme} style={{ padding:"12px 16px", textAlign:"center" }}>
-              <div style={{ fontSize:10, color:T.faint, letterSpacing:".1em" }}>
+              <div style={{ fontSize:11.5, color:T.faint, letterSpacing:".03em" }}>
                 RVN OS · v{OS_VERSION} · BUILD {OS_BUILD}
               </div>
-              <div style={{ fontSize:9, color:T.faint, marginTop:2 }}>
+              <div style={{ fontSize:11, color:T.faint, marginTop:2 }}>
                 Performance Operating System · Bio-Intelligence Active
               </div>
             </GlassCard>
@@ -24503,8 +24504,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
         {/* STORIES TAB */}
         {hubTab==="stories" && (
           <div style={{ padding:"0 16px 32px" }}>
-            <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-              letterSpacing:".14em", marginBottom:4 }}>★ LOCAL SUCCESS STORIES</div>
+            <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+              letterSpacing:".04em", marginBottom:4 }}>★ LOCAL SUCCESS STORIES</div>
             <div style={{ fontSize:18, fontWeight:900, color:T.text, marginBottom:4 }}>
               Pin Customer Transformations
             </div>
@@ -24513,8 +24514,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
             </div>
 
             <GlassCard theme={theme} style={{ padding:"16px", marginBottom:16 }}>
-              <div style={{ fontSize:10, fontWeight:800, color:T.faint,
-                letterSpacing:".12em", marginBottom:12 }}>+ ADD LOCAL STORY</div>
+              <div style={{ fontSize:11.5, fontWeight:600, color:T.faint,
+                letterSpacing:".03em", marginBottom:12 }}>+ ADD LOCAL STORY</div>
 
               {[
                 { label:"MEMBER NAME",     key:"name",   ph:"e.g. Alex Johnson",                       type:"text" },
@@ -24523,8 +24524,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 { label:"THEIR STORY",     key:"text",   ph:"What did they say about the protocol?",    type:"text" },
               ].map(f => (
                 <div key={f.key} style={{ marginBottom:10 }}>
-                  <div style={{ fontSize:8, fontWeight:800, color:T.faint,
-                    letterSpacing:".12em", marginBottom:4 }}>{f.label}</div>
+                  <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+                    letterSpacing:".03em", marginBottom:4 }}>{f.label}</div>
                   <input value={storyForm[f.key]}
                     onChange={e => setStoryForm(p=>({...p,[f.key]:e.target.value}))}
                     placeholder={f.ph} type={f.type}
@@ -24536,8 +24537,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               ))}
 
               <div style={{ marginBottom:12 }}>
-                <div style={{ fontSize:8, fontWeight:800, color:T.faint,
-                  letterSpacing:".12em", marginBottom:6 }}>BRAND</div>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+                  letterSpacing:".03em", marginBottom:6 }}>BRAND</div>
                 <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
                   {BRANDS.map(br => (
                     <motion.button key={br.id} whileTap={{ scale:.96 }}
@@ -24545,7 +24546,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       style={{ padding:"5px 10px", borderRadius:16, cursor:"pointer",
                         background:storyForm.brand===br.id?`${br.color}22`:T.glass,
                         border:`1px solid ${storyForm.brand===br.id?br.color:T.border}`,
-                        fontSize:9, fontWeight:800,
+                        fontSize:11, fontWeight:800,
                         color:storyForm.brand===br.id?br.color:T.muted }}>
                       {br.name}
                     </motion.button>
@@ -24579,7 +24580,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   border:`1px solid ${storyForm.name&&storyForm.result&&storyForm.text?"#D4AF37":T.border}`,
                   borderRadius:10, fontSize:12, fontWeight:900,
                   color:storyForm.name&&storyForm.result&&storyForm.text?"#000":T.faint,
-                  cursor:"pointer", letterSpacing:".06em" }}>
+                  cursor:"pointer", letterSpacing:".01em" }}>
                 ★ PIN THIS STORY
               </motion.button>
 
@@ -24594,8 +24595,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
             {pinnedStories.length > 0 && (
               <div>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint,
-                  letterSpacing:".12em", marginBottom:10 }}>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint,
+                  letterSpacing:".03em", marginBottom:10 }}>
                   CURRENTLY FEATURED ({pinnedStories.length})
                 </div>
                 {pinnedStories.map((s,i) => {
@@ -24613,15 +24614,15 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         </div>
                         <div style={{ flex:1 }}>
                           <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{s.name}</div>
-                          <div style={{ fontSize:9, color:T.muted }}>{s.handle}</div>
+                          <div style={{ fontSize:11, color:T.muted }}>{s.handle}</div>
                         </div>
                         <motion.button whileTap={{ scale:.96 }}
                           onClick={() => setPinnedStories(p => p.filter((_,j)=>j!==i))}
                           style={{ background:"none", border:`1px solid ${T.border}`,
                             borderRadius:8, padding:"3px 8px", cursor:"pointer",
-                            fontSize:9, color:T.faint }}>UNPIN</motion.button>
+                            fontSize:11, color:T.faint }}>UNPIN</motion.button>
                       </div>
-                      <div style={{ fontSize:10, color:br.color, fontWeight:700,
+                      <div style={{ fontSize:11.5, color:br.color, fontWeight:700,
                         background:`${br.color}18`, borderRadius:8, padding:"4px 8px", marginBottom:4 }}>
                         ✦ {s.verifiedResult}
                       </div>
@@ -24675,7 +24676,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 ].map(s => (
                   <GlassCard key={s.label} theme={theme} style={{ padding:"12px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:900, color:s.color }}>{s.value}</div>
-                    <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em", marginTop:2 }}>{s.label}</div>
+                    <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", marginTop:2 }}>{s.label}</div>
                   </GlassCard>
                 ))}
               </div>
@@ -24689,7 +24690,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   <motion.button key={f} whileTap={{ scale:.97 }} onClick={() => setFilter(f)}
                     style={{ padding:"8px 12px", borderRadius:10, border:`1px solid ${filter===f?T.blue:T.border}`,
                       background:filter===f?T.blue:T.glass, cursor:"pointer",
-                      fontSize:9, fontWeight:800, color:filter===f?(theme==="dark"?"#000":"#fff"):T.muted,
+                      fontSize:11, fontWeight:600, color:filter===f?(theme==="dark"?"#000":"#fff"):T.muted,
                       whiteSpace:"nowrap" }}>
                     {f.toUpperCase()}
                   </motion.button>
@@ -24716,7 +24717,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                           <div style={{ fontSize:13, fontWeight:800, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{m.name}</div>
                           {m.flag && <Pill label="⚠ AT RISK" color={T.red} theme={theme}/>}
                         </div>
-                        <div style={{ fontSize:10, color:T.muted }}>
+                        <div style={{ fontSize:11.5, color:T.muted }}>
                           {m.lastVisit === 0 ? "Last visit: Today" : `Last visit: ${m.lastVisit}d ago`}
                           {" · "}🔥 {m.streak}-day streak
                         </div>
@@ -24727,12 +24728,12 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                               background: m.adherence >= 75 ? T.green : m.adherence >= 50 ? T.gold : T.red,
                               width:`${m.adherence}%`, transition:"width .4s" }}/>
                           </div>
-                          <div style={{ fontSize:9, fontWeight:800, color:T.muted, minWidth:28 }}>{m.adherence}%</div>
+                          <div style={{ fontSize:11, fontWeight:600, color:T.muted, minWidth:28 }}>{m.adherence}%</div>
                         </div>
                       </div>
                       <div style={{ textAlign:"right", flexShrink:0 }}>
                         <div style={{ fontSize:11, fontWeight:800, color:T.text }}>{(m.volume/1000).toFixed(1)}k</div>
-                        <div style={{ fontSize:8, color:T.faint }}>LB VOL</div>
+                        <div style={{ fontSize:11, color:T.faint }}>LB VOL</div>
                       </div>
                     </div>
                   </GlassCard>
@@ -24765,7 +24766,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 ].map(s => (
                   <GlassCard key={s.label} theme={theme} style={{ padding:"12px", textAlign:"center" }}>
                     <div style={{ fontSize:22, fontWeight:900, color:s.color }}>{s.value}</div>
-                    <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em", marginTop:2 }}>{s.label}</div>
+                    <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", marginTop:2 }}>{s.label}</div>
                   </GlassCard>
                 ))}
               </div>
@@ -24787,13 +24788,13 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                           <Pill label={statusLabel[tag.status]} color={statusColor[tag.status]} theme={theme}/>
                         </div>
                         <div style={{ fontSize:11, color:T.muted }}>{tag.equipment || "Unassigned"} · {tag.location}</div>
-                        <div style={{ fontSize:9, color:T.faint, marginTop:2 }}>Last tap: {tag.lastTap}</div>
+                        <div style={{ fontSize:11, color:T.faint, marginTop:2 }}>Last tap: {tag.lastTap}</div>
                       </div>
                       {tag.status === "broken" && (
                         <motion.button whileTap={{ scale:.97 }}
                           onClick={() => setTags(ts => ts.map(t => t.id===tag.id ? {...t,status:"unassigned"} : t))}
                           style={{ padding:"6px 10px", borderRadius:8, border:`1px solid ${T.red}55`,
-                            background:`${T.red}18`, cursor:"pointer", fontSize:9, fontWeight:800, color:T.red }}>
+                            background:`${T.red}18`, cursor:"pointer", fontSize:11, fontWeight:800, color:T.red }}>
                           REPLACE
                         </motion.button>
                       )}
@@ -24801,7 +24802,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         <motion.button whileTap={{ scale:.97 }}
                           onClick={() => setTags(ts => ts.map(t => t.id===tag.id ? {...t,status:"active",lastTap:"just now"} : t))}
                           style={{ padding:"6px 10px", borderRadius:8, border:`1px solid ${T.blue}55`,
-                            background:`${T.blue}18`, cursor:"pointer", fontSize:9, fontWeight:800, color:T.blue }}>
+                            background:`${T.blue}18`, cursor:"pointer", fontSize:11, fontWeight:800, color:T.blue }}>
                           ACTIVATE
                         </motion.button>
                       )}
@@ -24824,7 +24825,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     { label:"LOCATION",      key:"location",  ph:"e.g. Floor 1" },
                   ].map(f => (
                     <div key={f.key} style={{ marginBottom:10 }}>
-                      <div style={{ fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:4 }}>{f.label}</div>
+                      <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:4 }}>{f.label}</div>
                       <input value={newTag[f.key]} onChange={e => setNewTag(n=>({...n,[f.key]:e.target.value}))}
                         placeholder={f.ph}
                         style={{ width:"100%", background:T.glass, border:`1px solid ${T.border}`,
@@ -24877,18 +24878,18 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
           };
           return (
             <motion.div key="export" {...FX.up}>
-              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".14em", marginBottom:4 }}>↗ BUSINESS REPORTS</div>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:4 }}>↗ BUSINESS REPORTS</div>
               <div style={{ fontSize:18, fontWeight:900, color:T.text, marginBottom:4 }}>Export for Review</div>
               <div style={{ fontSize:11, color:T.muted, lineHeight:1.6, marginBottom:16 }}>Download CSV reports for your monthly business review, investor deck, or staff meeting.</div>
               {/* Range selector */}
               <GlassCard theme={theme} style={{ padding:"12px 14px", marginBottom:14 }}>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>DATE RANGE</div>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>DATE RANGE</div>
                 <div style={{ display:"flex", gap:6 }}>
                   {ranges.map(r => (
                     <motion.button key={r.id} whileTap={{ scale:.97 }} onClick={() => setRange(r.id)}
                       style={{ flex:1, padding:"8px 4px", borderRadius:8, border:`1px solid ${range===r.id?T.blue:T.border}`,
                         background:range===r.id?T.blue:T.glass, cursor:"pointer",
-                        fontSize:9, fontWeight:800, color:range===r.id?(theme==="dark"?"#000":"#fff"):T.muted }}>
+                        fontSize:11, fontWeight:600, color:range===r.id?(theme==="dark"?"#000":"#fff"):T.muted }}>
                       {r.label}
                     </motion.button>
                   ))}
@@ -24904,23 +24905,23 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         justifyContent:"center", fontSize:18, color:rep.color }}>{rep.icon}</div>
                       <div style={{ flex:1 }}>
                         <div style={{ fontSize:13, fontWeight:800, color:T.text, marginBottom:2 }}>{rep.label}</div>
-                        <div style={{ fontSize:10, color:T.muted }}>{rep.desc}</div>
+                        <div style={{ fontSize:11.5, color:T.muted }}>{rep.desc}</div>
                       </div>
                       <motion.button whileTap={{ scale:.97 }} onClick={() => doExport(rep)}
                         style={{ padding:"8px 14px", borderRadius:10, border:"none",
                           background: exported===rep.id ? T.green : rep.color,
-                          cursor:"pointer", fontSize:10, fontWeight:800, flexShrink:0,
+                          cursor:"pointer", fontSize:11.5, fontWeight:800, flexShrink:0,
                           color:theme==="dark"?"#000":"#fff", transition:"background .3s" }}>
                         {exported===rep.id ? "✓ SAVED" : "EXPORT"}
                       </motion.button>
                     </div>
                     {/* Preview table */}
                     <div style={{ marginTop:12, overflowX:"auto" }}>
-                      <table style={{ width:"100%", borderCollapse:"collapse", fontSize:9 }}>
+                      <table style={{ width:"100%", borderCollapse:"collapse", fontSize:11 }}>
                         <thead>
                           <tr>{rep.headers.split(",").map(h => (
-                            <th key={h} style={{ padding:"4px 6px", color:T.faint, fontWeight:800,
-                              letterSpacing:".06em", textAlign:"left", borderBottom:`1px solid ${T.border}` }}>{h}</th>
+                            <th key={h} style={{ padding:"4px 6px", color:T.faint, fontWeight:600,
+                              letterSpacing:".01em", textAlign:"left", borderBottom:`1px solid ${T.border}` }}>{h}</th>
                           ))}</tr>
                         </thead>
                         <tbody>
@@ -24932,7 +24933,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         </tbody>
                       </table>
                       {rep.rows.length > 3 && (
-                        <div style={{ fontSize:9, color:T.faint, textAlign:"center", paddingTop:4 }}>+ {rep.rows.length-3} more rows in export</div>
+                        <div style={{ fontSize:11, color:T.faint, textAlign:"center", paddingTop:4 }}>+ {rep.rows.length-3} more rows in export</div>
                       )}
                     </div>
                   </GlassCard>
@@ -24962,15 +24963,15 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
             <motion.div key="roles" {...FX.up}>
               {/* Permission matrix */}
               <GlassCard theme={theme} style={{ padding:"14px 16px", marginBottom:14 }}>
-                <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:12 }}>PERMISSION MATRIX</div>
+                <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>PERMISSION MATRIX</div>
                 <div style={{ display:"grid", gridTemplateColumns:"1fr 60px 60px 60px", gap:0 }}>
-                  <div style={{ fontSize:8, color:T.faint, fontWeight:800, paddingBottom:8 }}></div>
-                  <div style={{ fontSize:8, color:T.gold, fontWeight:800, textAlign:"center", paddingBottom:8 }}>OWNER</div>
-                  <div style={{ fontSize:8, color:T.blue, fontWeight:800, textAlign:"center", paddingBottom:8 }}>COACH</div>
-                  <div style={{ fontSize:8, color:T.green, fontWeight:800, textAlign:"center", paddingBottom:8 }}>STAFF</div>
+                  <div style={{ fontSize:11, color:T.faint, fontWeight:600, paddingBottom:8 }}></div>
+                  <div style={{ fontSize:11, color:T.gold, fontWeight:800, textAlign:"center", paddingBottom:8 }}>OWNER</div>
+                  <div style={{ fontSize:11, color:T.blue, fontWeight:800, textAlign:"center", paddingBottom:8 }}>COACH</div>
+                  <div style={{ fontSize:11, color:T.green, fontWeight:800, textAlign:"center", paddingBottom:8 }}>STAFF</div>
                   {permissions.map((p,i) => (
                     <React.Fragment key={i}>
-                      <div style={{ fontSize:10, color:T.muted, padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none" }}>{p.label}</div>
+                      <div style={{ fontSize:11.5, color:T.muted, padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none" }}>{p.label}</div>
                       <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
                         fontSize:12, color:p.owner?T.green:T.faint }}>{ p.owner ? "✓" : "—" }</div>
                       <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
@@ -24982,7 +24983,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 </div>
               </GlassCard>
               {/* Team list */}
-              <div style={{ fontSize:9, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:10 }}>TEAM MEMBERS</div>
+              <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>TEAM MEMBERS</div>
               {teamMembers.map((m, i) => (
                 <motion.div key={m.id} {...FX.stagger(i, 0)}>
                   <GlassCard theme={theme} style={{ padding:"12px 14px", marginBottom:8 }}>
@@ -24999,14 +25000,14 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                           <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{m.name}</div>
                           <Pill label={m.role.toUpperCase()} color={roleColor[m.role]} theme={theme}/>
                         </div>
-                        <div style={{ fontSize:10, color:T.muted }}>{m.email}</div>
-                        <div style={{ fontSize:9, color:T.faint, marginTop:2 }}>Athletes: {m.athletes}</div>
+                        <div style={{ fontSize:11.5, color:T.muted }}>{m.email}</div>
+                        <div style={{ fontSize:11, color:T.faint, marginTop:2 }}>Athletes: {m.athletes}</div>
                       </div>
                       {m.role !== "owner" && (
                         <motion.button whileTap={{ scale:.97 }}
                           onClick={() => setTeamMembers(ts => ts.filter(t=>t.id!==m.id))}
                           style={{ padding:"5px 10px", borderRadius:8, border:`1px solid ${T.border}`,
-                            background:T.glass, cursor:"pointer", fontSize:9, fontWeight:700, color:T.muted }}>
+                            background:T.glass, cursor:"pointer", fontSize:11, fontWeight:700, color:T.muted }}>
                           REMOVE
                         </motion.button>
                       )}
@@ -25028,7 +25029,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     { label:"EMAIL", key:"email", ph:"Work email", type:"email" },
                   ].map(f => (
                     <div key={f.key} style={{ marginBottom:10 }}>
-                      <div style={{ fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:4 }}>{f.label}</div>
+                      <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:4 }}>{f.label}</div>
                       <input value={addForm[f.key]} onChange={e => setAddForm(n=>({...n,[f.key]:e.target.value}))}
                         placeholder={f.ph} type={f.type}
                         style={{ width:"100%", background:T.glass, border:`1px solid ${T.border}`,
@@ -25036,13 +25037,13 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     </div>
                   ))}
                   <div style={{ marginBottom:12 }}>
-                    <div style={{ fontSize:8, fontWeight:800, color:T.faint, letterSpacing:".12em", marginBottom:6 }}>ROLE</div>
+                    <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:6 }}>ROLE</div>
                     <div style={{ display:"flex", gap:8 }}>
                       {["coach","staff","owner"].map(r => (
                         <motion.button key={r} whileTap={{ scale:.97 }} onClick={() => setAddForm(f=>({...f,role:r}))}
                           style={{ flex:1, padding:"10px", borderRadius:10, border:`1px solid ${addForm.role===r?roleColor[r]:T.border}`,
                             background:addForm.role===r?`${roleColor[r]}22`:T.glass, cursor:"pointer",
-                            fontSize:10, fontWeight:800, color:addForm.role===r?roleColor[r]:T.muted }}>
+                            fontSize:11.5, fontWeight:600, color:addForm.role===r?roleColor[r]:T.muted }}>
                           {r.toUpperCase()}
                         </motion.button>
                       ))}
@@ -25145,7 +25146,7 @@ function PRSparkline({ sessions, lift, color, theme }) {
     return match?.weight || null;
   }).filter(Boolean).slice(-10);
   if (points.length < 2) return (
-    <div style={{ fontSize:10, color:T.faint, textAlign:"center", padding:"8px 0" }}>No data yet</div>
+    <div style={{ fontSize:11.5, color:T.faint, textAlign:"center", padding:"8px 0" }}>No data yet</div>
   );
   const max = Math.max(...points);
   return (
@@ -25153,7 +25154,7 @@ function PRSparkline({ sessions, lift, color, theme }) {
       <Sparkline data={points} color={color} width={70} height={24}/>
       <div style={{ textAlign:"right" }}>
         <div style={{ fontSize:13, fontWeight:900, color }}>{max}lb</div>
-        <div style={{ fontSize:8, color:T.faint, letterSpacing:".06em" }}>BEST</div>
+        <div style={{ fontSize:11, color:T.faint, letterSpacing:".01em" }}>BEST</div>
       </div>
     </div>
   );
@@ -25205,7 +25206,7 @@ function StreakHeatmap({ theme, accentColor }) {
   return (
     <div style={{
       background: theme === "dark" ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
-      borderRadius: 20,
+      borderRadius: 16,
       border: `1px solid ${T.border}`,
       padding: "16px 16px 14px",
       overflow: "hidden",
@@ -25220,10 +25221,10 @@ function StreakHeatmap({ theme, accentColor }) {
       {/* Header row */}
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14, position:"relative" }}>
         <div>
-          <div style={{ fontSize:11, fontWeight:900, color:T.text, letterSpacing:".08em", textTransform:"uppercase" }}>
+          <div style={{ fontSize:11, fontWeight:900, color:T.text, letterSpacing:".02em", textTransform:"uppercase" }}>
             Consistency
           </div>
-          <div style={{ fontSize:9.5, color:T.muted, marginTop:1, letterSpacing:".04em" }}>
+          <div style={{ fontSize:11.5, color:T.muted, marginTop:1, letterSpacing:".04em" }}>
             {monthLabel} · 28 days
           </div>
         </div>
@@ -25232,20 +25233,20 @@ function StreakHeatmap({ theme, accentColor }) {
             <div style={{
               display:"flex", alignItems:"center", gap:4,
               background:`${ac}20`, border:`1px solid ${ac}40`,
-              borderRadius:20, padding:"4px 10px",
+              borderRadius:16, padding:"4px 10px",
             }}>
               <span style={{ fontSize:12 }}>🔥</span>
               <span style={{ fontSize:11, fontWeight:900, color:ac }}>{streak}</span>
-              <span style={{ fontSize:9, color:ac, opacity:.8 }}>streak</span>
+              <span style={{ fontSize:11, color:ac, opacity:.8 }}>streak</span>
             </div>
           )}
           <div style={{
             display:"flex", alignItems:"center", gap:4,
             background:`${T.glass}`, border:`1px solid ${T.border}`,
-            borderRadius:20, padding:"4px 10px",
+            borderRadius:16, padding:"4px 10px",
           }}>
             <span style={{ fontSize:11, fontWeight:900, color:T.text }}>{totalWorkouts}</span>
-            <span style={{ fontSize:9, color:T.muted }}>sessions</span>
+            <span style={{ fontSize:11, color:T.muted }}>sessions</span>
           </div>
         </div>
       </div>
@@ -25254,7 +25255,7 @@ function StreakHeatmap({ theme, accentColor }) {
       <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:4, marginBottom:6 }}>
         {weekLabels.map((l, i) => (
           <div key={i} style={{
-            fontSize:8.5, fontWeight:700, color: days[27].dayOfWeek === i ? ac : T.faint,
+            fontSize:11.5, fontWeight:700, color: days[27].dayOfWeek === i ? ac : T.faint,
             textAlign:"center", letterSpacing:".04em", textTransform:"uppercase",
           }}>
             {l}
@@ -25294,7 +25295,7 @@ function StreakHeatmap({ theme, accentColor }) {
                   alignItems:"center", justifyContent:"center", gap:1,
                 }}>
                   <div style={{
-                    fontSize: 10,
+                    fontSize: 11.5,
                     fontWeight: d.isToday ? 900 : d.hasWorkout ? 800 : 600,
                     color: d.hasWorkout ? "#fff" : d.isToday ? ac : T.muted,
                     lineHeight:1,
@@ -25319,21 +25320,21 @@ function StreakHeatmap({ theme, accentColor }) {
             background:`linear-gradient(135deg, ${ac}, ${ac}cc)`,
             boxShadow:`0 2px 6px ${ac}50`,
           }}/>
-          <span style={{ fontSize:9, color:T.muted, fontWeight:600 }}>Workout</span>
+          <span style={{ fontSize:11, color:T.muted, fontWeight:600 }}>Workout</span>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:5 }}>
           <div style={{
             width:12, height:12, borderRadius:4,
             background:T.glass, border:`1px solid ${T.border}`,
           }}/>
-          <span style={{ fontSize:9, color:T.muted, fontWeight:600 }}>Rest</span>
+          <span style={{ fontSize:11, color:T.muted, fontWeight:600 }}>Rest</span>
         </div>
         <div style={{ display:"flex", alignItems:"center", gap:5 }}>
           <div style={{
             width:12, height:12, borderRadius:4,
             border:`1.5px solid ${ac}80`, background:`${ac}18`,
           }}/>
-          <span style={{ fontSize:9, color:T.muted, fontWeight:600 }}>Today</span>
+          <span style={{ fontSize:11, color:T.muted, fontWeight:600 }}>Today</span>
         </div>
       </div>
     </div>
@@ -25390,7 +25391,7 @@ function WorkoutHistoryScreen({ theme, onBack, user }) {
                 background: activeTab === t ? "#30D158" : T.glass,
                 border: activeTab === t ? "none" : `1px solid ${T.border}`,
                 color: activeTab === t ? "#fff" : T.muted,
-                fontSize:11, fontWeight:800, letterSpacing:".08em", cursor:"pointer",
+                fontSize:11, fontWeight:600, letterSpacing:".02em", cursor:"pointer",
               }}>
               {t === "sessions" ? "SESSIONS" : "PR TRACKER"}
             </motion.button>
@@ -25426,7 +25427,7 @@ function WorkoutHistoryScreen({ theme, onBack, user }) {
                   {s.bio_score > 0 && (
                     <div style={{ textAlign:"right" }}>
                       <div style={{ fontSize:18, fontWeight:900, color:"#30D158" }}>{s.bio_score}</div>
-                      <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>SCORE</div>
+                      <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>SCORE</div>
                     </div>
                   )}
                 </div>
@@ -25434,16 +25435,16 @@ function WorkoutHistoryScreen({ theme, onBack, user }) {
                   <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                     {s.exercises.slice(0, 4).map((ex, j) => (
                       <div key={j} style={{
-                        padding:"4px 10px", borderRadius:20,
+                        padding:"4px 10px", borderRadius:16,
                         background:`#30D15815`, border:`1px solid #30D15830`,
-                        fontSize:10, fontWeight:700, color:"#30D158",
+                        fontSize:11.5, fontWeight:700, color:"#30D158",
                       }}>
                         {ex.name} {ex.weight ? `${ex.weight}lb` : ""}
                       </div>
                     ))}
                     {s.exercises.length > 4 && (
-                      <div style={{ padding:"4px 10px", borderRadius:20, background:T.glass,
-                        border:`1px solid ${T.border}`, fontSize:10, color:T.muted }}>
+                      <div style={{ padding:"4px 10px", borderRadius:16, background:T.glass,
+                        border:`1px solid ${T.border}`, fontSize:11.5, color:T.muted }}>
                         +{s.exercises.length - 4} more
                       </div>
                     )}
@@ -25465,7 +25466,7 @@ function WorkoutHistoryScreen({ theme, onBack, user }) {
                   boxShadow: T.shadowSm,
                 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
-                  <div style={{ fontSize:13, fontWeight:800, color:T.text, letterSpacing:".04em" }}>
+                  <div style={{ fontSize:13, fontWeight:600, color:T.text, letterSpacing:".04em" }}>
                     {lift.label.toUpperCase()}
                   </div>
                 </div>
@@ -25520,10 +25521,10 @@ function BodyWeightScreen({ theme, onBack }) {
 
         {/* Today's entry */}
         <div style={{
-          background:T.card, borderRadius:20, padding:"20px",
+          background:T.card, borderRadius:16, padding:"20px",
           marginBottom:16, border:`1px solid ${T.border}`, boxShadow:T.shadow,
         }}>
-          <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+          <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
             TODAY'S WEIGHT
           </div>
           {todayEntry ? (
@@ -25578,11 +25579,11 @@ function BodyWeightScreen({ theme, onBack }) {
         {/* Trend chart */}
         {weights.length >= 2 && (
           <div style={{
-            background:T.card, borderRadius:20, padding:"20px",
+            background:T.card, borderRadius:16, padding:"20px",
             marginBottom:16, border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
           }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em" }}>TREND</div>
+              <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em" }}>TREND</div>
               <div style={{ fontSize:12, fontWeight:700,
                 color: trend < -0.5 ? "#30D158" : trend > 0.5 ? "#FF3B30" : T.muted }}>
                 {trend > 0 ? "+" : ""}{trend.toFixed(1)} {unit} / {recent.length} days
@@ -25590,16 +25591,16 @@ function BodyWeightScreen({ theme, onBack }) {
             </div>
             <Sparkline data={weights} color="#30D158" width={window.innerWidth - 80} height={48} strokeWidth={2.5}/>
             <div style={{ display:"flex", justifyContent:"space-between", marginTop:8 }}>
-              <div style={{ fontSize:9, color:T.faint }}>{recent[0]?.date?.slice(5)}</div>
-              <div style={{ fontSize:9, color:T.faint }}>{recent[recent.length-1]?.date?.slice(5)}</div>
+              <div style={{ fontSize:11, color:T.faint }}>{recent[0]?.date?.slice(5)}</div>
+              <div style={{ fontSize:11, color:T.faint }}>{recent[recent.length-1]?.date?.slice(5)}</div>
             </div>
           </div>
         )}
 
         {/* Log history */}
         {log.length > 0 && (
-          <div style={{ background:T.card, borderRadius:20, padding:"20px", border:`1px solid ${T.border}` }}>
-            <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>LOG</div>
+          <div style={{ background:T.card, borderRadius:16, padding:"20px", border:`1px solid ${T.border}` }}>
+            <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:14 }}>LOG</div>
             {log.slice(0, 14).map((entry, i) => (
               <div key={i} style={{
                 display:"flex", justifyContent:"space-between", alignItems:"center",
@@ -25738,7 +25739,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                 position:"fixed", top:28, left:"50%", transform:"translateX(-50%)",
                 zIndex:9999, background:"#30D158", color:"#fff",
                 padding:"10px 20px", borderRadius:14,
-                fontSize:12, fontWeight:800, letterSpacing:".04em",
+                fontSize:12, fontWeight:600, letterSpacing:".04em",
                 boxShadow:"0 4px 20px #30D15840",
                 pointerEvents:"none", whiteSpace:"nowrap",
               }}>
@@ -25759,7 +25760,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
             style={{
               padding:"8px 14px", borderRadius:12, cursor:"pointer",
               background:`#BF5AF215`, border:`1px solid #BF5AF240`,
-              color:"#BF5AF2", fontSize:10, fontWeight:800, letterSpacing:".08em",
+              color:"#BF5AF2", fontSize:11.5, fontWeight:600, letterSpacing:".02em",
               opacity: loading ? 0.5 : 1,
             }}>
             {loading ? "..." : "↻ NEW"}
@@ -25789,10 +25790,10 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
           <>
             {/* Macro summary */}
             <div style={{
-              background:T.card, borderRadius:20, padding:"16px",
+              background:T.card, borderRadius:16, padding:"16px",
               marginBottom:16, border:`1px solid ${T.border}`, boxShadow:T.shadow,
             }}>
-              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:12 }}>
+              <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>
                 DAILY TOTALS
               </div>
               <div style={{ display:"flex", justifyContent:"space-between" }}>
@@ -25804,7 +25805,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                 ].map(m => (
                   <div key={m.label} style={{ textAlign:"center" }}>
                     <div style={{ fontSize:18, fontWeight:900, color:m.color }}>{m.val}{m.unit}</div>
-                    <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>{m.label}</div>
+                    <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>{m.label}</div>
                   </div>
                 ))}
               </div>
@@ -25814,7 +25815,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
             {plan.meals.map((meal, i) => (
               <motion.div key={i} {...FX.stagger(i, 0.05)}
                 style={{
-                  background:T.card, borderRadius:20, padding:"18px",
+                  background:T.card, borderRadius:16, padding:"18px",
                   marginBottom:12, border:`1px solid ${T.border}`, boxShadow:T.shadowSm,
                 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:10 }}>
@@ -25827,13 +25828,13 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                   </div>
                   <div style={{ textAlign:"right" }}>
                     <div style={{ fontSize:14, fontWeight:900, color:"#FF6B35" }}>{meal.protein}g</div>
-                    <div style={{ fontSize:9, color:T.faint }}>protein</div>
+                    <div style={{ fontSize:11, color:T.faint }}>protein</div>
                   </div>
                 </div>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginBottom:10 }}>
                   {(meal.items || []).map((item, j) => (
                     <div key={j} style={{
-                      padding:"5px 10px", borderRadius:20,
+                      padding:"5px 10px", borderRadius:16,
                       background:T.glass, border:`1px solid ${T.border}`,
                       fontSize:11, color:T.text,
                     }}>
@@ -25841,7 +25842,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                     </div>
                   ))}
                 </div>
-                <div style={{ display:"flex", gap:12, fontSize:10, color:T.muted }}>
+                <div style={{ display:"flex", gap:12, fontSize:11.5, color:T.muted }}>
                   <span><b style={{ color:T.text }}>{meal.carbs}g</b> carbs</span>
                   <span><b style={{ color:T.text }}>{meal.fats}g</b> fat</span>
                   <span><b style={{ color:T.text }}>{meal.calories}</b> kcal</span>
@@ -25849,7 +25850,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
               </motion.div>
             ))}
 
-            <div style={{ textAlign:"center", fontSize:10, color:T.faint, marginTop:8 }}>
+            <div style={{ textAlign:"center", fontSize:11.5, color:T.faint, marginTop:8 }}>
               ↑ Tap a meal in Kailu to log it to today's macros
             </div>
           </>
@@ -25901,7 +25902,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
               display:"flex", justifyContent:"flex-end", alignItems:"center", gap:8,
             }}>
               {recipeError && (
-                <div style={{ fontSize:10, color:"#FF3B30", flex:1 }}>{recipeError}</div>
+                <div style={{ fontSize:11.5, color:"#FF3B30", flex:1 }}>{recipeError}</div>
               )}
               <motion.button
                 whileTap={{ scale:.95 }}
@@ -25912,9 +25913,9 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                   background: ingredients.trim() ? "#30D158" : T.glass,
                   border: ingredients.trim() ? "none" : `1px solid ${T.border}`,
                   color: ingredients.trim() ? "#fff" : T.muted,
-                  fontSize:11, fontWeight:800, cursor:"pointer",
+                  fontSize:11, fontWeight:600, cursor:"pointer",
                   opacity: recipeLoading ? 0.6 : 1,
-                  letterSpacing:".05em",
+                  letterSpacing:".01em",
                 }}>
                 {recipeLoading ? "🔄 Finding…" : "⚡ FIND RECIPES"}
               </motion.button>
@@ -25934,7 +25935,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
 
           {recipes && !recipeLoading && (
             <div>
-              <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+              <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
                 RECIPES FOR YOU
               </div>
               {recipes.map((r, i) => (
@@ -25948,12 +25949,12 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                       <div style={{ fontSize:26 }}>{r.emoji || "🍽️"}</div>
                       <div>
                         <div style={{ fontSize:14, fontWeight:800, color:T.text }}>{r.name}</div>
-                        <div style={{ fontSize:10, color:T.muted }}>⏱ {r.prepTime || "15 min"}</div>
+                        <div style={{ fontSize:11.5, color:T.muted }}>⏱ {r.prepTime || "15 min"}</div>
                       </div>
                     </div>
                     <div style={{ textAlign:"right" }}>
                       <div style={{ fontSize:16, fontWeight:900, color:"#FF6B35" }}>{r.protein}g</div>
-                      <div style={{ fontSize:8, color:T.faint }}>protein</div>
+                      <div style={{ fontSize:11, color:T.faint }}>protein</div>
                     </div>
                   </div>
 
@@ -25969,14 +25970,14 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                         border:`1px solid ${m.color}30`,
                       }}>
                         <div style={{ fontSize:14, fontWeight:900, color:m.color }}>{m.val}{m.unit}</div>
-                        <div style={{ fontSize:8, color:T.faint, letterSpacing:".08em" }}>{m.label}</div>
+                        <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em" }}>{m.label}</div>
                       </div>
                     ))}
                   </div>
 
                   {r.macroNote && (
                     <div style={{
-                      fontSize:10, color:"#30D158", padding:"4px 10px",
+                      fontSize:11.5, color:"#30D158", padding:"4px 10px",
                       background:"#30D15815", borderRadius:8, marginBottom:10,
                       display:"inline-block",
                     }}>
@@ -25984,7 +25985,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                     </div>
                   )}
 
-                  <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:6 }}>
+                  <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".02em", marginBottom:6 }}>
                     HOW TO MAKE IT
                   </div>
                   {(r.steps || []).map((step, j) => (
@@ -25995,7 +25996,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                         width:18, height:18, borderRadius:"50%", flexShrink:0,
                         background:"#30D15820", border:"1px solid #30D15840",
                         display:"flex", alignItems:"center", justifyContent:"center",
-                        fontSize:9, fontWeight:900, color:"#30D158",
+                        fontSize:11, fontWeight:900, color:"#30D158",
                       }}>
                         {j+1}
                       </div>
@@ -26011,7 +26012,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                       background: savedRecipes.some(s => s.name === r.name) ? "#30D15818" : "#30D158",
                       border: savedRecipes.some(s => s.name === r.name) ? "1px solid #30D15840" : "none",
                       color: savedRecipes.some(s => s.name === r.name) ? "#30D158" : "#fff",
-                      fontSize:12, fontWeight:800, cursor:"pointer", letterSpacing:".05em",
+                      fontSize:12, fontWeight:600, cursor:"pointer", letterSpacing:".01em",
                     }}>
                     {savedRecipes.some(s => s.name === r.name) ? "✓ SAVED" : "💾 SAVE RECIPE"}
                   </motion.button>
@@ -26024,7 +26025,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                   style={{
                     padding:"6px 16px", borderRadius:10, cursor:"pointer",
                     background:"transparent", border:`1px solid ${T.border}`,
-                    color:T.muted, fontSize:10, fontWeight:700,
+                    color:T.muted, fontSize:11.5, fontWeight:700,
                   }}>
                   ✕ Clear Recipes
                 </motion.button>
@@ -26045,7 +26046,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                   }}>📚</div>
                   <div>
                     <div style={{ fontSize:13, fontWeight:800, color:T.text }}>MY RECIPES</div>
-                    <div style={{ fontSize:10, color:T.muted }}>{savedRecipes.length} saved</div>
+                    <div style={{ fontSize:11.5, color:T.muted }}>{savedRecipes.length} saved</div>
                   </div>
                 </div>
               </div>
@@ -26063,7 +26064,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:13, fontWeight:800, color:T.text, marginBottom:2 }}>{r.name}</div>
                       {r.cookTime && (
-                        <div style={{ fontSize:10, color:T.muted }}>⏱ {r.cookTime}</div>
+                        <div style={{ fontSize:11.5, color:T.muted }}>⏱ {r.cookTime}</div>
                       )}
                     </div>
                     <motion.button whileTap={{ scale:.92 }}
@@ -26071,7 +26072,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                       style={{
                         padding:"4px 10px", borderRadius:8,
                         background:"transparent", border:`1px solid ${T.border}`,
-                        color:T.faint, fontSize:10, fontWeight:700, cursor:"pointer",
+                        color:T.faint, fontSize:11.5, fontWeight:700, cursor:"pointer",
                       }}>
                       ✕ Remove
                     </motion.button>
@@ -26089,7 +26090,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                         <div key={m.label} style={{
                           padding:"3px 8px", borderRadius:6,
                           background: m.color + "18", border:`1px solid ${m.color}30`,
-                          fontSize:10, fontWeight:700, color: m.color,
+                          fontSize:11.5, fontWeight:700, color: m.color,
                         }}>
                           {m.val} {m.label}
                         </div>
@@ -26100,13 +26101,13 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                   {/* Ingredients */}
                   {r.ingredients && r.ingredients.length > 0 && (
                     <div style={{ marginBottom:8 }}>
-                      <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", marginBottom:4 }}>INGREDIENTS</div>
+                      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".02em", marginBottom:4 }}>INGREDIENTS</div>
                       <div style={{ display:"flex", flexWrap:"wrap", gap:4 }}>
                         {r.ingredients.map((ing, j) => (
                           <div key={j} style={{
                             padding:"2px 7px", borderRadius:5,
                             background: T.bg, border:`1px solid ${T.border}`,
-                            fontSize:10, color:T.muted,
+                            fontSize:11.5, color:T.muted,
                           }}>{ing}</div>
                         ))}
                       </div>
@@ -26116,7 +26117,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                   {/* Steps (collapsed by default) */}
                   {r.steps && r.steps.length > 0 && (
                     <details style={{ cursor:"pointer" }}>
-                      <summary style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".08em", outline:"none" }}>
+                      <summary style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".02em", outline:"none" }}>
                         HOW TO MAKE IT ▾
                       </summary>
                       <div style={{ marginTop:6 }}>
@@ -26126,7 +26127,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                               width:18, height:18, borderRadius:"50%", flexShrink:0,
                               background:"#FF9F0A20", border:"1px solid #FF9F0A40",
                               display:"flex", alignItems:"center", justifyContent:"center",
-                              fontSize:9, fontWeight:900, color:"#FF9F0A",
+                              fontSize:11, fontWeight:900, color:"#FF9F0A",
                             }}>{j+1}</div>
                             <div style={{ fontSize:11, color:T.muted, lineHeight:1.4 }}>{step}</div>
                           </div>
@@ -26235,7 +26236,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
             <div style={{
               width:20, height:20, borderRadius:"50%",
               background:"#FF3B30", display:"flex", alignItems:"center", justifyContent:"center",
-              fontSize:10, fontWeight:900, color:"#fff",
+              fontSize:11.5, fontWeight:900, color:"#fff",
             }}>
               {pending.length}
             </div>
@@ -26255,7 +26256,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
                 background: tab === t.id ? "#2E5BFF" : T.glass,
                 border: tab === t.id ? "none" : `1px solid ${T.border}`,
                 color: tab === t.id ? "#fff" : T.muted,
-                fontSize:10, fontWeight:800, letterSpacing:".06em", cursor:"pointer",
+                fontSize:11.5, fontWeight:600, letterSpacing:".01em", cursor:"pointer",
               }}>
               {t.label}
             </motion.button>
@@ -26300,12 +26301,12 @@ function BuddySystemScreen({ theme, onBack, user }) {
                 </div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{email}</div>
-                  <div style={{ fontSize:10, color:T.muted, marginTop:2 }}>Training partner</div>
+                  <div style={{ fontSize:11.5, color:T.muted, marginTop:2 }}>Training partner</div>
                 </div>
                 <div style={{
-                  padding:"6px 12px", borderRadius:20,
+                  padding:"6px 12px", borderRadius:16,
                   background:`#2E5BFF15`, border:`1px solid #2E5BFF30`,
-                  fontSize:10, fontWeight:700, color:"#2E5BFF",
+                  fontSize:11.5, fontWeight:700, color:"#2E5BFF",
                 }}>
                   BUDDY
                 </div>
@@ -26431,7 +26432,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
                     style={{
                       flex:1, padding:"11px", borderRadius:12,
                       background:T.glass, border:`1px solid ${T.border}`,
-                      color:T.muted, fontSize:12, fontWeight:800, cursor:"pointer",
+                      color:T.muted, fontSize:12, fontWeight:600, cursor:"pointer",
                     }}>
                     Decline
                   </motion.button>
@@ -26595,22 +26596,22 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
             </div>
             {/* Live indicator */}
             <div style={{ display:"flex", alignItems:"center", gap:6, padding:"6px 12px",
-              borderRadius:20, background:"#FF3B3015", border:"1px solid #FF3B3030" }}>
+              borderRadius:16, background:"#FF3B3015", border:"1px solid #FF3B3030" }}>
               <div style={{
                 width:6, height:6, borderRadius:"50%", background:"#FF3B30",
               }}/>
-              <span style={{ fontSize:9, fontWeight:800, color:"#FF3B30", letterSpacing:".1em" }}>LIVE</span>
+              <span style={{ fontSize:11, fontWeight:600, color:"#FF3B30", letterSpacing:".03em" }}>LIVE</span>
             </div>
           </div>
 
           {/* My stats */}
           <div style={{
             background:`linear-gradient(135deg, #2E5BFF18 0%, #BF5AF218 100%)`,
-            borderRadius:20, padding:"20px",
+            borderRadius:16, padding:"20px",
             border:`1px solid #2E5BFF30`, marginBottom:16,
             boxShadow:T.shadow,
           }}>
-            <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:8 }}>
+            <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:8 }}>
               MY SETS THIS SESSION
             </div>
             <div style={{ fontSize:52, fontWeight:900, color:"#2E5BFF", letterSpacing:"-.03em", marginBottom:12 }}>
@@ -26628,8 +26629,8 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
           </div>
 
           {/* Leaderboard */}
-          <div style={{ background:T.card, borderRadius:20, padding:"18px", border:`1px solid ${T.border}` }}>
-            <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:14 }}>
+          <div style={{ background:T.card, borderRadius:16, padding:"18px", border:`1px solid ${T.border}` }}>
+            <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:14 }}>
               LEADERBOARD
             </div>
             {participants.length === 0 ? (
@@ -26660,7 +26661,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
                   <div style={{ fontSize:16, fontWeight:900, color: i === 0 ? "#FF9F0A" : T.text }}>
                     {p.sets_logged}
                   </div>
-                  <div style={{ fontSize:8, color:T.faint, letterSpacing:".06em" }}>SETS</div>
+                  <div style={{ fontSize:11, color:T.faint, letterSpacing:".01em" }}>SETS</div>
                 </div>
               </div>
             ))}
@@ -26694,7 +26695,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
             }}
           />
 
-          <div style={{ fontSize:10, fontWeight:800, color:T.faint, letterSpacing:".1em", marginBottom:10 }}>
+          <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
             WORKOUT TYPE
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:24 }}>
@@ -26707,7 +26708,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
                   color: newRoomType === type ? "#fff" : T.text,
                 }}>
                 <div style={{ fontSize:20, marginBottom:4 }}>{emoji}</div>
-                <div style={{ fontSize:9, fontWeight:800, letterSpacing:".06em" }}>
+                <div style={{ fontSize:11, fontWeight:600, letterSpacing:".01em" }}>
                   {type.toUpperCase()}
                 </div>
               </motion.button>
@@ -26745,7 +26746,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
             style={{
               padding:"9px 16px", borderRadius:12, cursor:"pointer",
               background:"#2E5BFF", border:"none",
-              color:"#fff", fontSize:11, fontWeight:800, letterSpacing:".06em",
+              color:"#fff", fontSize:11, fontWeight:600, letterSpacing:".01em",
             }}>
             + CREATE
           </motion.button>
@@ -26776,7 +26777,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
             {rooms.map((room, i) => (
               <motion.div key={room.id} {...FX.stagger(i, 0.04)}
                 style={{
-                  background:T.card, borderRadius:20, padding:"18px",
+                  background:T.card, borderRadius:16, padding:"18px",
                   marginBottom:12, border:`1px solid ${T.border}`,
                   boxShadow:T.shadowSm,
                 }}>
@@ -26789,7 +26790,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
                   </div>
                   <div style={{ display:"flex", alignItems:"center", gap:4 }}>
                     <div style={{ width:6, height:6, borderRadius:"50%", background:"#30D158" }}/>
-                    <span style={{ fontSize:10, color:"#30D158", fontWeight:800 }}>LIVE</span>
+                    <span style={{ fontSize:11.5, color:"#30D158", fontWeight:800 }}>LIVE</span>
                   </div>
                 </div>
                 <motion.button whileTap={{ scale:.97 }} onClick={() => joinRoom(room)}
@@ -26850,11 +26851,11 @@ function EMGWaitlistCard({ theme }) {
         {/* Coming soon pill */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
           <div style={{
-            fontSize: 9, fontWeight: 900, letterSpacing: ".12em", color: ac,
+            fontSize: 11, fontWeight: 900, letterSpacing: ".03em", color: ac,
             background: `${ac}18`, border: `1px solid ${ac}44`,
-            borderRadius: 20, padding: "3px 10px",
+            borderRadius: 16, padding: "3px 10px",
           }}>COMING SOON</div>
-          <div style={{ fontSize: 9, color: T.faint, letterSpacing: ".08em" }}>HARDWARE</div>
+          <div style={{ fontSize: 11, color: T.faint, letterSpacing: ".02em" }}>HARDWARE</div>
         </div>
 
         {/* Title */}
@@ -26874,9 +26875,9 @@ function EMGWaitlistCard({ theme }) {
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
           {["EMG Sensors", "AI Form Coach", "Fatigue Detection", "Wireless BLE"].map(f => (
             <div key={f} style={{
-              fontSize: 9, fontWeight: 700, color: ac,
+              fontSize: 11, fontWeight: 700, color: ac,
               background: `${ac}12`, border: `1px solid ${ac}28`,
-              borderRadius: 20, padding: "3px 9px",
+              borderRadius: 16, padding: "3px 9px",
             }}>{f}</div>
           ))}
         </div>
@@ -26977,7 +26978,7 @@ function WhatsNewScreen({ theme, onBack }) {
         <BackBtn onBack={onBack} theme={theme}/>
         <div>
           <div style={{ fontSize: 16, fontWeight: 900, color: T.text, letterSpacing: "-.01em" }}>What's New</div>
-          <div style={{ fontSize: 10, color: T.muted, letterSpacing: ".1em" }}>RVN OS · RELEASE NOTES</div>
+          <div style={{ fontSize: 11.5, color: T.muted, letterSpacing: ".03em" }}>RVN OS · RELEASE NOTES</div>
         </div>
       </div>
 
@@ -26988,16 +26989,16 @@ function WhatsNewScreen({ theme, onBack }) {
             {/* Version header */}
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <div style={{
-                fontSize: 11, fontWeight: 900, letterSpacing: ".12em",
+                fontSize: 11, fontWeight: 900, letterSpacing: ".03em",
                 color: T.text,
               }}>v{release.version}</div>
               <div style={{
-                fontSize: 9, fontWeight: 800, letterSpacing: ".1em",
+                fontSize: 11, fontWeight: 800, letterSpacing: ".03em",
                 color: release.badgeColor, background: `${release.badgeColor}18`,
                 border: `1px solid ${release.badgeColor}40`,
-                borderRadius: 20, padding: "2px 8px",
+                borderRadius: 16, padding: "2px 8px",
               }}>{release.badge}</div>
-              <div style={{ fontSize: 10, color: T.faint, marginLeft: "auto" }}>{release.date}</div>
+              <div style={{ fontSize: 11.5, color: T.faint, marginLeft: "auto" }}>{release.date}</div>
             </div>
 
             {/* Items */}
@@ -27024,7 +27025,7 @@ function WhatsNewScreen({ theme, onBack }) {
 
         {/* Footer */}
         <div style={{ textAlign: "center", marginTop: 8 }}>
-          <div style={{ fontSize: 10, color: T.faint, letterSpacing: ".1em" }}>rvnvision.com · Build {OS_BUILD}</div>
+          <div style={{ fontSize: 11.5, color: T.faint, letterSpacing: ".03em" }}>rvnvision.com · Build {OS_BUILD}</div>
         </div>
       </div>
     </Screen>
@@ -27356,6 +27357,14 @@ function RVNRoot() {
           };
         });
         localStorage.setItem("rvn_workouts", JSON.stringify(workoutSeed));
+
+        // Seed streaks so demo shows 12-session streak (not 0/1)
+        const _yestDemoD = new Date(); _yestDemoD.setDate(_yestDemoD.getDate() - 1);
+        const _yestDemoStr = _yestDemoD.toISOString().slice(0, 10);
+        localStorage.setItem("rvn_streaks", JSON.stringify({
+          sessionStreak: 12, lastSessionDate: _yestDemoStr,
+          macroStreak: 8,    lastMacroDate:    _yestDemoStr,
+        }));
 
         // Seed body weight (last 14 days, realistic cut)
         const bwSeed = Array.from({ length:14 }, (_, i) => {

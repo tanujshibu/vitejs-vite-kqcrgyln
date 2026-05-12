@@ -6737,9 +6737,9 @@ function ABBioComparison({ archetypeId, theme, color }) {
 }
 
 // ─── SMOKE PARTICLES (ported from v2 LogoReveal) ─────────────────────────────
-function SmokeParticles({ visible }) {
+function SmokeParticles({ visible, count = 55 }) {
   const particles = useMemo(() =>
-    Array.from({ length: 55 }, (_, i) => ({
+    Array.from({ length: count }, (_, i) => ({
       id: i,
       startX:  (Math.random() - 0.5) * 900,
       startY:  (Math.random() - 0.5) * 600,
@@ -7413,12 +7413,14 @@ function AuthScreen({ theme, onAuth }) {
 // ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
+  const [smokeVisible, setSmokeVisible] = useState(false);
   // Use a ref so the timeout never resets when the parent re-renders
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone; // update synchronously — no effect needed
   useEffect(() => {
-    const t = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
-    return () => clearTimeout(t);
+    const t1 = setTimeout(() => setSmokeVisible(true), 500); // particles converge at 500ms
+    const t2 = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   // Pure delay-based animations — no React state controlling visibility.
@@ -7449,7 +7451,7 @@ function SplashScreen({ onDone, theme }) {
           filter:"blur(40px)", pointerEvents:"none",
         }}
       />
-      {!isMobile && <SmokeParticles visible={true}/>}
+      <SmokeParticles visible={smokeVisible} count={isMobile ? 18 : 55}/>
 
       {/* LOGO — fades in after 0.4s */}
       <motion.div

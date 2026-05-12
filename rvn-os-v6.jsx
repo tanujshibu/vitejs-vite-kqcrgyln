@@ -7413,24 +7413,22 @@ function AuthScreen({ theme, onAuth }) {
 // ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
-  const [phase, setPhase] = useState(0);
-  // Use a ref so the timeout dep never changes — inline arrow props recreate every render
-  // and would reset the timers on every parent re-render, freezing the splash.
+  // Use a ref so the timeout never resets when the parent re-renders
   const onDoneRef = useRef(onDone);
-  useEffect(() => { onDoneRef.current = onDone; });
+  onDoneRef.current = onDone; // update synchronously — no effect needed
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 600);
-    const t2 = setTimeout(() => setPhase(2), 1800);
-    const t3 = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, []); // empty — intentional, ref keeps onDone fresh
+    const t = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
+    return () => clearTimeout(t);
+  }, []);
 
+  // Pure delay-based animations — no React state controlling visibility.
+  // Reactive animate props (driven by useState phase) are unreliable on mobile Safari.
   return (
     <motion.div
       key="reveal"
       initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
       transition={{ duration:.4 }}
-      onClick={onDone}
+      onClick={() => onDoneRef.current?.()}
       style={{
         position:"fixed", inset:0,
         background: "#000",
@@ -7439,42 +7437,43 @@ function SplashScreen({ onDone, theme }) {
         cursor:"default",
         overflow:"hidden",
       }}>
-      {/* Radial halo */}
+
+      {/* Radial halo — fades in after 0.6s */}
       <motion.div
         initial={{ opacity:0, scale:0.6 }}
-        animate={{ opacity: phase >= 1 ? 0.15 : 0, scale: phase >= 1 ? 1 : 0.6 }}
-        transition={{ duration:1.8, ease:"easeOut" }}
+        animate={{ opacity:0.15, scale:1 }}
+        transition={{ duration:1.8, delay:0.5, ease:"easeOut" }}
         style={{
           position:"absolute", width:500, height:300, borderRadius:"50%",
           background: "radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)",
           filter:"blur(40px)", pointerEvents:"none",
         }}
       />
-      {!isMobile && <SmokeParticles visible={phase >= 1}/>}
+      {!isMobile && <SmokeParticles visible={true}/>}
 
-      {/* LOGO */}
+      {/* LOGO — fades in after 0.4s */}
       <motion.div
-        initial={{ opacity:0 }} animate={{ opacity: phase >= 1 ? 1 : 0 }}
-        transition={{ duration:0.5, delay:0.1 }}
+        initial={{ opacity:0, scale:0.92 }}
+        animate={{ opacity:1, scale:1 }}
+        transition={{ duration:0.6, delay:0.4, ease:[0.22,1,0.36,1] }}
         style={{ position:"relative", zIndex:2, display:"flex", justifyContent:"center" }}>
         <RVNLogo size={260} glow={T.blue}/>
       </motion.div>
 
-      {/* ECG pulse */}
-      {phase >= 2 && (
-        <motion.div
-          initial={{ opacity:0 }} animate={{ opacity:1 }}
-          style={{ position:"absolute", bottom:100, left:0, right:0, height:40 }}>
-          <svg viewBox="0 0 400 40" style={{ width:"100%", height:40, opacity:0.25 }}>
-            <motion.polyline
-              points="0,20 60,20 80,20 90,4 100,36 110,20 130,20 200,20 210,20 220,6 228,34 236,20 250,20 400,20"
-              fill="none" stroke="#fff" strokeWidth="1"
-              initial={{ pathLength:0 }} animate={{ pathLength:1 }}
-              transition={{ duration:1.0, ease:"easeInOut" }}
-            />
-          </svg>
-        </motion.div>
-      )}
+      {/* ECG pulse — appears at 1.8s */}
+      <motion.div
+        initial={{ opacity:0 }} animate={{ opacity:0.25 }}
+        transition={{ delay:1.8, duration:0.4 }}
+        style={{ position:"absolute", bottom:100, left:0, right:0, height:40 }}>
+        <svg viewBox="0 0 400 40" style={{ width:"100%", height:40 }}>
+          <motion.polyline
+            points="0,20 60,20 80,20 90,4 100,36 110,20 130,20 200,20 210,20 220,6 228,34 236,20 250,20 400,20"
+            fill="none" stroke="#fff" strokeWidth="1"
+            initial={{ pathLength:0 }} animate={{ pathLength:1 }}
+            transition={{ delay:1.9, duration:1.0, ease:"easeInOut" }}
+          />
+        </svg>
+      </motion.div>
     </motion.div>
   );
 }
@@ -9614,15 +9613,16 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
             background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
             zIndex:0 }}/>
 
-        {/* Giant faded step number — pulses */}
+        {/* Giant faded step number — static on mobile, subtle pulse on desktop */}
         <motion.div
-          animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+          animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
           transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
           style={{
             position:"absolute", top:"-10px", right:"-8px",
             fontSize:180, fontWeight:900, color:T.text,
             letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
             userSelect:"none", zIndex:0, transformOrigin:"top right",
+            opacity: 0.035,
           }}>{String(step).padStart(2,"0")}</motion.div>
 
         {/* Back button + step dots */}
@@ -10453,15 +10453,16 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
           style={{ position:"absolute", inset:0, pointerEvents:"none",
             background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
             zIndex:0 }}/>
-        {/* Giant faded step number — pulses */}
+        {/* Giant faded step number — static on mobile, subtle pulse on desktop */}
         <motion.div
-          animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+          animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
           transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
           style={{
             position:"absolute", top:"-10px", right:"-8px",
             fontSize:180, fontWeight:900, color:T.text,
             letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
             userSelect:"none", zIndex:0, transformOrigin:"top right",
+            opacity: 0.035,
           }}>{String(step).padStart(2,"0")}</motion.div>
 
         <div style={{ position:"relative", zIndex:1,

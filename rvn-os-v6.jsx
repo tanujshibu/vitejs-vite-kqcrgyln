@@ -7414,12 +7414,16 @@ function AuthScreen({ theme, onAuth }) {
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
   const [phase, setPhase] = useState(0);
+  // Use a ref so the timeout dep never changes — inline arrow props recreate every render
+  // and would reset the timers on every parent re-render, freezing the splash.
+  const onDoneRef = useRef(onDone);
+  useEffect(() => { onDoneRef.current = onDone; });
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 600);
     const t2 = setTimeout(() => setPhase(2), 1800);
-    const t3 = setTimeout(() => onDone && onDone(), 3200);
+    const t3 = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [onDone]);
+  }, []); // empty — intentional, ref keeps onDone fresh
 
   return (
     <motion.div
@@ -7446,7 +7450,7 @@ function SplashScreen({ onDone, theme }) {
           filter:"blur(40px)", pointerEvents:"none",
         }}
       />
-      <SmokeParticles visible={phase >= 1}/>
+      {!isMobile && <SmokeParticles visible={phase >= 1}/>}
 
       {/* LOGO */}
       <motion.div
@@ -9396,8 +9400,10 @@ const ONBOARDING_FACTS = {
 
 function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
-  // 2.5s — quick beat, not a pause
+  // On mobile skip the overlay entirely — just call onContinue immediately.
+  // The fullscreen animations stall on iPhone and leave a frozen black screen.
   useEffect(() => {
+    if (isMobile) { onContinue(); return; }
     const t = setTimeout(onContinue, 2500);
     return () => clearTimeout(t);
   }, []);
@@ -9478,7 +9484,7 @@ function StoryHook({ text, theme, accent, delay=0 }) {
   const T = D[theme] || D.dark;
   return (
     <motion.div
-      initial={{ opacity:0, y:-6 }} animate={{ opacity:1, y:0 }}
+      initial={isMobile ? false : { opacity:0, y:-6 }} animate={{ opacity:1, y:0 }}
       transition={{ delay, duration:.4, ease:[.22,1,.36,1] }}
       style={{ marginBottom:10 }}>
       <div style={{
@@ -9502,7 +9508,7 @@ function OBCard({ option, selected, onPick, index = 0, theme, fill = false }) {
   const accentColor = option.color || T.blue;
   return (
     <motion.button
-      initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
+      initial={isMobile ? false : { opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
       transition={{ delay:.1 + index*.07, duration:.32, ease:[.22,1,.36,1] }}
       whileTap={{ scale:.97 }}
       onClick={() => onPick(option.value)}
@@ -9579,7 +9585,9 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   ];
   useEffect(() => {
     if (phase !== -1) return;
-    const id = setInterval(() => setHookTick(t => t + 1), 150);
+    // 4s interval — values are blurred so cycling is purely aesthetic,
+    // not meant to be readable. 150ms was causing visible number-flash on mobile.
+    const id = setInterval(() => setHookTick(t => t + 1), 4000);
     return () => clearInterval(id);
   }, [phase]);
 
@@ -9639,7 +9647,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
         </div>
 
         <motion.div key={`bio-q${step}`}
-          initial={{ opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
+          initial={isMobile ? false : { opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
           transition={{ duration:.38, ease:[.22,1,.36,1] }}
           style={{ position:"relative", zIndex:1, flex:1, display:"flex",
             flexDirection:"column", padding:"24px 24px 48px" }}>
@@ -9647,7 +9655,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
           {/* Story hook — accent left border, subtle drift */}
           {storyHook && (
             <motion.div
-              initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+              initial={isMobile ? false : { opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
               transition={{ delay:.1, duration:.35 }}
               style={{
                 fontSize:12, color: T.muted, fontStyle:"italic",
@@ -9709,7 +9717,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
       {/* ── HERO: teased protocol card — floats ── */}
       <motion.div
-        initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+        initial={isMobile ? false : { opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
         transition={{ duration:.6, ease:[.22,1,.36,1] }}
         style={{ padding:"20px 22px 0" }}>
 
@@ -9760,7 +9768,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                 { label:"BIO SCORE" },
               ].map((m, i) => (
                 <motion.div key={m.label}
-                  initial={{ opacity:0 }} animate={{ opacity:1 }}
+                  initial={isMobile ? false : { opacity:0 }} animate={{ opacity:1 }}
                   transition={{ delay:.2 + i*.1 }}
                   style={{
                     background: theme==="dark" ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.04)",
@@ -9797,7 +9805,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       </motion.div>
 
       {/* Text */}
-      <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
+      <motion.div initial={isMobile ? false : { opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
         transition={{ delay:.35, duration:.5, ease:[.22,1,.36,1] }}
         style={{ padding:"22px 26px 0" }}>
         <div style={{ fontSize:34, fontWeight:900, letterSpacing:"-.03em",
@@ -9811,7 +9819,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
       {/* Spacer + CTA */}
       <div style={{ flex:1 }}/>
-      <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+      <motion.div initial={isMobile ? false : { opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
         transition={{ delay:.6 }}
         style={{ padding:"16px 24px 52px" }}>
         <ShimmerCTA label="Build my protocol  →" onClick={() => setPhase(0)} theme={theme} color={ac}/>
@@ -9854,20 +9862,20 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
       </div>
 
       {/* Story + headline */}
-      <motion.div key="bio-q1" initial={{ opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
+      <motion.div key="bio-q1" initial={isMobile ? false : { opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
         transition={{ duration:.38, ease:[.22,1,.36,1] }}
         style={{ position:"relative", zIndex:1, padding:"20px 24px 14px" }}>
-        <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+        <motion.div initial={isMobile ? false : { opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
           transition={{ delay:.1 }}
           style={{ fontSize:12, color:T.muted, fontStyle:"italic", lineHeight:1.6,
             marginBottom:12, borderLeft:"2px solid #2E5BFF88", paddingLeft:10 }}>
           Two people can follow the exact same plan and get completely different results. This is why.
         </motion.div>
-        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+        <motion.div initial={isMobile ? false : { opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
           transition={{ delay:.18 }}>
           <div style={{ fontSize:32, fontWeight:900, letterSpacing:"-.03em",
             color:T.text, lineHeight:1.12 }}>Let's start with<br/>your biology.</div>
-          <motion.div initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+          <motion.div initial={isMobile ? false : { scaleX:0 }} animate={{ scaleX:1 }}
             transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
             style={{ height:2, width:40, background:"#0A84FF", borderRadius:2,
               marginTop:10, transformOrigin:"left", boxShadow:"0 0 8px #2E5BFF99" }}/>
@@ -9884,7 +9892,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
           const isSel = picked === opt.value;
           return (
             <motion.button key={opt.value}
-              initial={{ opacity:0, y: i===0 ? -30 : 30 }} animate={{ opacity:1, y:0 }}
+              initial={isMobile ? false : { opacity:0, y: i===0 ? -30 : 30 }} animate={{ opacity:1, y:0 }}
               transition={{ delay:.26+i*.12, duration:.42, ease:[.22,1,.36,1] }}
               whileTap={{ scale:.97 }}
               onClick={() => pick(setGender, opt.value, ONBOARDING_FACTS.gender[opt.value], 1)}

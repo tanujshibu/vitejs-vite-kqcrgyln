@@ -3,14 +3,19 @@
 //   mode="workout" → extracts exercises, sets, reps from a post
 //   mode="food"    → extracts ingredients + estimates macros (calories, protein, carbs, fat)
 //
-// Required Supabase secret:
+// Input options (mutually exclusive, in priority order):
+//   1. multipart/form-data with a "video" file  → Groq Whisper transcription → Claude Haiku
+//   2. JSON { url }                              → fetch og:description → Claude Haiku
+//   3. JSON { caption }                          → Claude Haiku directly
+//
+// Required Supabase secrets:
 //   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+//   supabase secrets set GROQ_API_KEY=gsk_...
 //
 // POST body:
-//   { url?: string, caption?: string, mode?: "workout" | "food" }
+//   multipart/form-data: video=<File>, mode="workout"|"food"
+//   OR application/json: { url?, caption?, mode? }
 //   mode defaults to "workout"
-//
-// Cost: Claude Haiku is ~$0.001 per 1,000 requests — negligible.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -26,7 +31,7 @@ function json(data: unknown, status = 200) {
   });
 }
 
-// ── Fetch caption / description from any public post URL ─────────────────────
+// ── Fetch caption from any public post URL ────────────────────────────────────
 async function fetchPageText(url: string): Promise<string | null> {
   try {
     const res = await fetch(url, {
@@ -65,6 +70,36 @@ async function fetchPageText(url: string): Promise<string | null> {
     if (bodyText.length > 100) return bodyText;
     return null;
   } catch {
+    return null;
+  }
+}
+
+// ── Transcribe a video/audio File via Groq Whisper ────────────────────────────
+async function transcribeVideoFile(file: File, groqKey: string): Promise<string | null> {
+  try {
+    const form = new FormData();
+    form.append("file", file, file.name || "reel.mp4");
+    form.append("model", "whisper-large-v3-turbo");
+    form.append("response_format", "text");
+    form.append("language", "en");
+
+    const r = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${groqKey}` },
+      body: form,
+      signal: AbortSignal.timeout(60000),
+    });
+
+    if (!r.ok) {
+      const errText = await r.text();
+      console.error("[transcribeVideoFile] Groq error", r.status, errText);
+      return null;
+    }
+    const transcript = await r.text();
+    console.log("[transcribeVideoFile] transcript length:", transcript.length);
+    return transcript || null;
+  } catch (e) {
+    console.error("[transcribeVideoFile]", e);
     return null;
   }
 }
@@ -177,18 +212,59 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {
-    const { url, caption, mode = "workout" } = (await req.json()) as {
-      url?: string;
-      caption?: string;
-      mode?: "workout" | "food";
-    };
+    const anthropicKey =
+      Deno.env.get("ANTHROPIC_API_RECIPIE_KEY") ||
+      Deno.env.get("ANTHROPIC_API_KEY");
+    const groqKey = Deno.env.get("GROQ_API_KEY");
 
-    const apiKey = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!apiKey) return json({ success: false, error: "ANTHROPIC_API_KEY not configured." }, 500);
+    if (!anthropicKey) return json({ success: false, error: "ANTHROPIC_API_KEY not configured." }, 500);
+
+    // ── Parse request — supports multipart (video upload) or JSON ────────────
+    const contentType = req.headers.get("content-type") || "";
+    let url: string | undefined;
+    let caption: string | undefined;
+    let mode: "workout" | "food" = "workout";
+    let videoFile: File | null = null;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      url     = (formData.get("url") as string) || undefined;
+      caption = (formData.get("caption") as string) || undefined;
+      mode    = ((formData.get("mode") as string) || "workout") as "workout" | "food";
+      videoFile = formData.get("video") as File | null;
+    } else {
+      const body = (await req.json()) as {
+        url?: string;
+        caption?: string;
+        mode?: "workout" | "food";
+      };
+      url     = body.url;
+      caption = body.caption;
+      mode    = body.mode || "workout";
+    }
 
     let text = caption?.trim() ?? "";
 
-    // If no caption, try to fetch the page
+    // ── Priority 1: video file upload → Groq Whisper transcription ───────────
+    if (!text && videoFile) {
+      if (!groqKey) {
+        return json({ success: false, error: "GROQ_API_KEY not configured. Add it in Supabase secrets." }, 500);
+      }
+      console.log("[parse-ig-workout] Transcribing uploaded video:", videoFile.name, videoFile.size, "bytes");
+      const transcript = await transcribeVideoFile(videoFile, groqKey);
+      if (transcript && transcript.length > 10) {
+        text = transcript;
+        console.log("[parse-ig-workout] Transcript:", text.slice(0, 200));
+      } else {
+        return json({
+          success: false,
+          needsCaption: true,
+          error: "Couldn't transcribe the video audio. Try pasting the caption manually instead.",
+        });
+      }
+    }
+
+    // ── Priority 2: URL → fetch page text ────────────────────────────────────
     if (!text && url) {
       const fetched = await fetchPageText(url);
       if (fetched) {
@@ -197,19 +273,20 @@ serve(async (req) => {
         return json({
           success: false,
           needsCaption: true,
-          error: "Couldn't read the post automatically. Paste the caption or ingredients below.",
+          error: "Instagram blocked automatic reading. Upload the Reel video or paste the caption below.",
         });
       }
     }
 
     if (!text) return json({ success: false, needsCaption: true, error: "No content to parse." });
 
+    // ── Parse with Claude Haiku ───────────────────────────────────────────────
     if (mode === "food") {
-      const result = await parseFood(text, apiKey);
+      const result = await parseFood(text, anthropicKey);
       const hasData = result.calories > 0 || result.protein > 0;
       return json({ success: true, mode: "food", ...result, needsCaption: !hasData, raw: text });
     } else {
-      const { title, exercises } = await parseWorkout(text, apiKey);
+      const { title, exercises } = await parseWorkout(text, anthropicKey);
       return json({
         success: true, mode: "workout",
         title, exercises, raw: text,

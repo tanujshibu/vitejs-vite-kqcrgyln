@@ -9334,14 +9334,14 @@ const ONBOARDING_FACTS = {
       body: "Muscles don't grow during training — they grow during rest. Your off days are building you.",
     },
     low: {
-      stat: "2 sessions", color: null, visual: "bar_compare", lottie: "check",
+      stat: "2 sessions", color: "#30D158", visual: "bar_compare", lottie: "check",
       headline: "Done right, beats 5 done wrong. Every time.",
       body: "Two sessions with real progression outperforms daily training with poor recovery.",
     },
   },
   caffeine: {
     high: {
-      stat: "40min", color: null, visual: "clock", lottie: "clock",
+      stat: "40min", color: "#FF9F0A", visual: "clock", lottie: "clock",
       headline: "You've been timing your pre-workout wrong",
       body: "Caffeine peaks 30–45min after you take it. You should be warming up before it kicks in.",
     },
@@ -9351,7 +9351,7 @@ const ONBOARDING_FACTS = {
       body: "200mg maxes out training output. Most pre-workouts have double — that's anxiety, not energy.",
     },
     low: {
-      stat: "10 days", color: null, visual: "calendar_dots", lottie: "reset",
+      stat: "10 days", color: "#5AC8FA", visual: "calendar_dots", lottie: "reset",
       headline: "Your next pre-workout will feel like the first time",
       body: "A 10-day reset returns your receptors to baseline. We'll cycle this in.",
     },
@@ -9400,6 +9400,9 @@ const ONBOARDING_FACTS = {
 
 function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
+  // Always provide a real color — several facts have color:null which breaks CSS filters
+  const fc = data.color || T.blue || "#0A84FF";
+
   // On mobile skip the overlay entirely — just call onContinue immediately.
   // The fullscreen animations stall on iPhone and leave a frozen black screen.
   useEffect(() => {
@@ -9410,7 +9413,7 @@ function FactFlash({ data, onContinue, theme }) {
   return (
     <motion.div
       initial={{ opacity:0 }} animate={{ opacity:1 }}
-      transition={{ duration:0.18 }}
+      transition={{ duration:0.25 }}
       onClick={onContinue}
       style={{
         position:"fixed", inset:0, zIndex:9999,
@@ -9420,61 +9423,58 @@ function FactFlash({ data, onContinue, theme }) {
         padding:"0 36px 80px", cursor:"pointer", overflow:"hidden",
       }}>
 
-      {/* Subtle color wash — calm, not a strobe */}
+      {/* Subtle color wash */}
       <div style={{ position:"absolute", inset:0, pointerEvents:"none",
-        background:`radial-gradient(ellipse 80% 60% at 50% 40%, ${data.color}18, transparent 65%)` }}/>
+        background:`radial-gradient(ellipse 80% 60% at 50% 40%, ${fc}1A, transparent 65%)` }}/>
 
-      {/* Single soft expanding ring — no blinding burst */}
+      {/* Single soft expanding ring */}
       <motion.div
-        initial={{ scale:0.2, opacity:0.35 }} animate={{ scale:1.3, opacity:0 }}
-        transition={{ duration:1.2, ease:"easeOut" }}
+        initial={{ scale:0.2, opacity:0.4 }} animate={{ scale:1.3, opacity:0 }}
+        transition={{ duration:1.4, ease:"easeOut" }}
         style={{ position:"absolute", width:300, height:300, borderRadius:"50%",
-          border:`1px solid ${data.color}66`, pointerEvents:"none" }}/>
+          border:`1px solid ${fc}55`, pointerEvents:"none" }}/>
 
-      {/* ANIMATED VISUAL */}
+      {/* VISUAL — no opacity delay, content always visible */}
       <motion.div
-        initial={{ opacity:0, scale:0.7, y:16 }} animate={{ opacity:1, scale:1, y:0 }}
-        transition={{ delay:0.05, duration:0.45, ease:[0.22,1,0.36,1] }}
+        initial={{ scale:0.8, y:12 }} animate={{ scale:1, y:0 }}
+        transition={{ duration:0.4, ease:[0.22,1,0.36,1] }}
         style={{ marginBottom:20, display:"flex", alignItems:"center", justifyContent:"center",
-          filter:`drop-shadow(0 0 22px ${data.color}80)` }}>
+          filter:`drop-shadow(0 0 22px ${fc}80)` }}>
         {data.lottie
-          ? <FactAnimSVG type={data.lottie} color={data.color}/>
-          : <FactVisual type={data.visual} color={data.color}/>
+          ? <FactAnimSVG type={data.lottie} color={fc}/>
+          : <FactVisual type={data.visual} color={fc}/>
         }
       </motion.div>
 
-      {/* THE STAT */}
+      {/* THE STAT — always visible, just scales in */}
       <motion.div
-        initial={{ opacity:0, scale:0.35, y:24 }} animate={{ opacity:1, scale:1, y:0 }}
-        transition={{ delay:0.18, duration:0.5, ease:[0.22,1,0.36,1] }}
+        initial={{ scale:0.6, y:16 }} animate={{ scale:1, y:0 }}
+        transition={{ delay:0.08, duration:0.45, ease:[0.22,1,0.36,1] }}
         style={{
-          fontSize:88, fontWeight:900, color:data.color,
+          fontSize:88, fontWeight:900, color:fc,
           letterSpacing:"-0.06em", lineHeight:1,
           textAlign:"center", marginBottom:18,
-          textShadow:`0 0 80px ${data.color}99`,
+          textShadow:`0 0 60px ${fc}88`,
         }}>
         {data.stat}
       </motion.div>
 
-      {/* ONE punchy headline */}
-      <motion.div
-        initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
-        transition={{ delay:0.3, duration:0.38, ease:[0.22,1,0.36,1] }}
-        style={{
-          fontSize:21, fontWeight:900, color:T.text,
-          letterSpacing:"-0.025em", textAlign:"center",
-          lineHeight:1.25, maxWidth:260,
-        }}>
+      {/* ONE punchy headline — always visible */}
+      <div style={{
+        fontSize:21, fontWeight:900, color:T.text,
+        letterSpacing:"-0.025em", textAlign:"center",
+        lineHeight:1.25, maxWidth:280,
+      }}>
         {data.headline}
-      </motion.div>
+      </div>
 
-      {/* Progress bar — 3 second sweep */}
+      {/* Progress bar — 2.5s sweep (matches timeout) */}
       <motion.div
         initial={{ scaleX:0 }} animate={{ scaleX:1 }}
-        transition={{ duration:3.0, ease:"linear" }}
+        transition={{ duration:2.5, ease:"linear" }}
         style={{ position:"absolute", bottom:0, left:0, right:0, height:3,
-          background:data.color, transformOrigin:"left",
-          boxShadow:`0 0 12px ${data.color}` }}/>
+          background:fc, transformOrigin:"left",
+          boxShadow:`0 0 12px ${fc}` }}/>
     </motion.div>
   );
 }

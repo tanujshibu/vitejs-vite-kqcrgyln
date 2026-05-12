@@ -9403,10 +9403,7 @@ function FactFlash({ data, onContinue, theme }) {
   // Always provide a real color — several facts have color:null which breaks CSS filters
   const fc = data.color || T.blue || "#0A84FF";
 
-  // On mobile skip the overlay entirely — just call onContinue immediately.
-  // The fullscreen animations stall on iPhone and leave a frozen black screen.
   useEffect(() => {
-    if (isMobile) { onContinue(); return; }
     const t = setTimeout(onContinue, 2500);
     return () => clearTimeout(t);
   }, []);

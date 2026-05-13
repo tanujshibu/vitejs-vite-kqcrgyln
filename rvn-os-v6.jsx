@@ -11920,6 +11920,26 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     return () => { delete window.__rvnAddMacros; delete window.__rvnReplaceLastMacros; };
   }, []); // eslint-disable-line
 
+  // ── Auto-memory: detect missed-training gaps + apply pending calendar mutations ──
+  // Runs once on app open. Pure-localStorage, no API cost.
+  useEffect(() => {
+    checkMissedTrainingStretch();
+    // Bridge for Kailu to mutate the calendar on user confirmation
+    window.__rvnApplyCalendarMutation = (mutation) => {
+      if (!mutation) return false;
+      const result = applyCalendarMutation(mutation);
+      if (result?.ok && result.event) {
+        // Record this in memory so Kailu remembers it across chats
+        const when = `${result.event.date}${result.event.time ? " at " + result.event.time : ""}`;
+        if (mutation.action === "add")    logMemoryEvent(`Scheduled: ${result.event.title} on ${when}.`, "calendar");
+        if (mutation.action === "move")   logMemoryEvent(`Moved ${result.event.title} to ${when}.`, "calendar");
+        if (mutation.action === "cancel") logMemoryEvent(`Cancelled: ${result.event.title}.`, "calendar");
+      }
+      return !!result?.ok;
+    };
+    return () => { delete window.__rvnApplyCalendarMutation; };
+  }, []); // eslint-disable-line
+
   // ── Auto midnight macro reset ─────────────────────────────────────────────
   // Runs on mount + every 60s check. If the calendar date has rolled over,
   // zero macroToday and shift yesterday's sleep into the sleepDays chart.
@@ -12734,6 +12754,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             />
           )}
         </AnimatePresence>
+        {/* ── UPCOMING (Kailu-scheduled events) ────────────────────────── */}
+        <UpcomingSessionsCard ac={arch.glow} T={T} theme={theme}/>
         {/* ── MONDAY WEEKLY RECAP ───────────────────────────────────────── */}
         {isMonday && !recapDismissed && (() => {
           const sessions = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
@@ -16370,7 +16392,11 @@ function matchManifest(text) {
 // ─── INTENT CLASSIFIER ──────────────────────────────────────────────────────
 // Keyword-weighted. Good-enough for a kiosk; replaceable with a model call.
 const INTENT_KEYWORDS = {
-  schedule:   ["schedule", "plan my day", "daily plan", "24 hour", "24-hour", "routine", "day plan", "plan the day", "build a day", "what should my day", "my day", "morning routine", "evening routine", "time blocking", "time block", "lock in my day", "give me a plan"],
+  // schedule_mutate fires when the user wants Kailu to ADD / MOVE / CANCEL a
+  // specific dated event on their calendar. Must score higher than `schedule`
+  // (which builds a 24-hour today plan) when there's a date/time reference.
+  schedule_mutate: ["add a workout", "add workout", "schedule a workout", "schedule workout", "book a session", "put a workout", "put a session", "move my", "reschedule my", "reschedule the", "cancel my workout", "cancel the workout", "remove my workout", "delete my workout", "add to my calendar", "put on my calendar", "remind me to lift", "remind me to train", "add a session", "add a run", "add a leg day", "schedule leg day", "schedule arms", "schedule push", "schedule pull", "monday at", "tuesday at", "wednesday at", "thursday at", "friday at", "saturday at", "sunday at", "tomorrow at", "tonight at"],
+  schedule:   ["schedule my day", "plan my day", "daily plan", "24 hour", "24-hour", "routine", "day plan", "plan the day", "build a day", "what should my day", "my day", "morning routine", "evening routine", "time blocking", "time block", "lock in my day", "give me a plan"],
   food:       ["ate", "eating", "just had", "had a", "drinking", "drank", "breakfast", "lunch", "dinner", "meal", "snack", "protein shake", "chicken", "rice", "eggs", "oats", "bowl", "carbs", "calories", "g protein", "grams", "macros"],
   injury:     ["hurt", "pain", "injured", "injury", "sore", "soreness", "tweak", "tweaked", "pulled", "strain", "strained", "ache", "aching", "stiff", "can't lift", "cant lift", "knee pain", "shoulder pain", "back pain", "cramping"],
   goal:       ["goal", "trying to", "want to", "i want", "i'd like", "build", "cut", "lean out", "gain", "bulk", "target", "competition", "meet", "show", "wedding", "reset my goal", "change my goal"],
@@ -16959,8 +16985,32 @@ async function composeBioPalResponse(text, state) {
   } else if (intent === "injury") {
     const patch = { soreness: Math.min(100, (sv.soreness || 0) + 25), mood: "cautious" };
     appliedDelta = { kind: "bioLogicUpdate", patch };
+    // Auto-memory: capture the body part + date so Kailu remembers across sessions.
+    const areaMatch = text.match(/\b(knee|shoulder|back|hamstring|calf|wrist|elbow|hip|neck|chest|glute|quad|forearm|ankle|bicep|tricep|lat|trap|pec|abs|core)\b/i);
+    const sideMatch = text.match(/\b(left|right)\b/i);
+    if (areaMatch) {
+      const side = sideMatch ? `${sideMatch[1].toLowerCase()} ` : "";
+      logMemoryEvent(`Tweaked ${side}${areaMatch[1].toLowerCase()} — flagged for recovery.`, "injury");
+    }
   } else if (intent === "goal") {
     appliedDelta = { kind: "navigate", screen: "target" };
+    // Auto-memory: capture the goal verbatim (trimmed) so future replies anchor to it.
+    logMemoryEvent(`Stated goal: ${text.replace(/\s+/g, " ").trim().slice(0, 100)}`, "goal");
+  } else if (intent === "schedule_mutate") {
+    // Parse the user's request into a structured calendar mutation. One Haiku
+    // call, ~$0.0006. We DON'T mutate yet — UI shows a confirmation card with
+    // Apply/Cancel so the user always controls what lands on their calendar.
+    try {
+      const existing = getCalendar();
+      const mutation = await parseCalendarMutation(text, existing);
+      if (mutation) {
+        appliedDelta = { kind: "calendarMutationPending", mutation, pendingText: text };
+      } else {
+        appliedDelta = { kind: "calendarMutationFailed", pendingText: text };
+      }
+    } catch {
+      appliedDelta = { kind: "calendarMutationFailed", pendingText: text };
+    }
   } else if (intent === "schedule") {
     scheduleItems = generateDaySchedule(text, state);
     appliedDelta  = { kind: "schedulePending", items: scheduleItems };
@@ -17042,6 +17092,17 @@ async function composeBioPalResponse(text, state) {
       : appliedDelta?.kind === "bioLogicLog" ? "You just logged this food entry and are looking up the macros. Confirm it naturally and give one practical insight." : "",
     appliedDelta?.kind === "bioLogicUpdate" ? "You've flagged this injury and automatically reduced their load. Give brief, targeted recovery advice." : "",
     appliedDelta?.kind === "navigate"       ? "You are sending them to the Target Protocol screen to recalibrate their goal." : "",
+    appliedDelta?.kind === "calendarMutationPending" && appliedDelta?.mutation
+      ? (() => {
+          const m = appliedDelta.mutation;
+          const verb = m.action === "add" ? "adding" : m.action === "move" ? "moving" : "cancelling";
+          const when = m.date ? `${m.date}${m.time ? " at " + m.time : ""}` : "(unspecified date)";
+          return `You parsed a calendar request. Proposing to ${verb} "${m.title || m.matchTitle || "the session"}" — ${when}. Confirm naturally in one sentence and tell the user a confirmation card is shown below for them to Apply or Cancel. Do NOT list separate options.`;
+        })()
+      : "",
+    appliedDelta?.kind === "calendarMutationFailed"
+      ? "You couldn't parse a clear calendar action from their request. Ask them for the missing piece — typically the day, the time, or which existing event they meant. One sentence, helpful tone."
+      : "",
   ].filter(Boolean).join(" ");
 
   const systemPrompt = [
@@ -17182,6 +17243,119 @@ async function callClaudeAPI({ system, user, history, maxTokens, model, imageBas
   } catch { return null; }
 }
 
+// ─── KAILU CALENDAR ───────────────────────────────────────────────────────────
+// User-facing calendar that Kailu can mutate via natural-language requests like
+// "add a leg day Tuesday at 7am", "move my squat session to Thursday",
+// "cancel tomorrow's workout". All mutations go through a confirmation card in
+// the chat — the AI never silently writes to the calendar.
+// Storage shape:
+//   rvn_calendar = [{ id, date:"YYYY-MM-DD", time:"HH:MM"|null, title, type, notes, createdAt }]
+function getCalendar() {
+  try {
+    const arr = JSON.parse(localStorage.getItem("rvn_calendar") || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function saveCalendar(events) {
+  try { localStorage.setItem("rvn_calendar", JSON.stringify(events || [])); } catch {}
+}
+function upcomingCalendarEvents(limit = 5) {
+  const todayStr = new Date().toISOString().slice(0, 10);
+  return getCalendar()
+    .filter(e => e && e.date && e.date >= todayStr)
+    .sort((a, b) => (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")))
+    .slice(0, limit);
+}
+function makeCalendarId() {
+  return "cal_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7);
+}
+// Apply a parsed mutation. Returns { ok, event, action, reason? }.
+function applyCalendarMutation(mut) {
+  if (!mut || typeof mut !== "object") return { ok: false, reason: "no_mutation" };
+  const events = getCalendar();
+  if (mut.action === "add") {
+    if (!mut.date) return { ok: false, reason: "missing_date" };
+    const ev = {
+      id: makeCalendarId(),
+      date: mut.date,
+      time: mut.time || null,
+      title: (mut.title || "Workout").slice(0, 80),
+      type: mut.type || "training",
+      notes: (mut.notes || "").slice(0, 200),
+      createdAt: new Date().toISOString(),
+    };
+    saveCalendar([...events, ev]);
+    return { ok: true, event: ev, action: "add" };
+  }
+  if (mut.action === "move") {
+    // Match by id if provided, otherwise by closest title+date match
+    const idx = mut.eventId
+      ? events.findIndex(e => e.id === mut.eventId)
+      : events.findIndex(e => e && mut.matchTitle && e.title.toLowerCase().includes(String(mut.matchTitle).toLowerCase()));
+    if (idx < 0) return { ok: false, reason: "event_not_found" };
+    const updated = { ...events[idx],
+      date: mut.date || events[idx].date,
+      time: mut.time !== undefined ? mut.time : events[idx].time,
+      title: mut.title || events[idx].title,
+    };
+    const next = [...events]; next[idx] = updated;
+    saveCalendar(next);
+    return { ok: true, event: updated, action: "move" };
+  }
+  if (mut.action === "cancel") {
+    const idx = mut.eventId
+      ? events.findIndex(e => e.id === mut.eventId)
+      : events.findIndex(e => e && mut.matchTitle && e.title.toLowerCase().includes(String(mut.matchTitle).toLowerCase()));
+    if (idx < 0) return { ok: false, reason: "event_not_found" };
+    const removed = events[idx];
+    const next = events.filter((_, i) => i !== idx);
+    saveCalendar(next);
+    return { ok: true, event: removed, action: "cancel" };
+  }
+  return { ok: false, reason: "unknown_action" };
+}
+
+// Ask Claude to parse a free-text calendar request into a structured mutation.
+// Returns { action, date, time, title, type, matchTitle? } or null.
+// One Haiku call per request — same cost profile as a food lookup.
+async function parseCalendarMutation(text, existingEvents) {
+  if (typeof window === "undefined") return null;
+  const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
+  if (!base) return null;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const dayName = new Date().toLocaleDateString("en-US", { weekday: "long" });
+  const existingSummary = (existingEvents || []).slice(0, 8).map(e =>
+    `${e.title} on ${e.date}${e.time ? " " + e.time : ""}`
+  ).join(" | ") || "(none)";
+  const system = `You are a calendar-mutation parser for a fitness app. Today is ${todayStr} (${dayName}). The user said something about their workout/training calendar. Return ONLY valid JSON, no other text, in this exact shape:
+{"action":"add"|"move"|"cancel","date":"YYYY-MM-DD"|null,"time":"HH:MM"|null,"title":"...","type":"training"|"recovery"|"nutrition"|"checkin","matchTitle":"..."|null}
+
+RULES:
+- action=add when they want to schedule a new session. action=move when they reference an existing event (e.g. "move my leg day"). action=cancel when they want to remove one.
+- Resolve relative dates against today (${todayStr}). "tomorrow" = tomorrow's date. "next tuesday" = the next Tuesday strictly after today. "this saturday" = the upcoming Saturday. If ambiguous, pick the soonest sensible date.
+- Time should be 24-hour "HH:MM". "7am" → "07:00". "5pm" → "17:00". "morning" → "07:00". "evening" → "18:00". If no time given, return null.
+- title: short descriptive name like "Leg day", "Upper body", "Squat session", "Zone 2 cardio", "Mobility". Never include a date or time in the title.
+- type: "training" for workouts/lifts/cardio. "recovery" for mobility/stretch/sauna. "nutrition" for meal prep/refeed. "checkin" for weigh-ins or measurements.
+- For move/cancel: matchTitle is the keyword (e.g. "leg", "squat", "tuesday") that identifies which existing event they mean. Existing events: ${existingSummary}
+- If the user's request is too vague to act on (no clear date AND no clear action), return {"action":null,"reason":"need_more_info"}.
+
+Return ONLY the JSON object. No prose.`;
+  try {
+    const res = await fetch(base, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ system, user: text, history:[], max_tokens:150 }),
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const raw = json?.text || json?.content?.[0]?.text || "";
+    const match = raw.match(/\{[\s\S]*?\}/);
+    if (!match) return null;
+    const parsed = JSON.parse(match[0]);
+    if (!parsed || !["add", "move", "cancel"].includes(parsed.action)) return null;
+    return parsed;
+  } catch { return null; }
+}
+
 // ─── COACH MEMORY ─────────────────────────────────────────────────────────────
 // Stores up to 25 durable facts about the user extracted from conversations.
 // Injected into every AI system prompt so Kailu always "knows" the user.
@@ -17196,6 +17370,61 @@ function buildMemoryContext() {
   const { facts } = getCoachMemory();
   if (!facts.length) return "";
   return "What you remember about this user: " + facts.map(f => f.value).join(". ") + ".";
+}
+
+// Append a single fact to coach memory WITHOUT an API call — used for
+// deterministic events like injuries logged, goals set, missed workouts,
+// streak breaks, and accepted calendar events. Deduplicates against the
+// last 25 facts so the same event doesn't get logged repeatedly.
+function logMemoryEvent(value, type = "event") {
+  if (!value || typeof value !== "string") return;
+  const trimmed = value.trim().slice(0, 120);
+  if (!trimmed) return;
+  const m = getCoachMemory();
+  // Skip if an essentially-identical fact already exists in the last 14 days
+  const norm = trimmed.toLowerCase().replace(/\s+/g, " ");
+  const recentDup = (m.facts || []).some(f => {
+    if (!f?.value) return false;
+    const fNorm = f.value.toLowerCase().replace(/\s+/g, " ");
+    const sameish = fNorm === norm || (fNorm.length > 12 && norm.includes(fNorm.slice(0, 20)));
+    if (!sameish) return false;
+    if (!f.date) return true;
+    const daysAgo = (Date.now() - new Date(f.date).getTime()) / 86400000;
+    return daysAgo < 14;
+  });
+  if (recentDup) return;
+  const updated = {
+    ...m,
+    facts: [
+      ...(m.facts || []),
+      { value: trimmed, type, date: new Date().toISOString().slice(0, 10) },
+    ].slice(-25),
+  };
+  saveCoachMemory(updated);
+}
+
+// On app open: detect missed-training stretches and log them as memory.
+// Runs at most once per day. Helps Kailu say things like "welcome back —
+// we eased back in last time you came off a 4-day gap, doing same now."
+function checkMissedTrainingStretch() {
+  try {
+    const lastCheck = localStorage.getItem("rvn_missed_check") || "";
+    const today = new Date().toISOString().slice(0, 10);
+    if (lastCheck === today) return;
+    const sessions = JSON.parse(localStorage.getItem("rvn_workouts") || "[]");
+    if (!Array.isArray(sessions) || sessions.length === 0) return;
+    const latest = sessions
+      .map(s => new Date(s.logged_at || s.date || 0).getTime())
+      .filter(t => Number.isFinite(t) && t > 0)
+      .sort((a, b) => b - a)[0];
+    if (!latest) return;
+    const daysGap = Math.floor((Date.now() - latest) / 86400000);
+    if (daysGap >= 3 && daysGap <= 30) {
+      const lastDate = new Date(latest).toISOString().slice(0, 10);
+      logMemoryEvent(`Came off a ${daysGap}-day training gap (last session ${lastDate}) — start easy on return.`, "missed_training");
+    }
+    localStorage.setItem("rvn_missed_check", today);
+  } catch {}
 }
 // Runs after a chat session closes — extracts new facts with one Haiku call.
 // Skips if conversation is too short or was extracted recently (2h cooldown).
@@ -17740,7 +17969,11 @@ function RVNVisionBubble({ m, ac, T, theme, onLock }) {
             </div>
           </div>
         )}
-        {m.appliedDelta && m.appliedDelta.kind !== "schedulePending" && (
+        {/* Calendar mutation confirmation card */}
+        {m.appliedDelta?.kind === "calendarMutationPending" && m.appliedDelta.mutation && (
+          <CalendarMutationCard delta={m.appliedDelta} ac={ac} T={T} />
+        )}
+        {m.appliedDelta && m.appliedDelta.kind !== "schedulePending" && m.appliedDelta.kind !== "calendarMutationPending" && (
           <div style={{
             marginTop: 6, fontSize: 11.5, color: T.faint,
             letterSpacing: ".02em", textTransform: "uppercase",
@@ -17797,7 +18030,191 @@ function deltaLabel(d) {
   if (d.kind === "navigate"       && d.screen) return `OPENING ${d.screen.toUpperCase()}`;
   if (d.kind === "scheduleLocked")               return `SCHEDULE LOCKED · ${d.count} BLOCKS`;
   if (d.kind === "workoutGenerated")             return `WORKOUT READY — TAP + PROTOCOL TO SAVE`;
+  if (d.kind === "calendarApplied")              return `CALENDAR · ${(d.action || "UPDATED").toUpperCase()}`;
+  if (d.kind === "calendarMutationFailed")       return `NEED MORE INFO`;
   return "";
+}
+
+// Upcoming Sessions widget — renders in the Train tab. Shows the next N
+// events from rvn_calendar. Lets the user tap-to-cancel any item (with a
+// confirmation tap). Pure-localStorage, re-reads on focus + window event.
+function UpcomingSessionsCard({ ac, T, theme }) {
+  const [events, setEvents] = React.useState(() => upcomingCalendarEvents(5));
+  const [confirmCancel, setConfirmCancel] = React.useState(null);
+  React.useEffect(() => {
+    const refresh = () => setEvents(upcomingCalendarEvents(5));
+    window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
+    // Also re-poll every 15s so a chat-side apply shows up promptly
+    const id = setInterval(refresh, 15000);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
+      clearInterval(id);
+    };
+  }, []);
+  if (!events.length) return null;
+  const fmtDate = (iso) => {
+    try {
+      const d = new Date(iso + "T12:00:00");
+      const today = new Date(); today.setHours(0,0,0,0);
+      const tgt = new Date(d); tgt.setHours(0,0,0,0);
+      const diff = Math.round((tgt - today) / 86400000);
+      if (diff === 0) return "Today";
+      if (diff === 1) return "Tomorrow";
+      if (diff > 1 && diff < 7) return d.toLocaleDateString("en-US", { weekday: "short" });
+      return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    } catch { return iso; }
+  };
+  return (
+    <motion.div initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }} transition={{ duration:.3 }}
+      style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:16,
+        padding:"14px 16px", marginBottom:14, boxShadow:T.shadowSm }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+        <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".05em" }}>UPCOMING</div>
+        <div style={{ fontSize:10, color:T.faint, letterSpacing:".03em" }}>SCHEDULED VIA KAILU</div>
+      </div>
+      {events.map((ev) => {
+        const isConfirming = confirmCancel === ev.id;
+        return (
+          <div key={ev.id} style={{
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            padding:"8px 0", borderTop:`1px solid ${T.border}`,
+          }}>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ fontSize:12.5, fontWeight:700, color:T.text, marginBottom:2,
+                overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                {ev.title}
+              </div>
+              <div style={{ fontSize:10.5, color:T.muted, letterSpacing:".02em" }}>
+                {fmtDate(ev.date)}{ev.time ? ` · ${ev.time}` : ""}
+                {ev.type && ev.type !== "training" ? ` · ${ev.type}` : ""}
+              </div>
+            </div>
+            {!isConfirming ? (
+              <button onClick={() => setConfirmCancel(ev.id)} style={{
+                padding:"4px 10px", borderRadius:8, background:"transparent",
+                color:T.faint, border:`1px solid ${T.border}`,
+                fontSize:10, fontWeight:700, cursor:"pointer",
+              }}>×</button>
+            ) : (
+              <div style={{ display:"flex", gap:6 }}>
+                <button onClick={() => {
+                  const result = applyCalendarMutation({ action:"cancel", eventId: ev.id });
+                  if (result?.ok) setEvents(upcomingCalendarEvents(5));
+                  setConfirmCancel(null);
+                }} style={{
+                  padding:"4px 10px", borderRadius:8, background:"#FF453A",
+                  color:"#fff", border:"none", fontSize:10, fontWeight:800, cursor:"pointer",
+                }}>Remove</button>
+                <button onClick={() => setConfirmCancel(null)} style={{
+                  padding:"4px 10px", borderRadius:8, background:"transparent",
+                  color:T.muted, border:`1px solid ${T.border}`,
+                  fontSize:10, fontWeight:700, cursor:"pointer",
+                }}>Keep</button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </motion.div>
+  );
+}
+
+// Calendar confirmation card — renders inside a Kailu chat bubble.
+// Shows the parsed action ("Add Leg Day · Tue Nov 18 · 07:00") with Apply/Cancel.
+// Apply writes to localStorage via window.__rvnApplyCalendarMutation and the
+// card transitions to a confirmed state. Cancel just dismisses locally.
+function CalendarMutationCard({ delta, ac, T }) {
+  const [status, setStatus] = React.useState("pending"); // pending | applied | cancelled
+  const m = delta.mutation;
+  if (!m) return null;
+  const verb = m.action === "add" ? "Add" : m.action === "move" ? "Move" : m.action === "cancel" ? "Cancel" : "Update";
+  const dateLabel = (() => {
+    if (!m.date) return "(no date)";
+    try {
+      const d = new Date(m.date + "T12:00:00");
+      const today = new Date(); today.setHours(0,0,0,0);
+      const target = new Date(d); target.setHours(0,0,0,0);
+      const diff = Math.round((target - today) / 86400000);
+      const weekday = d.toLocaleDateString("en-US", { weekday: "short" });
+      const datePart = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      if (diff === 0) return `Today · ${datePart}`;
+      if (diff === 1) return `Tomorrow · ${datePart}`;
+      if (diff > 1 && diff < 7) return `${weekday} · ${datePart}`;
+      return `${weekday} · ${datePart}`;
+    } catch { return m.date; }
+  })();
+  const timeLabel = m.time || "";
+  const titleLabel = m.title || m.matchTitle || "Session";
+  const onApply = () => {
+    try {
+      const ok = window.__rvnApplyCalendarMutation && window.__rvnApplyCalendarMutation(m);
+      setStatus(ok ? "applied" : "failed");
+    } catch { setStatus("failed"); }
+  };
+  const onCancel = () => setStatus("cancelled");
+  if (status === "applied") {
+    return (
+      <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:8 }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:"#30D158", letterSpacing:".02em" }}>
+          ✓ ADDED TO CALENDAR
+        </div>
+        <div style={{ fontSize:11.5, color:T.text, marginTop:4 }}>
+          {titleLabel} · {dateLabel}{timeLabel ? ` · ${timeLabel}` : ""}
+        </div>
+      </div>
+    );
+  }
+  if (status === "cancelled") {
+    return (
+      <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:8, fontSize:11.5, color:T.faint }}>
+        Cancelled — no calendar change.
+      </div>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:8, fontSize:11.5, color:"#FF453A" }}>
+        Couldn't apply that change. Try rephrasing.
+      </div>
+    );
+  }
+  return (
+    <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:10, paddingBottom:2 }}>
+      <div style={{ fontSize:10.5, fontWeight:800, color:ac, letterSpacing:".05em", marginBottom:8, textTransform:"uppercase" }}>
+        {verb} to calendar?
+      </div>
+      <div style={{
+        background:`${T.glass}`, border:`1px solid ${T.border}`, borderRadius:10,
+        padding:"10px 12px", marginBottom:10,
+      }}>
+        <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{titleLabel}</div>
+        <div style={{ fontSize:11.5, color:T.muted, marginTop:3 }}>
+          {dateLabel}{timeLabel ? ` · ${timeLabel}` : " · time not set"}
+        </div>
+        {m.type && m.type !== "training" && (
+          <div style={{ fontSize:10.5, color:T.faint, marginTop:4, textTransform:"uppercase", letterSpacing:".05em" }}>
+            {m.type}
+          </div>
+        )}
+      </div>
+      <div style={{ display:"flex", gap:8 }}>
+        <button onClick={onApply} style={{
+          flex:1, padding:"8px 12px", borderRadius:9,
+          background:ac, color:"#000", border:"none",
+          fontSize:11, fontWeight:900, letterSpacing:".04em",
+          textTransform:"uppercase", cursor:"pointer",
+        }}>Apply</button>
+        <button onClick={onCancel} style={{
+          padding:"8px 14px", borderRadius:9,
+          background:"transparent", color:T.muted, border:`1px solid ${T.border}`,
+          fontSize:11, fontWeight:700, letterSpacing:".04em",
+          textTransform:"uppercase", cursor:"pointer",
+        }}>Cancel</button>
+      </div>
+    </div>
+  );
 }
 
 
@@ -28304,7 +28721,6 @@ function RVNRoot() {
 
         // Seed workout history (last 8 sessions)
         const workoutSeed = Array.from({ length:8 }, (_, i) => {
-          const d = new Date();
           d.setDate(d.getDate() - (i * 2 + Math.floor(Math.random() * 2)));
           const archs = ["vtaper","raw-power","vtaper","raw-power","vtaper","recomp","vtaper","raw-power"];
           return {

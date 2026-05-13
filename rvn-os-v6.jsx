@@ -17056,9 +17056,9 @@ function matchManifest(text) {
 // Keyword-weighted. Good-enough for a kiosk; replaceable with a model call.
 const INTENT_KEYWORDS = {
   // schedule_mutate fires when the user wants Kailu to ADD / MOVE / CANCEL a
-  // specific dated event on their calendar. Must score higher than `schedule`
-  // (which builds a 24-hour today plan) when there's a date/time reference.
-  schedule_mutate: ["add a workout", "add workout", "schedule a workout", "schedule workout", "book a session", "put a workout", "put a session", "move my", "reschedule my", "reschedule the", "cancel my workout", "cancel the workout", "remove my workout", "delete my workout", "add to my calendar", "put on my calendar", "remind me to lift", "remind me to train", "add a session", "add a run", "add a leg day", "schedule leg day", "schedule arms", "schedule push", "schedule pull", "monday at", "tuesday at", "wednesday at", "thursday at", "friday at", "saturday at", "sunday at", "tomorrow at", "tonight at"],
+  // specific dated event on their calendar OR add an exercise to today's workout.
+  // Must score higher than `schedule` (which builds a 24-hour today plan).
+  schedule_mutate: ["add a workout", "add workout", "schedule a workout", "schedule workout", "book a session", "put a workout", "put a session", "move my", "reschedule my", "reschedule the", "cancel my workout", "cancel the workout", "remove my workout", "delete my workout", "add to my calendar", "add to the calendar", "add it to my calendar", "add it to the calendar", "add to calendar", "add to calander", "add to the calander", "add it to the calander", "put on my calendar", "put it on my calendar", "put it in the calendar", "add to today", "add it to today", "add to today's workout", "add it to today's workout", "add to my workout", "add to the workout", "add this to", "add that to", "add it to", "remind me to lift", "remind me to train", "add a session", "add a run", "add a leg day", "schedule leg day", "schedule arms", "schedule push", "schedule pull", "monday at", "tuesday at", "wednesday at", "thursday at", "friday at", "saturday at", "sunday at", "tomorrow at", "tonight at", "this week", "next week"],
   schedule:   ["schedule my day", "plan my day", "daily plan", "24 hour", "24-hour", "routine", "day plan", "plan the day", "build a day", "what should my day", "my day", "morning routine", "evening routine", "time blocking", "time block", "lock in my day", "give me a plan"],
   food:       ["ate", "eating", "just had", "had a", "drinking", "drank", "breakfast", "lunch", "dinner", "meal", "snack", "protein shake", "chicken", "rice", "eggs", "oats", "bowl", "carbs", "calories", "g protein", "grams", "macros"],
   injury:     ["hurt", "pain", "injured", "injury", "sore", "soreness", "tweak", "tweaked", "pulled", "strain", "strained", "ache", "aching", "stiff", "can't lift", "cant lift", "knee pain", "shoulder pain", "back pain", "cramping"],
@@ -17073,10 +17073,24 @@ const INTENT_KEYWORDS = {
 
 function classifyIntent(text) {
   const lower = (text || "").toLowerCase();
+  // Use word-boundary regex match so single-word keywords like "rice", "ate",
+  // "pull" don't trigger on substrings inside other words (e.g. "tricep" → "rice",
+  // "later" → "ate"). Multi-word keywords use a softer "phrase boundary" check.
+  const matches = (k) => {
+    const word = k.toLowerCase();
+    if (word.includes(" ")) {
+      // Multi-word phrase — match as-is (word boundary at start/end of phrase)
+      const re = new RegExp("(^|\\W)" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(\\W|$)", "i");
+      return re.test(lower);
+    }
+    // Single word — must hit at word boundary on both sides
+    const re = new RegExp("\\b" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
+    return re.test(lower);
+  };
   let best = null, bestScore = 0;
   for (const [intent, kws] of Object.entries(INTENT_KEYWORDS)) {
     let score = 0;
-    for (const k of kws) if (lower.includes(k)) score += 1 + (k.length > 6 ? 0.3 : 0);
+    for (const k of kws) if (matches(k)) score += 1 + (k.length > 6 ? 0.3 : 0);
     if (score > bestScore) { best = intent; bestScore = score; }
   }
   return bestScore > 0 ? best : "chat";
@@ -17259,15 +17273,19 @@ function extractMacroLog(text) {
   const oz    = lower.match(/(\d+(?:\.\d+)?)\s*oz/);
   let amount = grams ? parseFloat(grams[1]) : oz ? parseFloat(oz[1]) * 28.35 : null;
   let kind = null;
-  if (/chicken|beef|steak|egg|salmon|tuna|whey|protein|yogurt|cottage/i.test(lower)) kind = "protein";
-  else if (/rice|pasta|oat|bread|bagel|potato|banana|carb/i.test(lower))              kind = "carbs";
-  else if (/avocado|nut|butter|oil|cheese|fat/i.test(lower))                          kind = "fat";
+  // CRITICAL: use word boundaries (\b) so "rice" doesn't match inside "tricep",
+  // "ate" doesn't match inside "later", "pull" doesn't match inside "pullup", etc.
+  // This was the root cause of phantom 45g-carb / 180-kcal logs when the user
+  // talked about cable pull-ups (which contains the substring "rice" inside "tricep").
+  if (/\b(chicken|beef|steak|eggs?|salmon|tuna|whey|protein|yogurt|cottage)\b/i.test(lower)) kind = "protein";
+  else if (/\b(rice|pasta|oats?|oatmeal|bread|bagel|potato|banana|carbs?)\b/i.test(lower))    kind = "carbs";
+  else if (/\b(avocado|nuts?|butter|oil|cheese|fats?)\b/i.test(lower))                       kind = "fat";
   if (kind && !amount) {
-    if (/chicken\s*breast/.test(lower)) amount = 30;
-    else if (/eggs?/.test(lower))       amount = 6;
-    else if (/shake|protein/.test(lower)) amount = 25;
-    else if (/banana/.test(lower))       amount = 27;
-    else if (/rice/.test(lower))         amount = 45;
+    if (/\bchicken\s*breast\b/i.test(lower))        amount = 30;
+    else if (/\beggs?\b/i.test(lower))              amount = 6;
+    else if (/\b(shake|protein)\b/i.test(lower))    amount = 25;
+    else if (/\bbanana\b/i.test(lower))             amount = 27;
+    else if (/\brice\b/i.test(lower))               amount = 45;
   }
   if (!kind || !amount) return null;
   const macros = { protein:0, carbs:0, fats:0 };
@@ -17764,7 +17782,11 @@ async function composeBioPalResponse(text, state) {
         })()
       : "",
     appliedDelta?.kind === "calendarMutationFailed"
-      ? "You couldn't parse a clear calendar action from their request. Ask them for the missing piece — typically the day, the time, or which existing event they meant. One sentence, helpful tone."
+      ? "You couldn't parse a clear calendar action from their request. CRITICAL: do NOT claim you added anything — nothing was added. Ask them for the missing piece (day, time, or which exercise/session). One sentence, helpful tone."
+      : "",
+    // Hard guard against hallucinated 'done' replies when no mutation actually fired.
+    !appliedDelta && (intent === "schedule_mutate")
+      ? "The user wanted to add or modify the calendar but the system couldn't parse it. DO NOT say 'done' or 'added' — nothing was added. Ask one clarifying question: which day, what time, or which exercise specifically. Single sentence."
       : "",
   ].filter(Boolean).join(" ");
 

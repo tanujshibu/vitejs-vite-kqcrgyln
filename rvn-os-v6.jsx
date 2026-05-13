@@ -11902,6 +11902,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [gymScrolled, setGymScrolled] = useState(false);
   // Tab navigation
   const [activeGymTab, setActiveGymTab] = useState("train"); // "train" | "stats" | "fuel" | "progress"
+  const { moment: coachMoment, dismiss: dismissCoachMoment } = useProactiveCoach(profile);
 
   const [checkInDone, setCheckInDone] = useState(() => {
     try { return localStorage.getItem("rvn_checkin") === _todayStr(); } catch { return false; }
@@ -12654,6 +12655,21 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             <span style={{ fontSize:11, color:T[bioAlert.color], fontWeight:700 }}>{bioAlert.msg}</span>
           </motion.div>
         )}
+        {/* ── PROACTIVE COACH MOMENT ───────────────────────────────────── */}
+        <AnimatePresence>
+          {coachMoment && (
+            <CoachMomentCard
+              moment={coachMoment}
+              ac={arch.glow}
+              T={T}
+              onDismiss={dismissCoachMoment}
+              onReply={() => {
+                dismissCoachMoment();
+                if (typeof window.__rvnOpenKailu === "function") window.__rvnOpenKailu(coachMoment.message);
+              }}
+            />
+          )}
+        </AnimatePresence>
         {/* ── MONDAY WEEKLY RECAP ───────────────────────────────────────── */}
         {isMonday && !recapDismissed && (() => {
           const sessions = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
@@ -16863,6 +16879,7 @@ async function composeBioPalResponse(text, state) {
     profileCtx,
     suppCtx,
     actionCtx,
+    buildMemoryContext(),
   ].filter(Boolean).join(" ");
 
   // ── STEP 3: Build conversation history (last 6 turns) ─────────────────────────
@@ -16989,6 +17006,154 @@ async function callClaudeAPI({ system, user, history, maxTokens, model, imageBas
   } catch { return null; }
 }
 
+// ─── COACH MEMORY ─────────────────────────────────────────────────────────────
+// Stores up to 25 durable facts about the user extracted from conversations.
+// Injected into every AI system prompt so Kailu always "knows" the user.
+function getCoachMemory() {
+  try { return JSON.parse(localStorage.getItem("rvn_coach_memory") || '{"facts":[],"lastExtracted":0}'); }
+  catch { return { facts:[], lastExtracted:0 }; }
+}
+function saveCoachMemory(m) {
+  try { localStorage.setItem("rvn_coach_memory", JSON.stringify(m)); } catch {}
+}
+function buildMemoryContext() {
+  const { facts } = getCoachMemory();
+  if (!facts.length) return "";
+  return "What you remember about this user: " + facts.map(f => f.value).join(". ") + ".";
+}
+// Runs after a chat session closes — extracts new facts with one Haiku call.
+// Skips if conversation is too short or was extracted recently (2h cooldown).
+async function extractMemoryFromConversation(messages) {
+  if (!messages || messages.length < 4) return;
+  const m = getCoachMemory();
+  if ((Date.now() - (m.lastExtracted || 0)) < 7200000) return; // 2h cooldown
+  const convo = messages.slice(-8).map(msg =>
+    `${msg.role === "pal" ? "coach" : "user"}: ${msg.text}`
+  ).join("\n");
+  const result = await callClaudeAPI({
+    system: `Extract durable facts about the user from this coaching conversation. Return ONLY a JSON array: [{"value":"fact under 15 words"}]. Only include: injuries, upcoming events (weddings, trips), strong preferences/dislikes, explicit goals with timeframes. Return [] if nothing new. Be very concise.`,
+    user: convo,
+    maxTokens: 150,
+    model: "haiku",
+  });
+  if (!result) return;
+  try {
+    const newFacts = JSON.parse(result.match(/\[[\s\S]*?\]/)?.[0] || "[]");
+    if (!newFacts.length) return;
+    const updated = {
+      facts: [...m.facts, ...newFacts.map(f => ({ value: f.value, date: new Date().toISOString().slice(0,10) }))].slice(-25),
+      lastExtracted: Date.now(),
+    };
+    saveCoachMemory(updated);
+  } catch {}
+}
+
+// ─── PROACTIVE COACH ──────────────────────────────────────────────────────────
+// Generates AI messages at 2 key moments per day: morning check-in + post-workout.
+// Haiku model only, results cached in localStorage — no repeat API calls.
+// ~$0.002/user/day total. Coach is quiet the rest of the time.
+async function generateCoachMoment(type, profile) {
+  const memCtx = buildMemoryContext();
+  const hour = new Date().getHours();
+  const arch = profile?.archetypeId || "athlete";
+  const sleep = (() => { const d = profile?.sleepDays; return d?.length ? d[d.length-1] : null; })();
+  const protein = profile?.macroToday?.protein || 0;
+  const proteinGoal = profile?.macroGoals?.protein || 150;
+  const sessions = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
+  const todaySessions = sessions.filter(s => { try { return new Date(s.logged_at).toDateString() === new Date().toDateString(); } catch { return false; } });
+
+  const prompts = {
+    morning: `It's ${hour}:00. User archetype: ${arch}. Sleep last night: ${sleep != null ? sleep+"h" : "unknown"}. Protein goal: ${proteinGoal}g. Write ONE proactive coaching message — 2 sentences max. First: specific observation about their data. Second: one concrete action for today. No greetings. No generic advice.`,
+    post_workout: `User just logged a workout (${todaySessions[0]?.exercises?.length || 0} exercises). Protein today: ${protein}g of ${proteinGoal}g goal. Write ONE post-workout coaching message — 2 sentences. Acknowledge what they did, then give the single most important recovery action right now.`,
+  };
+
+  return callClaudeAPI({
+    system: `You are Kailu, an elite fitness coach. ${memCtx} Max 2 sentences. No emojis. No filler. Sound like a real coach who knows this person specifically.`,
+    user: prompts[type] || prompts.morning,
+    maxTokens: 100,
+    model: "haiku",
+  });
+}
+
+function useProactiveCoach(profile) {
+  const [moment, setMoment] = useState(null);
+  useEffect(() => {
+    if (!profile) return;
+    const today = new Date().toDateString();
+    const hour  = new Date().getHours();
+
+    // Morning: 5am–11am, once per day
+    if (hour >= 5 && hour < 11 && localStorage.getItem("rvn_coach_morning") !== today) {
+      const ck = "rvn_coach_cache_morning_" + today;
+      const cached = localStorage.getItem(ck);
+      if (cached) { setMoment({ type:"morning", message:cached }); return; }
+      generateCoachMoment("morning", profile).then(msg => {
+        if (!msg) return;
+        localStorage.setItem(ck, msg);
+        localStorage.setItem("rvn_coach_morning", today);
+        setMoment({ type:"morning", message:msg });
+      });
+      return;
+    }
+
+    // Post-workout: after a session is logged today, once per day
+    if (localStorage.getItem("rvn_coach_postworkout") !== today) {
+      const sessions = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
+      const hasToday = sessions.some(s => { try { return new Date(s.logged_at).toDateString() === today; } catch { return false; } });
+      if (hasToday) {
+        const ck = "rvn_coach_cache_post_" + today;
+        const cached = localStorage.getItem(ck);
+        if (cached) { setMoment({ type:"post_workout", message:cached }); return; }
+        generateCoachMoment("post_workout", profile).then(msg => {
+          if (!msg) return;
+          localStorage.setItem(ck, msg);
+          localStorage.setItem("rvn_coach_postworkout", today);
+          setMoment({ type:"post_workout", message:msg });
+        });
+      }
+    }
+  }, [profile?.archetypeId, profile?.sleepDays?.length]); // eslint-disable-line
+
+  return { moment, dismiss: () => setMoment(null) };
+}
+
+// ─── COACH MOMENT CARD ────────────────────────────────────────────────────────
+function CoachMomentCard({ moment, ac, T, onDismiss, onReply }) {
+  const labels = { morning:"MORNING BRIEF", post_workout:"POST-WORKOUT", plateau:"COACH INSIGHT" };
+  return (
+    <motion.div
+      initial={{ opacity:0, y:-10 }} animate={{ opacity:1, y:0 }}
+      exit={{ opacity:0, y:-10 }}
+      transition={{ duration:.3, ease:[.22,1,.36,1] }}
+      style={{
+        background:`linear-gradient(135deg, ${ac}14, ${ac}06)`,
+        border:`1px solid ${ac}2E`,
+        borderRadius:16, padding:"14px 16px",
+        marginBottom:14, position:"relative",
+      }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
+        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+          <motion.div animate={{ opacity:[1,.25,1] }} transition={{ duration:1.8, repeat:Infinity }}
+            style={{ width:6, height:6, borderRadius:"50%", background:ac }}/>
+          <span style={{ fontSize:10, fontWeight:700, color:ac, letterSpacing:".06em" }}>
+            {labels[moment.type] || "KAILU"}
+          </span>
+        </div>
+        <button onClick={onDismiss}
+          style={{ background:"none", border:"none", color:T.faint, cursor:"pointer", fontSize:20, lineHeight:1, padding:"0 4px" }}>×</button>
+      </div>
+      <div style={{ fontSize:14, color:T.text, lineHeight:1.6, marginBottom:12 }}>
+        {moment.message}
+      </div>
+      <button onClick={onReply}
+        style={{ background:"none", border:`1px solid ${ac}44`, borderRadius:20,
+          padding:"6px 16px", fontSize:12, color:ac, cursor:"pointer", fontWeight:700, letterSpacing:".02em" }}>
+        Reply to Kailu →
+      </button>
+    </motion.div>
+  );
+}
+
 // ─── RVN VISION OVERLAY UI ──────────────────────────────────────────────────────
 function RVNVisionOverlay() {
   const env = useEnv();
@@ -17015,6 +17180,13 @@ function RVNVisionOverlay() {
   useEffect(() => {
     if (biopal.open) setTokenState(getKailuTokenState(getProfileRaw()));
   }, [biopal.open]);
+
+  // Extract coach memory when overlay closes after a real conversation
+  useEffect(() => {
+    if (!biopal.open && biopal.messages.length > 3) {
+      extractMemoryFromConversation(biopal.messages);
+    }
+  }, [biopal.open]); // eslint-disable-line
 
   const consumeToken = () => {
     const p = getProfileRaw();

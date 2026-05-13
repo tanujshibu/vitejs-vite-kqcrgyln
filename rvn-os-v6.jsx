@@ -7051,6 +7051,176 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
   );
 }
 
+// ─── COACH VOICE PANEL — let trainer feed Kailu their voice ──────────────────
+// Lives in ManagerHub Coach tab. Trainer enters 3-5 sample messages + tone/emoji
+// preferences. Saves to rvn_trainer_voice. Once enabled, every Kailu reply for
+// this trainer's clients adopts their voice via the buildTrainerVoiceContext()
+// system-prompt fragment. This is the AI moat no Trainerize-style competitor has.
+function CoachVoicePanel({ theme, T }) {
+  const [voice, setVoice] = React.useState(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem("rvn_trainer_voice") || "null");
+      return v || { trainerName:"", tone:"warm", profanityOk:false, emojiUse:"light",
+                    signaturePhrases:["", "", ""], voiceSamples:["", "", "", "", ""], enabled:false };
+    } catch {
+      return { trainerName:"", tone:"warm", profanityOk:false, emojiUse:"light",
+               signaturePhrases:["", "", ""], voiceSamples:["", "", "", "", ""], enabled:false };
+    }
+  });
+  const [saved, setSaved] = React.useState(false);
+  const update = (patch) => setVoice(v => ({ ...v, ...patch }));
+  const persist = () => {
+    saveTrainerVoice(voice);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2200);
+  };
+  const TONES = [
+    { id:"warm",       label:"Warm",       desc:"Supportive friend" },
+    { id:"blunt",      label:"Blunt",      desc:"Direct, no fluff" },
+    { id:"scientific", label:"Scientific", desc:"Evidence-driven" },
+    { id:"hype",       label:"Hype",       desc:"High-energy" },
+    { id:"chill",      label:"Chill",      desc:"Laid-back" },
+  ];
+  const sampleCount = (voice.voiceSamples || []).filter(s => s && s.trim().length > 10).length;
+  const ready = sampleCount >= 2 && voice.trainerName?.trim()?.length > 0;
+  return (
+    <GlassCard theme={theme} style={{ padding:"16px", marginBottom:12 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".05em" }}>
+          COACH VOICE
+        </div>
+        <label style={{ display:"flex", alignItems:"center", gap:8, cursor:"pointer" }}>
+          <span style={{ fontSize:10.5, fontWeight:700, color: voice.enabled ? T.green : T.faint, letterSpacing:".04em" }}>
+            {voice.enabled ? "ACTIVE" : "OFF"}
+          </span>
+          <input type="checkbox" checked={!!voice.enabled} onChange={e => update({ enabled: e.target.checked })}
+            style={{ width:16, height:16, cursor:"pointer" }}/>
+        </label>
+      </div>
+      <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.5, marginBottom:14 }}>
+        Teach Kailu to talk like YOU when responding to your clients. Three sample messages and a tone is enough — the AI will mimic your cadence and energy.
+      </div>
+
+      {/* Trainer name */}
+      <div style={{ marginBottom:12 }}>
+        <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:5 }}>YOUR NAME</div>
+        <input value={voice.trainerName || ""} onChange={e => update({ trainerName: e.target.value })}
+          placeholder="e.g. Coach Tanuj"
+          style={{ width:"100%", padding:"9px 12px", borderRadius:9, fontSize:13, fontWeight:600,
+            border:`1px solid ${T.border}`, background:T.glass, color:T.text, boxSizing:"border-box" }}/>
+      </div>
+
+      {/* Tone */}
+      <div style={{ marginBottom:12 }}>
+        <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>TONE</div>
+        <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
+          {TONES.map(t => (
+            <button key={t.id} onClick={() => update({ tone: t.id })}
+              style={{ padding:"6px 12px", borderRadius:16,
+                background: voice.tone === t.id ? T.blue : T.glass,
+                color: voice.tone === t.id ? (theme==="dark"?"#000":"#fff") : T.muted,
+                border:`1px solid ${voice.tone === t.id ? T.blue : T.border}`,
+                fontSize:11.5, fontWeight:700, cursor:"pointer" }}>
+              {t.label} <span style={{ opacity:.6, marginLeft:4, fontWeight:500 }}>· {t.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Toggles */}
+      <div style={{ display:"flex", gap:14, marginBottom:14, flexWrap:"wrap" }}>
+        <label style={{ display:"flex", alignItems:"center", gap:6, cursor:"pointer", fontSize:12, color:T.muted }}>
+          <input type="checkbox" checked={!!voice.profanityOk} onChange={e => update({ profanityOk: e.target.checked })}/>
+          Profanity OK
+        </label>
+        <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+          <span style={{ fontSize:12, color:T.muted }}>Emoji:</span>
+          {["none","light","heavy"].map(e => (
+            <button key={e} onClick={() => update({ emojiUse: e })}
+              style={{ padding:"4px 9px", borderRadius:8,
+                background: voice.emojiUse === e ? T.blue : "transparent",
+                color: voice.emojiUse === e ? (theme==="dark"?"#000":"#fff") : T.faint,
+                border:`1px solid ${voice.emojiUse === e ? T.blue : T.border}`,
+                fontSize:11, fontWeight:700, cursor:"pointer", textTransform:"capitalize" }}>
+              {e}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Signature phrases */}
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>
+          PHRASES YOU SAY OFTEN <span style={{ color:T.faint, opacity:.6 }}>(optional)</span>
+        </div>
+        {(voice.signaturePhrases || []).map((p, i) => (
+          <input key={i} value={p || ""}
+            onChange={e => {
+              const arr = [...(voice.signaturePhrases || [])];
+              arr[i] = e.target.value;
+              update({ signaturePhrases: arr });
+            }}
+            placeholder={i === 0 ? "e.g. Let's get it" : i === 1 ? "e.g. Trust the process" : "e.g. Another rep, another rep"}
+            style={{ width:"100%", padding:"7px 10px", marginBottom:5, borderRadius:8, fontSize:12, fontWeight:500,
+              border:`1px solid ${T.border}`, background:T.glass, color:T.text, boxSizing:"border-box" }}/>
+        ))}
+      </div>
+
+      {/* Voice samples — the heart of the system */}
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>
+          SAMPLE MESSAGES YOU'VE SENT CLIENTS <span style={{ color: sampleCount >= 2 ? T.green : T.faint }}>
+            ({sampleCount}/5 — need 2 minimum)
+          </span>
+        </div>
+        <div style={{ fontSize:11, color:T.muted, marginBottom:8, lineHeight:1.4 }}>
+          Paste actual messages you've sent in real conversations. Don't clean them up — punctuation, run-ons, typos are signal. 2-3 sentences each.
+        </div>
+        {(voice.voiceSamples || []).map((s, i) => (
+          <textarea key={i} value={s || ""}
+            onChange={e => {
+              const arr = [...(voice.voiceSamples || [])];
+              arr[i] = e.target.value;
+              update({ voiceSamples: arr });
+            }}
+            placeholder={i === 0
+              ? "Hey saw your sleep was 5 hrs last night, take rest day today and we'll hit it harder tomorrow"
+              : i === 1
+              ? "ur protein is way under again wym. let's get a shake in by 3"
+              : `Sample ${i+1}…`}
+            rows={2}
+            style={{ width:"100%", padding:"8px 10px", marginBottom:6, borderRadius:8, fontSize:12, lineHeight:1.4,
+              border:`1px solid ${T.border}`, background:T.glass, color:T.text, boxSizing:"border-box",
+              fontFamily:"inherit", resize:"vertical" }}/>
+        ))}
+      </div>
+
+      {/* Save */}
+      <div style={{ display:"flex", gap:8, alignItems:"center" }}>
+        <motion.button whileTap={{ scale:.97 }} onClick={persist} disabled={!ready && voice.enabled}
+          style={{ padding:"10px 16px", borderRadius:10,
+            background: ready ? T.blue : T.glass,
+            color: ready ? (theme==="dark"?"#000":"#fff") : T.faint,
+            border:"none", fontSize:11.5, fontWeight:900, letterSpacing:".04em",
+            textTransform:"uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
+          Save voice
+        </motion.button>
+        {saved && (
+          <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
+            style={{ fontSize:11.5, fontWeight:700, color:T.green }}>
+            ✓ Saved — Kailu now talks like you
+          </motion.div>
+        )}
+        {!ready && voice.enabled && (
+          <div style={{ fontSize:11, color:T.faint }}>
+            Add name + 2 samples to activate
+          </div>
+        )}
+      </div>
+    </GlassCard>
+  );
+}
+
 // ─── KAILU SUPPLEMENT PROTOCOL — interactive questionnaire ────────────────────
 // State machine: intro → asking (Q1..Q7) → generating → result → review-existing
 // User's answers are saved to rvn_supplement_protocol so they can come back to it.
@@ -17465,6 +17635,9 @@ async function composeBioPalResponse(text, state) {
     suppCtx,
     actionCtx,
     buildMemoryContext(),
+    // Trainer voice override — only present when a coach has configured their voice.
+    // Placed LAST so it can refine/override generic Kailu phrasing rules above.
+    buildTrainerVoiceContext(),
   ].filter(Boolean).join(" ");
 
   // ── STEP 3: Build conversation history (last 6 turns) ─────────────────────────
@@ -17866,6 +18039,57 @@ Return ONLY the JSON object. No prose.`;
     if (!parsed || !["add", "move", "cancel"].includes(parsed.action)) return null;
     return parsed;
   } catch { return null; }
+}
+
+// ─── TRAINER VOICE ────────────────────────────────────────────────────────────
+// Lets a trainer feed Kailu samples of how THEY talk to clients so the AI
+// mimics their voice. The trainer enters 3-5 sample messages + tone/emoji
+// preferences, and Kailu uses these as few-shot examples in every reply.
+// Storage shape:
+//   rvn_trainer_voice = {
+//     trainerName, tone, profanityOk, emojiUse,
+//     signaturePhrases:[], voiceSamples:[], enabled
+//   }
+function getTrainerVoice() {
+  try {
+    const v = JSON.parse(localStorage.getItem("rvn_trainer_voice") || "null");
+    return v && v.enabled ? v : null;
+  } catch { return null; }
+}
+function saveTrainerVoice(v) {
+  try { localStorage.setItem("rvn_trainer_voice", JSON.stringify(v || {})); } catch {}
+}
+// System-prompt fragment that teaches Kailu to talk like THIS trainer.
+// Returns "" when no trainer voice is configured — keeps generic Kailu behavior.
+function buildTrainerVoiceContext() {
+  const v = getTrainerVoice();
+  if (!v || !v.enabled) return "";
+  const parts = [];
+  if (v.trainerName) parts.push(`You are voicing this AI on behalf of Coach ${v.trainerName}.`);
+  parts.push("Match this coach's voice as closely as possible — same cadence, vocabulary, and energy. Don't sound like generic AI.");
+  if (v.tone) {
+    const toneMap = {
+      warm:       "Warm, encouraging, like a supportive friend. Affirming but specific.",
+      blunt:      "Blunt, direct, no fluff. Short sentences. Calls out BS.",
+      scientific: "Precise and evidence-based. References mechanisms briefly. Less emotion.",
+      hype:       "High energy, motivational. Uses 'let's go', 'no off days' style language.",
+      chill:      "Calm, laid-back. Short lowercase responses. Never preachy.",
+    };
+    parts.push("Tone: " + (toneMap[v.tone] || v.tone) + ".");
+  }
+  parts.push(v.profanityOk ? "Profanity is allowed in their style — use sparingly when it fits." : "No profanity.");
+  if (v.emojiUse === "none")   parts.push("Never use emojis.");
+  if (v.emojiUse === "light")  parts.push("Light emoji use only — one per message max, and only when it lands.");
+  if (v.emojiUse === "heavy")  parts.push("Emojis are part of this coach's style — use 1-3 per message.");
+  if (Array.isArray(v.signaturePhrases) && v.signaturePhrases.filter(Boolean).length) {
+    parts.push(`Phrases this coach uses: "${v.signaturePhrases.filter(Boolean).slice(0, 6).join('", "')}". Drop one when it fits naturally — don't force it.`);
+  }
+  const samples = (v.voiceSamples || []).filter(s => typeof s === "string" && s.trim().length > 10).slice(0, 5);
+  if (samples.length) {
+    parts.push("Real messages this coach has sent to clients (mimic this voice):");
+    samples.forEach((s, i) => parts.push(`${i+1}. "${s.trim()}"`));
+  }
+  return parts.join(" ");
 }
 
 // ─── COACH MEMORY ─────────────────────────────────────────────────────────────
@@ -25987,6 +26211,8 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 ))}
               </GlassCard>
             )}
+            {/* Coach Voice — teach Kailu to talk like you to your clients */}
+            <CoachVoicePanel theme={theme} T={T}/>
           </motion.div>
         )}
 

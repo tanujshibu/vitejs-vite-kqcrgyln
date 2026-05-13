@@ -7051,6 +7051,82 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
   );
 }
 
+// ─── PUSH TO CLIENT CTA — trainer sends this supplement stack to a client ────
+// Renders inside the supplement protocol result when a trainer voice is configured.
+// Opens a tiny inline form: client name + email + optional note. On send, writes to
+// rvn_pushed_protocols. The client's app reads this on supplement-screen mount and
+// renders a "Recommended by [Coach]" tier at the top with the curated stack.
+function PushToClientCTA({ stack, T, ac, theme }) {
+  const [open, setOpen]   = React.useState(false);
+  const [name, setName]   = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [note, setNote]   = React.useState("");
+  const [sent, setSent]   = React.useState(false);
+  const ready = name.trim().length > 0 && email.includes("@");
+  const send = () => {
+    try {
+      pushProtocolToClient({ toClientName: name, toClientEmail: email, note, items: stack });
+      setSent(true);
+      setTimeout(() => { setOpen(false); setSent(false); setName(""); setEmail(""); setNote(""); }, 2000);
+    } catch {}
+  };
+  if (!open) {
+    return (
+      <motion.button whileTap={{ scale:.97 }} onClick={() => setOpen(true)}
+        style={{ width:"100%", marginTop:12, padding:"10px 14px", borderRadius:10,
+          background:`${ac}18`, color:ac, border:`1px solid ${ac}55`,
+          fontSize:12, fontWeight:800, letterSpacing:".04em", textTransform:"uppercase",
+          cursor:"pointer" }}>
+        Push this protocol to a client →
+      </motion.button>
+    );
+  }
+  if (sent) {
+    return (
+      <div style={{ marginTop:12, padding:"10px 14px", borderRadius:10,
+        background:`#30D15822`, border:`1px solid #30D15866`,
+        fontSize:12, fontWeight:800, color:"#30D158", textAlign:"center" }}>
+        ✓ Sent to {name}
+      </div>
+    );
+  }
+  return (
+    <div style={{ marginTop:12, padding:"14px", borderRadius:12,
+      background:T.glass, border:`1px solid ${T.border}` }}>
+      <div style={{ fontSize:10.5, fontWeight:800, color:ac, letterSpacing:".05em", marginBottom:10 }}>
+        SEND TO CLIENT
+      </div>
+      <input value={name} onChange={e => setName(e.target.value)} placeholder="Client name (e.g. Sarah)"
+        style={{ width:"100%", padding:"9px 12px", marginBottom:6, borderRadius:8, fontSize:12.5,
+          border:`1px solid ${T.border}`, background:T.card, color:T.text, boxSizing:"border-box" }}/>
+      <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Client email"
+        type="email"
+        style={{ width:"100%", padding:"9px 12px", marginBottom:6, borderRadius:8, fontSize:12.5,
+          border:`1px solid ${T.border}`, background:T.card, color:T.text, boxSizing:"border-box" }}/>
+      <textarea value={note} onChange={e => setNote(e.target.value)}
+        placeholder="Personal note (optional). e.g. 'Sarah I added iron because of your bloodwork — start tomorrow.'"
+        rows={3}
+        style={{ width:"100%", padding:"9px 12px", marginBottom:10, borderRadius:8, fontSize:12,
+          border:`1px solid ${T.border}`, background:T.card, color:T.text, boxSizing:"border-box",
+          fontFamily:"inherit", resize:"vertical" }}/>
+      <div style={{ display:"flex", gap:8 }}>
+        <motion.button whileTap={{ scale:.97 }} disabled={!ready} onClick={send}
+          style={{ flex:1, padding:"9px 14px", borderRadius:9,
+            background: ready ? ac : T.glass,
+            color: ready ? (theme==="dark"?"#000":"#fff") : T.faint,
+            border:"none", fontSize:11.5, fontWeight:900, letterSpacing:".04em",
+            textTransform:"uppercase", cursor: ready ? "pointer" : "not-allowed" }}>
+          Send protocol
+        </motion.button>
+        <button onClick={() => setOpen(false)} style={{
+          padding:"9px 14px", borderRadius:9, background:"transparent",
+          color:T.muted, border:`1px solid ${T.border}`,
+          fontSize:11, fontWeight:700, cursor:"pointer" }}>Cancel</button>
+      </div>
+    </div>
+  );
+}
+
 // ─── COACH VOICE PANEL — let trainer feed Kailu their voice ──────────────────
 // Lives in ManagerHub Coach tab. Trainer enters 3-5 sample messages + tone/emoji
 // preferences. Saves to rvn_trainer_voice. Once enabled, every Kailu reply for
@@ -7315,7 +7391,8 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
   const [qIdx, setQIdx] = React.useState(0);
   const [answers, setAnswers] = React.useState({ goals: [], cautions: [] });
   const [stack, setStack] = React.useState(null);
-  // Load any previously saved protocol on mount
+  const [pushedProtocols, setPushedProtocols] = React.useState([]);
+  // Load any previously saved protocol on mount + any trainer-pushed protocols
   React.useEffect(() => {
     try {
       const saved = JSON.parse(localStorage.getItem("rvn_supplement_protocol") || "null");
@@ -7324,8 +7401,26 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
         setStack(saved.stack);
         setPhase("result");
       }
+      // Read any protocols a trainer has pushed to this client
+      const userEmail = (() => {
+        try {
+          const p = JSON.parse(localStorage.getItem("rvn_profile") || "{}");
+          return p?.email || "";
+        } catch { return ""; }
+      })();
+      const pushed = userEmail
+        ? (typeof getPushedProtocolsForClient === "function" ? getPushedProtocolsForClient(userEmail) : [])
+        : (typeof getPushedProtocols === "function" ? getPushedProtocols() : []);
+      setPushedProtocols((pushed || []).slice(-3).reverse());
     } catch {}
   }, []);
+  // Trainer mode flag — when the trainer voice is configured, show "Push to client" CTA
+  const trainerVoiceActive = (() => {
+    try {
+      const v = JSON.parse(localStorage.getItem("rvn_trainer_voice") || "null");
+      return !!(v && v.enabled && v.trainerName);
+    } catch { return false; }
+  })();
 
   const finishQuestionnaire = async (finalAnswers) => {
     setPhase("generating");
@@ -7500,6 +7595,44 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
   const total = stack.reduce((sum, s) => sum + (s.price || 0), 0);
   return (
     <div>
+      {/* Coach-pushed protocol tier — shows at top when a trainer has pushed a stack to this client */}
+      {pushedProtocols.length > 0 && pushedProtocols.map(pp => (
+        <motion.div key={pp.id} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
+          style={{
+            background: `linear-gradient(135deg, ${ac}14, ${ac}04)`,
+            border: `1.5px solid ${ac}55`, borderRadius:18,
+            padding:"18px", marginBottom:14, boxShadow:T.shadow,
+          }}>
+          <div style={{ fontSize:10.5, fontWeight:700, color:ac, letterSpacing:".06em", marginBottom:6 }}>
+            RECOMMENDED BY {pp.fromTrainerName.toUpperCase()}
+          </div>
+          <div style={{ fontSize:14, fontWeight:900, color:T.text, marginBottom:4 }}>
+            Your coach built this for you
+          </div>
+          {pp.note && (
+            <div style={{ fontSize:12, color:T.muted, fontStyle:"italic", lineHeight:1.5,
+              padding:"8px 10px", borderRadius:8, background:T.glass, marginBottom:10, marginTop:6 }}>
+              "{pp.note}"
+            </div>
+          )}
+          <div style={{ display:"flex", flexDirection:"column", gap:6, marginTop:8 }}>
+            {(pp.items || []).slice(0, 7).map((s, i) => (
+              <div key={i} style={{ display:"flex", justifyContent:"space-between",
+                padding:"8px 10px", borderRadius:8, background:T.glass }}>
+                <div style={{ minWidth:0 }}>
+                  <div style={{ fontSize:12.5, fontWeight:700, color:T.text }}>{s.name}</div>
+                  <div style={{ fontSize:11, color:T.faint }}>
+                    {s.brand} · {s.dose} · {s.timing}
+                  </div>
+                </div>
+                {s.price > 0 && (
+                  <div style={{ fontSize:12, fontWeight:800, color:T.text, marginLeft:8 }}>${s.price.toFixed(2)}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      ))}
       <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
         style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:18,
           padding:"18px", marginBottom:14, boxShadow:T.shadow }}>
@@ -7519,6 +7652,10 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
             REBUILD
           </button>
         </div>
+        {/* Trainer-only: push this protocol to a specific client */}
+        {trainerVoiceActive && stack && stack.length > 0 && (
+          <PushToClientCTA stack={stack} T={T} ac={ac} theme={theme}/>
+        )}
         <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.5 }}>
           Built from your answers — goals, training, sleep, diet, budget, current stack, allergies.
           Tap any item for dose + timing detail. ✦ = personalized for you.
@@ -7534,17 +7671,25 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
             <div style={{ flex:1, minWidth:0 }}>
               <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3, flexWrap:"wrap" }}>
                 <div style={{ fontSize:14, fontWeight:900, color:T.text }}>{s.name}</div>
+                {/* Source pip — informational only. NEVER use language that implies the
+                    user should buy because we sell it. Coach-not-salesperson principle. */}
                 {s.source === "store" && s.inStock && (
-                  <span style={{ fontSize:9, fontWeight:800, color:"#30D158", background:"#30D15822",
-                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em" }}>IN STORE</span>
+                  <span style={{ fontSize:9, fontWeight:600, color:T.faint, background:T.glass,
+                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em", border:`1px solid ${T.border}` }}>
+                    Available in RVN
+                  </span>
                 )}
                 {s.source === "manager" && (
-                  <span style={{ fontSize:9, fontWeight:800, color:ac, background:`${ac}22`,
-                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em" }}>GYM PICK</span>
+                  <span style={{ fontSize:9, fontWeight:700, color:T.faint, background:T.glass,
+                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em", border:`1px solid ${T.border}` }}>
+                    Stocked at your gym
+                  </span>
                 )}
                 {s.source === "generic" && (
-                  <span style={{ fontSize:9, fontWeight:700, color:T.faint, background:T.glass,
-                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em" }}>GENERIC</span>
+                  <span style={{ fontSize:9, fontWeight:600, color:T.faint, background:T.glass,
+                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em" }}>
+                    Any brand works
+                  </span>
                 )}
               </div>
               <div style={{ fontSize:11, color:T.muted, marginBottom:8 }}>
@@ -17909,7 +18054,9 @@ Rules:
 - Reference specific user details (e.g. "with your 5-day training split..." not generic "if you train hard").
 - Never invent facts not in the profile.
 - One sentence per item. Max 25 words.
-- No supplement-stacking advice ("combine with X"). Just why THIS one for THIS person.`;
+- No supplement-stacking advice ("combine with X"). Just why THIS one for THIS person.
+- CRITICAL: You are a coach, NOT a salesperson. Never recommend a supplement because it's in stock or available in the store. Only recommend based on the user's actual goals. If a recommendation happens to be in the RVN store, that's incidental — never the reason.
+- Never use sales phrases like "we recommend", "our top pick", "best seller". Use coach phrases like "for your goals", "given your sleep", "based on your training".`;
   try {
     const res = await fetch(base, {
       method:"POST", headers:{"Content-Type":"application/json"},
@@ -18039,6 +18186,51 @@ Return ONLY the JSON object. No prose.`;
     if (!parsed || !["add", "move", "cancel"].includes(parsed.action)) return null;
     return parsed;
   } catch { return null; }
+}
+
+// ─── TRAINER-PUSHED PROTOCOLS ─────────────────────────────────────────────────
+// Trainer builds a supplement protocol for a client and pushes it. Client opens
+// the supplement screen and sees "Recommended by Coach [Name]" at the top with
+// the trainer's note + curated stack. Single-trainer-per-deployment for v1; when
+// we add multi-tenant trainer accounts later, we scope this by trainer_id +
+// client_email/id. Storage:
+//   rvn_pushed_protocols = [{ id, fromTrainerName, toClientName, toClientEmail,
+//                              note, items:[{...stack}], pushedAt }]
+function getPushedProtocols() {
+  try {
+    const arr = JSON.parse(localStorage.getItem("rvn_pushed_protocols") || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function savePushedProtocols(arr) {
+  try { localStorage.setItem("rvn_pushed_protocols", JSON.stringify(arr || [])); } catch {}
+}
+// Read protocols pushed to a specific client email (or all if no email).
+function getPushedProtocolsForClient(clientEmail) {
+  const all = getPushedProtocols();
+  if (!clientEmail) return all;
+  const e = clientEmail.toLowerCase();
+  return all.filter(p => (p.toClientEmail || "").toLowerCase() === e);
+}
+function pushProtocolToClient({ toClientName, toClientEmail, note, items }) {
+  const v = getTrainerVoice();
+  const fromTrainerName = v?.trainerName || "Your Coach";
+  const entry = {
+    id: "push_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7),
+    fromTrainerName,
+    toClientName: (toClientName || "").trim(),
+    toClientEmail: (toClientEmail || "").trim().toLowerCase(),
+    note: (note || "").trim().slice(0, 240),
+    items: (items || []).slice(0, 10).map(s => ({
+      id: s.id, name: s.name, brand: s.brand, dose: s.dose, timing: s.timing,
+      price: s.price, inStock: s.inStock, source: s.source, mechanism: s.mechanism,
+      personalWhy: s.personalWhy,
+    })),
+    pushedAt: new Date().toISOString(),
+  };
+  const arr = getPushedProtocols();
+  savePushedProtocols([...arr, entry]);
+  return entry;
 }
 
 // ─── TRAINER VOICE ────────────────────────────────────────────────────────────
@@ -29745,6 +29937,230 @@ function RVNRoot() {
             user={user}
             onBack={() => go("landing")}/>
         )}
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => { go("community-hub"); }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => {
+              go("community-hub");
+            }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => {
+              go("community-hub");
+            }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
 
         {screen==="workout-history" && (
           <WorkoutHistoryScreen key="workout-history" theme={theme}

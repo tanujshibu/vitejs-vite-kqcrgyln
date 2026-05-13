@@ -18306,6 +18306,163 @@ function buildTrainerVoiceContext() {
   return parts.join(" ");
 }
 
+// ─── SAVED WORKOUTS LIBRARY ────────────────────────────────────────────────────
+// User-curated workout templates. Save once, assign to any future day on the
+// calendar. Storage shape:
+//   rvn_saved_workouts = [{ id, name, focus, exercises:[{name, sets, reps, weight?, notes?}], createdAt }]
+function getSavedWorkouts() {
+  try {
+    const arr = JSON.parse(localStorage.getItem("rvn_saved_workouts") || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function saveSavedWorkouts(arr) {
+  try { localStorage.setItem("rvn_saved_workouts", JSON.stringify(arr || [])); } catch {}
+}
+function addSavedWorkout({ name, focus, exercises, notes }) {
+  if (!name || !Array.isArray(exercises)) return null;
+  const entry = {
+    id: "wkt_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7),
+    name: String(name).slice(0, 60),
+    focus: String(focus || "general").slice(0, 30),
+    exercises: exercises.slice(0, 20).map(e => ({
+      name: String(e.name || "").slice(0, 60),
+      sets: Number(e.sets) || 0,
+      reps: String(e.reps || "").slice(0, 20),
+      weight: e.weight != null ? Number(e.weight) : null,
+      notes: e.notes ? String(e.notes).slice(0, 120) : "",
+    })),
+    notes: notes ? String(notes).slice(0, 200) : "",
+    createdAt: new Date().toISOString(),
+  };
+  const arr = getSavedWorkouts();
+  saveSavedWorkouts([...arr, entry]);
+  return entry;
+}
+function deleteSavedWorkout(id) {
+  if (!id) return;
+  saveSavedWorkouts(getSavedWorkouts().filter(w => w.id !== id));
+}
+function updateSavedWorkout(id, patch) {
+  if (!id || !patch) return;
+  const arr = getSavedWorkouts();
+  const idx = arr.findIndex(w => w.id === id);
+  if (idx < 0) return;
+  const next = [...arr];
+  next[idx] = { ...arr[idx], ...patch };
+  saveSavedWorkouts(next);
+}
+// Assign a saved workout template to a specific date via the calendar.
+// Creates a calendar event linked back to the template id.
+function assignSavedWorkoutToDate(workoutId, dateStr) {
+  const w = getSavedWorkouts().find(x => x.id === workoutId);
+  if (!w || !dateStr) return null;
+  // Use the existing calendar pipeline so the cell lights up on the next render
+  if (typeof applyCalendarMutation === "function") {
+    const result = applyCalendarMutation({
+      action: "add",
+      date: dateStr,
+      time: null,
+      title: w.name,
+      type: "training",
+      notes: `Template: ${w.id}`,
+    });
+    return result?.event || null;
+  }
+  return null;
+}
+
+// ─── SCHEMA VERSIONING + MIGRATIONS ────────────────────────────────────────────
+// localStorage is the source of truth for everything (profile, calendar, memory,
+// supplements, trainer voice, pushed protocols, etc.). When we change any shape,
+// existing users have stale data that can silently corrupt the app. This module
+// tracks the schema version we last migrated to, and runs missing migrations
+// in order on app boot. Always idempotent — re-running a migration is a no-op.
+//
+// To add a migration:
+//   1. Bump RVN_SCHEMA_VERSION below
+//   2. Add a function `migrateToVN()` that takes no args and is safe to re-run
+//   3. Register it in MIGRATIONS by number
+const RVN_SCHEMA_VERSION = 1;
+
+// Migration registry. Keys are target versions. Each function migrates FROM
+// (key-1) TO key. Must be idempotent. Throwing aborts the chain so users
+// don't get into a half-migrated state.
+const MIGRATIONS = {
+  1: function migrateToV1() {
+    // Initial baseline migration. Backfills any missing fields users from
+    // earlier versions might lack. Safe to re-run.
+    try {
+      const p = JSON.parse(localStorage.getItem("rvn_profile") || "{}");
+      // Backfill macro range fields (added when we introduced the uncertainty
+      // band). Old users have plain macroToday with just protein/carbs/fats.
+      if (p && p.macroToday && typeof p.macroToday === "object") {
+        const mt = p.macroToday;
+        if (typeof mt.calories !== "number") {
+          mt.calories = Math.round((mt.protein||0)*4 + (mt.carbs||0)*4 + (mt.fats||0)*9);
+        }
+        ["protein_min","protein_max","carbs_min","carbs_max","fats_min","fats_max","calories_min","calories_max"].forEach(k => {
+          if (typeof mt[k] !== "number") {
+            const base = k.startsWith("protein") ? mt.protein
+                      : k.startsWith("carbs") ? mt.carbs
+                      : k.startsWith("fats") ? mt.fats
+                      : mt.calories;
+            mt[k] = base || 0;
+          }
+        });
+        if (!Array.isArray(mt.items)) mt.items = [];
+        localStorage.setItem("rvn_profile", JSON.stringify(p));
+      }
+      // Backfill coach memory shape if older users only had an array
+      const memRaw = localStorage.getItem("rvn_coach_memory");
+      if (memRaw) {
+        const m = JSON.parse(memRaw);
+        if (Array.isArray(m)) {
+          // Legacy array format — wrap in object
+          localStorage.setItem("rvn_coach_memory", JSON.stringify({ facts: m, lastExtracted: 0 }));
+        } else if (m && !Array.isArray(m.facts)) {
+          m.facts = [];
+          localStorage.setItem("rvn_coach_memory", JSON.stringify(m));
+        }
+      }
+      // Calendar must always be an array
+      const calRaw = localStorage.getItem("rvn_calendar");
+      if (calRaw) {
+        const c = JSON.parse(calRaw);
+        if (!Array.isArray(c)) localStorage.setItem("rvn_calendar", "[]");
+      }
+    } catch (e) {
+      console.warn("[RVN] migrateToV1 partial failure:", e);
+    }
+  },
+};
+
+// Run all pending migrations from the user's current version up to RVN_SCHEMA_VERSION.
+// Called once on app boot. Stops the chain on any unexpected error.
+function runSchemaMigrations() {
+  if (typeof window === "undefined") return;
+  let current;
+  try {
+    current = parseInt(localStorage.getItem("rvn_schema_version") || "0", 10);
+    if (!Number.isFinite(current) || current < 0) current = 0;
+  } catch { current = 0; }
+  if (current >= RVN_SCHEMA_VERSION) return; // up to date
+  for (let v = current + 1; v <= RVN_SCHEMA_VERSION; v++) {
+    const fn = MIGRATIONS[v];
+    if (typeof fn !== "function") {
+      console.warn("[RVN] no migration function for v" + v + " — stopping");
+      break;
+    }
+    try {
+      fn();
+      try { localStorage.setItem("rvn_schema_version", String(v)); } catch {}
+    } catch (e) {
+      console.error("[RVN] migration v" + v + " threw:", e);
+      break;
+    }
+  }
+}
+
 // ─── COACH MEMORY ─────────────────────────────────────────────────────────────
 // Stores up to 25 durable facts about the user extracted from conversations.
 // Injected into every AI system prompt so Kailu always "knows" the user.
@@ -27473,10 +27630,197 @@ function PRSparkline({ sessions, lift, color, theme }) {
   );
 }
 
-// ─── STREAK HEATMAP ───────────────────────────────────────────────────────────
+// ─── ASSIGN WORKOUT PICKER ─────────────────────────────────────────────────────
+// Modal that opens when a future calendar cell is tapped. Lists the user's saved
+// workout templates with "Assign to {date}" buttons. Also has a "+ Save current
+// workout" path that captures the user's current GymProtocol template. All in
+// localStorage — zero API cost.
+function AssignWorkoutPicker({ dateStr, theme, accentColor, onClose }) {
+  const T = D[theme] || D.dark;
+  const ac = accentColor;
+  const [saved, setSaved] = React.useState(() => getSavedWorkouts());
+  const [mode, setMode]   = React.useState("pick"); // "pick" | "create"
+  const [form, setForm]   = React.useState({ name:"", focus:"upper", exercisesText:"" });
+  const [assigned, setAssigned] = React.useState(false);
+  const dateLabel = (() => {
+    try {
+      const d = new Date(dateStr + "T12:00:00");
+      const today = new Date(); today.setHours(0,0,0,0);
+      const tgt = new Date(d); tgt.setHours(0,0,0,0);
+      const diff = Math.round((tgt - today) / 86400000);
+      const weekday = d.toLocaleDateString("en-US", { weekday: "long" });
+      const dateP = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      if (diff === 0) return `Today · ${dateP}`;
+      if (diff === 1) return `Tomorrow · ${dateP}`;
+      return `${weekday} · ${dateP}`;
+    } catch { return dateStr; }
+  })();
+  const handleAssign = (workoutId) => {
+    assignSavedWorkoutToDate(workoutId, dateStr);
+    setAssigned(true);
+    setTimeout(onClose, 900);
+  };
+  const handleCreate = () => {
+    // Parse exercisesText like "Bench 4x6\nSquat 3x5\nRow 4x8"
+    const lines = (form.exercisesText || "").split("\n").map(s => s.trim()).filter(Boolean);
+    const exercises = lines.map(line => {
+      // "Bench 4x6 @135" → name=Bench, sets=4, reps=6, weight=135
+      const m = line.match(/^(.+?)\s+(\d+)x([\dA-Za-z\-]+)(?:\s*@\s*(\d+(?:\.\d+)?))?/);
+      if (m) return { name: m[1].trim(), sets: Number(m[2]) || 0, reps: m[3], weight: m[4] ? Number(m[4]) : null, notes: "" };
+      return { name: line, sets: 3, reps: "8-10", weight: null, notes: "" };
+    });
+    const entry = addSavedWorkout({ name: form.name || "Untitled workout", focus: form.focus, exercises });
+    if (entry) {
+      const next = getSavedWorkouts();
+      setSaved(next);
+      // Auto-assign the just-created workout
+      assignSavedWorkoutToDate(entry.id, dateStr);
+      setAssigned(true);
+      setTimeout(onClose, 900);
+    }
+  };
+  const stop = (e) => e.stopPropagation();
+  return (
+    <div onClick={onClose} style={{
+      position:"fixed", inset:0, zIndex:10000,
+      background:"rgba(0,0,0,0.62)",
+      display:"flex", alignItems:"flex-end", justifyContent:"center",
+      padding:"16px",
+    }}>
+      <div onClick={stop} style={{
+        width:"100%", maxWidth:480,
+        background: T.card, borderRadius:18,
+        border:`1px solid ${T.border}`, boxShadow:T.shadow,
+        maxHeight:"82vh", overflowY:"auto",
+        padding:"18px 16px 18px",
+      }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
+          <div>
+            <div style={{ fontSize:10.5, fontWeight:700, color:ac, letterSpacing:".05em" }}>ASSIGN TO</div>
+            <div style={{ fontSize:16, fontWeight:900, color:T.text, marginTop:2 }}>{dateLabel}</div>
+          </div>
+          <button onClick={onClose} style={{
+            background:"transparent", border:"none", color:T.muted,
+            fontSize:20, cursor:"pointer", padding:0, lineHeight:1,
+          }}>×</button>
+        </div>
+
+        {assigned ? (
+          <div style={{ padding:"30px 0", textAlign:"center" }}>
+            <div style={{ fontSize:24, marginBottom:8 }}>✓</div>
+            <div style={{ fontSize:14, fontWeight:800, color:"#30D158" }}>Scheduled.</div>
+          </div>
+        ) : mode === "pick" ? (
+          <>
+            {/* Saved workouts list */}
+            {saved.length === 0 ? (
+              <div style={{
+                padding:"16px 14px", borderRadius:12,
+                background:T.glass, border:`1px dashed ${T.border}`,
+                fontSize:12.5, color:T.muted, lineHeight:1.55, marginBottom:12,
+              }}>
+                No saved workouts yet. Create your first template below — it'll auto-assign to this date.
+              </div>
+            ) : (
+              <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:12 }}>
+                {saved.map(w => (
+                  <div key={w.id} style={{
+                    padding:"12px 14px", borderRadius:12,
+                    background:T.glass, border:`1px solid ${T.border}`,
+                    display:"flex", justifyContent:"space-between", alignItems:"center", gap:10,
+                  }}>
+                    <div style={{ flex:1, minWidth:0 }}>
+                      <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{w.name}</div>
+                      <div style={{ fontSize:11, color:T.muted, marginTop:2 }}>
+                        {w.focus} · {w.exercises.length} exercise{w.exercises.length === 1 ? "" : "s"}
+                      </div>
+                    </div>
+                    <button onClick={() => handleAssign(w.id)} style={{
+                      padding:"7px 12px", borderRadius:9, background:ac,
+                      color: theme==="dark"?"#000":"#fff", border:"none",
+                      fontSize:11, fontWeight:800, letterSpacing:".04em",
+                      textTransform:"uppercase", cursor:"pointer", flexShrink:0,
+                    }}>Assign</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <button onClick={() => setMode("create")} style={{
+              width:"100%", padding:"11px 14px", borderRadius:10,
+              background:`${ac}18`, color:ac, border:`1px solid ${ac}55`,
+              fontSize:12, fontWeight:900, letterSpacing:".04em",
+              textTransform:"uppercase", cursor:"pointer",
+            }}>
+              + Create new workout
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Create new workout form */}
+            <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:5 }}>NAME</div>
+            <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+              placeholder="e.g. Push Day A"
+              style={{ width:"100%", padding:"9px 12px", marginBottom:10, borderRadius:9, fontSize:13,
+                border:`1px solid ${T.border}`, background:T.glass, color:T.text, boxSizing:"border-box" }}/>
+            <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:5 }}>FOCUS</div>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:10 }}>
+              {["upper","lower","push","pull","legs","full","cardio","mobility"].map(f => (
+                <button key={f} onClick={() => setForm(p => ({ ...p, focus:f }))} style={{
+                  padding:"5px 10px", borderRadius:14,
+                  background: form.focus === f ? ac : T.glass,
+                  color: form.focus === f ? (theme==="dark"?"#000":"#fff") : T.muted,
+                  border:`1px solid ${form.focus === f ? ac : T.border}`,
+                  fontSize:11, fontWeight:700, cursor:"pointer", textTransform:"capitalize",
+                }}>{f}</button>
+              ))}
+            </div>
+            <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:5 }}>
+              EXERCISES <span style={{ opacity:.6, fontWeight:500 }}>(one per line, e.g. "Bench 4x6 @135")</span>
+            </div>
+            <textarea value={form.exercisesText}
+              onChange={e => setForm(f => ({ ...f, exercisesText: e.target.value }))}
+              rows={6}
+              placeholder={"Bench Press 4x6 @135\nIncline DB Press 3x10\nCable Fly 3x12\nTricep Rope 4x12"}
+              style={{ width:"100%", padding:"10px 12px", marginBottom:14, borderRadius:9, fontSize:12.5, lineHeight:1.5,
+                border:`1px solid ${T.border}`, background:T.glass, color:T.text, boxSizing:"border-box",
+                fontFamily:"inherit", resize:"vertical" }}/>
+            <div style={{ display:"flex", gap:8 }}>
+              <button onClick={handleCreate}
+                disabled={!form.name.trim() || !form.exercisesText.trim()}
+                style={{
+                  flex:1, padding:"10px 14px", borderRadius:10,
+                  background: form.name.trim() && form.exercisesText.trim() ? ac : T.glass,
+                  color: form.name.trim() && form.exercisesText.trim() ? (theme==="dark"?"#000":"#fff") : T.faint,
+                  border:"none", fontSize:11.5, fontWeight:900, letterSpacing:".04em",
+                  textTransform:"uppercase", cursor: form.name.trim() && form.exercisesText.trim() ? "pointer" : "not-allowed",
+                }}>Save + Assign</button>
+              <button onClick={() => setMode("pick")} style={{
+                padding:"10px 14px", borderRadius:10, background:"transparent",
+                color:T.muted, border:`1px solid ${T.border}`,
+                fontSize:11, fontWeight:700, cursor:"pointer",
+              }}>Back</button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── STREAK HEATMAP / CALENDAR ─────────────────────────────────────────────────
+// Forward-looking 4-week calendar. Future cells are tappable to assign a saved
+// workout. The assign-picker modal opens with the user's saved workout library.
 function StreakHeatmap({ theme, accentColor }) {
   const T = D[theme];
   const ac = accentColor;
+  // Local state for the tap-to-assign modal — only opens on FUTURE day taps.
+  const [assignFor, setAssignFor] = React.useState(null); // dateStr | null
+  const [bumpKey, setBumpKey]     = React.useState(0);    // force re-read on assign
+  // Tick once a minute so a calendar viewer rolling over midnight gets fresh data
+  React.useEffect(() => {
+    const iv = setInterval(() => setBumpKey(k => k + 1), 60000);
+    return () => clearInterval(iv);
+  }, []);
 
   // Load workout dates from localStorage
   const workoutDates = (() => {
@@ -27608,31 +27952,36 @@ function StreakHeatmap({ theme, accentColor }) {
         ))}
       </div>
 
-      {/* 4-week grid: 4 rows of 7 */}
+      {/* 4-week grid: 4 rows of 7. Future cells (incl. today) are tappable
+          to assign a saved workout. Past cells are read-only. */}
       <div style={{ display:"flex", flexDirection:"column", gap:4 }}>
         {[0, 1, 2, 3].map(week => (
           <div key={week} style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:4 }}>
-            {days.slice(week * 7, week * 7 + 7).map((d, i) => (
-              <div key={i} style={{
+            {days.slice(week * 7, week * 7 + 7).map((d, i) => {
+              const tappable = !d.isPast; // today + future days
+              return (
+              <div key={i} onClick={() => { if (tappable) setAssignFor(d.dateStr); }} style={{
                 position:"relative",
                 borderRadius: 10,
                 paddingTop:"80%",
                 background: d.hasWorkout
                   ? `linear-gradient(135deg, ${ac}, ${ac}cc)`
-                  : d.isToday
-                    ? `${ac}18`
-                    : d.isFuture
-                      ? "transparent"
-                      : T.glass,
+                  : d.hasScheduled
+                    ? `${ac}28`
+                    : d.isToday
+                      ? `${ac}18`
+                      : d.isFuture
+                        ? "transparent"
+                        : T.glass,
                 border: d.isToday
                   ? `1.5px solid ${ac}80`
-                  : d.hasWorkout
+                  : d.hasWorkout || d.hasScheduled
                     ? `1px solid ${ac}60`
                     : `1px solid ${T.border}`,
                 boxShadow: d.hasWorkout ? `0 2px 8px ${ac}40` : "none",
-                opacity: d.isFuture ? 0.25 : 1,
+                opacity: d.isFuture && !d.hasScheduled ? 0.45 : 1,
                 transition:"transform .15s",
-                cursor: d.hasWorkout ? "default" : "default",
+                cursor: tappable ? "pointer" : "default",
               }}>
                 <div style={{
                   position:"absolute", inset:0,
@@ -27650,12 +27999,25 @@ function StreakHeatmap({ theme, accentColor }) {
                   {d.hasWorkout && (
                     <div style={{ width:4, height:4, borderRadius:"50%", background:"rgba(255,255,255,0.7)" }}/>
                   )}
+                  {d.hasScheduled && !d.hasWorkout && (
+                    <div style={{ width:5, height:5, borderRadius:"50%", background:ac, marginTop:2 }}/>
+                  )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         ))}
       </div>
+      {/* Assign-saved-workout picker — opens when a tappable cell is clicked */}
+      {assignFor && (
+        <AssignWorkoutPicker
+          dateStr={assignFor}
+          theme={theme}
+          accentColor={ac}
+          onClose={() => { setAssignFor(null); setBumpKey(k => k + 1); }}
+        />
+      )}
 
       {/* Legend */}
       <div style={{ display:"flex", alignItems:"center", gap:12, marginTop:12, justifyContent:"flex-end" }}>
@@ -29421,6 +29783,12 @@ function RVNRoot() {
 
   const go = goto;
 
+  // ── Run schema migrations FIRST so all downstream localStorage reads see
+  // a normalized shape. Pure-localStorage operation, idempotent, no API cost.
+  useEffect(() => {
+    try { runSchemaMigrations(); } catch (e) { console.warn("[RVN] migration runner threw:", e); }
+  }, []);
+
   // ── Global Kailu bridges — work from ANY screen, not just /protocol ───────────
   // Previously these lived inside GymProtocol so they only existed when the user
   // was viewing the dashboard. Kailu chatting from Settings, Supplements, or any
@@ -29566,10 +29934,19 @@ function RVNRoot() {
   // ── Supabase auth state ───────────────────────────────────────────────────────
   const [authSession,   setAuthSession]   = useState(null);   // supabase Session | null
   const [authChecked,   setAuthChecked]   = useState(false);  // have we resolved the initial session?
+  const [authTimedOut,  setAuthTimedOut]  = useState(false);  // true if getSession() hung
 
   useEffect(() => {
-    // Timeout guard — if Supabase hangs, unblock the app after 4s
-    const timeoutId = setTimeout(() => setAuthChecked(true), 4000);
+    // Timeout guard — if Supabase hangs, unblock the UI after 4s. SECURITY:
+    // we mark `authTimedOut` so downstream gates can treat the user as
+    // unauthenticated (not "assume signed in"). Previously the timeout
+    // silently set authChecked=true which let unauthenticated users through
+    // any auth-guarded code path that only checked `authChecked`.
+    const timeoutId = setTimeout(() => {
+      setAuthTimedOut(true);
+      setAuthSession(null); // explicit: timeout means no confirmed session
+      setAuthChecked(true);
+    }, 4000);
 
     // Resolve current session (handles magic-link token in URL hash automatically).
     // CRITICAL FIX: if the user previously completed onboarding AND has a valid session

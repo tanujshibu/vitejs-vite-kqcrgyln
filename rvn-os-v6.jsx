@@ -30768,6 +30768,159 @@ function RVNRoot() {
           <WorkoutHistoryScreen key="workout-history" theme={theme}
             user={user} onBack={() => go("protocol")}/>
         )}
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => {
+              go("community-hub");
+            }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => { go("community-hub"); }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
 
         {screen==="body-weight" && (
           <BodyWeightScreen key="body-weight" theme={theme}

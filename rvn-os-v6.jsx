@@ -8077,13 +8077,29 @@ function AuthScreen({ theme, onAuth }) {
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
   const [smokeVisible, setSmokeVisible] = useState(false);
+  const [animReady, setAnimReady] = useState(false);
   // Use a ref so the timeout never resets when the parent re-renders
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone; // update synchronously — no effect needed
   useEffect(() => {
-    const t1 = setTimeout(() => setSmokeVisible(true), 500); // particles converge at 500ms
-    const t2 = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    // SPLASH FREEZE FIX: on mobile Safari, framer-motion sometimes doesn't kick
+    // off animations on the first paint if the initial render is too heavy.
+    // We force a double-frame paint before activating any animation state —
+    // requestAnimationFrame chained twice guarantees the browser has rasterized
+    // the initial frame so motion transitions actually trigger.
+    let raf1, raf2, t1, t2;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(() => {
+        setAnimReady(true);
+        t1 = setTimeout(() => setSmokeVisible(true), 500); // particles converge at 500ms after ready
+      });
+    });
+    t2 = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
+    return () => {
+      if (raf1) cancelAnimationFrame(raf1);
+      if (raf2) cancelAnimationFrame(raf2);
+      clearTimeout(t1); clearTimeout(t2);
+    };
   }, []);
 
   // Pure delay-based animations — no React state controlling visibility.
@@ -9727,11 +9743,8 @@ function FactAnimSVG({ type, color }) {
           <animate attributeName="width" from="0" to="130" dur="1.0s" begin="0.4s" fill="freeze"/>
           <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" begin="1.5s" repeatCount="indefinite"/>
         </rect>
-        <circle cx="182" cy="108" r="0" fill={color}>
-          <animate attributeName="r" from="0" to="6" dur="0.2s" begin="1.4s" fill="freeze"/>
-          <animate attributeName="r" values="5;10;5" dur="2s" begin="1.5s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" begin="1.5s" repeatCount="indefinite"/>
-        </circle>
+        {/* Removed stray pulsing circle that lived at the end of the REST bar —
+            it read as a UI artifact, not a designed indicator. */}
         <text x="52" y="83" fill={color} fontSize="9" fontFamily="system-ui,sans-serif" opacity="0.35">breaks muscle down</text>
         <text x="52" y="133" fill={color} fontSize="9" fontFamily="system-ui,sans-serif" opacity="0.75">builds it back stronger ↑</text>
       </svg>
@@ -10684,14 +10697,10 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
         transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
-      {/* Giant faded step number — pulses */}
-      <motion.div
-        animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
-        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
-        style={{ position:"absolute", top:"-10px", right:"-8px",
-          fontSize:180, fontWeight:900, color:T.text,
-          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-          userSelect:"none", zIndex:0, transformOrigin:"top right" }}>02</motion.div>
+      {/* Removed giant pulsing "02" background ornament. Read as a misleading
+          "Question 2" label (this is a CHOICE of archetype, not the literal
+          second question — biology has multiple questions before this).
+          The 5-dot progress indicator below already shows step position. */}
 
       <div style={{ position:"relative", zIndex:1,
         padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>

@@ -7043,9 +7043,357 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
 
       {/* Body */}
       <div style={{ padding:"18px 16px 40px" }}>
-        <ABBioComparison archetypeId={archetypeId} theme={theme} color={ac}/>
+        <KailuSupplementProtocol archetypeId={archetypeId} theme={theme} color={ac} fallback={
+          <ABBioComparison archetypeId={archetypeId} theme={theme} color={ac}/>
+        }/>
       </div>
     </Screen>
+  );
+}
+
+// ─── KAILU SUPPLEMENT PROTOCOL — interactive questionnaire ────────────────────
+// State machine: intro → asking (Q1..Q7) → generating → result → review-existing
+// User's answers are saved to rvn_supplement_protocol so they can come back to it.
+// On result, key facts feed into coach memory so Kailu references them later.
+const SUPP_QUESTIONS = [
+  {
+    id: "goals", multi: true, label: "What are you actually trying to achieve?",
+    sub: "Pick up to 3. The more honest, the better your stack.",
+    options: [
+      { value: "muscle",        label: "Build muscle" },
+      { value: "strength",      label: "Get stronger" },
+      { value: "fat_loss",      label: "Lose body fat" },
+      { value: "energy",        label: "More daily energy" },
+      { value: "sleep",         label: "Sleep better" },
+      { value: "recovery",      label: "Recover faster" },
+      { value: "focus",         label: "Sharper focus" },
+      { value: "stress",        label: "Lower stress" },
+      { value: "joints",        label: "Healthier joints" },
+      { value: "general",       label: "General health" },
+      { value: "hormones",      label: "Hormone optimization" },
+      { value: "gut",           label: "Gut / digestion" },
+    ],
+  },
+  {
+    id: "training", multi: false, label: "How often do you train?",
+    options: [
+      { value: "0-1",  label: "Rarely / just starting" },
+      { value: "2-3",  label: "2–3x per week" },
+      { value: "4-5",  label: "4–5x per week" },
+      { value: "6-7",  label: "6–7x per week (high volume)" },
+    ],
+  },
+  {
+    id: "sleep", multi: false, label: "How's your sleep right now (1–10)?",
+    sub: "Be real — this drives recovery + hormone supplements heavily.",
+    options: [
+      { value: 3,  label: "1–4 · Wrecked" },
+      { value: 5,  label: "5–6 · Inconsistent" },
+      { value: 7,  label: "7–8 · Mostly fine" },
+      { value: 9,  label: "9–10 · Dialed" },
+    ],
+  },
+  {
+    id: "caffeineSens", multi: false, label: "How does caffeine hit you?",
+    options: [
+      { value: "high",  label: "High — jittery, anxious, bad sleep" },
+      { value: "med",   label: "Normal — pre-workout fine, no issues" },
+      { value: "low",   label: "Low — need it just to function" },
+      { value: "none",  label: "I avoid caffeine entirely" },
+    ],
+  },
+  {
+    id: "diet", multi: false, label: "What's your diet?",
+    options: [
+      { value: "omnivore",     label: "Omnivore (meat + dairy)" },
+      { value: "pescatarian",  label: "Pescatarian (fish, no meat)" },
+      { value: "vegetarian",   label: "Vegetarian (dairy okay)" },
+      { value: "vegan",        label: "Vegan (plant-only)" },
+    ],
+  },
+  {
+    id: "budget", multi: false, label: "Monthly supplement budget?",
+    sub: "Be honest — we'll only recommend what fits.",
+    options: [
+      { value: "tight",     label: "$25 or less — essentials only" },
+      { value: "moderate",  label: "$50–$100 — solid stack" },
+      { value: "flexible",  label: "$100–$200 — full optimization" },
+      { value: "any",       label: "$200+ — no constraint" },
+    ],
+  },
+  {
+    id: "cautions", multi: true, label: "Anything we need to avoid?",
+    sub: "Pick anything that applies. Skip if none.",
+    options: [
+      { value: "kidney_disease",        label: "Kidney issues" },
+      { value: "blood_thinners",        label: "On blood thinners" },
+      { value: "fish_allergy",          label: "Fish / shellfish allergy" },
+      { value: "dairy_allergy",         label: "Dairy / lactose intolerant" },
+      { value: "pregnancy",             label: "Pregnant / nursing" },
+      { value: "thyroid_meds",          label: "On thyroid medication" },
+      { value: "anxiety",               label: "Anxiety / panic-prone" },
+      { value: "caffeine_sens",         label: "Heart-rate sensitive to stims" },
+      { value: "diabetes_meds",         label: "Diabetic / glucose meds" },
+    ],
+  },
+];
+
+function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
+  const T = D[theme] || D.dark;
+  const ac = color || T.blue;
+  const [phase, setPhase] = React.useState("intro"); // intro | asking | generating | result
+  const [qIdx, setQIdx] = React.useState(0);
+  const [answers, setAnswers] = React.useState({ goals: [], cautions: [] });
+  const [stack, setStack] = React.useState(null);
+  // Load any previously saved protocol on mount
+  React.useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("rvn_supplement_protocol") || "null");
+      if (saved && saved.stack && saved.answers) {
+        setAnswers(saved.answers);
+        setStack(saved.stack);
+        setPhase("result");
+      }
+    } catch {}
+  }, []);
+
+  const finishQuestionnaire = async (finalAnswers) => {
+    setPhase("generating");
+    // Score against DB + personalize via one Claude call
+    const scored = scoreSupplementsForAnswers(finalAnswers).slice(0, 7);
+    const personalized = await personalizeSupplementStack(scored, finalAnswers);
+    setStack(personalized);
+    setPhase("result");
+    // Persist
+    try {
+      localStorage.setItem("rvn_supplement_protocol", JSON.stringify({
+        answers: finalAnswers, stack: personalized, builtAt: new Date().toISOString(),
+      }));
+    } catch {}
+    // Memory: log key facts so Kailu remembers them in future conversations
+    try {
+      if (typeof logMemoryEvent === "function") {
+        if ((finalAnswers.goals || []).length) logMemoryEvent(`Supplement goals: ${finalAnswers.goals.slice(0, 3).join(", ")}.`, "supplement");
+        if (finalAnswers.diet)                 logMemoryEvent(`Diet: ${finalAnswers.diet}.`, "supplement");
+        if (finalAnswers.budget)               logMemoryEvent(`Supplement budget: ${finalAnswers.budget}.`, "supplement");
+        if ((finalAnswers.cautions || []).length) logMemoryEvent(`Avoid: ${finalAnswers.cautions.join(", ")}.`, "supplement");
+      }
+    } catch {}
+  };
+
+  const rebuild = () => { setPhase("intro"); setQIdx(0); setAnswers({ goals: [], cautions: [] }); setStack(null); };
+
+  if (phase === "intro") {
+    return (
+      <div>
+        <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
+          style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:18,
+            padding:"20px 18px", marginBottom:16, boxShadow:T.shadow }}>
+          <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".05em", marginBottom:8 }}>
+            BUILD YOUR PROTOCOL
+          </div>
+          <div style={{ fontSize:17, fontWeight:900, color:T.text, marginBottom:6, lineHeight:1.25 }}>
+            Let Kailu build your supplement stack
+          </div>
+          <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.5, marginBottom:14 }}>
+            Seven questions. About 3 minutes. Kailu cross-references your answers against {SUPPLEMENT_DB.length}+ supplements
+            and writes a personalized stack — no generic protein-bro recommendations.
+          </div>
+          <motion.button whileTap={{ scale:.97 }} onClick={() => setPhase("asking")}
+            style={{ width:"100%", padding:"12px 16px", borderRadius:12, background:ac,
+              color:"#000", border:"none", fontSize:13, fontWeight:900,
+              letterSpacing:".04em", textTransform:"uppercase", cursor:"pointer" }}>
+            Start questionnaire →
+          </motion.button>
+        </motion.div>
+        {/* Optional: keep the existing static comparison underneath as reference */}
+        {fallback}
+      </div>
+    );
+  }
+
+  if (phase === "asking") {
+    const q = SUPP_QUESTIONS[qIdx];
+    const current = answers[q.id];
+    const isMulti = !!q.multi;
+    const isSelected = (val) => isMulti ? (Array.isArray(current) && current.includes(val)) : current === val;
+    const toggle = (val) => {
+      setAnswers(a => {
+        if (isMulti) {
+          const arr = Array.isArray(a[q.id]) ? a[q.id] : [];
+          return { ...a, [q.id]: arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val] };
+        }
+        return { ...a, [q.id]: val };
+      });
+    };
+    const canAdvance = isMulti ? Array.isArray(current) /* multi can be empty (e.g. cautions) */ : current !== undefined;
+    const onNext = () => {
+      if (qIdx === SUPP_QUESTIONS.length - 1) {
+        finishQuestionnaire(answers);
+      } else {
+        setQIdx(qIdx + 1);
+      }
+    };
+    return (
+      <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} key={q.id}
+        style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:18,
+          padding:"20px 18px", boxShadow:T.shadow }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+          <div style={{ fontSize:10.5, fontWeight:700, color:ac, letterSpacing:".05em" }}>
+            QUESTION {qIdx + 1} / {SUPP_QUESTIONS.length}
+          </div>
+          {qIdx > 0 && (
+            <button onClick={() => setQIdx(qIdx - 1)} style={{
+              background:"transparent", border:"none", color:T.faint,
+              fontSize:11, cursor:"pointer", padding:0 }}>← back</button>
+          )}
+        </div>
+        <div style={{ height:3, borderRadius:2, background:T.glass, marginBottom:18, overflow:"hidden" }}>
+          <motion.div initial={{ width:0 }} animate={{ width:`${((qIdx + 1) / SUPP_QUESTIONS.length) * 100}%` }}
+            transition={{ duration:.4 }}
+            style={{ height:"100%", background:ac }}/>
+        </div>
+        <div style={{ fontSize:18, fontWeight:900, color:T.text, marginBottom:6, lineHeight:1.25 }}>
+          {q.label}
+        </div>
+        {q.sub && (
+          <div style={{ fontSize:11.5, color:T.muted, marginBottom:14 }}>{q.sub}</div>
+        )}
+        <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:16 }}>
+          {q.options.map(opt => {
+            const sel = isSelected(opt.value);
+            return (
+              <motion.button key={String(opt.value)} whileTap={{ scale:.98 }}
+                onClick={() => toggle(opt.value)}
+                style={{ textAlign:"left", padding:"12px 14px", borderRadius:12,
+                  background: sel ? `${ac}22` : T.glass,
+                  border: sel ? `1.5px solid ${ac}` : `1px solid ${T.border}`,
+                  color: sel ? T.text : T.muted, fontSize:13, fontWeight: sel ? 800 : 600,
+                  cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <span>{opt.label}</span>
+                {sel && <span style={{ color:ac, fontSize:14 }}>✓</span>}
+              </motion.button>
+            );
+          })}
+        </div>
+        <motion.button whileTap={{ scale:.97 }} disabled={!canAdvance} onClick={onNext}
+          style={{ width:"100%", padding:"12px 16px", borderRadius:12,
+            background: canAdvance ? ac : T.glass,
+            color: canAdvance ? "#000" : T.faint,
+            border:"none", fontSize:12.5, fontWeight:900,
+            letterSpacing:".04em", textTransform:"uppercase",
+            cursor: canAdvance ? "pointer" : "not-allowed",
+            opacity: canAdvance ? 1 : .5 }}>
+          {qIdx === SUPP_QUESTIONS.length - 1 ? "Build my stack →" : "Next →"}
+        </motion.button>
+      </motion.div>
+    );
+  }
+
+  if (phase === "generating") {
+    return (
+      <div style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:18,
+        padding:"40px 18px", textAlign:"center", boxShadow:T.shadow }}>
+        <motion.div animate={{ rotate:360 }} transition={{ duration:1.6, repeat:Infinity, ease:"linear" }}
+          style={{ width:36, height:36, borderRadius:"50%",
+            border:`3px solid ${T.border}`, borderTopColor:ac,
+            margin:"0 auto 14px" }}/>
+        <div style={{ fontSize:13, fontWeight:700, color:T.text, marginBottom:4 }}>
+          Building your stack…
+        </div>
+        <div style={{ fontSize:11.5, color:T.muted }}>
+          Cross-referencing your goals against the supplement library.
+        </div>
+      </div>
+    );
+  }
+
+  // result
+  if (!stack || stack.length === 0) {
+    return (
+      <div style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:18,
+        padding:"24px 18px", textAlign:"center" }}>
+        <div style={{ fontSize:13.5, fontWeight:700, color:T.text, marginBottom:6 }}>
+          No clean matches.
+        </div>
+        <div style={{ fontSize:12, color:T.muted, marginBottom:14 }}>
+          Your filters were too narrow. Try widening goals or budget.
+        </div>
+        <motion.button whileTap={{ scale:.97 }} onClick={rebuild}
+          style={{ padding:"10px 18px", borderRadius:10, background:ac, color:"#000",
+            border:"none", fontSize:12, fontWeight:800, cursor:"pointer" }}>
+          Redo questionnaire
+        </motion.button>
+      </div>
+    );
+  }
+  const total = stack.reduce((sum, s) => sum + (s.price || 0), 0);
+  return (
+    <div>
+      <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
+        style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:18,
+          padding:"18px", marginBottom:14, boxShadow:T.shadow }}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+          <div>
+            <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".05em" }}>
+              YOUR PROTOCOL
+            </div>
+            <div style={{ fontSize:16, fontWeight:900, color:T.text, marginTop:2 }}>
+              {stack.length} supplements · ${total.toFixed(0)}/mo (in-stock items)
+            </div>
+          </div>
+          <button onClick={rebuild} style={{
+            background:"transparent", border:`1px solid ${T.border}`, borderRadius:8,
+            padding:"6px 10px", color:T.muted, fontSize:10.5, fontWeight:700,
+            letterSpacing:".03em", cursor:"pointer" }}>
+            REBUILD
+          </button>
+        </div>
+        <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.5 }}>
+          Built from your answers — goals, training, sleep, diet, budget, current stack, allergies.
+          Tap any item for dose + timing detail. ✦ = personalized for you.
+        </div>
+      </motion.div>
+
+      {stack.map((s, i) => (
+        <motion.div key={s.id} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay: i * 0.04 }}
+          style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:16,
+            padding:"14px 16px", marginBottom:10, boxShadow:T.shadowSm }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:10 }}>
+            <div style={{ flex:1, minWidth:0 }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3, flexWrap:"wrap" }}>
+                <div style={{ fontSize:14, fontWeight:900, color:T.text }}>{s.name}</div>
+                {s.source === "store" && s.inStock && (
+                  <span style={{ fontSize:9, fontWeight:800, color:"#30D158", background:"#30D15822",
+                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em" }}>IN STORE</span>
+                )}
+                {s.source === "manager" && (
+                  <span style={{ fontSize:9, fontWeight:800, color:ac, background:`${ac}22`,
+                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em" }}>GYM PICK</span>
+                )}
+                {s.source === "generic" && (
+                  <span style={{ fontSize:9, fontWeight:700, color:T.faint, background:T.glass,
+                    padding:"2px 6px", borderRadius:4, letterSpacing:".04em" }}>GENERIC</span>
+                )}
+              </div>
+              <div style={{ fontSize:11, color:T.muted, marginBottom:8 }}>
+                {s.brand} · {s.dose} · {s.timing}
+              </div>
+              <div style={{ fontSize:12, color:T.text, lineHeight:1.5 }}>
+                {s.personalWhy ? <><span style={{ color:ac }}>✦ </span>{s.personalWhy}</> : s.mechanism}
+              </div>
+            </div>
+            {s.price > 0 && (
+              <div style={{ textAlign:"right", minWidth:60 }}>
+                <div style={{ fontSize:14, fontWeight:900, color:T.text }}>${s.price.toFixed(2)}</div>
+                <div style={{ fontSize:9.5, color:T.faint, letterSpacing:".03em" }}>/MO</div>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      ))}
+    </div>
   );
 }
 
@@ -17241,6 +17589,170 @@ async function callClaudeAPI({ system, user, history, maxTokens, model, imageBas
     const json = await res.json();
     return json?.text || json?.content?.[0]?.text || null;
   } catch { return null; }
+}
+
+// ─── SUPPLEMENT DATABASE ──────────────────────────────────────────────────────
+// Curated library of supplements with goal/diet/budget tags. Kailu's questionnaire
+// scores against this DB first, then optionally falls back to LLM suggestions if
+// nothing matches. Gym managers can extend this via rvn_manager_supplements
+// (written from ManagerHub), and those entries are merged in at query time.
+// Each entry:
+//   id, name, brand, dose, timing, category, goals[], diets[], cautions[], price,
+//   inStock, source ("store"|"generic"|"manager"), mechanism (short why)
+const SUPPLEMENT_DB = [
+  // ── Foundation / general health ──
+  { id:"creatine_mono",       name:"Creatine Monohydrate",     brand:"Thorne",         dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:54.99, inStock:true, source:"store",   mechanism:"ATP resynthesis — 8–14% strength gain. Most validated supplement in sports science." },
+  { id:"creatine_mono_g",     name:"Creatine Monohydrate",     brand:"Bulk Supplements",dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:18.00, inStock:false,source:"generic", mechanism:"Same molecule, ~3x cheaper. Lab-tested micronized works identically to branded." },
+  { id:"vit_d3_k2",           name:"Vitamin D3 + K2",          brand:"Thorne",         dose:"5000IU D3 + 90mcg K2", timing:"With breakfast (fatty meal)", category:"foundation", goals:["immunity","hormones","bones","general"],   diets:["all"],                       cautions:["blood_thinners"],            price:32.99, inStock:true, source:"store",   mechanism:"Most adults 30–50% deficient. K2 directs calcium to bone, not arteries. Compounding hormone benefit." },
+  { id:"omega3_fish",         name:"Super EPA Fish Oil",       brand:"Thorne",         dose:"2g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["pescatarian","omnivore"],  cautions:["blood_thinners","fish_allergy"], price:42.99, inStock:true, source:"store",   mechanism:"EPA suppresses inflammation cascade. DHA is structural for brain + retina. The single highest-value foundation supplement." },
+  { id:"omega3_algae",        name:"Algae Omega-3",            brand:"Nordic Naturals",dose:"1g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["vegan","vegetarian","all"], cautions:["blood_thinners"],           price:39.99, inStock:false,source:"generic", mechanism:"Vegan EPA+DHA from algae — the original ocean source. Sustainable + plant-based." },
+  { id:"multivitamin",        name:"Multi-Vitamin Elite",      brand:"Thorne",         dose:"6 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:49.99, inStock:true, source:"store",   mechanism:"NSF-certified, methylated B-vitamins. Covers micronutrient gaps from imperfect diet." },
+  { id:"multi_budget",        name:"Multi-Vitamin",            brand:"Now Foods",      dose:"3 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Solid budget option. Methylated B12 + folate, decent mineral spectrum." },
+
+  // ── Sleep / recovery / stress ──
+  { id:"mag_glycinate",       name:"Magnesium Glycinate 400",  brand:"Thorne",         dose:"400mg",           timing:"30–60 min before bed", category:"sleep",      goals:["sleep","recovery","stress","muscle_relaxation"], diets:["all"],                      cautions:["kidney_disease"],            price:36.99, inStock:true, source:"store",   mechanism:"Cofactor in 300+ enzymes. Glycine form crosses blood-brain barrier — drops latency to sleep by ~17 min." },
+  { id:"mag_threonate",       name:"Magnesium L-Threonate",    brand:"Double Wood",    dose:"2g",              timing:"Before bed",           category:"sleep",      goals:["sleep","brain","stress","focus"],                diets:["all"],                      cautions:["kidney_disease"],            price:32.99, inStock:false,source:"generic", mechanism:"Penetrates brain better than glycinate. Use when sleep is fine but focus/anxiety dominates." },
+  { id:"zma",                 name:"Zinc Magnesium Aspartate", brand:"Thorne",         dose:"30mg Zn + 450mg Mg",timing:"Before bed (empty stomach)", category:"sleep", goals:["sleep","hormones","recovery","testosterone"], diets:["all"],                      cautions:["copper_deficiency_risk"],   price:38.99, inStock:true, source:"store",   mechanism:"Zinc restores test suppressed by high training volume. Magnesium drops cortisol — both peak overnight." },
+  { id:"l_theanine",          name:"L-Theanine",                brand:"Now Foods",      dose:"200mg",           timing:"With caffeine OR before bed", category:"calm",   goals:["focus","stress","sleep","caffeine_smoothing"], diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Smooths caffeine jitters, raises alpha brain waves. Calm focus without sedation." },
+  { id:"ashwagandha",         name:"Ashwagandha KSM-66",       brand:"Nutricost",      dose:"600mg",           timing:"AM or PM, with food",  category:"adaptogen",  goals:["stress","sleep","recovery","testosterone","hormones"], diets:["all"],                  cautions:["thyroid_meds","autoimmune","pregnancy"], price:19.99, inStock:false,source:"generic", mechanism:"Lowers cortisol 20–30%. Bumps testosterone 14% in stressed males. Take 8 weeks for full effect." },
+  { id:"glycine_pwd",         name:"Glycine Powder",            brand:"Bulk Supplements",dose:"3g",             timing:"Before bed",           category:"sleep",      goals:["sleep","temperature_regulation"],                diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Drops core body temp — the biological signal for sleep onset. Stacks well with magnesium." },
+
+  // ── Strength / muscle / performance ──
+  { id:"whey_iso",            name:"Whey Elite Hydrolyzed",    brand:"Thorne",         dose:"30g",             timing:"Within 30 min post-training", category:"protein", goals:["muscle","strength","recovery"],               diets:["omnivore","vegetarian"],    cautions:["dairy_allergy","lactose_intol"], price:68.99, inStock:true, source:"store",   mechanism:"Pre-hydrolyzed for 15-min absorption. 2x leucine threshold per scoop — triggers MPS reliably." },
+  { id:"whey_iso_g",          name:"Whey Isolate",              brand:"Optimum Nutrition",dose:"30g",         timing:"Post-training",        category:"protein",    goals:["muscle","strength","recovery"],                 diets:["omnivore","vegetarian"],    cautions:["dairy_allergy"],             price:42.99, inStock:false,source:"generic", mechanism:"Solid mainstream isolate. Lactose-stripped, ~25g protein per scoop." },
+  { id:"pea_protein",         name:"Pea + Rice Protein",       brand:"Naked Nutrition",dose:"40g",             timing:"Post-training or AM",  category:"protein",    goals:["muscle","strength","recovery"],                 diets:["vegan","vegetarian"],       cautions:[],                            price:54.99, inStock:false,source:"generic", mechanism:"Pea + rice 70:30 = complete amino profile rivaling whey. 1g leucine per scoop." },
+  { id:"beta_alanine",        name:"Beta-Alanine SR",          brand:"Thorne",         dose:"3.2g daily",      timing:"30 min pre-training",  category:"performance",goals:["endurance","high_rep_strength"],                diets:["all"],                      cautions:[],                            price:36.99, inStock:true, source:"store",   mechanism:"Carnosine loader — buffers H+ in working muscle. Adds 1–2 reps on 8–15 rep sets within 4 weeks." },
+  { id:"eaa_powder",          name:"Essential Amino Complex",  brand:"ChargedSupps",   dose:"10g",             timing:"Intra-workout",        category:"performance",goals:["muscle","preservation","endurance"],            diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Mid-session catabolism is real on long workouts or fasted training. EAAs prevent it cheaply." },
+  { id:"hmb",                 name:"HMB Free Acid 3g",         brand:"Thorne",         dose:"3g daily",        timing:"With training or AM",  category:"performance",goals:["muscle_preservation","strength"],               diets:["all"],                      cautions:[],                            price:54.99, inStock:true, source:"store",   mechanism:"Inhibits muscle protein breakdown. Most useful when training fasted or in a deficit." },
+  { id:"l_carnitine",         name:"L-Carnitine 2000",         brand:"Thorne",         dose:"2g daily",        timing:"With carb-containing meal", category:"performance", goals:["endurance","fat_loss","recovery"],         diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Shuttles fatty acids into mitochondria. Improves recovery between sessions + endurance over time." },
+
+  // ── Energy / focus / cognition ──
+  { id:"caffeine_l_theanine", name:"Caffeine + L-Theanine",    brand:"Nootropics Depot",dose:"100mg + 200mg",  timing:"AM, NOT after 2pm",    category:"focus",      goals:["focus","energy","pre_workout"],                 diets:["all"],                      cautions:["anxiety","heart_arrhythmia","caffeine_sens"], price:24.99, inStock:false,source:"generic", mechanism:"The classic stack. 2:1 theanine:caffeine = focused energy without jitter or crash." },
+  { id:"rhodiola",            name:"Rhodiola Rosea",            brand:"Now Foods",      dose:"300–600mg",       timing:"AM, empty stomach",    category:"adaptogen",  goals:["energy","stress","focus","mental_fatigue"],     diets:["all"],                      cautions:["bipolar"],                   price:18.99, inStock:false,source:"generic", mechanism:"Adaptogen — reduces mental fatigue specifically. Works fast (days), unlike ashwagandha." },
+  { id:"lions_mane",          name:"Lion's Mane",               brand:"Real Mushrooms", dose:"1g",              timing:"AM",                   category:"nootropic",  goals:["brain","focus","nerve_health"],                 diets:["all"],                      cautions:[],                            price:29.99, inStock:false,source:"generic", mechanism:"Stimulates Nerve Growth Factor (NGF). Slow burn (weeks) — best for long-term cognitive maintenance." },
+  { id:"electrolyte_complex", name:"Electrolyte Complex",       brand:"Thorne",         dose:"1 stick in 16oz", timing:"AM + during training", category:"hydration",  goals:["energy","training","recovery"],                 diets:["all"],                      cautions:["hypertension_low_sodium"],   price:38.99, inStock:true, source:"store",   mechanism:"Optimal Na/K/Mg ratio. Sodium restores plasma volume after overnight fast — kills morning fatigue." },
+
+  // ── Fat loss / metabolic ──
+  { id:"thermo_complex",      name:"Thermo Complex AM",        brand:"ChargedSupps",   dose:"2 caps AM",       timing:"AM, NOT after 2pm",    category:"fat_loss",   goals:["fat_loss","energy","appetite"],                 diets:["all"],                      cautions:["anxiety","caffeine_sens","heart"], price:49.99, inStock:true, source:"store",   mechanism:"EGCG + synephrine + caffeine. Raises resting metabolic rate ~8% = 140 extra cal/day burned." },
+  { id:"berberine",           name:"Berberine HCl",            brand:"Thorne",         dose:"500mg 2–3x daily",timing:"With meals",           category:"metabolic",  goals:["fat_loss","glucose_control","cuts"],            diets:["all"],                      cautions:["diabetes_meds","pregnancy"], price:39.99, inStock:true, source:"store",   mechanism:"AMPK activator — improves insulin sensitivity. Use during cuts or with high-carb meals." },
+  { id:"green_tea_ext",       name:"Green Tea Extract (EGCG)", brand:"Now Foods",      dose:"500mg",           timing:"Pre-workout or AM",    category:"fat_loss",   goals:["fat_loss","antioxidant"],                       diets:["all"],                      cautions:["liver_disease"],             price:12.99, inStock:false,source:"generic", mechanism:"Cleaner version of thermogenic effect. Mild but stackable, low side-effect profile." },
+
+  // ── Joints / connective tissue ──
+  { id:"collagen_pep",        name:"Marine Collagen Peptides", brand:"Thorne",         dose:"15g",             timing:"AM with vitamin C",    category:"joints",     goals:["joints","skin","tendon_recovery","general"],   diets:["pescatarian","omnivore"],   cautions:["fish_allergy"],              price:54.99, inStock:true, source:"store",   mechanism:"Connective tissue substrate. Take 30–60 min pre-loading exercise = 2x tendon collagen synthesis." },
+  { id:"collagen_pep_bov",    name:"Bovine Collagen",          brand:"Vital Proteins", dose:"20g",             timing:"AM with vitamin C",    category:"joints",     goals:["joints","skin","tendon_recovery"],              diets:["omnivore"],                 cautions:[],                            price:42.99, inStock:false,source:"generic", mechanism:"Same molecule from beef hide. Cheaper, neutral flavor, mixes into coffee well." },
+  { id:"glucosamine",         name:"Glucosamine Sulfate",      brand:"Now Foods",      dose:"1500mg",          timing:"With meals",           category:"joints",     goals:["joints","cartilage","aging"],                   diets:["pescatarian","omnivore"],   cautions:["shellfish_allergy"],         price:22.99, inStock:false,source:"generic", mechanism:"Cartilage building block. Most useful for >35yo lifters or anyone with existing joint complaints." },
+
+  // ── Gut / digestion ──
+  { id:"probiotic",           name:"FloraSport Probiotic",     brand:"Thorne",         dose:"1 cap daily",     timing:"AM, empty stomach",    category:"gut",        goals:["gut","immunity","general"],                     diets:["all"],                      cautions:["severely_immunocompromised"], price:38.99, inStock:true, source:"store",   mechanism:"Strain-specific (L. plantarum, L. acidophilus). Restores microbiome diversity — base for all other supplement absorption." },
+  { id:"digestive_enzymes",   name:"Digestive Enzymes",        brand:"Now Foods",      dose:"1–2 caps",        timing:"Just before large meals",category:"gut",      goals:["digestion","bloat","absorption"],               diets:["all"],                      cautions:[],                            price:18.99, inStock:false,source:"generic", mechanism:"Use when meals are large (>40g protein) or causing bloat. Improves nutrient extraction." },
+
+  // ── Women-specific ──
+  { id:"iron_bisglycinate",   name:"Iron Bisglycinate",        brand:"Thorne",         dose:"25mg",            timing:"AM, empty stomach + vit C",category:"minerals",goals:["energy","menstrual_support","general"],         diets:["all"],                      cautions:["hemochromatosis"],           price:24.99, inStock:true, source:"store",   mechanism:"Female athletes have ~3x higher iron deficiency rates. Glycinate is gentle on gut vs sulfate." },
+  { id:"vitex",               name:"Vitex (Chasteberry)",      brand:"Gaia Herbs",     dose:"400mg",           timing:"AM",                   category:"hormonal",   goals:["hormones","menstrual_support","pms"],           diets:["all"],                      cautions:["birth_control","pregnancy"], price:22.99, inStock:false,source:"generic", mechanism:"Supports progesterone in the luteal phase. Most evidence-backed herb for PMS." },
+
+  // ── Vegan-specific ──
+  { id:"b12_methyl",          name:"Methyl B12",                brand:"Pure Encapsulations",dose:"1000mcg",     timing:"AM, under tongue",     category:"vitamins",   goals:["energy","brain","general"],                     diets:["vegan","vegetarian","all"], cautions:[],                            price:21.99, inStock:false,source:"generic", mechanism:"Vegans need supplementation — no plant B12 source. Sublingual avoids gut absorption variance." },
+  { id:"iron_plant",          name:"Plant-Based Iron",          brand:"MegaFood",       dose:"22mg",            timing:"AM + vit C",           category:"minerals",   goals:["energy","general"],                             diets:["vegan","vegetarian"],       cautions:["hemochromatosis"],           price:24.99, inStock:false,source:"generic", mechanism:"Food-state iron, gentle on gut. Critical for vegan female athletes specifically." },
+];
+
+// Read the manager-added supplement library (written from ManagerHub).
+function getManagerSupplements() {
+  try {
+    const arr = JSON.parse(localStorage.getItem("rvn_manager_supplements") || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+
+// Combined library — built-in DB + any supplements the gym manager added.
+function getAllSupplements() {
+  const managerItems = getManagerSupplements().map(s => ({ ...s, source: "manager" }));
+  return [...SUPPLEMENT_DB, ...managerItems];
+}
+
+// Score every supplement in the DB against the questionnaire answers.
+// Returns sorted list with `score` (higher = better fit) + `reasons` (why it scored).
+function scoreSupplementsForAnswers(answers) {
+  const all = getAllSupplements();
+  const goalSet = new Set(answers.goals || []);
+  const diet = (answers.diet || "all").toLowerCase();
+  const cautions = new Set(answers.cautions || []);
+  const budget = answers.budget || "any"; // "tight"|"moderate"|"flexible"|"any"
+  const caffeineSens = (answers.caffeineSens || "med").toLowerCase();
+  const sleepStruggles = answers.sleep && answers.sleep < 6;
+
+  const budgetCap = budget === "tight" ? 25 : budget === "moderate" ? 50 : 999;
+
+  return all
+    .filter(s => !(s.cautions || []).some(c => cautions.has(c))) // drop anything user flagged
+    .filter(s => (s.diets || []).includes("all") || (s.diets || []).includes(diet))
+    .filter(s => (s.price || 0) <= budgetCap || s.price == null)
+    .map(s => {
+      let score = 0;
+      const reasons = [];
+      // Goal match — strongest signal
+      const matchedGoals = (s.goals || []).filter(g => goalSet.has(g));
+      score += matchedGoals.length * 10;
+      if (matchedGoals.length) reasons.push(`matches goal: ${matchedGoals.join(", ")}`);
+      // Sleep struggles → boost sleep/recovery supplements
+      if (sleepStruggles && (s.category === "sleep" || (s.goals || []).includes("sleep"))) {
+        score += 6; reasons.push("low-sleep boost");
+      }
+      // Caffeine-sensitive users → demote stimulants
+      if (caffeineSens === "high" && (s.goals || []).some(g => g.includes("energy") || g.includes("pre_workout"))) {
+        score -= 8;
+      }
+      // Manager-added items get a small boost (gym is pushing them)
+      if (s.source === "manager") { score += 2; reasons.push("gym pick"); }
+      // In-stock store items get a small boost for the conversion path
+      if (s.inStock) { score += 1.5; reasons.push("in your RVN store"); }
+      // Foundation supplements always score (base recommendation)
+      if (s.category === "foundation") score += 3;
+      return { ...s, score, reasons };
+    })
+    .filter(s => s.score > 0)
+    .sort((a, b) => b.score - a.score);
+}
+
+// Ask Claude to write personalized "why this is right for YOU" copy for the
+// top scoring supplements. One call, ~2500 tokens, ~$0.005. Output replaces
+// each item's `mechanism` field with a personalized version that references
+// the user's specific answers.
+async function personalizeSupplementStack(stack, answers) {
+  if (typeof window === "undefined" || !stack?.length) return stack;
+  const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
+  if (!base) return stack; // offline — return as-is
+  const profile = `Goals: ${(answers.goals || []).join(", ")}. Training: ${answers.training || "unspecified"}. Sleep: ${answers.sleep || "?"}/10. Caffeine sensitivity: ${answers.caffeineSens || "?"}. Diet: ${answers.diet || "?"}. Budget: ${answers.budget || "?"}. Current stack: ${(answers.currentStack || "").slice(0, 200) || "none"}.`;
+  const stackList = stack.slice(0, 6).map((s, i) =>
+    `${i+1}. ${s.name} (${s.dose}, ${s.timing}) — generic mechanism: ${s.mechanism}`
+  ).join("\n");
+  const system = `You are Kailu, an evidence-based fitness coach. The user just completed a supplement questionnaire. For each supplement, write ONE personalized sentence (max 25 words) explaining why it fits THIS specific user — referencing their goals, training, sleep, or caffeine sensitivity. Return ONLY a JSON array: [{"i":1,"why":"..."},{"i":2,"why":"..."}]. No prose, no extra text.
+
+User profile: ${profile}
+
+Supplements to personalize:
+${stackList}
+
+Rules:
+- Reference specific user details (e.g. "with your 5-day training split..." not generic "if you train hard").
+- Never invent facts not in the profile.
+- One sentence per item. Max 25 words.
+- No supplement-stacking advice ("combine with X"). Just why THIS one for THIS person.`;
+  try {
+    const res = await fetch(base, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ system, user: "Personalize the stack.", history:[], max_tokens:600 }),
+    });
+    if (!res.ok) return stack;
+    const json = await res.json();
+    const raw = json?.text || json?.content?.[0]?.text || "";
+    const match = raw.match(/\[[\s\S]*?\]/);
+    if (!match) return stack;
+    const personalizations = JSON.parse(match[0]);
+    if (!Array.isArray(personalizations)) return stack;
+    const byIdx = {};
+    personalizations.forEach(p => { if (p?.i && p?.why) byIdx[p.i] = p.why; });
+    return stack.map((s, i) => byIdx[i+1] ? { ...s, personalWhy: byIdx[i+1] } : s);
+  } catch { return stack; }
 }
 
 // ─── KAILU CALENDAR ───────────────────────────────────────────────────────────
@@ -28370,7 +28882,6 @@ function WhatsNewScreen({ theme, onBack }) {
                   style={{
                     background: T.glass, border: `1px solid ${T.border}`,
                     borderLeft: `3px solid ${release.badgeColor}`,
-                    borderRadius: 12, padding: "12px 14px",
                     display: "flex", gap: 12, alignItems: "flex-start",
                   }}>
                   <div style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</div>

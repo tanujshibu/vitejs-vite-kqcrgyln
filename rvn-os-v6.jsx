@@ -11838,13 +11838,44 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const profileRef = useRef(profile);
   useEffect(() => { profileRef.current = profile; }, [profile]);
   useEffect(() => {
+    // Accumulate today's macros AND today's uncertainty bands. The bands feed
+    // the lighter "range" bar in the UI so the user can see how confident
+    // the day's log is (tight band = label-scanned products; wide band = LLM
+    // estimates on homemade meals).
     window.__rvnAddMacros = (macros) => {
       if (!macros) return;
       const mt = profileRef.current.macroToday || { protein:0, carbs:0, fats:0 };
+      const sumMin = (curr, currMin, addVal, addMin) => Math.round((currMin ?? curr ?? 0) + (addMin ?? addVal ?? 0));
+      const sumMax = (curr, currMax, addVal, addMax) => Math.round((currMax ?? curr ?? 0) + (addMax ?? addVal ?? 0));
+      const calorieFromMacros = (p, c, f) => Math.round(p*4 + c*4 + f*9);
+      const newP = Math.round((mt.protein || 0) + (macros.protein || 0));
+      const newC = Math.round((mt.carbs   || 0) + (macros.carbs   || 0));
+      const newF = Math.round((mt.fats    || 0) + (macros.fats    || 0));
+      // If the entry didn't bring an explicit calorie number, derive it from macros
+      const entryCal = macros.calories || calorieFromMacros(macros.protein||0, macros.carbs||0, macros.fats||0);
+      const newCal = Math.round((mt.calories || 0) + entryCal);
       const updated = {
-        protein:  Math.round((mt.protein  || 0) + (macros.protein  || 0)),
-        carbs:    Math.round((mt.carbs    || 0) + (macros.carbs    || 0)),
-        fats:     Math.round((mt.fats     || 0) + (macros.fats     || 0)),
+        protein:  newP,
+        carbs:    newC,
+        fats:     newF,
+        calories: newCal,
+        protein_min:  sumMin(mt.protein,  mt.protein_min,  macros.protein,  macros.protein_min),
+        protein_max:  sumMax(mt.protein,  mt.protein_max,  macros.protein,  macros.protein_max),
+        carbs_min:    sumMin(mt.carbs,    mt.carbs_min,    macros.carbs,    macros.carbs_min),
+        carbs_max:    sumMax(mt.carbs,    mt.carbs_max,    macros.carbs,    macros.carbs_max),
+        fats_min:     sumMin(mt.fats,     mt.fats_min,     macros.fats,     macros.fats_min),
+        fats_max:     sumMax(mt.fats,     mt.fats_max,     macros.fats,     macros.fats_max),
+        calories_min: sumMin(mt.calories, mt.calories_min, entryCal,        macros.calories_min),
+        calories_max: sumMax(mt.calories, mt.calories_max, entryCal,        macros.calories_max),
+        items: [
+          ...(Array.isArray(mt.items) ? mt.items : []),
+          {
+            name: macros.name || "Logged item",
+            time: new Date().toISOString(),
+            protein: macros.protein||0, carbs: macros.carbs||0, fats: macros.fats||0, calories: entryCal,
+            source: macros.source || "estimate", confidence: macros.confidence ?? 0.5,
+          },
+        ],
       };
       const p = { ...profileRef.current, macroToday: updated };
       setProfile({ ...p });
@@ -11853,7 +11884,40 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         if (u?.id) saveRemoteProfile(u.id, p);
       });
     };
-    return () => { delete window.__rvnAddMacros; };
+    // Replace the last-logged entry (used when Claude returns a refined estimate
+    // that supersedes a rough DB raw-gram fallback). Subtracts the old, adds the new.
+    window.__rvnReplaceLastMacros = (oldMacros, newMacros) => {
+      if (!oldMacros || !newMacros) return;
+      const mt = profileRef.current.macroToday || {};
+      const items = Array.isArray(mt.items) ? mt.items.slice(0, -1) : [];
+      const oldCal = oldMacros.calories || Math.round((oldMacros.protein||0)*4 + (oldMacros.carbs||0)*4 + (oldMacros.fats||0)*9);
+      const newCal = newMacros.calories || Math.round((newMacros.protein||0)*4 + (newMacros.carbs||0)*4 + (newMacros.fats||0)*9);
+      const adj = (curr, sub, add) => Math.max(0, Math.round((curr || 0) - (sub || 0) + (add || 0)));
+      const updated = {
+        protein:  adj(mt.protein,  oldMacros.protein,  newMacros.protein),
+        carbs:    adj(mt.carbs,    oldMacros.carbs,    newMacros.carbs),
+        fats:     adj(mt.fats,     oldMacros.fats,     newMacros.fats),
+        calories: adj(mt.calories, oldCal,             newCal),
+        protein_min:  adj(mt.protein_min,  oldMacros.protein_min,  newMacros.protein_min),
+        protein_max:  adj(mt.protein_max,  oldMacros.protein_max,  newMacros.protein_max),
+        carbs_min:    adj(mt.carbs_min,    oldMacros.carbs_min,    newMacros.carbs_min),
+        carbs_max:    adj(mt.carbs_max,    oldMacros.carbs_max,    newMacros.carbs_max),
+        fats_min:     adj(mt.fats_min,     oldMacros.fats_min,     newMacros.fats_min),
+        fats_max:     adj(mt.fats_max,     oldMacros.fats_max,     newMacros.fats_max),
+        calories_min: adj(mt.calories_min, oldMacros.calories_min, newMacros.calories_min),
+        calories_max: adj(mt.calories_max, oldMacros.calories_max, newMacros.calories_max),
+        items: [...items, {
+          name: newMacros.name || "Refined estimate",
+          time: new Date().toISOString(),
+          protein: newMacros.protein||0, carbs: newMacros.carbs||0, fats: newMacros.fats||0, calories: newCal,
+          source: newMacros.source || "estimate", confidence: newMacros.confidence ?? 0.5,
+        }],
+      };
+      const p = { ...profileRef.current, macroToday: updated };
+      setProfile({ ...p });
+      try { localStorage.setItem("rvn_profile", JSON.stringify(p)); } catch {}
+    };
+    return () => { delete window.__rvnAddMacros; delete window.__rvnReplaceLastMacros; };
   }, []); // eslint-disable-line
 
   // ── Auto midnight macro reset ─────────────────────────────────────────────
@@ -13521,13 +13585,21 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         {activeGymTab === "fuel" && (() => {
           const mg = profile.macroGoals || { protein:180, carbs:250, fats:70 };
           const mt = profile.macroToday || { protein:0, carbs:0, fats:0 };
-          const calToday = Math.round((mt.protein||0)*4 + (mt.carbs||0)*4 + (mt.fats||0)*9);
+          // Use the explicitly-tracked calories field when available (set by Kailu DB hits / Claude returns).
+          // Fall back to the derived 4-4-9 sum so legacy logs without a stored calories number still render.
+          const calToday = (typeof mt.calories === "number" && mt.calories > 0)
+            ? mt.calories
+            : Math.round((mt.protein||0)*4 + (mt.carbs||0)*4 + (mt.fats||0)*9);
           const calGoal  = mg.calories || Math.round((mg.protein||180)*4 + (mg.carbs||250)*4 + (mg.fats||70)*9);
           const macros = [
-            { label:"CALORIES", current:calToday,      goal:calGoal,         color:"#FF6B6B", unit:"kcal" },
-            { label:"PROTEIN",  current:mt.protein||0, goal:mg.protein||180, color:arch.glow, unit:"g" },
-            { label:"CARBS",    current:mt.carbs||0,   goal:mg.carbs||250,   color:T.blue,    unit:"g" },
-            { label:"FATS",     current:mt.fats||0,    goal:mg.fats||70,     color:"#FF9F0A", unit:"g" },
+            { label:"CALORIES", current:calToday,      goal:calGoal,         color:"#FF6B6B", unit:"kcal",
+              min: mt.calories_min, max: mt.calories_max },
+            { label:"PROTEIN",  current:mt.protein||0, goal:mg.protein||180, color:arch.glow, unit:"g",
+              min: mt.protein_min, max: mt.protein_max },
+            { label:"CARBS",    current:mt.carbs||0,   goal:mg.carbs||250,   color:T.blue,    unit:"g",
+              min: mt.carbs_min, max: mt.carbs_max },
+            { label:"FATS",     current:mt.fats||0,    goal:mg.fats||70,     color:"#FF9F0A", unit:"g",
+              min: mt.fats_min, max: mt.fats_max },
           ];
 
           // Macro auto-tuning check
@@ -13565,24 +13637,56 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   TODAY'S MACROS
                 </div>
                 {macros.map((m, i) => {
-                  const pct = Math.min(1, m.current / m.goal);
+                  const pct    = Math.min(1, m.current / m.goal);
+                  // Range underlay: shows uncertainty band — lighter, translucent bar
+                  // spanning from sum-of-mins to sum-of-maxes. Only render when the
+                  // band is meaningfully wider than the solid bar (≥3% goal spread).
+                  const minVal = (typeof m.min === "number" && m.min >= 0) ? m.min : m.current;
+                  const maxVal = (typeof m.max === "number" && m.max >= m.current) ? m.max : m.current;
+                  const minPct = Math.min(1, Math.max(0, minVal / m.goal));
+                  const maxPct = Math.min(1, Math.max(0, maxVal / m.goal));
+                  const hasRange = (maxVal - minVal) / m.goal >= 0.03;
                   return (
                     <div key={m.label} style={{ marginBottom:14 }}>
                       <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                         <span style={{ fontSize:11, fontWeight:600, color:T.muted, letterSpacing:".02em" }}>{m.label}</span>
-                        <span style={{ fontSize:12, fontWeight:900, color:m.color }}>{m.current}{m.unit} <span style={{ color:T.faint, fontWeight:600 }}>/ {m.goal}{m.unit}</span></span>
+                        <span style={{ fontSize:12, fontWeight:900, color:m.color }}>
+                          {m.current}{m.unit}
+                          {hasRange && (
+                            <span style={{ color:T.faint, fontWeight:500, fontSize:10.5 }}> ({minVal}–{maxVal})</span>
+                          )}
+                          <span style={{ color:T.faint, fontWeight:600 }}> / {m.goal}{m.unit}</span>
+                        </span>
                       </div>
-                      <div style={{ height:8, borderRadius:4, background:T.glass, overflow:"hidden" }}>
+                      <div style={{ position:"relative", height:8, borderRadius:4, background:T.glass, overflow:"hidden" }}>
+                        {/* Uncertainty range — translucent underlay from min to max */}
+                        {hasRange && (
+                          <motion.div
+                            initial={{ width:0, left:0 }}
+                            animate={{ width:`${(maxPct - minPct)*100}%`, left:`${minPct*100}%` }}
+                            transition={{ duration:.8, ease:[.22,1,.36,1] }}
+                            style={{ position:"absolute", top:0, height:"100%", borderRadius:4,
+                              background:m.color, opacity:0.22 }}/>
+                        )}
+                        {/* Best-estimate solid bar */}
                         <motion.div
                           initial={{ width:0 }}
                           animate={{ width:`${pct*100}%` }}
                           transition={{ duration:.8, ease:[.22,1,.36,1] }}
-                          style={{ height:"100%", borderRadius:4, background:m.color,
+                          style={{ position:"absolute", top:0, left:0, height:"100%", borderRadius:4, background:m.color,
                             boxShadow: pct >= 0.95 ? `0 0 8px ${m.color}88` : "none" }}/>
                       </div>
                     </div>
                   );
                 })}
+                {/* Range legend — only show when at least one macro actually has a range */}
+                {macros.some(m => (typeof m.max === "number" && typeof m.min === "number" && (m.max - m.min) / m.goal >= 0.03)) && (
+                  <div style={{ fontSize:10, color:T.faint, marginTop:-4, marginBottom:10,
+                    display:"flex", alignItems:"center", gap:8 }}>
+                    <span style={{ display:"inline-block", width:10, height:6, borderRadius:2, background:arch.glow, opacity:0.22 }}/>
+                    Lighter band shows estimate range (wider = less certain — common for homemade meals)
+                  </div>
+                )}
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingMacros(e=>!e)}
                   style={{ width:"100%", marginTop:4, padding:"10px", borderRadius:12,
                     background:T.glass, border:`1px solid ${T.border}`,
@@ -16364,32 +16468,55 @@ const FOOD_PRODUCT_DB = [
   { match:/cold\s*brew/i,                                  name:"Cold Brew (12oz, black)",           p:1, c:3,  f:0, cal:15  },
 ];
 
-// Find a product in the DB — partial fuzzy match
+// Strip filler/connector words so regexes like /built\s*bar/ match
+// phrasings like "coconut built protein bar" or "the built bar in coconut flavor".
+// This is the #1 fix for branded-product accuracy: user phrasing varies wildly
+// and we should never fall through to the LLM just because someone said "protein bar".
+function normalizeFoodText(text) {
+  return (text || "")
+    .toLowerCase()
+    .replace(/\b(i|just|already|literally|finished|ate|eating|having|had|have|drank|drinking|drink|some|one|two|three|a|an|the|my|this|that|flavor|flavored|flavour|protein|brand|brand-name|of|with|kind|version|variety)\b/g, " ")
+    .replace(/[^\w\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Find a product in the DB — runs the user's phrase through normalization first,
+// so filler words ("protein", "the", "flavor", etc.) never block a match.
 function lookupFoodProduct(text) {
+  const normalized = normalizeFoodText(text);
   for (const item of FOOD_PRODUCT_DB) {
-    if (item.match.test(text)) return item;
+    if (item.match.test(normalized) || item.match.test(text)) return item;
   }
   return null;
 }
 
-// Ask Claude to parse a food description and return macro JSON.
-// Returns { p, c, f, cal, name } or null.
+// Ask Claude to parse a food description and return macro JSON with a
+// confidence range. The range fields drive the "uncertainty" bar in the UI —
+// a tight range means the LLM is confident (named branded product); a wide
+// range means the LLM is guessing (homemade meal, vague description).
+// Returns { p, c, f, cal, p_min, p_max, c_min, c_max, f_min, f_max, cal_min, cal_max, name, source, confidence } or null.
 async function lookupFoodViaClaude(foodText) {
   if (typeof window === "undefined") return null;
   const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
   if (!base) return null;
   const system = `You are a precise nutrition database. The user describes a food or drink item. Return ONLY valid JSON in this exact format, no other text:
-{"p":PROTEIN_GRAMS,"c":CARB_GRAMS,"f":FAT_GRAMS,"cal":CALORIES,"name":"CANONICAL_FOOD_NAME"}
+{"p":PROTEIN_G,"p_min":PROTEIN_LOW,"p_max":PROTEIN_HIGH,"c":CARBS_G,"c_min":CARBS_LOW,"c_max":CARBS_HIGH,"f":FAT_G,"f_min":FAT_LOW,"f_max":FAT_HIGH,"cal":CALORIES,"cal_min":CAL_LOW,"cal_max":CAL_HIGH,"name":"CANONICAL_FOOD_NAME","source":"label|estimate","confidence":0.0-1.0}
+
 CRITICAL RULES:
-- Use the most accurate real-world label values. For branded products (bars, shakes, drinks), use the exact label data — not estimates.
-- For DRINKS and BEVERAGES: calories almost always come from sugar/carbs, not protein or fat. A kombucha, juice, sports drink, energy drink, or latte will have significant carbs — do not return 0 carbs for any sweetened drink. GT's Synergy kombucha = {"p":0,"c":16,"f":0,"cal":70}. Celsius = {"p":0,"c":2,"f":0,"cal":10}. Gatorade (32oz) = {"p":0,"c":54,"f":0,"cal":200}.
-- For restaurant items, use official published nutrition data. Chick-fil-A Spicy Deluxe = {"p":39,"c":50,"f":19,"cal":520}.
-- Never underestimate fats or overestimate protein. Never return null — always give your best accurate estimate.
-- Calories must match macros: cal ≈ (p×4) + (c×4) + (f×9). Never return mismatched numbers.`;
+- For BRANDED PACKAGED PRODUCTS (Built Bar, Quest Bar, RXBAR, Premier Protein, Fairlife, Celsius, Red Bull, etc.) use the EXACT nutrition label values. Set source="label" and confidence=0.95+. Range should be tight (±5%, e.g. Built Coconut bar = p:17,p_min:16,p_max:18,c:9,c_min:8,c_max:10,f:6,f_min:5,f_max:7,cal:130,cal_min:125,cal_max:140).
+- For RESTAURANT CHAIN ITEMS with published nutrition (Chick-fil-A, McDonald's, Chipotle, Subway), use official published macros. source="label", tight range.
+- For HOMEMADE / UNLABELED / UNSPECIFIED meals (e.g. "chicken curry and rice", "burrito bowl", "smoothie"), set source="estimate" and use realistic min/max ranges that bracket portion-size uncertainty (typically ±20-30%). confidence=0.4-0.7.
+- BEVERAGES: calories almost always come from sugar/carbs, not protein or fat. Never return 0 carbs for any sweetened drink. GT's Synergy kombucha = label-precise, c:16. Celsius = c:2. Gatorade 32oz = c:54.
+- NEVER overestimate. If unsure, lean LOW on protein and HIGH on fat — overestimating protein and underestimating fat is the most common LLM error and the user will lose trust. For protein bars specifically: most are 15-22g protein, 130-220 kcal. Never return 25g+ protein for a single bar unless the user explicitly says "big" or "double".
+- Calories must reconcile: cal ≈ (p×4) + (c×4) + (f×9), within ±10%. The min/max range for cal should similarly reconcile with the macro min/max.
+- For a Built Bar (any flavor): protein=17g (range 16-18), cal=130 (range 125-140). DO NOT guess higher.
+
+Return ONLY the JSON. No prose.`;
   try {
     const res = await fetch(base, {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ system, user: foodText, history:[], max_tokens:80 }),
+      body: JSON.stringify({ system, user: foodText, history:[], max_tokens:200 }),
     });
     if (!res.ok) return null;
     const json = await res.json();
@@ -16397,20 +16524,46 @@ CRITICAL RULES:
     const match = raw.match(/\{[\s\S]*?\}/);
     if (!match) return null;
     const parsed = JSON.parse(match[0]);
-    if (typeof parsed.p === "number") return parsed;
-    return null;
+    if (typeof parsed.p !== "number") return null;
+    // Sanity floor — if min/max missing, derive a default ±15% band so the
+    // range UI still has something to render.
+    const band = (v, pct) => Math.max(0, Math.round(v * (1 - pct)));
+    const bandHi = (v, pct) => Math.round(v * (1 + pct));
+    const isEst = parsed.source === "estimate";
+    const w = isEst ? 0.20 : 0.05;
+    parsed.p_min = parsed.p_min ?? band(parsed.p, w);
+    parsed.p_max = parsed.p_max ?? bandHi(parsed.p, w);
+    parsed.c_min = parsed.c_min ?? band(parsed.c, w);
+    parsed.c_max = parsed.c_max ?? bandHi(parsed.c, w);
+    parsed.f_min = parsed.f_min ?? band(parsed.f, w);
+    parsed.f_max = parsed.f_max ?? bandHi(parsed.f, w);
+    parsed.cal_min = parsed.cal_min ?? band(parsed.cal, w);
+    parsed.cal_max = parsed.cal_max ?? bandHi(parsed.cal, w);
+    parsed.source = parsed.source || (isEst ? "estimate" : "label");
+    parsed.confidence = typeof parsed.confidence === "number" ? parsed.confidence : (isEst ? 0.5 : 0.9);
+    return parsed;
   } catch { return null; }
 }
 
 // Parse a food entry from free text — DB first, Claude fallback.
-// Returns { protein, carbs, fats, calories, name } or null (sync for known, async for unknown).
+// Returns { protein, carbs, fats, calories, name, *_min, *_max, source } or null.
+// DB hits get a tight ±5% range (source="label"); raw-gram fallbacks get ±25% (source="estimate").
 function extractMacroLog(text) {
   // Legacy sync path — kept for offline/fallback compatibility
   const lower = (text || "").toLowerCase();
   const product = lookupFoodProduct(text);
   if (product) {
-    return { kind:"macros", protein: product.p, carbs: product.c, fats: product.f,
-             calories: product.cal, name: product.name, note: text.slice(0,80) };
+    const band = (v, pct) => Math.max(0, Math.round(v * (1 - pct)));
+    const bandHi = (v, pct) => Math.round(v * (1 + pct));
+    const w = 0.05;
+    return {
+      kind:"macros",
+      protein: product.p, protein_min: band(product.p, w), protein_max: bandHi(product.p, w),
+      carbs:   product.c, carbs_min:   band(product.c, w), carbs_max:   bandHi(product.c, w),
+      fats:    product.f, fats_min:    band(product.f, w), fats_max:    bandHi(product.f, w),
+      calories:product.cal,calories_min:band(product.cal,w),calories_max:bandHi(product.cal,w),
+      name: product.name, source: "label", confidence: 0.95, note: text.slice(0,80),
+    };
   }
   // Fallback: raw gram parsing
   const grams = lower.match(/(\d+(?:\.\d+)?)\s*g(?:rams)?/);
@@ -16432,8 +16585,19 @@ function extractMacroLog(text) {
   if (kind === "protein") macros.protein = amount;
   else if (kind === "carbs") macros.carbs = amount;
   else if (kind === "fat") macros.fats = amount;
-  return { kind:"macros", ...macros, calories: Math.round(macros.protein*4 + macros.carbs*4 + macros.fats*9),
-           name: text.slice(0,40), note: text.slice(0,80) };
+  // Raw-gram fallback is a guess — give it a wide ±25% range, mark as estimate
+  const calories = Math.round(macros.protein*4 + macros.carbs*4 + macros.fats*9);
+  const band = (v, pct) => Math.max(0, Math.round(v * (1 - pct)));
+  const bandHi = (v, pct) => Math.round(v * (1 + pct));
+  const w = 0.25;
+  return {
+    kind:"macros", ...macros, calories,
+    protein_min: band(macros.protein, w), protein_max: bandHi(macros.protein, w),
+    carbs_min:   band(macros.carbs, w),   carbs_max:   bandHi(macros.carbs, w),
+    fats_min:    band(macros.fats, w),    fats_max:    bandHi(macros.fats, w),
+    calories_min:band(calories, w),       calories_max:bandHi(calories, w),
+    name: text.slice(0,40), source: "estimate", confidence: 0.4, note: text.slice(0,80),
+  };
 }
 
 // ─── PERSONA PROMPTS — mode-aware system context ────────────────────────────
@@ -16749,35 +16913,47 @@ async function composeBioPalResponse(text, state) {
     workoutPlan  = generateWorkoutPlan(text, state);
     appliedDelta = { kind: "workoutGenerated", plan: workoutPlan };
   } else if (intent === "food") {
-    // Try DB lookup first (sync), then Claude (async) for unknown items
+    // Try DB lookup first (sync), then Claude (async) for unknown items.
+    // Both paths now forward min/max ranges + source so the UI can render
+    // an uncertainty band underneath the macro progress bars.
     const syncLog = extractMacroLog(text);
+    const macrosFromAI = (ai, fallbackName) => ({
+      protein: ai.p, carbs: ai.c, fats: ai.f, calories: ai.cal, name: ai.name || fallbackName,
+      protein_min: ai.p_min, protein_max: ai.p_max,
+      carbs_min:   ai.c_min, carbs_max:   ai.c_max,
+      fats_min:    ai.f_min, fats_max:    ai.f_max,
+      calories_min:ai.cal_min, calories_max: ai.cal_max,
+      source: ai.source || "estimate", confidence: ai.confidence ?? 0.5,
+    });
+    const macrosFromDB = (s) => ({
+      protein: s.protein||0, carbs: s.carbs||0, fats: s.fats||0, calories: s.calories||0, name: s.name,
+      protein_min: s.protein_min, protein_max: s.protein_max,
+      carbs_min:   s.carbs_min,   carbs_max:   s.carbs_max,
+      fats_min:    s.fats_min,    fats_max:    s.fats_max,
+      calories_min:s.calories_min,calories_max:s.calories_max,
+      source: s.source || "label", confidence: s.confidence ?? 0.9,
+    });
     if (syncLog) {
-      appliedDelta = { kind: "bioLogicLog", entry: syncLog, macros: {
-        protein: syncLog.protein || 0, carbs: syncLog.carbs || 0,
-        fats: syncLog.fats || 0, calories: syncLog.calories || 0, name: syncLog.name,
-      }};
-      // Fire-and-forget Claude lookup to improve accuracy if DB gave raw grams
-      if (!lookupFoodProduct(text)) {
+      appliedDelta = { kind: "bioLogicLog", entry: syncLog, macros: macrosFromDB(syncLog) };
+      // If DB hit was direct-product (label-precise), log immediately.
+      // If it was raw-gram fallback (no real product match), also fire Claude to refine the estimate.
+      if (lookupFoodProduct(text)) {
+        window.__rvnAddMacros?.(macrosFromDB(syncLog));
+      } else {
+        // Log the rough estimate now so user sees feedback, then refine async if Claude returns something tighter
+        window.__rvnAddMacros?.(macrosFromDB(syncLog));
         lookupFoodViaClaude(text).then(ai => {
-          if (ai) {
-            const macros = { protein: ai.p, carbs: ai.c, fats: ai.f, calories: ai.cal, name: ai.name };
-            window.__rvnAddMacros?.(macros);
+          if (ai && (ai.confidence ?? 0) > (syncLog.confidence ?? 0)) {
+            // Replace the rough log with Claude's better estimate
+            window.__rvnReplaceLastMacros?.(macrosFromDB(syncLog), macrosFromAI(ai, syncLog.name));
           }
         }).catch(() => {});
-      } else {
-        // DB hit — log macros immediately via bridge
-        const macros = { protein: syncLog.protein||0, carbs: syncLog.carbs||0,
-                         fats: syncLog.fats||0, calories: syncLog.calories||0, name: syncLog.name };
-        window.__rvnAddMacros?.(macros);
       }
     } else {
       // Unknown item — ask Claude for macros async, apply when ready
       appliedDelta = { kind: "bioLogicLog", entry: { kind:"macros", protein:0, carbs:0, fats:0, name:text, estimated:true } };
       lookupFoodViaClaude(text).then(ai => {
-        if (ai) {
-          const macros = { protein: ai.p, carbs: ai.c, fats: ai.f, calories: ai.cal, name: ai.name };
-          window.__rvnAddMacros?.(macros);
-        }
+        if (ai) window.__rvnAddMacros?.(macrosFromAI(ai, text.slice(0,40)));
       }).catch(() => {});
     }
   } else if (intent === "injury") {

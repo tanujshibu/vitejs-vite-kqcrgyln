@@ -29389,6 +29389,83 @@ function RVNRoot() {
 
   const go = goto;
 
+  // ── Global Kailu bridges — work from ANY screen, not just /protocol ───────────
+  // Previously these lived inside GymProtocol so they only existed when the user
+  // was viewing the dashboard. Kailu chatting from Settings, Supplements, or any
+  // other screen would silently no-op. Now they live at the root and read/write
+  // localStorage directly, so they're available everywhere the chat overlay is.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const readProfile = () => {
+      try { return JSON.parse(localStorage.getItem("rvn_profile") || "{}"); }
+      catch { return {}; }
+    };
+    const writeProfile = (next) => {
+      try { localStorage.setItem("rvn_profile", JSON.stringify(next)); } catch {}
+      // Background sync to Supabase
+      try {
+        supabase?.auth?.getUser?.().then?.(({ data }) => {
+          if (data?.user?.id && typeof saveRemoteProfile === "function") {
+            saveRemoteProfile(data.user.id, next);
+          }
+        });
+      } catch {}
+    };
+    // Only install global bridges if a more specific one isn't already there
+    // (GymProtocol installs its own when mounted; we don't want to clobber it).
+    if (!window.__rvnAddMacros) {
+      window.__rvnAddMacros = (macros) => {
+        if (!macros) return;
+        const p = readProfile();
+        const mt = p.macroToday || { protein:0, carbs:0, fats:0 };
+        const sumMin = (curr, currMin, addVal, addMin) => Math.round((currMin ?? curr ?? 0) + (addMin ?? addVal ?? 0));
+        const sumMax = (curr, currMax, addVal, addMax) => Math.round((currMax ?? curr ?? 0) + (addMax ?? addVal ?? 0));
+        const calFromMacros = (pr, c, f) => Math.round(pr*4 + c*4 + f*9);
+        const entryCal = macros.calories || calFromMacros(macros.protein||0, macros.carbs||0, macros.fats||0);
+        const updated = {
+          protein:  Math.round((mt.protein  || 0) + (macros.protein  || 0)),
+          carbs:    Math.round((mt.carbs    || 0) + (macros.carbs    || 0)),
+          fats:     Math.round((mt.fats     || 0) + (macros.fats     || 0)),
+          calories: Math.round((mt.calories || 0) + entryCal),
+          protein_min:  sumMin(mt.protein,  mt.protein_min,  macros.protein,  macros.protein_min),
+          protein_max:  sumMax(mt.protein,  mt.protein_max,  macros.protein,  macros.protein_max),
+          carbs_min:    sumMin(mt.carbs,    mt.carbs_min,    macros.carbs,    macros.carbs_min),
+          carbs_max:    sumMax(mt.carbs,    mt.carbs_max,    macros.carbs,    macros.carbs_max),
+          fats_min:     sumMin(mt.fats,     mt.fats_min,     macros.fats,     macros.fats_min),
+          fats_max:     sumMax(mt.fats,     mt.fats_max,     macros.fats,     macros.fats_max),
+          calories_min: sumMin(mt.calories, mt.calories_min, entryCal,        macros.calories_min),
+          calories_max: sumMax(mt.calories, mt.calories_max, entryCal,        macros.calories_max),
+          items: [
+            ...(Array.isArray(mt.items) ? mt.items : []),
+            {
+              name: macros.name || "Logged item",
+              time: new Date().toISOString(),
+              protein: macros.protein||0, carbs: macros.carbs||0, fats: macros.fats||0, calories: entryCal,
+              source: macros.source || "estimate", confidence: macros.confidence ?? 0.5,
+            },
+          ],
+        };
+        writeProfile({ ...p, macroToday: updated });
+      };
+    }
+    if (!window.__rvnApplyCalendarMutation) {
+      window.__rvnApplyCalendarMutation = (mutation) => {
+        if (!mutation || typeof applyCalendarMutation !== "function") return false;
+        const result = applyCalendarMutation(mutation);
+        if (result?.ok && result.event && typeof logMemoryEvent === "function") {
+          const when = `${result.event.date}${result.event.time ? " at " + result.event.time : ""}`;
+          if (mutation.action === "add")    logMemoryEvent(`Scheduled: ${result.event.title} on ${when}.`, "calendar");
+          if (mutation.action === "move")   logMemoryEvent(`Moved ${result.event.title} to ${when}.`, "calendar");
+          if (mutation.action === "cancel") logMemoryEvent(`Cancelled: ${result.event.title}.`, "calendar");
+        }
+        return !!result?.ok;
+      };
+    }
+    // Note: __rvnReplaceLastMacros is more complex (needs the items array tail);
+    // we leave it to GymProtocol's local install for now. The food refinement path
+    // gracefully degrades if it's not present (optional chaining).
+  }, []);
+
   // ── Theme preference — dark / light / auto (time-of-day) ─────────────────────
   const [themePref, _setThemePref] = useState(() => {
     try { return localStorage.getItem("rvn_theme_pref") || "dark"; } catch { return "dark"; }
@@ -29462,7 +29539,21 @@ function RVNRoot() {
     // Timeout guard — if Supabase hangs, unblock the app after 4s
     const timeoutId = setTimeout(() => setAuthChecked(true), 4000);
 
-    // Resolve current session (handles magic-link token in URL hash automatically)
+    // Resolve current session (handles magic-link token in URL hash automatically).
+    // CRITICAL FIX: if the user previously completed onboarding AND has a valid session
+    // (or just a saved local profile from a prior visit), route them STRAIGHT to
+    // their dashboard. The old code did getSession() but never navigated, so every
+    // reload took the user back through splash → landing → onboarding.
+    const tryAutoResume = () => {
+      try {
+        const completed = localStorage.getItem("rvn_onboarding_complete") === "yes";
+        const hasProfile = !!localStorage.getItem("rvn_profile");
+        if (completed && hasProfile && screen === "splash") {
+          // Jump to protocol — user already onboarded, no reason to make them redo it
+          setTimeout(() => go("protocol"), 100);
+        }
+      } catch (_) {}
+    };
     supabase.auth.getSession().then(({ data: { session } }) => {
       clearTimeout(timeoutId);
       setAuthSession(session);
@@ -29472,10 +29563,17 @@ function RVNRoot() {
         loadRemoteProfile(session.user.id).then(remote => {
           if (remote && Object.keys(remote).length > 0) {
             try { localStorage.setItem("rvn_profile", JSON.stringify(remote)); } catch {}
+            // Cloud profile present means this user has used the app before — mark complete
+            try { localStorage.setItem("rvn_onboarding_complete", "yes"); } catch {}
           }
+          tryAutoResume();
         });
+      } else {
+        // No session, but a localStorage profile + onboarding flag still means
+        // a returning user who's signed out — they can navigate from the landing screen.
+        tryAutoResume();
       }
-    }).catch(() => { clearTimeout(timeoutId); setAuthChecked(true); });
+    }).catch(() => { clearTimeout(timeoutId); setAuthChecked(true); tryAutoResume(); });
 
     // Listen for sign-in / sign-out events (fires AFTER getSession resolves, no race)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -29836,7 +29934,11 @@ function RVNRoot() {
         {screen==="narrative" && (
           <NarrativeScreen key="narrative" theme={theme} mode={mode}
             user={user} archetypeId={archetypeId} bioData={perfData} biology={biology}
-            onContinue={() => go("protocol")}
+            onContinue={() => {
+              // Mark onboarding complete so we skip the splash/landing flow on next reload
+              try { localStorage.setItem("rvn_onboarding_complete", "yes"); } catch {}
+              go("protocol");
+            }}
             onBack={() => go("account")}/>
         )}
 
@@ -30090,6 +30192,160 @@ function RVNRoot() {
             profile={user || {}}
             onBack={() => go("community-hub")}/>
         )}
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => {
+              go("community-hub");
+            }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => { go("community-hub"); }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
         {screen==="community-chat" && (
           <CommunityChatFeed key="community-chat" theme={theme}
             community={{ id: 1, name: "Gold's Gym" }}

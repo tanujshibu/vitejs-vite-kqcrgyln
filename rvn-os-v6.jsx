@@ -27486,29 +27486,61 @@ function StreakHeatmap({ theme, accentColor }) {
     } catch { return new Set(); }
   })();
 
-  // Build 28-day grid (4 weeks)
+  // ── FORWARD-LOOKING 28-DAY CALENDAR ────────────────────────────────────────
+  // Anchored to the START of THIS week (Sunday) so the grid aligns naturally
+  // with the Sun-Sat column headers — today lands in its real day-of-week column,
+  // not wherever a linear slice happens to put it. Shows current week + 3
+  // upcoming weeks, so the calendar is FUTURE-focused (planning + scheduled
+  // sessions visible) instead of being a backward-looking streak archive.
+  // Auto-advances: re-renders on every screen visit, always uses fresh `new Date()`.
+  // Calendar-scheduled events (rvn_calendar) also light up here.
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayTime = today.getTime();
+  // Sunday of current week (today.getDay() returns 0 for Sunday, 1 for Monday, ...)
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay());
+  // Read scheduled future events from the user's calendar so they appear pre-marked
+  const scheduledDates = (() => {
+    try {
+      const arr = JSON.parse(localStorage.getItem("rvn_calendar") || "[]");
+      if (!Array.isArray(arr)) return new Set();
+      return new Set(arr.filter(e => e && e.date).map(e => e.date));
+    } catch { return new Set(); }
+  })();
   const days = Array.from({ length: 28 }, (_, i) => {
-    const d = new Date(today);
-    d.setDate(today.getDate() - (27 - i));
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i);
+    d.setHours(0, 0, 0, 0);
     const dateStr = d.toISOString().split("T")[0];
     const hasWorkout = workoutDates.has(dateStr);
-    const isToday = i === 27;
-    const isFuture = d > today;
-    return { dateStr, hasWorkout, isToday, isFuture, dayOfWeek: d.getDay(), dateNum: d.getDate(), month: d.getMonth() };
+    const hasScheduled = scheduledDates.has(dateStr);
+    const isToday = d.getTime() === todayTime;
+    const isPast = d.getTime() < todayTime;
+    const isFuture = d.getTime() > todayTime;
+    return { dateStr, hasWorkout, hasScheduled, isToday, isPast, isFuture,
+             dayOfWeek: d.getDay(), dateNum: d.getDate(), month: d.getMonth() };
   });
 
-  // Count streak
+  // Streak count — walk BACKWARDS from today through history, not just this window
   let streak = 0;
-  for (let i = 27; i >= 0; i--) {
-    if (days[i].hasWorkout) streak++;
-    else if (i < 27) break;
+  const streakCursor = new Date(today);
+  for (let i = 0; i < 90; i++) {
+    const cursorStr = streakCursor.toISOString().split("T")[0];
+    if (workoutDates.has(cursorStr)) {
+      streak++;
+      streakCursor.setDate(streakCursor.getDate() - 1);
+    } else {
+      // Don't break on today if no workout logged yet
+      if (i === 0) { streakCursor.setDate(streakCursor.getDate() - 1); continue; }
+      break;
+    }
   }
 
   const totalWorkouts = days.filter(d => d.hasWorkout).length;
   const weekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Month range for header
+  // Month range for header — handles month rollover gracefully (e.g. "May – Jun")
   const firstDay = days[0];
   const lastDay = days[27];
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -27564,11 +27596,11 @@ function StreakHeatmap({ theme, accentColor }) {
         </div>
       </div>
 
-      {/* Day-of-week column headers */}
+      {/* Day-of-week column headers — highlight today's column (not days[27]) */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:4, marginBottom:6 }}>
         {weekLabels.map((l, i) => (
           <div key={i} style={{
-            fontSize:11.5, fontWeight:700, color: days[27].dayOfWeek === i ? ac : T.faint,
+            fontSize:11.5, fontWeight:700, color: today.getDay() === i ? ac : T.faint,
             textAlign:"center", letterSpacing:".04em", textTransform:"uppercase",
           }}>
             {l}
@@ -30670,7 +30702,6 @@ function RVNRoot() {
             transition={{ type: "spring", damping: 22, stiffness: 280 }}
             style={{
               position: "fixed", bottom: 80, left: 16, right: 16, zIndex: 9999,
-              background: theme === "dark" ? "rgba(14,15,34,0.97)" : "rgba(255,255,255,0.97)",
               backdropFilter:isMobile?"none":"blur(20px)",
               border: `1px solid ${D[theme]?.blue}44`,
               borderRadius: 18,

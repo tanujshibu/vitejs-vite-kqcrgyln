@@ -7043,6 +7043,8 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
 
       {/* Body */}
       <div style={{ padding:"18px 16px 40px" }}>
+        {/* Supplements demo — first time the user opens this screen */}
+        <ContextualDemo id="supplements" theme={theme} accent={ac}/>
         <KailuSupplementProtocol archetypeId={archetypeId} theme={theme} color={ac} fallback={
           <ABBioComparison archetypeId={archetypeId} theme={theme} color={ac}/>
         }/>
@@ -13394,6 +13396,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
         {/* ══ TAB CONTENT ══════════════════════════════════════════════════ */}
 
+        {/* Welcome tour — fires once on first dashboard land */}
+        <ContextualDemo id="welcome" theme={theme} accent={arch.glow}/>
+
         {/* ── TRAIN TAB ─────────────────────────────────────────────────────── */}
         {activeGymTab === "train" && (() => {
           const todayBio = (() => { try { return JSON.parse(localStorage.getItem("rvn_biometrics_" + new Date().toISOString().slice(0,10)) || "null"); } catch { return null; } })();
@@ -13404,6 +13409,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             null
           ) : null;
           return <>
+        {/* Train-tab demo — first time the user lands on TRAIN */}
+        <ContextualDemo id="train" theme={theme} accent={arch.glow}/>
         {/* ── BIOMETRIC ALERT BANNER ────────────────────────────────────── */}
         {bioAlert && (
           <motion.div {...FX.up} style={{ background:`${T[bioAlert.color]}18`, border:`1px solid ${T[bioAlert.color]}44`, borderRadius:12, padding:"10px 14px", marginBottom:12, display:"flex", alignItems:"center", gap:8 }}>
@@ -14101,6 +14108,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
       )}
 
         {/* ── STATS TAB ──────────────────────────────────────────────────────── */}
+        {activeGymTab === "stats" && <ContextualDemo id="stats" theme={theme} accent={arch.glow}/>}
         {activeGymTab === "stats" && (() => {
           const bwLog2 = loadBodyWeightLog();
           const todayDate = new Date().toISOString().split("T")[0];
@@ -14276,6 +14284,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         })()}
 
         {/* ── FUEL TAB ───────────────────────────────────────────────────────── */}
+        {/* Fuel-tab demo */}
+        {activeGymTab === "fuel" && <ContextualDemo id="fuel" theme={theme} accent={arch.glow}/>}
         {activeGymTab === "fuel" && (() => {
           const mg = profile.macroGoals || { protein:180, carbs:250, fats:70 };
           const mt = profile.macroToday || { protein:0, carbs:0, fats:0 };
@@ -14891,6 +14901,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         })()}
 
         {/* ── PROGRESS TAB ───────────────────────────────────────────────────── */}
+        {activeGymTab === "progress" && <ContextualDemo id="progress" theme={theme} accent={arch.glow}/>}
         {activeGymTab === "progress" && (() => {
           const ppPhotos2 = profile.progressPhotos || [];
           const prs2 = profile.prs || {};
@@ -18381,6 +18392,179 @@ function assignSavedWorkoutToDate(workoutId, dateStr) {
   return null;
 }
 
+// ─── CONTEXTUAL DEMOS ──────────────────────────────────────────────────────────
+// Just-in-time onboarding. The first time a user visits a tab/surface, a
+// 2-3 card bottom-sheet slides up explaining what that section does. Marks
+// itself complete on dismiss, never shows again unless reset from Settings.
+// Pure localStorage, zero API cost.
+function isDemoCompleted(id) {
+  try { return localStorage.getItem("rvn_demo_" + id + "_completed") === "yes"; }
+  catch { return false; }
+}
+function markDemoCompleted(id) {
+  try { localStorage.setItem("rvn_demo_" + id + "_completed", "yes"); } catch {}
+}
+function resetAllDemos() {
+  try {
+    const keys = Object.keys(localStorage);
+    keys.forEach(k => { if (k.startsWith("rvn_demo_") && k.endsWith("_completed")) localStorage.removeItem(k); });
+  } catch {}
+}
+
+// Cards content — one entry per demo. Adding a new tab = add a new key here.
+// Each card: { icon, title, body }. icon is an emoji or short symbol (kept simple
+// so it renders identically across iOS/Android/web). title is bold lead.
+const DEMO_CARDS = {
+  welcome: [
+    { icon: "✦", title: "Welcome to RVN.",
+      body: "Each tab below opens a different part of your training. Kailu — your AI coach — is in the bottom-right whenever you need her. Tap around. The first time you visit each section, I'll tell you what's in it." },
+  ],
+  train: [
+    { icon: "◉", title: "Your protocol, adapted daily.",
+      body: "Every workout adjusts based on your readiness, sleep, and what you trained yesterday. No cookie-cutter programs — when you're depleted, volume scales back automatically." },
+    { icon: "▶", title: "Tap a workout to start logging.",
+      body: "Hit the exercise cards as you go. Sets logged here build your streak, your PRs, and what Kailu knows about you. Real reps in, real coaching out." },
+    { icon: "✦", title: "Add anything via Kailu.",
+      body: 'Say "add cable rows to today" or "schedule legs Thursday at 7am" — Kailu confirms with a card, you tap Apply, it lands on your calendar.' },
+  ],
+  fuel: [
+    { icon: "◐", title: "Honest macro tracking.",
+      body: "Solid bar = your best estimate. Lighter band = uncertainty range. Branded products read tight; homemade meals show a wider band so you can see how confident the day's log is." },
+    { icon: "✎", title: "Log without thinking.",
+      body: "Snap a meal, paste a recipe link, or just tell Kailu what you ate. The DB checks 35+ branded products first — Built Bar coconut logs as 17g/130kcal exactly, no guessing." },
+    { icon: "◈", title: "Supplement protocol built for you.",
+      body: "Open the Supplements screen and answer 7 questions. Kailu cross-references your goals, diet, budget, and what you can't take — gives you a personalized stack, not generic protein-bro picks." },
+  ],
+  stats: [
+    { icon: "◉", title: "Readiness + recovery.",
+      body: "Readiness is your day's training capacity. Soreness flags fatigue. Both adjust your workout intensity automatically — Kailu pulls back volume when you're red-zoned." },
+    { icon: "⌘", title: "Wearable data lives here.",
+      body: "Connect Whoop, Apple Health, or Garmin — sleep, HRV, and steps stream in. Kailu uses these to personalize every reply and surface morning check-ins with your real numbers." },
+  ],
+  progress: [
+    { icon: "↑", title: "Streaks, PRs, photos.",
+      body: "Every workout you log builds your training streak. PRs auto-detect and celebrate. Progress photos stay private to you — useful for seeing changes you can't feel day-to-day." },
+    { icon: "📈", title: "Weekly recap on Mondays.",
+      body: "Monday morning, Kailu pulls last week's sessions, average Bio-Score, and what changed. Five seconds to read, sets the frame for the new week." },
+  ],
+  kailu: [
+    { icon: "✦", title: "Coach, not chatbot.",
+      body: "Kailu remembers your injuries, goals, and what you logged. Mention your knee in March — Kailu will ask about it in June. Memory persists across every conversation." },
+    { icon: "▶", title: "What to try first.",
+      body: '• "I just ate two eggs and a banana"\n• "My left knee is sore"\n• "Add a leg day Thursday at 7am"\n• "What should I take before bed?"\n• "Build me a workout for today"' },
+    { icon: "◈", title: "Customizable voice.",
+      body: "Trainers can teach Kailu to talk in their voice — same client, same coach feel, but Kailu replies at 3am when the trainer's asleep. Set it up in ManagerHub → Coach tab." },
+  ],
+  supplements: [
+    { icon: "◈", title: "7 questions, real stack.",
+      body: "Goals, training, sleep, caffeine, diet, budget, allergies. Three minutes. Kailu scores every supplement in the database against your answers and surfaces the best 5-7 — including dose, timing, and why for YOU specifically." },
+    { icon: "✦", title: "DB-first, Kailu-personalized.",
+      body: "Not LLM hallucinations. Real curated supplements with goals, diets, cautions, and price. Kailu writes the why-for-you sentence using one Claude call — accuracy from the database, personalization from the AI." },
+  ],
+  managerhub: [
+    { icon: "◉", title: "ManagerHub: your operator suite.",
+      body: "Roster, NFC tag analytics, inventory, member assignment, branded experience, revenue exports. Run your gym (or your training practice) from one PIN-gated surface." },
+    { icon: "✎", title: "Coach Voice + push protocols.",
+      body: "In the Coach tab, set up Coach Voice so Kailu sounds like you when replying to your clients. Build a supplement protocol, push it to a specific client with your branding — they see it on their next app open." },
+  ],
+};
+
+// The bottom-sheet demo modal. Renders nothing if the demo has already been
+// dismissed for this user. Self-contained: trigger via <ContextualDemo id="train"
+// theme={theme} accent={ac}/> from anywhere.
+function ContextualDemo({ id, theme, accent, onComplete }) {
+  const T = D[theme] || D.dark;
+  const ac = accent || T?.blue || "#0A84FF";
+  const cards = DEMO_CARDS[id];
+  const [show, setShow] = React.useState(false);
+  const [idx, setIdx] = React.useState(0);
+  React.useEffect(() => {
+    if (!cards || cards.length === 0) return;
+    if (isDemoCompleted(id)) return;
+    // Small delay before showing so the tab content paints first
+    const t = setTimeout(() => setShow(true), 350);
+    return () => clearTimeout(t);
+  }, [id]);
+  if (!cards || cards.length === 0 || !show) return null;
+  const card = cards[idx];
+  const isLast = idx === cards.length - 1;
+  const finish = () => {
+    markDemoCompleted(id);
+    setShow(false);
+    onComplete && onComplete();
+  };
+  const advance = () => {
+    if (isLast) finish();
+    else setIdx(idx + 1);
+  };
+  return (
+    <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+      transition={{ duration:0.25 }}
+      onClick={(e) => { e.stopPropagation(); }}
+      style={{
+        position:"fixed", inset:0, zIndex:9998,
+        background:"rgba(0,0,0,0.68)",
+        backdropFilter:isMobile ? "none" : "blur(4px)",
+        display:"flex", alignItems:"flex-end", justifyContent:"center",
+        padding:"0 12px 12px",
+      }}>
+      <motion.div
+        initial={{ y:40, opacity:0 }} animate={{ y:0, opacity:1 }}
+        transition={{ type:"spring", damping:24, stiffness:280 }}
+        style={{
+          width:"100%", maxWidth:480,
+          background:T.card, borderRadius:22,
+          border:`1px solid ${T.border}`, boxShadow:T.shadow,
+          padding:"18px 18px 14px",
+          marginBottom: typeof window !== "undefined" ? "max(env(safe-area-inset-bottom), 12px)" : 12,
+        }}>
+        {/* Header — Skip top-right */}
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+          <div style={{ fontSize:10.5, fontWeight:800, color:ac, letterSpacing:".06em" }}>
+            QUICK TOUR · {idx + 1}/{cards.length}
+          </div>
+          <button onClick={finish} style={{
+            background:"transparent", border:"none", color:T.faint,
+            fontSize:11, fontWeight:700, letterSpacing:".04em",
+            cursor:"pointer", padding:0,
+          }}>SKIP</button>
+        </div>
+        {/* Card */}
+        <motion.div key={idx}
+          initial={{ opacity:0, x:12 }} animate={{ opacity:1, x:0 }}
+          transition={{ duration:0.25 }}>
+          <div style={{ fontSize:30, marginBottom:8 }}>{card.icon}</div>
+          <div style={{ fontSize:17, fontWeight:900, color:T.text, marginBottom:8, lineHeight:1.25 }}>
+            {card.title}
+          </div>
+          <div style={{ fontSize:13, color:T.muted, lineHeight:1.55, whiteSpace:"pre-line", marginBottom:16 }}>
+            {card.body}
+          </div>
+        </motion.div>
+        {/* Progress dots */}
+        <div style={{ display:"flex", gap:5, justifyContent:"center", marginBottom:14 }}>
+          {cards.map((_, i) => (
+            <div key={i} style={{
+              width: i === idx ? 16 : 5, height:5, borderRadius:3,
+              background: i <= idx ? ac : T.border, transition:"all .3s ease",
+            }}/>
+          ))}
+        </div>
+        {/* Next / Done */}
+        <motion.button whileTap={{ scale:.97 }} onClick={advance}
+          style={{
+            width:"100%", padding:"11px 14px", borderRadius:11,
+            background:ac, color:theme==="dark"?"#000":"#fff",
+            border:"none", fontSize:12.5, fontWeight:900,
+            letterSpacing:".04em", textTransform:"uppercase", cursor:"pointer",
+          }}>
+          {isLast ? "Got it →" : "Next →"}
+        </motion.button>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ─── SCHEMA VERSIONING + MIGRATIONS ────────────────────────────────────────────
 // localStorage is the source of truth for everything (profile, calendar, memory,
 // supplements, trainer voice, pushed protocols, etc.). When we change any shape,
@@ -18831,6 +19015,8 @@ function RVNVisionOverlay() {
                           filter: `drop-shadow(0 0 8px ${ac}88)` }}/>}
       </motion.button>
 
+      {/* Kailu chat demo — first time the chat overlay is opened */}
+      {biopal.open && <ContextualDemo id="kailu" theme={theme} accent={ac}/>}
       <AnimatePresence>
         {biopal.open && (
           <motion.div
@@ -31053,6 +31239,398 @@ function RVNRoot() {
         {screen==="community-unlock" && (
           <CommunityUnlock key="community-unlock" theme={theme}
             profile={user || {}}
+            onJoinCommunity={async (code) => {
+              go("community-hub");
+            }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => { go("community-hub"); }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => {
+              go("community-hub");
+            }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => { go("community-hub"); }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
+            onJoinCommunity={async (code) => {
+              go("community-hub");
+            }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-wordle" && (
+          <CommunityWordle key="community-wordle" theme={theme}
+            community={{ id: 1, name: "Gold's Gym", dailyWord: "PROTEIN" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-leaderboard" && (
+          <CommunityLeaderboard key="community-leaderboard" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || {}}
+            onBack={() => go("community-hub")}/>
+        )}
+
+        {screen==="community-chat" && (
+          <CommunityChatFeed key="community-chat" theme={theme}
+            community={{ id: 1, name: "Gold's Gym" }}
+            profile={user || { communityUsername: "User-" + Math.floor(Math.random()*10000) }}
+            onBack={() => go("community-hub")}/>
+        )}
+
+
+
+        {screen==="workout-history" && (
+          <WorkoutHistoryScreen key="workout-history" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="body-weight" && (
+          <BodyWeightScreen key="body-weight" theme={theme}
+            onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="meal-plan" && (
+          <MealPlanScreen key="meal-plan" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="buddy" && (
+          <BuddySystemScreen key="buddy" theme={theme}
+            user={user} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="group-workout" && (
+          <GroupWorkoutScreen key="group-workout" theme={theme}
+            user={user} archetypeId={archetypeId} onBack={() => go("protocol")}/>
+        )}
+
+        {screen==="community-hub" && (
+          <CommunityHub key="community-hub" theme={theme}
+            profile={user || {}}
+            communities={[
+              { id: 1, name: "Gold's Gym Downtown", type: "gym" },
+              { id: 2, name: "Juice Bar Co.", type: "smoothie" },
+            ]}
+            onSelectCommunity={(cid) => {
+              if (cid === "unlock") go("community-unlock");
+              else go("community-wordle");
+            }}
+            onBack={() => go("landing")}/>
+        )}
+
+        {screen==="community-unlock" && (
+          <CommunityUnlock key="community-unlock" theme={theme}
+            profile={user || {}}
             onJoinCommunity={async (code) => { go("community-hub"); }}
             onBack={() => go("community-hub")}/>
         )}
@@ -31261,8 +31839,6 @@ function RVNRoot() {
                   if (pwaPrompt) {
                     pwaPrompt.prompt();
                     const { outcome } = await pwaPrompt.userChoice;
-                    setPwaPrompt(null);
-                    if (outcome === "accepted") { try { localStorage.setItem("rvn_pwa_dismissed", "1"); } catch {} }
                   }
                 }}
                 style={{

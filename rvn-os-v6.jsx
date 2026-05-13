@@ -18613,56 +18613,63 @@ function resetAllDemos() {
 // so it renders identically across iOS/Android/web). title is bold lead.
 const DEMO_CARDS = {
   welcome: [
-    { icon: "✦", title: "Welcome to RVN.",
-      body: "Each tab below opens a different part of your training. Kailu — your AI coach — is in the bottom-right whenever you need her. Tap around. The first time you visit each section, I'll tell you what's in it." },
+    { icon: "✨", title: "Welcome to RVN.",
+      body: "Each tab below opens a different part of your training. Kailu — your AI coach — is in the bottom-right whenever you need her. Tap around. The first time you visit each section, I will show you what is in it." },
   ],
   train: [
     { icon: "◉", title: "Your protocol, adapted daily.",
-      body: "Every workout adjusts based on your readiness, sleep, and what you trained yesterday. No cookie-cutter programs — when you're depleted, volume scales back automatically." },
-    { icon: "▶", title: "Tap a workout to start logging.",
-      body: "Hit the exercise cards as you go. Sets logged here build your streak, your PRs, and what Kailu knows about you. Real reps in, real coaching out." },
-    { icon: "✦", title: "Add anything via Kailu.",
-      body: 'Say "add cable rows to today" or "schedule legs Thursday at 7am" — Kailu confirms with a card, you tap Apply, it lands on your calendar.' },
+      body: "Every workout adjusts based on your readiness, sleep, and what you trained yesterday. No cookie-cutter programs.",
+      target: '[data-tour-id="train-protocol"]' },
+    { icon: "▶", title: "Tap exercises to log sets.",
+      body: "Hit the cards as you go. Sets logged here build your streak, your PRs, and what Kailu knows about you.",
+      target: '[data-tour-id="train-exercises"]' },
+    { icon: "✨", title: "Or just tell Kailu.",
+      body: 'Say "Add cable rows to today" or "schedule legs Thursday at 7am" — Kailu confirms with a card, you tap Apply, it lands on your calendar.',
+      target: '[data-tour-id="kailu-bubble"]' },
   ],
   fuel: [
     { icon: "◐", title: "Honest macro tracking.",
-      body: "Solid bar = your best estimate. Lighter band = uncertainty range. Branded products read tight; homemade meals show a wider band so you can see how confident the day's log is." },
+      body: "Solid bar = best estimate. Lighter band = uncertainty range. Branded products read tight; homemade meals show wider bands so you see how confident the day log is.",
+      target: '[data-tour-id="fuel-macros"]' },
     { icon: "✎", title: "Log without thinking.",
-      body: "Snap a meal, paste a recipe link, or just tell Kailu what you ate. The DB checks 35+ branded products first — Built Bar coconut logs as 17g/130kcal exactly, no guessing." },
-    { icon: "◈", title: "Supplement protocol built for you.",
-      body: "Open the Supplements screen and answer 7 questions. Kailu cross-references your goals, diet, budget, and what you can't take — gives you a personalized stack, not generic protein-bro picks." },
+      body: "Snap a meal, paste a recipe link, or tell Kailu what you ate. The DB checks 35+ branded products first — Built Bar coconut logs as 17g/130kcal exactly.",
+      target: '[data-tour-id="fuel-scanner"]' },
+    { icon: "◈", title: "Personalized supplement stack.",
+      body: "Open Supplements and answer 7 questions. Kailu cross-references your goals, diet, budget, and allergies — gives you a real stack, not generic picks.",
+      target: '[data-tour-id="kailu-bubble"]' },
   ],
   stats: [
     { icon: "◉", title: "Readiness + recovery.",
-      body: "Readiness is your day's training capacity. Soreness flags fatigue. Both adjust your workout intensity automatically — Kailu pulls back volume when you're red-zoned." },
-    { icon: "⌘", title: "Wearable data lives here.",
-      body: "Connect Whoop, Apple Health, or Garmin — sleep, HRV, and steps stream in. Kailu uses these to personalize every reply and surface morning check-ins with your real numbers." },
+      body: "Readiness = today training capacity. Soreness flags fatigue. Both adjust workout intensity automatically — Kailu pulls volume back when you are red-zoned." },
+    { icon: "⌘", title: "Wearables sync here.",
+      body: "Connect Whoop, Apple Health, or Garmin — sleep, HRV, and steps stream in. Kailu uses these to personalize every reply." },
   ],
   progress: [
     { icon: "↑", title: "Streaks, PRs, photos.",
-      body: "Every workout you log builds your training streak. PRs auto-detect and celebrate. Progress photos stay private to you — useful for seeing changes you can't feel day-to-day." },
+      body: "Every workout builds your training streak. PRs auto-detect. Progress photos stay private to you — useful for seeing changes you can not feel day-to-day." },
     { icon: "📈", title: "Weekly recap on Mondays.",
-      body: "Monday morning, Kailu pulls last week's sessions, average Bio-Score, and what changed. Five seconds to read, sets the frame for the new week." },
+      body: "Monday morning, Kailu pulls last week sessions, average Bio-Score, and what changed. 5-second read, sets the frame for the week." },
   ],
   kailu: [
-    { icon: "✦", title: "Coach, not chatbot.",
-      body: "Kailu remembers your injuries, goals, and what you logged. Mention your knee in March — Kailu will ask about it in June. Memory persists across every conversation." },
+    { icon: "✨", title: "Coach, not chatbot.",
+      body: "Kailu remembers your injuries, goals, and what you logged. Mention your knee in March — Kailu asks about it in June. Memory persists across every conversation." },
     { icon: "▶", title: "What to try first.",
       body: '• "I just ate two eggs and a banana"\n• "My left knee is sore"\n• "Add a leg day Thursday at 7am"\n• "What should I take before bed?"\n• "Build me a workout for today"' },
     { icon: "◈", title: "Customizable voice.",
-      body: "Trainers can teach Kailu to talk in their voice — same client, same coach feel, but Kailu replies at 3am when the trainer's asleep. Set it up in ManagerHub → Coach tab." },
+      body: "Trainers can teach Kailu to talk in their voice — same coach feel, replies at 3am when the trainer is asleep. Set it up in TrainerHub → Coach Voice." },
   ],
   supplements: [
     { icon: "◈", title: "7 questions, real stack.",
-      body: "Goals, training, sleep, caffeine, diet, budget, allergies. Three minutes. Kailu scores every supplement in the database against your answers and surfaces the best 5-7 — including dose, timing, and why for YOU specifically." },
-    { icon: "✦", title: "DB-first, Kailu-personalized.",
-      body: "Not LLM hallucinations. Real curated supplements with goals, diets, cautions, and price. Kailu writes the why-for-you sentence using one Claude call — accuracy from the database, personalization from the AI." },
+      body: "Goals, training, sleep, caffeine, diet, budget, allergies. Three minutes. Kailu scores every supplement in the database against your answers and surfaces the best 5-7." },
+    { icon: "✨", title: "DB-first, Kailu-personalized.",
+      body: "Not LLM hallucinations. Real curated supplements with goals, diets, cautions, prices. Kailu writes the why-for-you using one Claude call — accuracy from the DB, personalization from the AI." },
   ],
   managerhub: [
-    { icon: "◉", title: "ManagerHub: your operator suite.",
-      body: "Roster, NFC tag analytics, inventory, member assignment, branded experience, revenue exports. Run your gym (or your training practice) from one PIN-gated surface." },
-    { icon: "✎", title: "Coach Voice + push protocols.",
-      body: "In the Coach tab, set up Coach Voice so Kailu sounds like you when replying to your clients. Build a supplement protocol, push it to a specific client with your branding — they see it on their next app open." },
+    { icon: "◉", title: "Coach Hub: your trainer practice.",
+      body: "Clients, voice cloning, pushed protocols, branded experience. Run your training practice from one surface." },
+    { icon: "✎", title: "Set up Coach Voice first.",
+      body: "Paste 2-3 messages you have sent clients. Kailu will mimic your tone for every client conversation. This is the trainer moat — no other app has it.",
+      target: '[data-tour-id="coach-voice-tab"]' },
   ],
 };
 
@@ -18675,13 +18682,39 @@ function ContextualDemo({ id, theme, accent, onComplete }) {
   const cards = DEMO_CARDS[id];
   const [show, setShow] = React.useState(false);
   const [idx, setIdx] = React.useState(0);
+  // Spotlight target rect — set when current card has a target selector and
+  // a matching element exists in the DOM. null = fall back to centered sheet.
+  const [rect, setRect] = React.useState(null);
   React.useEffect(() => {
     if (!cards || cards.length === 0) return;
     if (isDemoCompleted(id)) return;
-    // Small delay before showing so the tab content paints first
-    const t = setTimeout(() => setShow(true), 350);
+    const t = setTimeout(() => setShow(true), 400);
     return () => clearTimeout(t);
   }, [id]);
+  // Find target element with retries (DOM may not be ready after tab transition)
+  React.useEffect(() => {
+    if (!show || !cards) return;
+    const card = cards[idx];
+    if (!card?.target) { setRect(null); return; }
+    let attempts = 0;
+    let timer;
+    const tryFind = () => {
+      try {
+        const el = document.querySelector(card.target);
+        if (el) {
+          const r = el.getBoundingClientRect();
+          setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+          try { el.scrollIntoView({ behavior: "smooth", block: "center" }); } catch {}
+          return;
+        }
+      } catch {}
+      attempts++;
+      if (attempts < 12) timer = setTimeout(tryFind, 120);
+      else setRect(null);
+    };
+    tryFind();
+    return () => clearTimeout(timer);
+  }, [show, idx, cards]);
   if (!cards || cards.length === 0 || !show) return null;
   const card = cards[idx];
   const isLast = idx === cards.length - 1;
@@ -18692,12 +18725,93 @@ function ContextualDemo({ id, theme, accent, onComplete }) {
   };
   const advance = () => {
     if (isLast) finish();
-    else setIdx(idx + 1);
+    else { setIdx(idx + 1); setRect(null); }
   };
+  const vh = typeof window !== "undefined" ? window.innerHeight : 800;
+  const placeBelow = rect ? (rect.top + rect.height / 2) < (vh / 2) : false;
+  const HALO_PAD = 10;
+  const bubble = (
+    <>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+        <div style={{ fontSize:10.5, fontWeight:800, color:ac, letterSpacing:".06em" }}>
+          QUICK TOUR &middot; {idx + 1}/{cards.length}
+        </div>
+        <button onClick={finish} style={{
+          background:"transparent", border:"none", color:T.faint,
+          fontSize:11, fontWeight:700, letterSpacing:".04em",
+          cursor:"pointer", padding:"4px 6px", marginRight:-6,
+        }}>SKIP</button>
+      </div>
+      <motion.div key={idx}
+        initial={{ opacity:0, x:8 }} animate={{ opacity:1, x:0 }}
+        transition={{ duration:0.2 }}>
+        <div style={{ fontSize:24, marginBottom:6 }}>{card.icon}</div>
+        <div style={{ fontSize:16, fontWeight:900, color:T.text, marginBottom:6, lineHeight:1.25 }}>
+          {card.title}
+        </div>
+        <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.55, whiteSpace:"pre-line", marginBottom:12 }}>
+          {card.body}
+        </div>
+      </motion.div>
+      <div style={{ display:"flex", gap:5, justifyContent:"center", marginBottom:10 }}>
+        {cards.map((_, i) => (
+          <div key={i} style={{
+            width: i === idx ? 14 : 5, height:5, borderRadius:3,
+            background: i <= idx ? ac : T.border, transition:"all .3s ease",
+          }}/>
+        ))}
+      </div>
+      <motion.button whileTap={{ scale:.97 }} onClick={advance}
+        style={{
+          width:"100%", padding:"10px 14px", borderRadius:10,
+          background:ac, color:theme==="dark"?"#000":"#fff",
+          border:"none", fontSize:12, fontWeight:900,
+          letterSpacing:".04em", textTransform:"uppercase", cursor:"pointer",
+        }}>
+        {isLast ? "Got it →" : "Next →"}
+      </motion.button>
+    </>
+  );
+  if (rect) {
+    return (
+      <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+        transition={{ duration:0.25 }}
+        style={{ position:"fixed", inset:0, zIndex:9998, pointerEvents:"auto" }}>
+        <div style={{
+          position:"fixed",
+          top: rect.top - HALO_PAD,
+          left: rect.left - HALO_PAD,
+          width: rect.width + HALO_PAD * 2,
+          height: rect.height + HALO_PAD * 2,
+          borderRadius: 14,
+          boxShadow: `0 0 0 9999px rgba(0,0,0,0.72), 0 0 0 2.5px ${ac}, 0 0 24px 6px ${ac}77`,
+          pointerEvents:"none",
+          transition:"all .35s cubic-bezier(.22,1,.36,1)",
+        }}/>
+        <motion.div
+          initial={{ opacity:0, y: placeBelow ? -8 : 8 }} animate={{ opacity:1, y:0 }}
+          transition={{ duration:0.25, delay:0.1 }}
+          style={{
+            position:"fixed",
+            ...(placeBelow
+              ? { top: Math.min(vh - 280, rect.top + rect.height + HALO_PAD + 18) }
+              : { bottom: Math.max(20, vh - rect.top + HALO_PAD + 18) }),
+            left: 16, right: 16,
+            background: T.card,
+            border: `1px solid ${ac}55`,
+            borderRadius: 16,
+            boxShadow: `0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px ${T.border}`,
+            padding: "14px 16px 12px",
+            zIndex: 9999,
+          }}>
+          {bubble}
+        </motion.div>
+      </motion.div>
+    );
+  }
   return (
     <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
       transition={{ duration:0.25 }}
-      onClick={(e) => { e.stopPropagation(); }}
       style={{
         position:"fixed", inset:0, zIndex:9998,
         background:"rgba(0,0,0,0.68)",
@@ -18706,57 +18820,16 @@ function ContextualDemo({ id, theme, accent, onComplete }) {
         padding:"0 12px 12px",
       }}>
       <motion.div
-        initial={{ y:40, opacity:0 }} animate={{ y:0, opacity:1 }}
+        initial={{ y:30, opacity:0 }} animate={{ y:0, opacity:1 }}
         transition={{ type:"spring", damping:24, stiffness:280 }}
         style={{
           width:"100%", maxWidth:480,
           background:T.card, borderRadius:22,
           border:`1px solid ${T.border}`, boxShadow:T.shadow,
-          padding:"18px 18px 14px",
+          padding:"16px 16px 14px",
           marginBottom: typeof window !== "undefined" ? "max(env(safe-area-inset-bottom), 12px)" : 12,
         }}>
-        {/* Header — Skip top-right */}
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-          <div style={{ fontSize:10.5, fontWeight:800, color:ac, letterSpacing:".06em" }}>
-            QUICK TOUR · {idx + 1}/{cards.length}
-          </div>
-          <button onClick={finish} style={{
-            background:"transparent", border:"none", color:T.faint,
-            fontSize:11, fontWeight:700, letterSpacing:".04em",
-            cursor:"pointer", padding:0,
-          }}>SKIP</button>
-        </div>
-        {/* Card */}
-        <motion.div key={idx}
-          initial={{ opacity:0, x:12 }} animate={{ opacity:1, x:0 }}
-          transition={{ duration:0.25 }}>
-          <div style={{ fontSize:30, marginBottom:8 }}>{card.icon}</div>
-          <div style={{ fontSize:17, fontWeight:900, color:T.text, marginBottom:8, lineHeight:1.25 }}>
-            {card.title}
-          </div>
-          <div style={{ fontSize:13, color:T.muted, lineHeight:1.55, whiteSpace:"pre-line", marginBottom:16 }}>
-            {card.body}
-          </div>
-        </motion.div>
-        {/* Progress dots */}
-        <div style={{ display:"flex", gap:5, justifyContent:"center", marginBottom:14 }}>
-          {cards.map((_, i) => (
-            <div key={i} style={{
-              width: i === idx ? 16 : 5, height:5, borderRadius:3,
-              background: i <= idx ? ac : T.border, transition:"all .3s ease",
-            }}/>
-          ))}
-        </div>
-        {/* Next / Done */}
-        <motion.button whileTap={{ scale:.97 }} onClick={advance}
-          style={{
-            width:"100%", padding:"11px 14px", borderRadius:11,
-            background:ac, color:theme==="dark"?"#000":"#fff",
-            border:"none", fontSize:12.5, fontWeight:900,
-            letterSpacing:".04em", textTransform:"uppercase", cursor:"pointer",
-          }}>
-          {isLast ? "Got it →" : "Next →"}
-        </motion.button>
+        {bubble}
       </motion.div>
     </motion.div>
   );
@@ -19193,6 +19266,7 @@ function RVNVisionOverlay() {
     <>
       {/* FAB — always on top, every screen */}
       <motion.button
+        data-tour-id="kailu-bubble"
         onClick={() => biopalToggle()}
         whileTap={{ scale: .92 }}
         style={{

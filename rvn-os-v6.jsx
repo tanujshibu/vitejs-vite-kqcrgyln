@@ -2792,12 +2792,18 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
   const [restaurant, setRestaurant] = React.useState("");
   const [restRec, setRestRec] = React.useState(null);
   const [restScan, setRestScan] = React.useState(false);
+  // Optional user-pasted menu — used when the chain isn't in RESTAURANT_MENU_DB.
+  // User can paste 3-5 items they see ("Chicken Madeira, Glamburger, Salmon Avocado")
+  // and Kailu picks the one that best fits their remaining macros. This makes
+  // Restaurant Mode work for ANY restaurant on Earth, not just the cached chains.
+  const [menuItems, setMenuItems] = React.useState("");
+  const matched = lookupRestaurantMenu(restaurant);
   return (
     <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
       <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
         RESTAURANT MODE
       </div>
-      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+      <div style={{ display:"flex", gap:8, marginBottom: (restaurant.trim() && !matched) ? 8 : 10 }}>
         <input value={restaurant} onChange={e => setRestaurant(e.target.value)}
           placeholder="Restaurant name"
           style={{ flex:1, padding:"10px 12px", borderRadius:10, background:T.glass, border:`1px solid ${T.border}`,
@@ -2812,12 +2818,19 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
                 carbs:   Math.max(0, (profile.macroGoals?.carbs   || 250) - (profile.macroToday?.carbs   || 0)),
                 fats:    Math.max(0, (profile.macroGoals?.fats    || 70)  - (profile.macroToday?.fats    || 0)),
               };
-              const matched = lookupRestaurantMenu(restaurant);
-              const menuBlock = matched
-                ? `Here are the REAL menu items at ${matched.name} with their approximate macros:\n` +
+              // matched is computed once at component-scope so it stays in sync
+              const userMenu = (menuItems || "").trim();
+              let menuBlock;
+              if (matched) {
+                menuBlock = `Here are the REAL menu items at ${matched.name} with their approximate macros:\n` +
                   matched.items.map(i => `- ${i.item} \u2014 ${i.p}g P, ${i.c}g C, ${i.f}g F, ${i.cal} kcal`).join("\n") +
-                  `\n\nCRITICAL: Pick from THIS list ONLY. Do not invent menu items. You may suggest swaps/mods (no cheese, extra protein, sub side) but the base item must come from this list.`
-                : `You don't have a menu on file for "${restaurant}". DO NOT invent menu items \u2014 you will get the items wrong and break user trust. Instead:\n1) Acknowledge you don't have ${restaurant}'s exact menu cached\n2) Give MACRO TARGETS the user should aim for (e.g. "Aim for ~40g protein, 50g carbs, 15g fat")\n3) Suggest GENERAL categories that hit those targets (e.g. "grilled chicken protein plate with a starch side") without naming a specific item.`;
+                  `\n\nCRITICAL: Pick from THIS list ONLY. Do not invent menu items. You may suggest swaps/mods (no cheese, extra protein, sub side) but the base item must come from this list.`;
+              } else if (userMenu.length > 0) {
+                // User pasted menu items \u2014 use those as the truth source
+                menuBlock = `The user is at ${restaurant} and they listed these items they're considering (or pasted from the menu):\n${userMenu}\n\nCRITICAL: Pick ONLY from items in this user-provided list. You may estimate macros for each based on standard portions. Recommend the one that best fits their remaining macros and suggest modifications if useful.`;
+              } else {
+                menuBlock = `You don't have a menu on file for "${restaurant}" and the user hasn't pasted any items yet. Respond with: "I don't have ${restaurant}'s menu cached \u2014 paste 3-5 items you're considering above and I'll pick the best fit for your day. Aiming for ~${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat will hit your remaining macros." Do NOT invent items.`;
+              }
               const system = `You are Kailu, a fitness nutrition coach. The user is at a restaurant. Give a SPECIFIC order that fits their remaining macros, OR honest macro targets if you don't know the menu.\n\n${menuBlock}\n\nFormat your reply:\n- "Order: [item] with [modifications]" (or "Aim for: [macro targets]" when no menu)\n- "Approx: [P]g protein, [C]g carbs, [F]g fat, [kcal] kcal"\n- One short coaching note about why this fits.\n\nNo fluff. No generic "choose balanced." Be honest if you don't know the menu \u2014 NEVER invent items.`;
               const user = `Restaurant: ${restaurant}. Remaining macros today: ${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat. Recommend my order.`;
               const reply = await callClaudeAPI({ system, user, history: [], maxTokens: 280, model: "haiku" });
@@ -2838,6 +2851,20 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
           {restScan ? "..." : "BUILD"}
         </motion.button>
       </div>
+      {/* Menu-paste fallback: visible when user types a restaurant we don't have cached */}
+      {restaurant.trim() && !matched && (
+        <div style={{ marginBottom:10 }}>
+          <div style={{ fontSize:10.5, color:T.faint, marginBottom:4, lineHeight:1.4 }}>
+            No menu cached for "{restaurant}". Paste 3–5 items you're considering (or a menu link) and Kailu picks the best fit — honest, not hallucinated.
+          </div>
+          <textarea value={menuItems} onChange={e => setMenuItems(e.target.value)}
+            placeholder="e.g. Chicken Madeira, Glamburger, Grilled Salmon, Avocado Eggrolls"
+            rows={3}
+            style={{ width:"100%", padding:"9px 11px", borderRadius:10, background:T.glass,
+              border:`1px solid ${T.border}`, color:T.text, fontSize:13, lineHeight:1.4,
+              outline:"none", fontFamily:"inherit", resize:"vertical", boxSizing:"border-box" }}/>
+        </div>
+      )}
       {restRec && (
         <div style={{ background:T.glass, borderRadius:12, padding:"12px" }}>
           <div style={{ fontSize:11, fontWeight:700, color:T.faint, marginBottom:6 }}>{restaurant.toUpperCase()}</div>

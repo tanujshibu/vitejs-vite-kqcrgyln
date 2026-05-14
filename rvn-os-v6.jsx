@@ -2882,7 +2882,11 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
 // Paste any IG caption or fitness claim → cross-referenced against research
 function FitnessClaimChecker({ theme, T, color }) {
   const ac = color || "#0A84FF";
+  const [mode,    setMode]    = React.useState("text"); // "text" | "link"
   const [claim,   setClaim]   = React.useState("");
+  const [linkUrl, setLinkUrl] = React.useState("");
+  const [linkBusy,setLinkBusy]= React.useState(false);
+  const [linkFailed, setLinkFailed] = React.useState(false);
   const [result,  setResult]  = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error,   setError]   = React.useState(null);
@@ -2894,15 +2898,18 @@ function FitnessClaimChecker({ theme, T, color }) {
     UNVERIFIED: { icon:"❓", color:"#8E8E93", label:"UNVERIFIED"  },
   };
 
-  async function checkClaim() {
-    if (!claim.trim() || loading) return;
+  // Run the actual Claude fact-check on a given piece of text.
+  async function runCheck(claimText) {
+    const trimmed = (claimText || "").trim();
+    if (!trimmed || loading) return;
     setLoading(true); setError(null); setResult(null);
     const system = `You are a fitness science fact-checker with deep expertise in exercise physiology, sports nutrition, and peer-reviewed research. Evaluate fitness and nutrition claims objectively.
 Respond ONLY with valid JSON in this exact format (no markdown, no explanation):
 {"verdict":"VERIFIED","confidence":85,"summary":"One sentence verdict","evidence":"2-3 sentences explaining the evidence and research basis","sources":["Author et al. (Year) — Study name / Journal","Author et al. (Year) — Study name / Journal"],"nuance":"Any important caveats, context, or population-specific notes"}
-Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (partially true but overstated/missing key context), FALSE (contradicted by evidence), UNVERIFIED (insufficient research). Confidence is 0-100.`;
+Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (partially true but overstated/missing key context), FALSE (contradicted by evidence), UNVERIFIED (insufficient research). Confidence is 0-100.
+If the input is the FULL caption of a social-media post (multiple sentences), identify the SPECIFIC fitness/nutrition claim being made and fact-check THAT, not the entire post.`;
     try {
-      const resp = await callClaudeAPI({ system, history:[], user:`Fact-check this fitness claim: "${claim.trim()}"`, maxTokens:420, model:"claude-haiku-4-5-20251001" });
+      const resp = await callClaudeAPI({ system, history:[], user:`Fact-check this fitness claim: "${trimmed}"`, maxTokens:480, model:"haiku" });
       if (!resp) throw new Error("No response");
       const match = resp.match(/\{[\s\S]*\}/);
       if (!match) throw new Error("Bad format");
@@ -2916,25 +2923,87 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
     }
   }
 
+  function checkClaim() { return runCheck(claim); }
+
+  // Fetch a social-media link via the existing parse-ig-workout edge function,
+  // which returns either the caption or a "needsCaption" flag if blocked.
+  async function checkLink() {
+    const url = linkUrl.trim();
+    if (!url || linkBusy || loading) return;
+    setError(null); setLinkFailed(false); setResult(null);
+    setLinkBusy(true);
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/parse-ig-workout`, {
+        method:"POST",
+        headers:{ "Content-Type":"application/json", "Authorization":`Bearer ${SUPABASE_ANON}` },
+        body: JSON.stringify({ url }),
+      });
+      const data = await res.json();
+      const caption = data?.caption || data?.text || "";
+      if (caption && caption.length > 12) {
+        setLinkBusy(false);
+        // Auto-run the fact check on the fetched caption
+        await runCheck(caption);
+        return;
+      }
+      // Failed to fetch — prompt user to paste caption manually
+      setLinkBusy(false);
+      setLinkFailed(true);
+      setMode("text");
+      setError("Couldn't read that link (the platform blocked it). Paste the caption or claim text below and I'll check it.");
+    } catch {
+      setLinkBusy(false);
+      setLinkFailed(true);
+      setMode("text");
+      setError("Network error. Paste the caption text below and I'll check it.");
+    }
+  }
+
   return (
     <div style={{ marginTop:22 }}>
       <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
         ◉ CLAIM CHECKER
       </div>
       <div style={{ fontSize:11, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
-        Paste any fitness or nutrition claim from social media. We'll check it against the research.
+        Paste a fitness claim \u2014 or paste an Instagram / TikTok link and we will transcribe it before checking against the research.
+      </div>
+
+      {/* Mode tabs \u2014 TEXT vs LINK */}
+      <div style={{ display:"flex", gap:6, marginBottom:10 }}>
+        {[{id:"text", label:"TEXT"}, {id:"link", label:"LINK"}].map(m => (
+          <button key={m.id} onClick={() => { setMode(m.id); setError(null); }}
+            style={{
+              flex:1, padding:"7px 0", borderRadius:10,
+              background: mode === m.id ? ac : "transparent",
+              color: mode === m.id ? "#fff" : T.muted,
+              border:`1px solid ${mode === m.id ? ac : T.border}`,
+              fontSize:11, fontWeight:800, letterSpacing:".05em", cursor:"pointer",
+            }}>{m.label}</button>
+        ))}
       </div>
 
       {/* Input card */}
       <div style={{ background:T.card, borderRadius:18, border:`1px solid ${T.border}`, overflow:"hidden", marginBottom:12, boxShadow:T.shadowSm }}>
-        <textarea
-          value={claim} onChange={e => setClaim(e.target.value)}
-          placeholder={"e.g. \"Creatine causes hair loss\" or \"You must eat within 30 minutes of training\"…"}
-          rows={3}
-          style={{ width:"100%", boxSizing:"border-box", padding:"14px 16px", background:"transparent",
-            border:"none", outline:"none", fontSize:12, color:T.text, resize:"none",
-            fontFamily:"inherit", lineHeight:1.5 }}
-        />
+        {mode === "link" ? (
+          <input
+            value={linkUrl} onChange={e => { setLinkUrl(e.target.value); setError(null); }}
+            placeholder="Paste an Instagram / TikTok / blog link..."
+            style={{ width:"100%", boxSizing:"border-box", padding:"14px 16px", background:"transparent",
+              border:"none", outline:"none", fontSize:12.5, color:T.text,
+              fontFamily:"inherit" }}
+          />
+        ) : (
+          <textarea
+            value={claim} onChange={e => setClaim(e.target.value)}
+            placeholder={linkFailed
+              ? "Couldn\u2019t read the link \u2014 paste the caption text here instead..."
+              : "e.g. \"Creatine causes hair loss\" or \"You must eat within 30 minutes of training\"\u2026"}
+            rows={3}
+            style={{ width:"100%", boxSizing:"border-box", padding:"14px 16px", background:"transparent",
+              border:"none", outline:"none", fontSize:12, color:T.text, resize:"none",
+              fontFamily:"inherit", lineHeight:1.5 }}
+          />
+        )}
         <div style={{ padding:"8px 12px", borderTop:`1px solid ${T.border}`, display:"flex", justifyContent:"flex-end", alignItems:"center", gap:8 }}>
           {error && <div style={{ fontSize:11.5, color:"#FF3B30", flex:1 }}>{error}</div>}
           {result && (
@@ -2945,13 +3014,14 @@ Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (part
             </button>
           )}
           <motion.button whileTap={{ scale:.95 }}
-            disabled={loading || !claim.trim()} onClick={checkClaim}
+            disabled={loading || linkBusy || (mode === "link" ? !linkUrl.trim() : !claim.trim())}
+            onClick={mode === "link" ? checkLink : checkClaim}
             style={{ padding:"8px 18px", borderRadius:12, fontSize:11, fontWeight:800, cursor:"pointer",
-              background:claim.trim() ? ac : T.glass,
-              border:claim.trim() ? "none" : `1px solid ${T.border}`,
-              color:claim.trim() ? "#fff" : T.muted,
-              opacity:loading ? 0.6 : 1, letterSpacing:".01em" }}>
-            {loading ? "🔬 Checking…" : "⚡ FACT CHECK"}
+              background: (mode === "link" ? linkUrl.trim() : claim.trim()) ? ac : T.glass,
+              border: (mode === "link" ? linkUrl.trim() : claim.trim()) ? "none" : `1px solid ${T.border}`,
+              color: (mode === "link" ? linkUrl.trim() : claim.trim()) ? "#fff" : T.muted,
+              opacity: (loading || linkBusy) ? 0.6 : 1, letterSpacing:".01em" }}>
+            {linkBusy ? "🔍 Reading..." : loading ? "🔬 Checking..." : (mode === "link" ? "⚡ TRANSCRIBE & CHECK" : "⚡ FACT CHECK")}
           </motion.button>
         </div>
       </div>

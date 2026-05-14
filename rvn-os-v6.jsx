@@ -328,12 +328,18 @@ const IOS_SPRING_SLOW   = { type:"spring", stiffness:320, damping:30, mass:1.0  
 const IOS_EXIT          = { duration:0.16, ease:[0.4,0,1,1] };
 // On mobile: all entry animations are instant (no opacity:0 flash on re-render)
 const FX = isMobile ? {
-  // Mobile: animations disabled. The fade-in I tried caused a "flash of full
-  // content" before framer-motion applied initial:0 on first paint — looked
-  // worse than no animation. Static is more reliable than glitchy.
-  page:    {},
-  up:      {},
-  stagger: () => ({}),
+  // Mobile: lightweight fade animations. The "flash before animation" bug
+  // earlier was caused by elements painting at default visibility before
+  // framer-motion's initial prop kicked in. Fix: paired with `_INIT_STYLE`
+  // below that pre-applies opacity:0 at the CSS level via inline style on
+  // motion containers, so the element never paints visible before framer
+  // takes over.
+  page:    { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.28 } } },
+  up:      { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0, transition: { duration: 0.32 } } },
+  stagger: (i = 0, base = 0) => ({
+    initial: { opacity: 0, y: 4 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.3, delay: base + i * 0.05 } },
+  }),
 } : {
   page: {
     initial: { opacity:0, y:8 },
@@ -2235,6 +2241,12 @@ function GlobalStyles({ theme }) {
       ::-webkit-scrollbar-track { background:transparent; }
       ::-webkit-scrollbar-thumb { background:${T.border}; border-radius:3px; }
       ::selection { background:${T.blue}44; color:${T.text}; }
+      /* MOBILE PRE-PAINT FIX: when a motion container has this class, it's
+         hidden at the CSS level so framer-motion never has to fight the
+         browser's default paint of opacity:1. The framer animation then
+         smoothly fades the element in. Eliminates the "flash before animation"
+         that we saw on mobile when adding fade-ins. */
+      .rvn-fade-in-init { opacity: 0; }
 
       @keyframes os_scandown { 0%{top:-4%;} 100%{top:104%;} }
       @keyframes os_iris_cw  { to{transform:rotate(360deg);} }
@@ -2249,6 +2261,11 @@ function GlobalStyles({ theme }) {
       @keyframes os_spin     { to{transform:rotate(360deg);} }
       @keyframes os_spin_ccw { to{transform:rotate(-360deg);} }
       @keyframes os_neural   { 0%,100%{opacity:.18;} 50%{opacity:.38;} }
+      @keyframes splash_smoke_in {
+        0%   { opacity: 0;          transform: translate(var(--sx), var(--sy)) scale(2); }
+        20%  { opacity: var(--so);  transform: translate(var(--sx), var(--sy)) scale(1); }
+        100% { opacity: 0;          transform: translate(0, 0) scale(0.3); }
+      }
 
       @keyframes os_nad_dot  { 0%,100%{r:3;opacity:.5;} 50%{r:5.5;opacity:1;} }
       @keyframes os_nad_mol  { 0%{opacity:0;transform:translateY(0);} 25%{opacity:1;} 75%{opacity:1;} 100%{opacity:0;transform:translateY(-30px);} }
@@ -3158,6 +3175,7 @@ function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient
           ref={refProp}
           onScroll={onScroll}
           data-scroll
+          className={isMobile ? "rvn-fade-in-init" : undefined}
           style={{
             position:"absolute", inset:0, background:"transparent",
             display:"flex", flexDirection:"column",
@@ -3177,6 +3195,7 @@ function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient
       ref={refProp}
       onScroll={onScroll}
       data-scroll
+      className={isMobile ? "rvn-fade-in-init" : undefined}
       style={{
         position:"fixed", inset:0, background:T.bg,
         display:"flex", flexDirection:"column",
@@ -8864,6 +8883,42 @@ function AuthScreen({ theme, onAuth }) {
 }
 
 // ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
+// CSS-driven smoke particles. Each particle is a div with inline CSS vars that
+// drive a keyframe — no framer-motion = no mobile Safari first-paint issues.
+function SmokeParticlesCSS({ count = 55 }) {
+  const particles = React.useMemo(() => Array.from({ length: count }, (_, i) => ({
+    id: i,
+    sx: ((Math.random() - 0.5) * 900).toFixed(0) + "px",
+    sy: ((Math.random() - 0.5) * 600).toFixed(0) + "px",
+    size: (Math.random() * 3.5 + 1).toFixed(2),
+    delay: (Math.random() * 0.5).toFixed(2) + "s",
+    dur: (1.2 + Math.random() * 0.6).toFixed(2) + "s",
+    op: (0.25 + Math.random() * 0.55).toFixed(2),
+  })), [count]);
+  return (
+    <>
+      {particles.map(p => (
+        <div key={p.id} style={{
+          position: "absolute",
+          top: "50%", left: "50%",
+          width: p.size + "px", height: p.size + "px",
+          marginTop: -(parseFloat(p.size) / 2) + "px",
+          marginLeft: -(parseFloat(p.size) / 2) + "px",
+          borderRadius: "50%",
+          background: "#fff",
+          boxShadow: `0 0 ${parseFloat(p.size) * 3}px #fff`,
+          pointerEvents: "none",
+          opacity: 0,
+          "--sx": p.sx,
+          "--sy": p.sy,
+          "--so": p.op,
+          animation: `splash_smoke_in ${p.dur} ${p.delay} cubic-bezier(0.22,1,0.36,1) forwards`,
+        }}/>
+      ))}
+    </>
+  );
+}
+
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
   const [smokeVisible, setSmokeVisible] = useState(false);
@@ -8900,6 +8955,10 @@ function SplashScreen({ onDone, theme }) {
         }}
       />
       <SmokeParticles visible={smokeVisible} count={isMobile ? 18 : 55}/>
+      {/* Backup CSS particles for mobile Safari, which sometimes blocks the framer-motion ones.
+          Both fire — whichever renders first carries the visual. Zero visible duplication
+          because both converge to the same center fade-out. */}
+      {isMobile && <SmokeParticlesCSS count={22}/>}
       <motion.div
         initial={{ opacity:0, scale:0.92 }}
         animate={{ opacity:1, scale:1 }}

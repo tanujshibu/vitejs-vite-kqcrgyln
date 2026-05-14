@@ -13808,6 +13808,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               },
             ].map((opt, i) => (
               <motion.button key={opt.label}
+                data-tour-id={opt.label === "Import from Instagram" ? "ig-import" : undefined}
                 initial={{ opacity:0, x:16 }} animate={{ opacity:1, x:0 }}
                 transition={{ delay:.06 + i*.07 }}
                 whileTap={{ scale:.97 }}
@@ -14602,6 +14603,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
               {/* Meal plan link */}
               <motion.button whileTap={{ scale:.97 }} onClick={() => onMealPlan && onMealPlan()}
+                data-tour-id="ai-meal-plan"
                 style={{ width:"100%", marginBottom:14, padding:"16px 18px", borderRadius:16,
                   background:`linear-gradient(135deg, #BF5AF218, #BF5AF208)`,
                   border:`1px solid #BF5AF240`, cursor:"pointer",
@@ -18618,82 +18620,40 @@ function resetAllDemos() {
 // Each card: { icon, title, body }. icon is an emoji or short symbol (kept simple
 // so it renders identically across iOS/Android/web). title is bold lead.
 const DEMO_CARDS = {
+  // Feature-focused welcome tour — spotlights the NON-OBVIOUS capabilities of
+  // the app, not the tab labels. People can figure out what "Fuel" means;
+  // they cannot figure out that Kailu mutates the calendar from natural
+  // language or that the recipe scanner accepts Instagram links.
   welcome: [
-    { icon: "✨", title: "Welcome to RVN. Let me show you around.",
-      body: "30-second tour. Tap Next to see what each part of the app does." },
-    { icon: "◉", title: "TRAIN — your daily protocol.",
-      body: "Every workout adapts to your readiness, sleep, and recent training. Tap exercises to log sets as you go.",
-      target: '[data-tour-id="tab-train"]' },
-    { icon: "📈", title: "STATS — readiness + recovery.",
-      body: "Your Bio-Score, sleep, HRV, and soreness live here. Kailu uses these to scale your workouts automatically.",
-      target: '[data-tour-id="tab-stats"]' },
-    { icon: "◐", title: "FUEL — macros without lying to yourself.",
-      body: "Honest macro tracking with uncertainty ranges. Recipe scanner, AI meal plan, and your personalized supplement stack.",
-      target: '[data-tour-id="tab-fuel"]' },
-    { icon: "↑", title: "PROGRESS — streaks, PRs, photos.",
-      body: "Your training streak, personal records auto-detected, progress photos, and weekly recaps on Mondays.",
-      target: '[data-tour-id="tab-progress"]' },
-    { icon: "✨", title: "Kailu — your AI coach.",
-      body: "Tap this anytime to chat. Kailu remembers your injuries, goals, training history — replies like a real coach who knows you. Try: \"I just ate two eggs.\"",
+    { icon: "✨", title: "Quick tour — here is what RVN can do that other fitness apps can’t.",
+      body: "5 things you would not find on your own. 30 seconds." },
+    { icon: "🗓️", title: "Tell Kailu to schedule anything.",
+      body: 'Tap this anytime. Say "add leg day Tuesday at 7am" — Kailu confirms with a card, you tap Apply, it lands on your calendar. Same for moving or cancelling sessions.',
       target: '[data-tour-id="kailu-bubble"]' },
-    { icon: "🎯", title: "You\u2019re ready.",
-      body: "Tap any tab to start. The first time you visit each section, I will show you what is inside. Let us go." },
-  ],
-  train: [
-    { icon: "◉", title: "Your protocol, adapted daily.",
-      body: "Every workout adjusts based on your readiness, sleep, and what you trained yesterday. No cookie-cutter programs.",
-      target: '[data-tour-id="train-protocol"]' },
-    { icon: "▶", title: "Tap exercises to log sets.",
-      body: "Hit the cards as you go. Sets logged here build your streak, your PRs, and what Kailu knows about you.",
-      target: '[data-tour-id="train-exercises"]' },
-    { icon: "✨", title: "Or just tell Kailu.",
-      body: 'Say "Add cable rows to today" or "schedule legs Thursday at 7am" — Kailu confirms with a card, you tap Apply, it lands on your calendar.',
-      target: '[data-tour-id="kailu-bubble"]' },
-  ],
-  fuel: [
-    { icon: "◐", title: "Honest macro tracking.",
-      body: "Solid bar = best estimate. Lighter band = uncertainty range. Branded products read tight; homemade meals show wider bands so you see how confident the day log is.",
+    { icon: "📲", title: "Paste an Instagram / TikTok workout.",
+      body: "Found a workout you like? Paste the Reel link or caption — Kailu pulls every exercise into your protocol so you can run it tomorrow.",
+      target: '[data-tour-id="ig-import"]' },
+    { icon: "🍽️", title: "AI builds today’s meals from your macros.",
+      body: "Tap this in the Fuel tab — Kailu generates a full day of meals around your protein, carb, and fat targets. No more \"what should I eat?\"",
+      target: '[data-tour-id="ai-meal-plan"]' },
+    { icon: "◐", title: "Honest macro tracking with uncertainty bands.",
+      body: "Solid bar = best estimate. Lighter band = how confident the log is. Tight for branded products (Built Bar = 17g/130kcal exactly), wide for homemade meals.",
       target: '[data-tour-id="fuel-macros"]' },
-    { icon: "✎", title: "Log without thinking.",
-      body: "Snap a meal, paste a recipe link, or tell Kailu what you ate. The DB checks 35+ branded products first — Built Bar coconut logs as 17g/130kcal exactly.",
-      target: '[data-tour-id="fuel-scanner"]' },
-    { icon: "◈", title: "Personalized supplement stack.",
-      body: "Open Supplements and answer 7 questions. Kailu cross-references your goals, diet, budget, and allergies — gives you a real stack, not generic picks.",
+    { icon: "🧠", title: "Kailu remembers everything.",
+      body: 'Tell Kailu once about your knee injury, your wedding cut, your kid’s schedule — it pulls those facts into every reply. Mention something in March, Kailu asks about it in June.',
       target: '[data-tour-id="kailu-bubble"]' },
+    { icon: "🎯", title: "That’s the tour.",
+      body: "Tap around — you will discover more. Recipe scanner, progress photos, weekly recap, supplement protocol, NFC tap. Kailu is always one tap away." },
   ],
-  stats: [
-    { icon: "◉", title: "Readiness + recovery.",
-      body: "Readiness = today training capacity. Soreness flags fatigue. Both adjust workout intensity automatically — Kailu pulls volume back when you are red-zoned." },
-    { icon: "⌘", title: "Wearables sync here.",
-      body: "Connect Whoop, Apple Health, or Garmin — sleep, HRV, and steps stream in. Kailu uses these to personalize every reply." },
-  ],
-  progress: [
-    { icon: "↑", title: "Streaks, PRs, photos.",
-      body: "Every workout builds your training streak. PRs auto-detect. Progress photos stay private to you — useful for seeing changes you can not feel day-to-day." },
-    { icon: "📈", title: "Weekly recap on Mondays.",
-      body: "Monday morning, Kailu pulls last week sessions, average Bio-Score, and what changed. 5-second read, sets the frame for the week." },
-  ],
-  kailu: [
-    { icon: "✨", title: "Coach, not chatbot.",
-      body: "Kailu remembers your injuries, goals, and what you logged. Mention your knee in March — Kailu asks about it in June. Memory persists across every conversation." },
-    { icon: "▶", title: "What to try first.",
-      body: '• "I just ate two eggs and a banana"\n• "My left knee is sore"\n• "Add a leg day Thursday at 7am"\n• "What should I take before bed?"\n• "Build me a workout for today"' },
-    { icon: "◈", title: "Customizable voice.",
-      body: "Trainers can teach Kailu to talk in their voice — same coach feel, replies at 3am when the trainer is asleep. Set it up in TrainerHub → Coach Voice." },
-  ],
-  supplements: [
-    { icon: "◈", title: "7 questions, real stack.",
-      body: "Goals, training, sleep, caffeine, diet, budget, allergies. Three minutes. Kailu scores every supplement in the database against your answers and surfaces the best 5-7." },
-    { icon: "✨", title: "DB-first, Kailu-personalized.",
-      body: "Not LLM hallucinations. Real curated supplements with goals, diets, cautions, prices. Kailu writes the why-for-you using one Claude call — accuracy from the DB, personalization from the AI." },
-  ],
-  managerhub: [
-    { icon: "◉", title: "Coach Hub: your trainer practice.",
-      body: "Clients, voice cloning, pushed protocols, branded experience. Run your training practice from one surface." },
-    { icon: "✎", title: "Set up Coach Voice first.",
-      body: "Paste 2-3 messages you have sent clients. Kailu will mimic your tone for every client conversation. This is the trainer moat — no other app has it.",
-      target: '[data-tour-id="coach-voice-tab"]' },
-  ],
+  // Per-tab demos disabled — the welcome tour now covers the capabilities.
+  // Empty arrays make ContextualDemo render nothing (no boring intro cards).
+  train: [],
+  fuel: [],
+  stats: [],
+  progress: [],
+  kailu: [],
+  supplements: [],
+  managerhub: [],
 };
 
 // The bottom-sheet demo modal. Renders nothing if the demo has already been

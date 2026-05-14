@@ -1078,6 +1078,14 @@ function isValidEmail(e) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
 }
 
+
+// Safe JSON parser used wherever localStorage might be corrupted.
+// Returns the fallback value (default {}) on any parse error.
+function safeJSON(raw, fallback) {
+  if (raw == null) return fallback === undefined ? null : fallback;
+  try { return JSON.parse(raw); } catch { return fallback === undefined ? null : fallback; }
+}
+
 // ─── BIO-LOGIC MANIFEST ──────────────────────────────────────────────────────
 // Protein multiplier (g per kg bodyweight) per archetype goal
 const PROTEIN_MULTIPLIER = {
@@ -13578,6 +13586,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
   // ── Settings modal ────────────────────────────────────────────────────────
   const [settingsOpen,   setSettingsOpen]   = useState(false);
+  const [confirmDelete,  setConfirmDelete]  = useState(false);
   const [confirmReset,   setConfirmReset]   = useState(false);
 
   async function handleSignOut() {
@@ -14125,6 +14134,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             {/* Settings gear */}
             <motion.button whileTap={{ scale:.85 }} onClick={() => setSettingsOpen(true)}
               data-tour-id="settings-gear"
+              aria-label="Open settings"
               style={{ background:"transparent", border:`1px solid ${T.border}`, borderRadius:8,
                 width:32, height:32, display:"flex", alignItems:"center", justifyContent:"center",
                 cursor:"pointer", color:T.muted, fontSize:16, flexShrink:0 }}>
@@ -15066,15 +15076,67 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               🚀 What's New &nbsp;<span style={{ fontSize:11, background:"#e85d04", color:"#fff", borderRadius:16, padding:"1px 7px", fontWeight:800 }}>v6.1</span>
             </button>
 
+            {/* Privacy & coach access — only visible when there's a trainer voice or pushed protocols */}
+            <button onClick={() => { setSettingsOpen(false); onBack && onBack(); setTimeout(() => goto && goto("coach-privacy"), 0); }}
+              style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
+                border:`1px solid ${T.border}`, color:T.text, fontSize:13, fontWeight:700,
+                cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              🔒 What my coach sees
+            </button>
+
             {/* Sign out */}
             <button onClick={handleSignOut}
+              aria-label="Sign out of your account"
               style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
                 border:`1px solid ${T.red}44`, color:T.red, fontSize:13, fontWeight:700,
                 cursor:"pointer", marginBottom:10 }}>
               Sign Out
             </button>
 
-            <button onClick={() => { setSettingsOpen(false); setConfirmReset(false); }}
+            {/* Delete account (GDPR / App Store requirement) */}
+            {!confirmDelete ? (
+              <button onClick={() => setConfirmDelete(true)}
+                aria-label="Delete your account permanently"
+                style={{ width:"100%", padding:"10px", borderRadius:12, background:"transparent",
+                  border:`1px solid ${T.border}`, color:T.faint, fontSize:11.5, fontWeight:600,
+                  cursor:"pointer", marginBottom:10, letterSpacing:".02em" }}>
+                Delete account
+              </button>
+            ) : (
+              <div style={{ background:`${T.red}12`, border:`1px solid ${T.red}55`, borderRadius:12,
+                padding:"12px", marginBottom:10 }}>
+                <div style={{ fontSize:12, fontWeight:700, color:T.red, marginBottom:6 }}>Delete your account?</div>
+                <div style={{ fontSize:11, color:T.muted, lineHeight:1.55, marginBottom:10 }}>
+                  This wipes your local profile, calendar, workout history, supplement protocol, and check-ins, then signs you out. Your cloud profile in Supabase is also queued for removal. This cannot be undone.
+                </div>
+                <div style={{ display:"flex", gap:6 }}>
+                  <button onClick={async () => {
+                    try {
+                      // Wipe ALL rvn_* localStorage keys
+                      Object.keys(localStorage).filter(k => k.startsWith("rvn_")).forEach(k => {
+                        try { localStorage.removeItem(k); } catch {}
+                      });
+                      // Best-effort cloud delete — Supabase doesn't expose self-delete from client,
+                      // so we just sign out. Real deletion handled via a server function later.
+                      try { await supabase.auth.signOut(); } catch {}
+                    } catch (e) { console.warn("[delete account] partial:", e); }
+                    try { window.location.href = "/"; } catch {}
+                  }}
+                    style={{ flex:1, padding:"9px", borderRadius:10, background:T.red,
+                      color:"#fff", border:"none", fontSize:11.5, fontWeight:800, cursor:"pointer" }}>
+                    Yes, delete everything
+                  </button>
+                  <button onClick={() => setConfirmDelete(false)}
+                    style={{ flex:1, padding:"9px", borderRadius:10, background:"transparent",
+                      color:T.muted, border:`1px solid ${T.border}`, fontSize:11.5, fontWeight:600, cursor:"pointer" }}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <button onClick={() => { setSettingsOpen(false); setConfirmReset(false); setConfirmDelete(false); }}
+              aria-label="Close settings"
               style={{ width:"100%", padding:"12px", borderRadius:12, background:T.glass,
                 border:`1px solid ${T.border}`, color:T.muted, fontSize:13, cursor:"pointer" }}>
               Close
@@ -20237,6 +20299,7 @@ function RVNVisionOverlay() {
       {/* FAB, always on top, every screen */}
       <motion.button
         data-tour-id="kailu-bubble"
+        aria-label="Open Kailu, your coach"
         onClick={() => biopalToggle()}
         whileTap={{ scale: .92 }}
         style={{

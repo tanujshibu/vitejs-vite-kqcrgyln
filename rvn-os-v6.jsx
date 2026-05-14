@@ -328,9 +328,15 @@ const IOS_SPRING_SLOW   = { type:"spring", stiffness:320, damping:30, mass:1.0  
 const IOS_EXIT          = { duration:0.16, ease:[0.4,0,1,1] };
 // On mobile: all entry animations are instant (no opacity:0 flash on re-render)
 const FX = isMobile ? {
-  page:    {},
-  up:      {},
-  stagger: () => ({}),
+  // Mobile: lightweight fade animations only (no spring physics, no transforms).
+  // Empty objects used to kill animations entirely; that left onboarding feeling
+  // dead. A simple opacity fade keeps battery happy + makes the app feel alive.
+  page:    { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.25 } } },
+  up:      { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0, transition: { duration: 0.3 } } },
+  stagger: (i = 0, base = 0) => ({
+    initial: { opacity: 0, y: 4 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.28, delay: base + i * 0.05 } },
+  }),
 } : {
   page: {
     initial: { opacity:0, y:8 },
@@ -31476,8 +31482,11 @@ function RVNRoot() {
         const completed = localStorage.getItem("rvn_onboarding_complete") === "yes";
         const hasProfile = !!localStorage.getItem("rvn_profile");
         if (completed && hasProfile && screen === "splash") {
-          // Jump to protocol, user already onboarded, no reason to make them redo it
-          setTimeout(() => go("protocol"), 100);
+          // Let the splash animation play (3.2s) before routing — otherwise
+          // returning users see a 100ms flash and miss the brand moment.
+          // Splash also calls onDone itself at 3.2s, so this is a redundant
+          // safety net for cases where onDone path differs (e.g. ?demo= flow).
+          setTimeout(() => go("protocol"), 3400);
         }
       } catch (_) {}
     };
@@ -31800,7 +31809,15 @@ function RVNRoot() {
       <AnimatePresence mode="wait">
 
         {screen==="splash" && (
-          <SplashScreen key="splash" theme={theme} onDone={() => go("landing")}/>
+          <SplashScreen key="splash" theme={theme} onDone={() => {
+            // If the user has completed onboarding before, route to protocol;
+            // otherwise show the landing page so they can create an account.
+            try {
+              const completed = localStorage.getItem("rvn_onboarding_complete") === "yes";
+              const hasProfile = !!localStorage.getItem("rvn_profile");
+              go(completed && hasProfile ? "protocol" : "landing");
+            } catch { go("landing"); }
+          }}/>
         )}
 
         {screen==="landing" && (

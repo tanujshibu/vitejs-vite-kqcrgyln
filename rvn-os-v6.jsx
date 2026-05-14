@@ -2701,6 +2701,93 @@ function FuelRecipeScanner({ theme, T, arch }) {
   );
 }
 
+// ─── RESTAURANT MENU DATABASE ─────────────────────────────────────────────────
+// Curated menu items for common chains so Kailu recommends REAL items, not
+// hallucinated ones. Macros are approximate (within ~10%) and based on each
+// chain's published nutrition info. When a chain matches, the items are
+// injected into Kailu's prompt — she picks one that fits the user's remaining
+// macros and explains modifications. When NO chain matches, Kailu is told to
+// give macro TARGETS and ask the user to pick (no hallucinating menu items).
+const RESTAURANT_MENU_DB = [
+  { match: /chipotle/i, name: "Chipotle", items: [
+    { item: "Chicken burrito bowl (rice, beans, fajita veggies, mild + medium salsa, lettuce)", p: 45, c: 80, f: 16, cal: 670 },
+    { item: "Double chicken burrito bowl (white rice, black beans, fajita veggies, salsa, no cheese, no sour cream)", p: 75, c: 90, f: 18, cal: 800 },
+    { item: "Steak salad bowl (lettuce, fajita veggies, black beans, salsa, no cheese)", p: 40, c: 35, f: 14, cal: 430 },
+    { item: "Barbacoa burrito bowl (brown rice, pinto beans, salsa, guac, no cheese)", p: 40, c: 75, f: 25, cal: 720 },
+    { item: "Chicken bowl, no rice (double chicken, black beans, fajita veggies, salsa, guac)", p: 70, c: 35, f: 28, cal: 620 },
+  ]},
+  { match: /chick.?fil.?a/i, name: "Chick-fil-A", items: [
+    { item: "Grilled Chicken Sandwich (no bun if cutting carbs)", p: 28, c: 41, f: 6, cal: 320 },
+    { item: "Grilled Nuggets 12-ct", p: 38, c: 2, f: 5, cal: 200 },
+    { item: "Cobb Salad with grilled chicken, light dressing", p: 43, c: 23, f: 23, cal: 460 },
+    { item: "Market Salad with grilled chicken", p: 28, c: 31, f: 13, cal: 320 },
+    { item: "Spicy Deluxe Sandwich", p: 39, c: 50, f: 19, cal: 520 },
+  ]},
+  { match: /sweet\s*green/i, name: "Sweetgreen", items: [
+    { item: "Harvest Bowl (chicken, sweet potato, apple, goat cheese, wild rice)", p: 30, c: 70, f: 30, cal: 705 },
+    { item: "Kale Caesar with chicken", p: 33, c: 30, f: 25, cal: 460 },
+    { item: "Crispy Rice Bowl (chicken, no avocado, light dressing)", p: 34, c: 80, f: 18, cal: 630 },
+    { item: "Shroomami Bowl (warm portobello, chicken add-on)", p: 35, c: 60, f: 20, cal: 570 },
+  ]},
+  { match: /cava/i, name: "Cava", items: [
+    { item: "Greens + Grains bowl, double chicken, lentils, no harissa, cucumber, tomato, splash of tahini", p: 60, c: 45, f: 18, cal: 560 },
+    { item: "SuperGreens base, chicken, falafel, hummus, cucumber, lemon vinaigrette", p: 38, c: 55, f: 28, cal: 620 },
+    { item: "Grain bowl with brown rice, lamb meatballs, tomato + cucumber salad, tzatziki", p: 32, c: 75, f: 26, cal: 670 },
+  ]},
+  { match: /hawaiian\s*bros/i, name: "Hawaiian Bros", items: [
+    { item: "Huli Huli Chicken Plate (regular, with rice + mac salad)", p: 48, c: 86, f: 22, cal: 760 },
+    { item: "Molokai Chicken Plate (sweet & savory chicken, rice + mac salad)", p: 49, c: 88, f: 19, cal: 750 },
+    { item: "Mac Daddy Chicken Plate (spicy, rice + mac salad)", p: 49, c: 90, f: 32, cal: 850 },
+    { item: "Pulehu Steak Plate (rice + mac salad)", p: 44, c: 89, f: 26, cal: 800 },
+    { item: "Huli Huli Chicken Mini (one scoop rice, no mac)", p: 32, c: 56, f: 12, cal: 460 },
+    { item: "Sub steamed veggies for mac salad — saves about 250 kcal, 30g carbs, 14g fat", p: 0, c: 0, f: 0, cal: 0 },
+  ]},
+  { match: /panera/i, name: "Panera", items: [
+    { item: "Mediterranean Bowl with chicken", p: 36, c: 60, f: 16, cal: 540 },
+    { item: "Chipotle Chicken Avocado Melt (half) + Greek salad", p: 36, c: 50, f: 22, cal: 540 },
+    { item: "Green Goddess Cobb Salad with chicken", p: 41, c: 19, f: 32, cal: 530 },
+    { item: "Bistro French Onion Soup (cup) + half turkey sandwich", p: 22, c: 47, f: 14, cal: 410 },
+  ]},
+  { match: /subway/i, name: "Subway", items: [
+    { item: "Footlong Rotisserie Chicken on 9-grain, lettuce/tomato/onion/peppers, light mayo, no cheese", p: 46, c: 76, f: 11, cal: 580 },
+    { item: "6\" Turkey Breast on wheat, veggies, mustard", p: 18, c: 46, f: 4, cal: 280 },
+    { item: "Chopped salad with rotisserie chicken + double protein, vinegar/oil light", p: 50, c: 14, f: 14, cal: 380 },
+  ]},
+  { match: /starbucks/i, name: "Starbucks", items: [
+    { item: "Spinach feta egg white wrap", p: 20, c: 33, f: 8, cal: 290 },
+    { item: "Bacon gouda egg sandwich", p: 18, c: 31, f: 19, cal: 360 },
+    { item: "Protein box (cheese + fruit + egg)", p: 25, c: 39, f: 22, cal: 460 },
+    { item: "Iced coffee + 1 shot protein cold foam (no syrup)", p: 12, c: 6, f: 4, cal: 110 },
+  ]},
+  { match: /mcdonald.?s/i, name: "McDonald's", items: [
+    { item: "Grilled Chicken Sandwich (lettuce only, no mayo)", p: 28, c: 38, f: 4, cal: 300 },
+    { item: "Quarter Pounder with Cheese", p: 30, c: 42, f: 27, cal: 530 },
+    { item: "10-pc Chicken McNuggets + side salad", p: 24, c: 30, f: 22, cal: 430 },
+    { item: "Egg McMuffin", p: 17, c: 30, f: 12, cal: 300 },
+  ]},
+  { match: /shake\s*shack/i, name: "Shake Shack", items: [
+    { item: "ShackBurger single", p: 25, c: 25, f: 30, cal: 490 },
+    { item: "Chicken Bites + lettuce wrap (no fries)", p: 30, c: 18, f: 18, cal: 360 },
+  ]},
+  { match: /in.?n.?out/i, name: "In-N-Out", items: [
+    { item: "Double-Double protein style (lettuce wrap, no bun)", p: 33, c: 11, f: 41, cal: 520 },
+    { item: "Cheeseburger with grilled onions (no spread)", p: 22, c: 39, f: 25, cal: 460 },
+  ]},
+  { match: /taco\s*bell/i, name: "Taco Bell", items: [
+    { item: "Power Menu Bowl (chicken, no rice, add black beans)", p: 30, c: 35, f: 19, cal: 430 },
+    { item: "Crunchy Tacos x3 (Fresco style)", p: 24, c: 39, f: 18, cal: 420 },
+  ]},
+];
+
+function lookupRestaurantMenu(name) {
+  if (!name) return null;
+  for (const r of RESTAURANT_MENU_DB) {
+    if (r.match.test(name)) return r;
+  }
+  return null;
+}
+
+// ─── FUEL RESTAURANT MODE ─────────────────────────────────────────────────────
 function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
   const [restaurant, setRestaurant] = React.useState("");
   const [restRec, setRestRec] = React.useState(null);
@@ -2725,13 +2812,15 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
                 carbs:   Math.max(0, (profile.macroGoals?.carbs   || 250) - (profile.macroToday?.carbs   || 0)),
                 fats:    Math.max(0, (profile.macroGoals?.fats    || 70)  - (profile.macroToday?.fats    || 0)),
               };
-              const system = `You are Kailu, a fitness nutrition coach. The user is at a restaurant and tells you the name. Give them a SPECIFIC menu order that fits their remaining macros for the day. Be concrete: name the actual item from that restaurant's menu, list modifications (e.g. "no cheese, extra protein"), and quote approximate macros. Format:
-1) "Order: [specific item] with [modifications]"
-2) "Approx: [P]g protein, [C]g carbs, [F]g fat, [kcal] kcal"
-3) One short coaching note about why this fits their day.
-No fluff. No generic "choose balanced." Always pick something specific from that chain's actual menu.`;
+              const matched = lookupRestaurantMenu(restaurant);
+              const menuBlock = matched
+                ? `Here are the REAL menu items at ${matched.name} with their approximate macros:\n` +
+                  matched.items.map(i => `- ${i.item} \u2014 ${i.p}g P, ${i.c}g C, ${i.f}g F, ${i.cal} kcal`).join("\n") +
+                  `\n\nCRITICAL: Pick from THIS list ONLY. Do not invent menu items. You may suggest swaps/mods (no cheese, extra protein, sub side) but the base item must come from this list.`
+                : `You don't have a menu on file for "${restaurant}". DO NOT invent menu items \u2014 you will get the items wrong and break user trust. Instead:\n1) Acknowledge you don't have ${restaurant}'s exact menu cached\n2) Give MACRO TARGETS the user should aim for (e.g. "Aim for ~40g protein, 50g carbs, 15g fat")\n3) Suggest GENERAL categories that hit those targets (e.g. "grilled chicken protein plate with a starch side") without naming a specific item.`;
+              const system = `You are Kailu, a fitness nutrition coach. The user is at a restaurant. Give a SPECIFIC order that fits their remaining macros, OR honest macro targets if you don't know the menu.\n\n${menuBlock}\n\nFormat your reply:\n- "Order: [item] with [modifications]" (or "Aim for: [macro targets]" when no menu)\n- "Approx: [P]g protein, [C]g carbs, [F]g fat, [kcal] kcal"\n- One short coaching note about why this fits.\n\nNo fluff. No generic "choose balanced." Be honest if you don't know the menu \u2014 NEVER invent items.`;
               const user = `Restaurant: ${restaurant}. Remaining macros today: ${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat. Recommend my order.`;
-              const reply = await callClaudeAPI({ system, user, history: [], maxTokens: 240, model: "haiku" });
+              const reply = await callClaudeAPI({ system, user, history: [], maxTokens: 280, model: "haiku" });
               const out = (typeof reply === "string" && reply.trim().length > 0)
                 ? reply
                 : "Couldn't reach Kailu right now. Check your connection and try again.";

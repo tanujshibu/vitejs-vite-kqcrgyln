@@ -14786,9 +14786,20 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           );
         })()}
 
-        {/* BIO-REQUIREMENTS (price-gated) */}
+        {/* BIO-REQUIREMENTS — venue-only.
+            "Secure at counter" only makes sense when the user is physically at
+            a gym (NFC-tapped in) or running the kiosk/manager surface. For a
+            consumer at home, this UI is confusing AND violates the coach-not-
+            salesperson rule, so we hide it unless venue context is active. */}
         <AnimatePresence>
-          {logged && (
+          {logged && (() => {
+              try {
+                const vb = JSON.parse(localStorage.getItem("rvn_venue_brand") || "null");
+                const mode = localStorage.getItem("rvn_mode") || "";
+                const venueActive = localStorage.getItem("rvn_venue_active") === "yes";
+                return (vb && vb.gymName) || (venueActive && ["gym","store","smoothie"].includes(mode));
+              } catch { return false; }
+            })() && (
             <motion.div key="bioreqs"
               initial={{ opacity:0, y:32, filter:"blur(14px)" }}
               animate={{ opacity:1, y:0,  filter:"blur(0px)"  }}

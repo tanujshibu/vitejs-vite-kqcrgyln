@@ -7983,7 +7983,7 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
                 <div style={{ minWidth:0 }}>
                   <div style={{ fontSize:12.5, fontWeight:700, color:T.text }}>{s.name}</div>
                   <div style={{ fontSize:11, color:T.faint }}>
-                    {s.brand} · {s.dose} · {s.timing}
+                    {s.brand ? `${s.brand} · ` : ""}{s.dose} · {s.timing}
                   </div>
                 </div>
                 {s.price > 0 && (
@@ -8054,7 +8054,7 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
                 )}
               </div>
               <div style={{ fontSize:11, color:T.muted, marginBottom:8 }}>
-                {s.brand} · {s.dose} · {s.timing}
+                {s.brand ? `${s.brand} · ` : ""}{s.dose} · {s.timing}
               </div>
               <div style={{ fontSize:12, color:T.text, lineHeight:1.5 }}>
                 {s.personalWhy ? <><span style={{ color:ac }}>✦ </span>{s.personalWhy}</> : s.mechanism}
@@ -14256,13 +14256,64 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           </motion.div>
         )}
 
-        {/* ── POST-WORKOUT SUPPLEMENT UPSELL ───────────────────────────────── */}
+        {/* ── POST-WORKOUT SUPPLEMENT PANEL ─────────────────────────────────
+            If the user has built their personalized supplement protocol, show
+            the relevant items here. Otherwise show a "Build your protocol" CTA
+            so we are not pushing generic Thorne picks at someone who skipped it.
+            Brands are ALWAYS hidden in the consumer view — generic supplement
+            names only. Gym managers can layer their own brand recs via the
+            manager-supplements DB. */}
         {logged && !saving && !suppUpsellShown && (() => {
-          const suppSuggestions = [
-            { name:"Creatine Monohydrate", timing:"Take now — post-workout window", emoji:"⚡", tag:"RECOVERY", color:"#0A84FF" },
-            { name:"Whey Protein Isolate", timing:`${profile.macroGoals?.protein||180}g daily target — log via Kailu`, emoji:"💪", tag:"PROTEIN", color:"#FF9F0A" },
-            { name:"Magnesium Glycinate", timing:"Tonight before bed — sleep quality", emoji:"🌙", tag:"SLEEP", color:"#BF5AF2" },
-          ];
+          // Read the user's saved protocol (built via the supplement questionnaire)
+          const savedProtocol = (() => {
+            try {
+              const raw = localStorage.getItem("rvn_supplement_protocol");
+              if (!raw) return null;
+              const p = JSON.parse(raw);
+              return (p && Array.isArray(p.stack) && p.stack.length > 0) ? p : null;
+            } catch { return null; }
+          })();
+          const hasProtocol = !!savedProtocol;
+
+          // Tag color map keyed by supplement category
+          const tagFor = (cat) => {
+            const map = {
+              performance: { tag: "PERFORMANCE", color: "#0A84FF" },
+              protein:     { tag: "PROTEIN",     color: "#FF9F0A" },
+              foundation:  { tag: "FOUNDATION",  color: "#30D158" },
+              sleep:       { tag: "SLEEP",       color: "#BF5AF2" },
+              adaptogen:   { tag: "STRESS",      color: "#BF5AF2" },
+              calm:        { tag: "CALM",        color: "#5AC8FA" },
+              focus:       { tag: "FOCUS",       color: "#FF375F" },
+              nootropic:   { tag: "FOCUS",       color: "#FF375F" },
+              fat_loss:    { tag: "FAT LOSS",    color: "#FF3B30" },
+              metabolic:   { tag: "METABOLIC",   color: "#FF3B30" },
+              hydration:   { tag: "HYDRATION",   color: "#5AC8FA" },
+              joints:      { tag: "JOINTS",      color: "#C8A94A" },
+              gut:         { tag: "GUT",         color: "#30D158" },
+              vitamins:    { tag: "VITAMINS",    color: "#30D158" },
+              minerals:    { tag: "MINERALS",    color: "#30D158" },
+              hormonal:    { tag: "HORMONES",    color: "#BF5AF2" },
+            };
+            return map[cat] || { tag: "RECOVERY", color: "#0A84FF" };
+          };
+          // Emoji by category for visual scan
+          const emojiFor = (cat) => ({
+            performance: "⚡", protein: "💪", foundation: "◉", sleep: "🌙",
+            adaptogen: "🌿", calm: "○", focus: "✦", nootropic: "✦",
+            fat_loss: "◇", metabolic: "◇", hydration: "◯", joints: "◐",
+            gut: "◉", vitamins: "✚", minerals: "✚", hormonal: "○",
+          }[cat] || "◉");
+
+          // Choose top 3 most relevant items from saved protocol (or empty)
+          const items = hasProtocol
+            ? savedProtocol.stack.slice(0, 3).map(s => {
+                const t = tagFor(s.category);
+                return { name: s.name, timing: `${s.dose || ""}${s.dose && s.timing ? " · " : ""}${s.timing || ""}`,
+                         emoji: emojiFor(s.category), tag: t.tag, color: t.color };
+              })
+            : [];
+
           return (
             <motion.div initial={{ opacity:0, y:24 }} animate={{ opacity:1, y:0 }}
               transition={{ delay:.6, type:"spring", stiffness:380, damping:34 }}
@@ -14273,42 +14324,64 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               }}>
                 <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
                   <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em" }}>
-                    POST-WORKOUT PROTOCOL
+                    {hasProtocol ? "POST-WORKOUT PROTOCOL" : "BUILD YOUR PROTOCOL"}
                   </div>
                   <motion.button whileTap={{ scale:.96 }} onClick={() => setSuppUpsellShown(true)}
                     style={{ background:"transparent", border:"none", color:T.faint, fontSize:16, cursor:"pointer" }}>
                     ✕
                   </motion.button>
                 </div>
-                {suppSuggestions.map((s, i) => (
-                  <div key={i} style={{
-                    display:"flex", alignItems:"center", gap:12, padding:"10px 0",
-                    borderBottom: i < suppSuggestions.length-1 ? `1px solid ${T.border}` : "none",
-                  }}>
-                    <div style={{ fontSize:22, width:32, textAlign:"center" }}>{s.emoji}</div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{s.name}</div>
-                      <div style={{ fontSize:11.5, color:T.muted }}>{s.timing}</div>
+
+                {hasProtocol ? (
+                  <>
+                    {items.map((s, i) => (
+                      <div key={i} style={{
+                        display:"flex", alignItems:"center", gap:12, padding:"10px 0",
+                        borderBottom: i < items.length-1 ? `1px solid ${T.border}` : "none",
+                      }}>
+                        <div style={{ fontSize:22, width:32, textAlign:"center" }}>{s.emoji}</div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{s.name}</div>
+                          <div style={{ fontSize:11.5, color:T.muted, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{s.timing}</div>
+                        </div>
+                        <div style={{
+                          padding:"4px 10px", borderRadius:16,
+                          background:`${s.color}18`, border:`1px solid ${s.color}40`,
+                          fontSize:11, fontWeight:800, color:s.color, flexShrink:0,
+                        }}>
+                          {s.tag}
+                        </div>
+                      </div>
+                    ))}
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={() => { setSuppUpsellShown(true); onSupplements && onSupplements(); }}
+                      style={{
+                        width:"100%", marginTop:14, padding:"12px", borderRadius:13,
+                        background:`${arch.glow}18`, border:`1px solid ${arch.glow}40`,
+                        color:arch.glow, fontSize:12, fontWeight:600, cursor:"pointer",
+                        letterSpacing:".01em",
+                      }}>
+                      VIEW FULL SUPPLEMENT PROTOCOL →
+                    </motion.button>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.55, marginBottom:14 }}>
+                      Answer 7 quick questions — Kailu builds a personalized supplement stack from a curated DB based on your goals, diet, budget, and what you can’t take. No generic recommendations.
                     </div>
-                    <div style={{
-                      padding:"4px 10px", borderRadius:16,
-                      background:`${s.color}18`, border:`1px solid ${s.color}40`,
-                      fontSize:11, fontWeight:800, color:s.color,
-                    }}>
-                      {s.tag}
-                    </div>
-                  </div>
-                ))}
-                <motion.button whileTap={{ scale:.97 }}
-                  onClick={() => { setSuppUpsellShown(true); onSupplements && onSupplements(); }}
-                  style={{
-                    width:"100%", marginTop:14, padding:"12px", borderRadius:13,
-                    background:`${arch.glow}18`, border:`1px solid ${arch.glow}40`,
-                    color:arch.glow, fontSize:12, fontWeight:600, cursor:"pointer",
-                    letterSpacing:".01em",
-                  }}>
-                  VIEW FULL SUPPLEMENT PROTOCOL →
-                </motion.button>
+                    <motion.button whileTap={{ scale:.97 }}
+                      onClick={() => { setSuppUpsellShown(true); onSupplements && onSupplements(); }}
+                      style={{
+                        width:"100%", padding:"12px", borderRadius:13,
+                        background: arch.glow, border:"none",
+                        color: theme === "dark" ? "#000" : "#fff",
+                        fontSize:12.5, fontWeight:900, letterSpacing:".04em",
+                        textTransform:"uppercase", cursor:"pointer",
+                      }}>
+                      Build my protocol →
+                    </motion.button>
+                  </>
+                )}
               </div>
             </motion.div>
           );
@@ -18414,58 +18487,58 @@ async function callClaudeAPI({ system, user, history, maxTokens, model, imageBas
 //   inStock, source ("store"|"generic"|"manager"), mechanism (short why)
 const SUPPLEMENT_DB = [
   // ── Foundation / general health ──
-  { id:"creatine_mono",       name:"Creatine Monohydrate",     brand:"Thorne",         dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:54.99, inStock:true, source:"store",   mechanism:"ATP resynthesis — 8–14% strength gain. Most validated supplement in sports science." },
-  { id:"creatine_mono_g",     name:"Creatine Monohydrate",     brand:"Bulk Supplements",dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:18.00, inStock:false,source:"generic", mechanism:"Same molecule, ~3x cheaper. Lab-tested micronized works identically to branded." },
-  { id:"vit_d3_k2",           name:"Vitamin D3 + K2",          brand:"Thorne",         dose:"5000IU D3 + 90mcg K2", timing:"With breakfast (fatty meal)", category:"foundation", goals:["immunity","hormones","bones","general"],   diets:["all"],                       cautions:["blood_thinners"],            price:32.99, inStock:true, source:"store",   mechanism:"Most adults 30–50% deficient. K2 directs calcium to bone, not arteries. Compounding hormone benefit." },
-  { id:"omega3_fish",         name:"Super EPA Fish Oil",       brand:"Thorne",         dose:"2g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["pescatarian","omnivore"],  cautions:["blood_thinners","fish_allergy"], price:42.99, inStock:true, source:"store",   mechanism:"EPA suppresses inflammation cascade. DHA is structural for brain + retina. The single highest-value foundation supplement." },
-  { id:"omega3_algae",        name:"Algae Omega-3",            brand:"Nordic Naturals",dose:"1g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["vegan","vegetarian","all"], cautions:["blood_thinners"],           price:39.99, inStock:false,source:"generic", mechanism:"Vegan EPA+DHA from algae — the original ocean source. Sustainable + plant-based." },
-  { id:"multivitamin",        name:"Multi-Vitamin Elite",      brand:"Thorne",         dose:"6 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:49.99, inStock:true, source:"store",   mechanism:"NSF-certified, methylated B-vitamins. Covers micronutrient gaps from imperfect diet." },
-  { id:"multi_budget",        name:"Multi-Vitamin",            brand:"Now Foods",      dose:"3 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Solid budget option. Methylated B12 + folate, decent mineral spectrum." },
+  { id:"creatine_mono",       name:"Creatine Monohydrate",     brand:null,         dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:54.99, inStock:true, source:"store",   mechanism:"ATP resynthesis — 8–14% strength gain. Most validated supplement in sports science." },
+  { id:"creatine_mono_g",     name:"Creatine Monohydrate",     brand:null,dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:18.00, inStock:false,source:"generic", mechanism:"Same molecule, ~3x cheaper. Lab-tested micronized works identically to branded." },
+  { id:"vit_d3_k2",           name:"Vitamin D3 + K2",          brand:null,         dose:"5000IU D3 + 90mcg K2", timing:"With breakfast (fatty meal)", category:"foundation", goals:["immunity","hormones","bones","general"],   diets:["all"],                       cautions:["blood_thinners"],            price:32.99, inStock:true, source:"store",   mechanism:"Most adults 30–50% deficient. K2 directs calcium to bone, not arteries. Compounding hormone benefit." },
+  { id:"omega3_fish",         name:"Super EPA Fish Oil",       brand:null,         dose:"2g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["pescatarian","omnivore"],  cautions:["blood_thinners","fish_allergy"], price:42.99, inStock:true, source:"store",   mechanism:"EPA suppresses inflammation cascade. DHA is structural for brain + retina. The single highest-value foundation supplement." },
+  { id:"omega3_algae",        name:"Algae Omega-3",            brand:null,dose:"1g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["vegan","vegetarian","all"], cautions:["blood_thinners"],           price:39.99, inStock:false,source:"generic", mechanism:"Vegan EPA+DHA from algae — the original ocean source. Sustainable + plant-based." },
+  { id:"multivitamin",        name:"Multi-Vitamin Elite",      brand:null,         dose:"6 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:49.99, inStock:true, source:"store",   mechanism:"NSF-certified, methylated B-vitamins. Covers micronutrient gaps from imperfect diet." },
+  { id:"multi_budget",        name:"Multi-Vitamin",            brand:null,      dose:"3 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Solid budget option. Methylated B12 + folate, decent mineral spectrum." },
 
   // ── Sleep / recovery / stress ──
-  { id:"mag_glycinate",       name:"Magnesium Glycinate 400",  brand:"Thorne",         dose:"400mg",           timing:"30–60 min before bed", category:"sleep",      goals:["sleep","recovery","stress","muscle_relaxation"], diets:["all"],                      cautions:["kidney_disease"],            price:36.99, inStock:true, source:"store",   mechanism:"Cofactor in 300+ enzymes. Glycine form crosses blood-brain barrier — drops latency to sleep by ~17 min." },
-  { id:"mag_threonate",       name:"Magnesium L-Threonate",    brand:"Double Wood",    dose:"2g",              timing:"Before bed",           category:"sleep",      goals:["sleep","brain","stress","focus"],                diets:["all"],                      cautions:["kidney_disease"],            price:32.99, inStock:false,source:"generic", mechanism:"Penetrates brain better than glycinate. Use when sleep is fine but focus/anxiety dominates." },
-  { id:"zma",                 name:"Zinc Magnesium Aspartate", brand:"Thorne",         dose:"30mg Zn + 450mg Mg",timing:"Before bed (empty stomach)", category:"sleep", goals:["sleep","hormones","recovery","testosterone"], diets:["all"],                      cautions:["copper_deficiency_risk"],   price:38.99, inStock:true, source:"store",   mechanism:"Zinc restores test suppressed by high training volume. Magnesium drops cortisol — both peak overnight." },
-  { id:"l_theanine",          name:"L-Theanine",                brand:"Now Foods",      dose:"200mg",           timing:"With caffeine OR before bed", category:"calm",   goals:["focus","stress","sleep","caffeine_smoothing"], diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Smooths caffeine jitters, raises alpha brain waves. Calm focus without sedation." },
-  { id:"ashwagandha",         name:"Ashwagandha KSM-66",       brand:"Nutricost",      dose:"600mg",           timing:"AM or PM, with food",  category:"adaptogen",  goals:["stress","sleep","recovery","testosterone","hormones"], diets:["all"],                  cautions:["thyroid_meds","autoimmune","pregnancy"], price:19.99, inStock:false,source:"generic", mechanism:"Lowers cortisol 20–30%. Bumps testosterone 14% in stressed males. Take 8 weeks for full effect." },
-  { id:"glycine_pwd",         name:"Glycine Powder",            brand:"Bulk Supplements",dose:"3g",             timing:"Before bed",           category:"sleep",      goals:["sleep","temperature_regulation"],                diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Drops core body temp — the biological signal for sleep onset. Stacks well with magnesium." },
+  { id:"mag_glycinate",       name:"Magnesium Glycinate 400",  brand:null,         dose:"400mg",           timing:"30–60 min before bed", category:"sleep",      goals:["sleep","recovery","stress","muscle_relaxation"], diets:["all"],                      cautions:["kidney_disease"],            price:36.99, inStock:true, source:"store",   mechanism:"Cofactor in 300+ enzymes. Glycine form crosses blood-brain barrier — drops latency to sleep by ~17 min." },
+  { id:"mag_threonate",       name:"Magnesium L-Threonate",    brand:null,    dose:"2g",              timing:"Before bed",           category:"sleep",      goals:["sleep","brain","stress","focus"],                diets:["all"],                      cautions:["kidney_disease"],            price:32.99, inStock:false,source:"generic", mechanism:"Penetrates brain better than glycinate. Use when sleep is fine but focus/anxiety dominates." },
+  { id:"zma",                 name:"Zinc Magnesium Aspartate", brand:null,         dose:"30mg Zn + 450mg Mg",timing:"Before bed (empty stomach)", category:"sleep", goals:["sleep","hormones","recovery","testosterone"], diets:["all"],                      cautions:["copper_deficiency_risk"],   price:38.99, inStock:true, source:"store",   mechanism:"Zinc restores test suppressed by high training volume. Magnesium drops cortisol — both peak overnight." },
+  { id:"l_theanine",          name:"L-Theanine",                brand:null,      dose:"200mg",           timing:"With caffeine OR before bed", category:"calm",   goals:["focus","stress","sleep","caffeine_smoothing"], diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Smooths caffeine jitters, raises alpha brain waves. Calm focus without sedation." },
+  { id:"ashwagandha",         name:"Ashwagandha KSM-66",       brand:null,      dose:"600mg",           timing:"AM or PM, with food",  category:"adaptogen",  goals:["stress","sleep","recovery","testosterone","hormones"], diets:["all"],                  cautions:["thyroid_meds","autoimmune","pregnancy"], price:19.99, inStock:false,source:"generic", mechanism:"Lowers cortisol 20–30%. Bumps testosterone 14% in stressed males. Take 8 weeks for full effect." },
+  { id:"glycine_pwd",         name:"Glycine Powder",            brand:null,dose:"3g",             timing:"Before bed",           category:"sleep",      goals:["sleep","temperature_regulation"],                diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Drops core body temp — the biological signal for sleep onset. Stacks well with magnesium." },
 
   // ── Strength / muscle / performance ──
-  { id:"whey_iso",            name:"Whey Elite Hydrolyzed",    brand:"Thorne",         dose:"30g",             timing:"Within 30 min post-training", category:"protein", goals:["muscle","strength","recovery"],               diets:["omnivore","vegetarian"],    cautions:["dairy_allergy","lactose_intol"], price:68.99, inStock:true, source:"store",   mechanism:"Pre-hydrolyzed for 15-min absorption. 2x leucine threshold per scoop — triggers MPS reliably." },
-  { id:"whey_iso_g",          name:"Whey Isolate",              brand:"Optimum Nutrition",dose:"30g",         timing:"Post-training",        category:"protein",    goals:["muscle","strength","recovery"],                 diets:["omnivore","vegetarian"],    cautions:["dairy_allergy"],             price:42.99, inStock:false,source:"generic", mechanism:"Solid mainstream isolate. Lactose-stripped, ~25g protein per scoop." },
-  { id:"pea_protein",         name:"Pea + Rice Protein",       brand:"Naked Nutrition",dose:"40g",             timing:"Post-training or AM",  category:"protein",    goals:["muscle","strength","recovery"],                 diets:["vegan","vegetarian"],       cautions:[],                            price:54.99, inStock:false,source:"generic", mechanism:"Pea + rice 70:30 = complete amino profile rivaling whey. 1g leucine per scoop." },
-  { id:"beta_alanine",        name:"Beta-Alanine SR",          brand:"Thorne",         dose:"3.2g daily",      timing:"30 min pre-training",  category:"performance",goals:["endurance","high_rep_strength"],                diets:["all"],                      cautions:[],                            price:36.99, inStock:true, source:"store",   mechanism:"Carnosine loader — buffers H+ in working muscle. Adds 1–2 reps on 8–15 rep sets within 4 weeks." },
-  { id:"eaa_powder",          name:"Essential Amino Complex",  brand:"ChargedSupps",   dose:"10g",             timing:"Intra-workout",        category:"performance",goals:["muscle","preservation","endurance"],            diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Mid-session catabolism is real on long workouts or fasted training. EAAs prevent it cheaply." },
-  { id:"hmb",                 name:"HMB Free Acid 3g",         brand:"Thorne",         dose:"3g daily",        timing:"With training or AM",  category:"performance",goals:["muscle_preservation","strength"],               diets:["all"],                      cautions:[],                            price:54.99, inStock:true, source:"store",   mechanism:"Inhibits muscle protein breakdown. Most useful when training fasted or in a deficit." },
-  { id:"l_carnitine",         name:"L-Carnitine 2000",         brand:"Thorne",         dose:"2g daily",        timing:"With carb-containing meal", category:"performance", goals:["endurance","fat_loss","recovery"],         diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Shuttles fatty acids into mitochondria. Improves recovery between sessions + endurance over time." },
+  { id:"whey_iso",            name:"Whey Elite Hydrolyzed",    brand:null,         dose:"30g",             timing:"Within 30 min post-training", category:"protein", goals:["muscle","strength","recovery"],               diets:["omnivore","vegetarian"],    cautions:["dairy_allergy","lactose_intol"], price:68.99, inStock:true, source:"store",   mechanism:"Pre-hydrolyzed for 15-min absorption. 2x leucine threshold per scoop — triggers MPS reliably." },
+  { id:"whey_iso_g",          name:"Whey Isolate",              brand:null,dose:"30g",         timing:"Post-training",        category:"protein",    goals:["muscle","strength","recovery"],                 diets:["omnivore","vegetarian"],    cautions:["dairy_allergy"],             price:42.99, inStock:false,source:"generic", mechanism:"Solid mainstream isolate. Lactose-stripped, ~25g protein per scoop." },
+  { id:"pea_protein",         name:"Pea + Rice Protein",       brand:null,dose:"40g",             timing:"Post-training or AM",  category:"protein",    goals:["muscle","strength","recovery"],                 diets:["vegan","vegetarian"],       cautions:[],                            price:54.99, inStock:false,source:"generic", mechanism:"Pea + rice 70:30 = complete amino profile rivaling whey. 1g leucine per scoop." },
+  { id:"beta_alanine",        name:"Beta-Alanine SR",          brand:null,         dose:"3.2g daily",      timing:"30 min pre-training",  category:"performance",goals:["endurance","high_rep_strength"],                diets:["all"],                      cautions:[],                            price:36.99, inStock:true, source:"store",   mechanism:"Carnosine loader — buffers H+ in working muscle. Adds 1–2 reps on 8–15 rep sets within 4 weeks." },
+  { id:"eaa_powder",          name:"Essential Amino Complex",  brand:null,   dose:"10g",             timing:"Intra-workout",        category:"performance",goals:["muscle","preservation","endurance"],            diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Mid-session catabolism is real on long workouts or fasted training. EAAs prevent it cheaply." },
+  { id:"hmb",                 name:"HMB Free Acid 3g",         brand:null,         dose:"3g daily",        timing:"With training or AM",  category:"performance",goals:["muscle_preservation","strength"],               diets:["all"],                      cautions:[],                            price:54.99, inStock:true, source:"store",   mechanism:"Inhibits muscle protein breakdown. Most useful when training fasted or in a deficit." },
+  { id:"l_carnitine",         name:"L-Carnitine 2000",         brand:null,         dose:"2g daily",        timing:"With carb-containing meal", category:"performance", goals:["endurance","fat_loss","recovery"],         diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Shuttles fatty acids into mitochondria. Improves recovery between sessions + endurance over time." },
 
   // ── Energy / focus / cognition ──
-  { id:"caffeine_l_theanine", name:"Caffeine + L-Theanine",    brand:"Nootropics Depot",dose:"100mg + 200mg",  timing:"AM, NOT after 2pm",    category:"focus",      goals:["focus","energy","pre_workout"],                 diets:["all"],                      cautions:["anxiety","heart_arrhythmia","caffeine_sens"], price:24.99, inStock:false,source:"generic", mechanism:"The classic stack. 2:1 theanine:caffeine = focused energy without jitter or crash." },
-  { id:"rhodiola",            name:"Rhodiola Rosea",            brand:"Now Foods",      dose:"300–600mg",       timing:"AM, empty stomach",    category:"adaptogen",  goals:["energy","stress","focus","mental_fatigue"],     diets:["all"],                      cautions:["bipolar"],                   price:18.99, inStock:false,source:"generic", mechanism:"Adaptogen — reduces mental fatigue specifically. Works fast (days), unlike ashwagandha." },
-  { id:"lions_mane",          name:"Lion's Mane",               brand:"Real Mushrooms", dose:"1g",              timing:"AM",                   category:"nootropic",  goals:["brain","focus","nerve_health"],                 diets:["all"],                      cautions:[],                            price:29.99, inStock:false,source:"generic", mechanism:"Stimulates Nerve Growth Factor (NGF). Slow burn (weeks) — best for long-term cognitive maintenance." },
-  { id:"electrolyte_complex", name:"Electrolyte Complex",       brand:"Thorne",         dose:"1 stick in 16oz", timing:"AM + during training", category:"hydration",  goals:["energy","training","recovery"],                 diets:["all"],                      cautions:["hypertension_low_sodium"],   price:38.99, inStock:true, source:"store",   mechanism:"Optimal Na/K/Mg ratio. Sodium restores plasma volume after overnight fast — kills morning fatigue." },
+  { id:"caffeine_l_theanine", name:"Caffeine + L-Theanine",    brand:null,dose:"100mg + 200mg",  timing:"AM, NOT after 2pm",    category:"focus",      goals:["focus","energy","pre_workout"],                 diets:["all"],                      cautions:["anxiety","heart_arrhythmia","caffeine_sens"], price:24.99, inStock:false,source:"generic", mechanism:"The classic stack. 2:1 theanine:caffeine = focused energy without jitter or crash." },
+  { id:"rhodiola",            name:"Rhodiola Rosea",            brand:null,      dose:"300–600mg",       timing:"AM, empty stomach",    category:"adaptogen",  goals:["energy","stress","focus","mental_fatigue"],     diets:["all"],                      cautions:["bipolar"],                   price:18.99, inStock:false,source:"generic", mechanism:"Adaptogen — reduces mental fatigue specifically. Works fast (days), unlike ashwagandha." },
+  { id:"lions_mane",          name:"Lion's Mane",               brand:null, dose:"1g",              timing:"AM",                   category:"nootropic",  goals:["brain","focus","nerve_health"],                 diets:["all"],                      cautions:[],                            price:29.99, inStock:false,source:"generic", mechanism:"Stimulates Nerve Growth Factor (NGF). Slow burn (weeks) — best for long-term cognitive maintenance." },
+  { id:"electrolyte_complex", name:"Electrolyte Complex",       brand:null,         dose:"1 stick in 16oz", timing:"AM + during training", category:"hydration",  goals:["energy","training","recovery"],                 diets:["all"],                      cautions:["hypertension_low_sodium"],   price:38.99, inStock:true, source:"store",   mechanism:"Optimal Na/K/Mg ratio. Sodium restores plasma volume after overnight fast — kills morning fatigue." },
 
   // ── Fat loss / metabolic ──
-  { id:"thermo_complex",      name:"Thermo Complex AM",        brand:"ChargedSupps",   dose:"2 caps AM",       timing:"AM, NOT after 2pm",    category:"fat_loss",   goals:["fat_loss","energy","appetite"],                 diets:["all"],                      cautions:["anxiety","caffeine_sens","heart"], price:49.99, inStock:true, source:"store",   mechanism:"EGCG + synephrine + caffeine. Raises resting metabolic rate ~8% = 140 extra cal/day burned." },
-  { id:"berberine",           name:"Berberine HCl",            brand:"Thorne",         dose:"500mg 2–3x daily",timing:"With meals",           category:"metabolic",  goals:["fat_loss","glucose_control","cuts"],            diets:["all"],                      cautions:["diabetes_meds","pregnancy"], price:39.99, inStock:true, source:"store",   mechanism:"AMPK activator — improves insulin sensitivity. Use during cuts or with high-carb meals." },
-  { id:"green_tea_ext",       name:"Green Tea Extract (EGCG)", brand:"Now Foods",      dose:"500mg",           timing:"Pre-workout or AM",    category:"fat_loss",   goals:["fat_loss","antioxidant"],                       diets:["all"],                      cautions:["liver_disease"],             price:12.99, inStock:false,source:"generic", mechanism:"Cleaner version of thermogenic effect. Mild but stackable, low side-effect profile." },
+  { id:"thermo_complex",      name:"Thermo Complex AM",        brand:null,   dose:"2 caps AM",       timing:"AM, NOT after 2pm",    category:"fat_loss",   goals:["fat_loss","energy","appetite"],                 diets:["all"],                      cautions:["anxiety","caffeine_sens","heart"], price:49.99, inStock:true, source:"store",   mechanism:"EGCG + synephrine + caffeine. Raises resting metabolic rate ~8% = 140 extra cal/day burned." },
+  { id:"berberine",           name:"Berberine HCl",            brand:null,         dose:"500mg 2–3x daily",timing:"With meals",           category:"metabolic",  goals:["fat_loss","glucose_control","cuts"],            diets:["all"],                      cautions:["diabetes_meds","pregnancy"], price:39.99, inStock:true, source:"store",   mechanism:"AMPK activator — improves insulin sensitivity. Use during cuts or with high-carb meals." },
+  { id:"green_tea_ext",       name:"Green Tea Extract (EGCG)", brand:null,      dose:"500mg",           timing:"Pre-workout or AM",    category:"fat_loss",   goals:["fat_loss","antioxidant"],                       diets:["all"],                      cautions:["liver_disease"],             price:12.99, inStock:false,source:"generic", mechanism:"Cleaner version of thermogenic effect. Mild but stackable, low side-effect profile." },
 
   // ── Joints / connective tissue ──
-  { id:"collagen_pep",        name:"Marine Collagen Peptides", brand:"Thorne",         dose:"15g",             timing:"AM with vitamin C",    category:"joints",     goals:["joints","skin","tendon_recovery","general"],   diets:["pescatarian","omnivore"],   cautions:["fish_allergy"],              price:54.99, inStock:true, source:"store",   mechanism:"Connective tissue substrate. Take 30–60 min pre-loading exercise = 2x tendon collagen synthesis." },
-  { id:"collagen_pep_bov",    name:"Bovine Collagen",          brand:"Vital Proteins", dose:"20g",             timing:"AM with vitamin C",    category:"joints",     goals:["joints","skin","tendon_recovery"],              diets:["omnivore"],                 cautions:[],                            price:42.99, inStock:false,source:"generic", mechanism:"Same molecule from beef hide. Cheaper, neutral flavor, mixes into coffee well." },
-  { id:"glucosamine",         name:"Glucosamine Sulfate",      brand:"Now Foods",      dose:"1500mg",          timing:"With meals",           category:"joints",     goals:["joints","cartilage","aging"],                   diets:["pescatarian","omnivore"],   cautions:["shellfish_allergy"],         price:22.99, inStock:false,source:"generic", mechanism:"Cartilage building block. Most useful for >35yo lifters or anyone with existing joint complaints." },
+  { id:"collagen_pep",        name:"Marine Collagen Peptides", brand:null,         dose:"15g",             timing:"AM with vitamin C",    category:"joints",     goals:["joints","skin","tendon_recovery","general"],   diets:["pescatarian","omnivore"],   cautions:["fish_allergy"],              price:54.99, inStock:true, source:"store",   mechanism:"Connective tissue substrate. Take 30–60 min pre-loading exercise = 2x tendon collagen synthesis." },
+  { id:"collagen_pep_bov",    name:"Bovine Collagen",          brand:null, dose:"20g",             timing:"AM with vitamin C",    category:"joints",     goals:["joints","skin","tendon_recovery"],              diets:["omnivore"],                 cautions:[],                            price:42.99, inStock:false,source:"generic", mechanism:"Same molecule from beef hide. Cheaper, neutral flavor, mixes into coffee well." },
+  { id:"glucosamine",         name:"Glucosamine Sulfate",      brand:null,      dose:"1500mg",          timing:"With meals",           category:"joints",     goals:["joints","cartilage","aging"],                   diets:["pescatarian","omnivore"],   cautions:["shellfish_allergy"],         price:22.99, inStock:false,source:"generic", mechanism:"Cartilage building block. Most useful for >35yo lifters or anyone with existing joint complaints." },
 
   // ── Gut / digestion ──
-  { id:"probiotic",           name:"FloraSport Probiotic",     brand:"Thorne",         dose:"1 cap daily",     timing:"AM, empty stomach",    category:"gut",        goals:["gut","immunity","general"],                     diets:["all"],                      cautions:["severely_immunocompromised"], price:38.99, inStock:true, source:"store",   mechanism:"Strain-specific (L. plantarum, L. acidophilus). Restores microbiome diversity — base for all other supplement absorption." },
-  { id:"digestive_enzymes",   name:"Digestive Enzymes",        brand:"Now Foods",      dose:"1–2 caps",        timing:"Just before large meals",category:"gut",      goals:["digestion","bloat","absorption"],               diets:["all"],                      cautions:[],                            price:18.99, inStock:false,source:"generic", mechanism:"Use when meals are large (>40g protein) or causing bloat. Improves nutrient extraction." },
+  { id:"probiotic",           name:"FloraSport Probiotic",     brand:null,         dose:"1 cap daily",     timing:"AM, empty stomach",    category:"gut",        goals:["gut","immunity","general"],                     diets:["all"],                      cautions:["severely_immunocompromised"], price:38.99, inStock:true, source:"store",   mechanism:"Strain-specific (L. plantarum, L. acidophilus). Restores microbiome diversity — base for all other supplement absorption." },
+  { id:"digestive_enzymes",   name:"Digestive Enzymes",        brand:null,      dose:"1–2 caps",        timing:"Just before large meals",category:"gut",      goals:["digestion","bloat","absorption"],               diets:["all"],                      cautions:[],                            price:18.99, inStock:false,source:"generic", mechanism:"Use when meals are large (>40g protein) or causing bloat. Improves nutrient extraction." },
 
   // ── Women-specific ──
-  { id:"iron_bisglycinate",   name:"Iron Bisglycinate",        brand:"Thorne",         dose:"25mg",            timing:"AM, empty stomach + vit C",category:"minerals",goals:["energy","menstrual_support","general"],         diets:["all"],                      cautions:["hemochromatosis"],           price:24.99, inStock:true, source:"store",   mechanism:"Female athletes have ~3x higher iron deficiency rates. Glycinate is gentle on gut vs sulfate." },
-  { id:"vitex",               name:"Vitex (Chasteberry)",      brand:"Gaia Herbs",     dose:"400mg",           timing:"AM",                   category:"hormonal",   goals:["hormones","menstrual_support","pms"],           diets:["all"],                      cautions:["birth_control","pregnancy"], price:22.99, inStock:false,source:"generic", mechanism:"Supports progesterone in the luteal phase. Most evidence-backed herb for PMS." },
+  { id:"iron_bisglycinate",   name:"Iron Bisglycinate",        brand:null,         dose:"25mg",            timing:"AM, empty stomach + vit C",category:"minerals",goals:["energy","menstrual_support","general"],         diets:["all"],                      cautions:["hemochromatosis"],           price:24.99, inStock:true, source:"store",   mechanism:"Female athletes have ~3x higher iron deficiency rates. Glycinate is gentle on gut vs sulfate." },
+  { id:"vitex",               name:"Vitex (Chasteberry)",      brand:null,     dose:"400mg",           timing:"AM",                   category:"hormonal",   goals:["hormones","menstrual_support","pms"],           diets:["all"],                      cautions:["birth_control","pregnancy"], price:22.99, inStock:false,source:"generic", mechanism:"Supports progesterone in the luteal phase. Most evidence-backed herb for PMS." },
 
   // ── Vegan-specific ──
-  { id:"b12_methyl",          name:"Methyl B12",                brand:"Pure Encapsulations",dose:"1000mcg",     timing:"AM, under tongue",     category:"vitamins",   goals:["energy","brain","general"],                     diets:["vegan","vegetarian","all"], cautions:[],                            price:21.99, inStock:false,source:"generic", mechanism:"Vegans need supplementation — no plant B12 source. Sublingual avoids gut absorption variance." },
-  { id:"iron_plant",          name:"Plant-Based Iron",          brand:"MegaFood",       dose:"22mg",            timing:"AM + vit C",           category:"minerals",   goals:["energy","general"],                             diets:["vegan","vegetarian"],       cautions:["hemochromatosis"],           price:24.99, inStock:false,source:"generic", mechanism:"Food-state iron, gentle on gut. Critical for vegan female athletes specifically." },
+  { id:"b12_methyl",          name:"Methyl B12",                brand:null,dose:"1000mcg",     timing:"AM, under tongue",     category:"vitamins",   goals:["energy","brain","general"],                     diets:["vegan","vegetarian","all"], cautions:[],                            price:21.99, inStock:false,source:"generic", mechanism:"Vegans need supplementation — no plant B12 source. Sublingual avoids gut absorption variance." },
+  { id:"iron_plant",          name:"Plant-Based Iron",          brand:null,       dose:"22mg",            timing:"AM + vit C",           category:"minerals",   goals:["energy","general"],                             diets:["vegan","vegetarian"],       cautions:["hemochromatosis"],           price:24.99, inStock:false,source:"generic", mechanism:"Food-state iron, gentle on gut. Critical for vegan female athletes specifically." },
 ];
 
 // Read the manager-added supplement library (written from ManagerHub).

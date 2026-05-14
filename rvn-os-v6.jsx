@@ -9015,26 +9015,119 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
   const ac = arch?.color || arch?.glow || "#0A84FF";
   const archName = arch?.name || "ATHLETE";
   const streak   = streaks?.best || streaks?.session || 0;
+  // Three sharable card variants. Only info worth flexing publicly —
+  // no sleep hours, no daily protein grams, no random body metrics.
+  const [variant, setVariant] = React.useState("identity"); // identity | pr | streak
+
+  // Pull the user's best PR for the PR FLEX variant
+  const prs = profile?.prs || {};
+  const prLifts = [
+    { name: "BENCH",    value: prs.bench    || 0 },
+    { name: "SQUAT",    value: prs.squat    || 0 },
+    { name: "DEADLIFT", value: prs.deadlift || 0 },
+    { name: "OHP",      value: prs.ohp      || 0 },
+  ].filter(p => p.value > 0);
+  const topPR = prLifts.sort((a, b) => b.value - a.value)[0] || { name: "BENCH", value: 185 };
 
   const handleShare = async () => {
+    const shareTextMap = {
+      identity: `${archName} · RVN OS\nBio-Score ${bioScore}${streak ? " · " + streak + " day streak 🔥" : ""}`,
+      pr:       `New PR 🔥 ${topPR.value} lb ${topPR.name.toLowerCase()}\n${archName} · RVN OS`,
+      streak:   `${streak}-day streak 🔥\n${archName} · RVN OS`,
+    };
+    const text = shareTextMap[variant] || shareTextMap.identity;
     try {
       if (navigator.share) {
-        await navigator.share({
-          title: `${archName} · RVN OS`,
-          text:  `Bio-Score ${bioScore} | ${streak} day streak 🔥\nMy personalized training protocol.`,
-          url:   window.location.href,
-        });
+        await navigator.share({ title: `${archName} · RVN OS`, text, url: window.location.href });
         return;
       }
     } catch {}
-    // Fallback: copy to clipboard
     try {
-      await navigator.clipboard.writeText(
-        `RVN OS · ${archName}\nBio-Score ${bioScore} · ${streak} day streak 🔥\n${window.location.href}`
-      );
+      await navigator.clipboard.writeText(text + "\n" + window.location.href);
       alert("Link copied! Paste it anywhere to share.");
     } catch {}
   };
+
+  const variants = [
+    { id: "identity", label: "IDENTITY" },
+    { id: "pr",       label: "PR FLEX"  },
+    { id: "streak",   label: "STREAK"   },
+  ];
+
+  // ── CARD VARIANT 1: IDENTITY — archetype, Bio-Score, streak ──
+  const IdentityCard = (
+    <>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:22 }}>
+        <RVNLogo size={28} glow={ac}/>
+        <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac, opacity:0.7 }}>RVN OS</div>
+      </div>
+      <div style={{ marginBottom:24 }}>
+        <div style={{ fontSize:11.5, fontWeight:700, letterSpacing:".04em", color:ac, opacity:0.8, marginBottom:5 }}>ARCHETYPE</div>
+        <div style={{ fontSize:38, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1 }}>
+          {archName.toUpperCase()}
+        </div>
+        {arch?.signature && (
+          <div style={{ fontSize:11.5, color:T.muted, marginTop:8, fontStyle:"italic", lineHeight:1.45 }}>{arch.signature}</div>
+        )}
+      </div>
+      <div style={{ display:"flex", gap:12, marginBottom:18 }}>
+        <div style={{ flex:1, padding:"14px 14px", borderRadius:16, background:`${ac}10`, border:`1px solid ${ac}25` }}>
+          <div style={{ fontSize:11.5, fontWeight:600, letterSpacing:".04em", color:ac, marginBottom:6, opacity:0.85 }}>BIO-SCORE</div>
+          <div style={{ fontSize:42, fontWeight:900, color:ac, lineHeight:1 }}>{bioScore}</div>
+        </div>
+        <div style={{ flex:1, padding:"14px 14px", borderRadius:16, background:`${ac}10`, border:`1px solid ${ac}25` }}>
+          <div style={{ fontSize:11.5, fontWeight:600, letterSpacing:".04em", color:ac, marginBottom:6, opacity:0.85 }}>STREAK</div>
+          <div style={{ fontSize:42, fontWeight:900, color:ac, lineHeight:1 }}>{streak}<span style={{ fontSize:18, marginLeft:4 }}>🔥</span></div>
+        </div>
+      </div>
+    </>
+  );
+
+  // ── CARD VARIANT 2: PR FLEX — giant PR number + archetype tag ──
+  const PRCard = (
+    <>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:30 }}>
+        <RVNLogo size={28} glow={ac}/>
+        <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac, opacity:0.7 }}>NEW PR</div>
+      </div>
+      <div style={{ textAlign:"center", marginBottom:30 }}>
+        <div style={{ fontSize:13, fontWeight:800, letterSpacing:".08em", color:ac, opacity:0.85, marginBottom:6 }}>
+          {topPR.name}
+        </div>
+        <div style={{ fontSize:96, fontWeight:900, color:T.text, lineHeight:0.95, letterSpacing:"-.04em" }}>
+          {topPR.value}
+        </div>
+        <div style={{ fontSize:18, fontWeight:700, color:ac, letterSpacing:".03em", marginTop:2 }}>LB</div>
+      </div>
+      <div style={{ textAlign:"center", padding:"10px 14px", borderRadius:14, background:`${ac}12`, border:`1px solid ${ac}30` }}>
+        <div style={{ fontSize:10.5, fontWeight:700, color:ac, letterSpacing:".05em", opacity:0.8, marginBottom:3 }}>ARCHETYPE</div>
+        <div style={{ fontSize:18, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>{archName.toUpperCase()}</div>
+      </div>
+    </>
+  );
+
+  // ── CARD VARIANT 3: STREAK — giant flame + day count ──
+  const StreakCard = (
+    <>
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
+        <RVNLogo size={28} glow={ac}/>
+        <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac, opacity:0.7 }}>STREAK</div>
+      </div>
+      <div style={{ textAlign:"center", padding:"6px 0 18px" }}>
+        <div style={{ fontSize:78, lineHeight:1, marginBottom:8 }}>🔥</div>
+        <div style={{ fontSize:108, fontWeight:900, color:ac, lineHeight:0.95, letterSpacing:"-.05em" }}>{streak}</div>
+        <div style={{ fontSize:13, fontWeight:800, color:T.text, letterSpacing:".08em", marginTop:4 }}>
+          DAY STREAK
+        </div>
+      </div>
+      <div style={{ textAlign:"center", padding:"10px 14px", borderRadius:14, background:`${ac}12`, border:`1px solid ${ac}30` }}>
+        <div style={{ fontSize:10.5, fontWeight:700, color:ac, letterSpacing:".05em", opacity:0.8, marginBottom:3 }}>ARCHETYPE</div>
+        <div style={{ fontSize:18, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>{archName.toUpperCase()}</div>
+      </div>
+    </>
+  );
+
+  const activeCard = variant === "pr" ? PRCard : variant === "streak" ? StreakCard : IdentityCard;
 
   return (
     <motion.div
@@ -9046,94 +9139,54 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
         display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"center",
         padding:"24px",
+        overflowY:"auto",
       }}>
-      {/* Close */}
       <motion.button whileTap={{ scale:.95 }} onClick={onClose}
         style={{
           position:"absolute", top:20, right:20,
           background:T.glass, border:`1px solid ${T.border}`,
           borderRadius:"50%", width:36, height:36,
           display:"flex", alignItems:"center", justifyContent:"center",
-          cursor:"pointer", fontSize:16, color:T.muted,
+          cursor:"pointer", fontSize:16, color:T.muted, zIndex:2,
         }}>✕</motion.button>
 
+      {/* Variant picker chips */}
+      <div style={{ display:"flex", gap:6, marginBottom:18 }}>
+        {variants.map(v => (
+          <button key={v.id} onClick={() => setVariant(v.id)}
+            style={{
+              padding:"6px 12px", borderRadius:14,
+              background: variant === v.id ? ac : "transparent",
+              color: variant === v.id ? "#fff" : T.muted,
+              border:`1px solid ${variant === v.id ? ac : T.border}`,
+              fontSize:10.5, fontWeight:800, letterSpacing:".04em",
+              cursor:"pointer",
+            }}>{v.label}</button>
+        ))}
+      </div>
+
       {/* Card */}
-      <motion.div
-        initial={{ scale:0.88, y:20 }} animate={{ scale:1, y:0 }}
-        transition={{ delay:0.05, duration:0.4, ease:[.22,1,.36,1] }}
+      <motion.div key={variant}
+        initial={{ scale:0.92, y:14, opacity:0 }} animate={{ scale:1, y:0, opacity:1 }}
+        transition={{ duration:0.3, ease:[.22,1,.36,1] }}
         style={{
           width:"100%", maxWidth:320, borderRadius:28,
           background: theme==="dark" ? "#0E0F22" : "#ffffff",
           border:`1.5px solid ${ac}30`,
-          padding:"32px 28px 28px",
+          padding:"32px 28px 26px",
           boxShadow:`0 0 80px ${ac}25, inset 0 0 0 1px ${ac}10`,
           position:"relative", overflow:"hidden",
         }}>
-        {/* Glow layer */}
         <div style={{
           position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 90% 55% at 50% -10%, ${ac}18, transparent)`,
         }}/>
-
-        {/* Logo row */}
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:22 }}>
-          <RVNLogo size={28} glow={ac}/>
-          <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac, opacity:0.7 }}>RVN OS · PROTOCOL</div>
-        </div>
-
-        {/* Archetype */}
-        <div style={{ marginBottom:20 }}>
-          <div style={{ fontSize:11.5, fontWeight:700, letterSpacing:".04em", color:ac, opacity:0.8, marginBottom:5 }}>ARCHETYPE</div>
-          <div style={{ fontSize:34, fontWeight:900, letterSpacing:"-.03em", color:T.text, lineHeight:1 }}>
-            {archName.toUpperCase()}
-          </div>
-          {arch?.signature && (
-            <div style={{ fontSize:11, color:T.muted, marginTop:5, fontStyle:"italic" }}>{arch.signature}</div>
-          )}
-        </div>
-
-        {/* Score + Streak */}
-        <div style={{ display:"flex", gap:12, marginBottom:18 }}>
-          {[
-            { l:"BIO-SCORE", v: bioScore, suffix:"" },
-            { l:"STREAK",    v: streak,   suffix:" 🔥" },
-          ].map(item => (
-            <div key={item.l} style={{
-              flex:1, padding:"14px 14px", borderRadius:16,
-              background:`${ac}10`, border:`1px solid ${ac}25`,
-            }}>
-              <div style={{ fontSize:11.5, fontWeight:600, letterSpacing:".04em", color:ac, marginBottom:6, opacity:0.85 }}>{item.l}</div>
-              <div style={{ fontSize:38, fontWeight:900, color:ac, lineHeight:1 }}>
-                {item.v}<span style={{ fontSize:16 }}>{item.suffix}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Stats row */}
-        <div style={{ display:"flex", gap:8, marginBottom:22 }}>
-          {[
-            { l:"PROTEIN", v:`${profile?.macroGoals?.protein||180}g` },
-            { l:"SLEEP",   v:`${(profile?.sleepDays?.at?.(-1)||7.5).toFixed(1)}h` },
-            { l:"BENCH",   v:`${profile?.prs?.bench||185}` },
-          ].map(s => (
-            <div key={s.l} style={{
-              flex:1, textAlign:"center", padding:"10px 4px", borderRadius:12,
-              background:`${ac}08`, border:`1px solid ${ac}15`,
-            }}>
-              <div style={{ fontSize:7, fontWeight:600, letterSpacing:".03em", color:ac, opacity:0.65, marginBottom:4 }}>{s.l}</div>
-              <div style={{ fontSize:16, fontWeight:900, color:T.text }}>{s.v}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Footer */}
-        <div style={{ textAlign:"center", fontSize:11.5, color:T.faint, letterSpacing:".03em" }}>
-          rvnos.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+        <div style={{ position:"relative" }}>{activeCard}</div>
+        <div style={{ textAlign:"center", fontSize:11, color:T.faint, letterSpacing:".03em", marginTop:18, position:"relative" }}>
+          rvnvision.app · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
         </div>
       </motion.div>
 
-      {/* Share prompt */}
       <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2 }}
         style={{ marginTop:22, textAlign:"center", width:"100%", maxWidth:320 }}>
         <div style={{ fontSize:12, color:T.faint, marginBottom:14, letterSpacing:".04em" }}>
@@ -9148,7 +9201,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
             cursor:"pointer", letterSpacing:".01em",
             boxShadow:`0 8px 32px ${ac}44`,
           }}>
-          SHARE MY PROTOCOL →
+          SHARE →
         </motion.button>
       </motion.div>
     </motion.div>

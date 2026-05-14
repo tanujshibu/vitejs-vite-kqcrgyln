@@ -2800,8 +2800,11 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
   const matched = lookupRestaurantMenu(restaurant);
   return (
     <GlassCard theme={theme} style={{ padding:"16px", marginBottom:14 }}>
-      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:10 }}>
+      <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:4 }}>
         RESTAURANT MODE
+      </div>
+      <div style={{ fontSize:11, color:T.muted, marginBottom:10, lineHeight:1.45 }}>
+        Works at any restaurant. Major chains (Chipotle, Chick-fil-A, Cava, Hawaiian Bros, Sweetgreen, Panera + more) recognized instantly. For others, you’ll paste 3-5 menu items.
       </div>
       <div style={{ display:"flex", gap:8, marginBottom: (restaurant.trim() && !matched) ? 8 : 10 }}>
         <input value={restaurant} onChange={e => setRestaurant(e.target.value)}

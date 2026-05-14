@@ -6952,32 +6952,38 @@ function ABBioComparison({ archetypeId, theme, color }) {
 
 // ─── SMOKE PARTICLES (ported from v2 LogoReveal) ─────────────────────────────
 function SmokeParticles({ visible, count = 55 }) {
-  const particles = useMemo(() =>
-    Array.from({ length: count }, (_, i) => ({
-      id: i,
-      startX:  (Math.random() - 0.5) * 900,
-      startY:  (Math.random() - 0.5) * 600,
-      size:    Math.random() * 3.5 + 1,
-      dur:     1.2 + Math.random() * 0.6,
-      delay:   Math.random() * 0.5,
-      opacity: 0.25 + Math.random() * 0.55,
-    })), []);
+  // Switched from framer-motion to pure CSS keyframes because on mobile Safari
+  // the state-driven framer animation sometimes failed to kick in on the
+  // splash's first paint. CSS keyframes run in the browser compositor and
+  // always fire on mount — no React state, no framer-motion timing.
+  //
+  // Visual is IDENTICAL to the original: scattered white dots with glow
+  // converging to the center over ~1.5s. The `visible` prop is still accepted
+  // for backward compat but no longer needed to gate the animation.
+  const particles = React.useMemo(() => Array.from({ length: count }, (_, i) => ({
+    id: i,
+    startX:  (Math.random() - 0.5) * 900,
+    startY:  (Math.random() - 0.5) * 600,
+    size:    Math.random() * 3.5 + 1,
+    dur:     (1.2 + Math.random() * 0.6).toFixed(2) + "s",
+    delay:   (0.5 + Math.random() * 0.5).toFixed(2) + "s", // start converging after 0.5s (matches old `visible` flip)
+    opacity: 0.25 + Math.random() * 0.55,
+  })), [count]);
   return (
     <>
       {particles.map(p => (
-        <motion.div key={p.id}
-          initial={{ x: p.startX, y: p.startY, opacity: 0, scale: 2 }}
-          animate={visible
-            ? { x:0, y:0, opacity:0, scale:0.3,
-                transition: { duration: p.dur, delay: p.delay, ease: [0.22,1,0.36,1] } }
-            : { x: p.startX, y: p.startY, opacity: p.opacity, scale: 1,
-                transition: { duration: 0.01 } }
-          }
+        <div key={p.id}
           style={{
             position: "absolute", width: p.size, height: p.size, borderRadius: "50%",
             background: "#fff", top: "50%", left: "50%",
             marginTop: -(p.size/2), marginLeft: -(p.size/2),
             pointerEvents: "none", boxShadow: `0 0 ${p.size*3}px #fff`,
+            opacity: 0,
+            willChange: "transform, opacity",
+            "--sx": p.startX + "px",
+            "--sy": p.startY + "px",
+            "--so": p.opacity,
+            animation: `splash_smoke_in ${p.dur} ${p.delay} cubic-bezier(0.22,1,0.36,1) forwards`,
           }}
         />
       ))}
@@ -8856,47 +8862,6 @@ function AuthScreen({ theme, onAuth }) {
 }
 
 // ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
-// CSS-driven smoke particles. Each particle is a div with inline CSS vars that
-// drive a keyframe — no framer-motion = no mobile Safari first-paint issues.
-function SmokeParticlesCSS({ count = 55 }) {
-  const particles = React.useMemo(() => Array.from({ length: count }, (_, i) => ({
-    id: i,
-    // Narrower spread (700×400 vs 900×600) keeps particles closer to center,
-    // which makes 12 particles look denser. And smaller particle sizes (2-4px
-    // vs 1-4.5px) keep the compositor work light.
-    sx: ((Math.random() - 0.5) * 700).toFixed(0) + "px",
-    sy: ((Math.random() - 0.5) * 400).toFixed(0) + "px",
-    size: (Math.random() * 2 + 2).toFixed(2),
-    delay: (Math.random() * 0.4).toFixed(2) + "s",
-    dur: (1.4 + Math.random() * 0.5).toFixed(2) + "s",
-    op: (0.4 + Math.random() * 0.4).toFixed(2),
-  })), [count]);
-  return (
-    <>
-      {particles.map(p => (
-        <div key={p.id} style={{
-          position: "absolute",
-          top: "50%", left: "50%",
-          width: p.size + "px", height: p.size + "px",
-          marginTop: -(parseFloat(p.size) / 2) + "px",
-          marginLeft: -(parseFloat(p.size) / 2) + "px",
-          borderRadius: "50%",
-          background: "#fff",
-          // No box-shadow on mobile: with 12+ particles each glowing, the
-          // compositor choked and the animation froze mid-flight. Plain dots.
-          pointerEvents: "none",
-          opacity: 0,
-          willChange: "transform, opacity",
-          "--sx": p.sx,
-          "--sy": p.sy,
-          "--so": p.op,
-          animation: `splash_smoke_in ${p.dur} ${p.delay} cubic-bezier(0.22,1,0.36,1) forwards`,
-        }}/>
-      ))}
-    </>
-  );
-}
-
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
   const [smokeVisible, setSmokeVisible] = useState(false);
@@ -8932,13 +8897,7 @@ function SplashScreen({ onDone, theme }) {
           filter:"blur(40px)", pointerEvents:"none",
         }}
       />
-      {/* Pick ONE particle renderer based on device — running both at once on
-          mobile Safari overloaded the compositor and froze the splash mid-animation.
-          CSS particles for mobile (lightweight, native compositor), framer-motion
-          particles for desktop (richer transitions, no perf concern). */}
-      {isMobile
-        ? <SmokeParticlesCSS count={12}/>
-        : <SmokeParticles visible={smokeVisible} count={55}/>}
+      <SmokeParticles visible={smokeVisible} count={isMobile ? 18 : 55}/>
       <motion.div
         initial={{ opacity:0, scale:0.92 }}
         animate={{ opacity:1, scale:1 }}

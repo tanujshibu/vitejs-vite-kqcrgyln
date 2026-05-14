@@ -14111,6 +14111,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             </motion.button>
             {/* Settings gear */}
             <motion.button whileTap={{ scale:.85 }} onClick={() => setSettingsOpen(true)}
+              data-tour-id="settings-gear"
               style={{ background:"transparent", border:`1px solid ${T.border}`, borderRadius:8,
                 width:32, height:32, display:"flex", alignItems:"center", justifyContent:"center",
                 cursor:"pointer", color:T.muted, fontSize:16, flexShrink:0 }}>
@@ -19535,6 +19536,9 @@ const DEMO_CARDS = {
     { icon: "🤝", title: "Kailu picks up on what you mention.",
       body: 'Tell Kailu about a knee tweak, a wedding cut, your usual training days, it folds those facts into every future reply. Coaching that actually knows you, no re-explaining yourself.',
       target: '[data-tour-id="kailu-bubble"]' },
+    { icon: "🎨", title: "Make it yours.",
+      body: "Open Settings to change your accent color, switch between dark and light mode, and tweak how Kailu sounds. The app should feel like you.",
+      target: '[data-tour-id="settings-gear"]' },
     { icon: "🎯", title: "That’s the highlight reel.",
       body: "Tap around, you will keep finding things. Progress photos, weekly recap on Mondays, NFC tap-to-start workouts, GhostBar velocity tracking. Kailu is always one tap away." },
   ],

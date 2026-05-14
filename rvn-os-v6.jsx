@@ -224,7 +224,6 @@ function track(event, properties = {}) {
   }
   // Also log to console in dev
   if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
-    console.log("[RVN Analytics]", event, payload);
   }
 }
 
@@ -1071,6 +1070,13 @@ const EXERCISE_BANK = {
     { name:"Plank Row",              sets:"3x10ea", cue:"Hips square, row without rotating the torso",        ytq:"plank+row+exercise",            rest:60  },
   ],
 };
+
+
+// Reusable email validator used wherever the app gates by a real email
+function isValidEmail(e) {
+  if (!e || typeof e !== "string") return false;
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.trim());
+}
 
 // ─── BIO-LOGIC MANIFEST ──────────────────────────────────────────────────────
 // Protein multiplier (g per kg bodyweight) per archetype goal
@@ -9513,7 +9519,13 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
     } catch {}
     try {
       await navigator.clipboard.writeText(text + "\n" + window.location.href);
-      alert("Link copied! Paste it anywhere to share.");
+      try {
+        const note = document.createElement("div");
+        note.textContent = "Link copied. Paste it anywhere to share.";
+        note.style.cssText = "position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#0E0F22;color:#fff;padding:10px 16px;border-radius:14px;font-size:13px;font-weight:700;z-index:99999;border:1px solid #ffffff22;box-shadow:0 8px 28px rgba(0,0,0,0.45);";
+        document.body.appendChild(note);
+        setTimeout(() => note.remove(), 2400);
+      } catch {}
     } catch {}
   };
 
@@ -31352,7 +31364,6 @@ function RVNRoot() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js", { scope: "/" }).then(reg => {
         window.__RVN_SW = reg;
-        console.log("[RVN] Service worker registered");
       }).catch(e => console.warn("[RVN] SW register failed:", e.message));
     }
   }, []);
@@ -31515,6 +31526,14 @@ function RVNRoot() {
 
       // ── ?demo=manager, seeds a gym owner demo and routes to ManagerHub ──
       if (isDemoManager && screen === "splash") {
+        try {
+          const existing = JSON.parse(localStorage.getItem("rvn_profile") || "null");
+          if (existing && existing.email && !existing.email.startsWith("demo-") && existing.email.includes("@")) {
+            console.warn("[RVN] demo-manager seed blocked: real user profile detected");
+            try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+            return;
+          }
+        } catch {}
         const managerProfile = {
           name: "Jordan Mills", email: "demo-manager@rvnos.com",
           age: 34, gender: "male", activityLevel: "active",
@@ -31590,6 +31609,14 @@ function RVNRoot() {
       }
 
       if ((isDemoURL || isDevBypass) && screen === "splash") {
+        try {
+          const existing = JSON.parse(localStorage.getItem("rvn_profile") || "null");
+          if (existing && existing.email && !existing.email.startsWith("demo@") && existing.email.includes("@")) {
+            console.warn("[RVN] demo seed blocked: real user profile detected");
+            try { window.history.replaceState({}, "", window.location.pathname); } catch {}
+            return;
+          }
+        } catch {}
         // Seed a rich demo profile, looks like a real power user
         const demoProfile = {
           name: "Alex", email: "demo@rvnos.com",
@@ -31838,6 +31865,32 @@ function RVNRoot() {
         {screen==="trainer-hub" && (
           <TrainerHub key="trainer-hub" theme={theme}
             onBack={() => go("landing")}/>
+        )}
+
+        {screen==="coach-privacy" && (
+          <Screen key="coach-privacy" theme={theme} style={{ overflowY:"auto" }}>
+            <div style={{ position:"sticky", top:0, zIndex:10,
+              background: D[theme]?.bg, borderBottom:`1px solid ${D[theme]?.border}`,
+              padding:"14px 18px 12px", display:"flex", alignItems:"center", gap:12 }}>
+              <motion.button whileTap={{ scale:.97 }} onClick={() => go("protocol")}
+                style={{ background:"none", border:`1px solid ${D[theme]?.border}`,
+                  borderRadius:8, padding:"6px 12px", color:D[theme]?.muted,
+                  fontSize:11.5, fontWeight:600, letterSpacing:".03em", cursor:"pointer" }}>
+                ‹‹ BACK
+              </motion.button>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:11.5, fontWeight:700, color:D[theme]?.faint, letterSpacing:".04em" }}>
+                  PRIVACY & COACH ACCESS
+                </div>
+                <div style={{ fontSize:16, fontWeight:900, color:D[theme]?.text, lineHeight:1.1 }}>
+                  What my coach sees
+                </div>
+              </div>
+            </div>
+            <div style={{ padding:"18px 16px 40px" }}>
+              <WhatMyCoachSeesPanel theme={theme}/>
+            </div>
+          </Screen>
         )}
 
         {screen==="hub" && (

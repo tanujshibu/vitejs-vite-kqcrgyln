@@ -328,15 +328,12 @@ const IOS_SPRING_SLOW   = { type:"spring", stiffness:320, damping:30, mass:1.0  
 const IOS_EXIT          = { duration:0.16, ease:[0.4,0,1,1] };
 // On mobile: all entry animations are instant (no opacity:0 flash on re-render)
 const FX = isMobile ? {
-  // Mobile: lightweight fade animations only (no spring physics, no transforms).
-  // Empty objects used to kill animations entirely; that left onboarding feeling
-  // dead. A simple opacity fade keeps battery happy + makes the app feel alive.
-  page:    { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.25 } } },
-  up:      { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0, transition: { duration: 0.3 } } },
-  stagger: (i = 0, base = 0) => ({
-    initial: { opacity: 0, y: 4 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.28, delay: base + i * 0.05 } },
-  }),
+  // Mobile: animations disabled. The fade-in I tried caused a "flash of full
+  // content" before framer-motion applied initial:0 on first paint — looked
+  // worse than no animation. Static is more reliable than glitchy.
+  page:    {},
+  up:      {},
+  stagger: () => ({}),
 } : {
   page: {
     initial: { opacity:0, y:8 },
@@ -2252,18 +2249,7 @@ function GlobalStyles({ theme }) {
       @keyframes os_spin     { to{transform:rotate(360deg);} }
       @keyframes os_spin_ccw { to{transform:rotate(-360deg);} }
       @keyframes os_neural   { 0%,100%{opacity:.18;} 50%{opacity:.38;} }
-      /* Splash screen — pure CSS animations to bypass framer-motion mobile Safari quirks */
-      @keyframes splash_halo  { 0%{opacity:0;transform:scale(0.6);} 100%{opacity:0.15;transform:scale(1);} }
-      @keyframes splash_logo  { 0%{opacity:0;transform:scale(0.92);} 100%{opacity:1;transform:scale(1);} }
-      @keyframes splash_ecg   { 0%{stroke-dashoffset:1000;} 100%{stroke-dashoffset:0;} }
-      @keyframes splash_pulse { 0%,100%{opacity:0;} 30%,70%{opacity:0.25;} }
-      /* Each smoke particle starts scattered at (--sx, --sy) and converges to center.
-         Pure CSS so mobile Safari can't block the animation on first paint. */
-      @keyframes splash_smoke_in {
-        0%   { opacity: 0;          transform: translate(var(--sx), var(--sy)) scale(2); }
-        20%  { opacity: var(--so);  transform: translate(var(--sx), var(--sy)) scale(1); }
-        100% { opacity: 0;          transform: translate(0, 0) scale(0.3); }
-      }
+
       @keyframes os_nad_dot  { 0%,100%{r:3;opacity:.5;} 50%{r:5.5;opacity:1;} }
       @keyframes os_nad_mol  { 0%{opacity:0;transform:translateY(0);} 25%{opacity:1;} 75%{opacity:1;} 100%{opacity:0;transform:translateY(-30px);} }
       @keyframes os_ticker   { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
@@ -8878,99 +8864,63 @@ function AuthScreen({ theme, onAuth }) {
 }
 
 // ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
-// CSS-driven smoke particles. Each particle is a div with inline CSS vars that
-// drive a keyframe. No framer-motion = no mobile Safari first-paint issues.
-function SmokeParticlesCSS({ count = 55 }) {
-  const particles = React.useMemo(() => Array.from({ length: count }, (_, i) => ({
-    id: i,
-    sx: ((Math.random() - 0.5) * 900).toFixed(0) + "px",
-    sy: ((Math.random() - 0.5) * 600).toFixed(0) + "px",
-    size: (Math.random() * 3.5 + 1).toFixed(2),
-    delay: (Math.random() * 0.5).toFixed(2) + "s",
-    dur: (1.2 + Math.random() * 0.6).toFixed(2) + "s",
-    op: (0.25 + Math.random() * 0.55).toFixed(2),
-  })), [count]);
-  return (
-    <>
-      {particles.map(p => (
-        <div key={p.id} style={{
-          position: "absolute",
-          top: "50%", left: "50%",
-          width: p.size + "px", height: p.size + "px",
-          marginTop: -(parseFloat(p.size) / 2) + "px",
-          marginLeft: -(parseFloat(p.size) / 2) + "px",
-          borderRadius: "50%",
-          background: "#fff",
-          boxShadow: `0 0 ${parseFloat(p.size) * 3}px #fff`,
-          pointerEvents: "none",
-          opacity: 0,
-          "--sx": p.sx,
-          "--sy": p.sy,
-          "--so": p.op,
-          animation: `splash_smoke_in ${p.dur} ${p.delay} cubic-bezier(0.22,1,0.36,1) forwards`,
-        }}/>
-      ))}
-    </>
-  );
-}
-
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
+  const [smokeVisible, setSmokeVisible] = useState(false);
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
-  // Single timer — pure CSS animations handle everything else.
-  // No framer-motion in the splash because mobile Safari has repeatedly failed
-  // to trigger motion-driven transitions on the very first paint of the app.
-  // CSS keyframes always fire on first paint, no exceptions.
   useEffect(() => {
-    const t = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
-    return () => clearTimeout(t);
+    const t1 = setTimeout(() => setSmokeVisible(true), 500);
+    const t2 = setTimeout(() => onDoneRef.current && onDoneRef.current(), 3200);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
   return (
-    <div
+    <motion.div
+      key="reveal"
+      initial={{ opacity:0 }} animate={{ opacity:1 }} exit={{ opacity:0 }}
+      transition={{ duration:.4 }}
       onClick={() => onDoneRef.current?.()}
       style={{
         position:"fixed", inset:0,
         background: "#000",
         display:"flex", alignItems:"center", justifyContent:"center",
         flexDirection:"column",
+        cursor:"default",
         overflow:"hidden",
-        animation: "splash_pulse 3.2s ease-in-out forwards",
       }}>
-      {/* Smoke particles — pure CSS so mobile Safari can never block them */}
-      <SmokeParticlesCSS count={isMobile ? 22 : 55}/>
-      {/* Radial halo — pure CSS */}
-      <div style={{
-        position:"absolute", width:500, height:300, borderRadius:"50%",
-        background: "radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)",
-        filter:"blur(40px)", pointerEvents:"none",
-        animation: "splash_halo 1.8s 0.5s ease-out forwards",
-        opacity: 0,
-      }}/>
-      {/* Logo — CSS fade + scale */}
-      <div style={{
-        position:"relative", zIndex:2, display:"flex", justifyContent:"center",
-        animation: "splash_logo 0.6s 0.4s cubic-bezier(0.22,1,0.36,1) forwards",
-        opacity: 0,
-      }}>
+      <motion.div
+        initial={{ opacity:0, scale:0.6 }}
+        animate={{ opacity:0.15, scale:1 }}
+        transition={{ duration:1.8, delay:0.5, ease:"easeOut" }}
+        style={{
+          position:"absolute", width:500, height:300, borderRadius:"50%",
+          background: "radial-gradient(ellipse, rgba(255,255,255,0.3) 0%, transparent 70%)",
+          filter:"blur(40px)", pointerEvents:"none",
+        }}
+      />
+      <SmokeParticles visible={smokeVisible} count={isMobile ? 18 : 55}/>
+      <motion.div
+        initial={{ opacity:0, scale:0.92 }}
+        animate={{ opacity:1, scale:1 }}
+        transition={{ duration:0.6, delay:0.4, ease:[0.22,1,0.36,1] }}
+        style={{ position:"relative", zIndex:2, display:"flex", justifyContent:"center" }}>
         <RVNLogo size={260} glow={T.blue}/>
-      </div>
-      {/* ECG line — CSS dash animation */}
-      <div style={{
-        position:"absolute", bottom:100, left:0, right:0, height:40,
-        opacity: 0.25,
-      }}>
+      </motion.div>
+      <motion.div
+        initial={{ opacity:0 }} animate={{ opacity:0.25 }}
+        transition={{ delay:1.8, duration:0.4 }}
+        style={{ position:"absolute", bottom:100, left:0, right:0, height:40 }}>
         <svg viewBox="0 0 400 40" style={{ width:"100%", height:40 }}>
-          <polyline
+          <motion.polyline
             points="0,20 60,20 80,20 90,4 100,36 110,20 130,20 200,20 210,20 220,6 228,34 236,20 250,20 400,20"
             fill="none" stroke="#fff" strokeWidth="1"
-            strokeDasharray="1000" strokeDashoffset="1000"
-            style={{ animation: "splash_ecg 1.0s 1.9s ease-in-out forwards" }}
+            initial={{ pathLength:0 }} animate={{ pathLength:1 }}
+            transition={{ delay:1.9, duration:1.0, ease:"easeInOut" }}
           />
         </svg>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

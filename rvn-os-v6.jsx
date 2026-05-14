@@ -2721,23 +2721,26 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
             setRestScan(true);
             try {
               const remaining = {
-                protein: (profile.macroGoals?.protein || 180) - (profile.macroToday?.protein || 0),
-                carbs: (profile.macroGoals?.carbs || 250) - (profile.macroToday?.carbs || 0),
-                fats: (profile.macroGoals?.fats || 70) - (profile.macroToday?.fats || 0),
+                protein: Math.max(0, (profile.macroGoals?.protein || 180) - (profile.macroToday?.protein || 0)),
+                carbs:   Math.max(0, (profile.macroGoals?.carbs   || 250) - (profile.macroToday?.carbs   || 0)),
+                fats:    Math.max(0, (profile.macroGoals?.fats    || 70)  - (profile.macroToday?.fats    || 0)),
               };
-              const resp = await callClaudeAPI({
-                system: "You are a fitness nutrition AI. Give meal order recommendations in 2-3 sentences.",
-                user: `User is at ${restaurant}. They still need approximately ${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat today. Give them a specific meal order recommendation in 2-3 sentences.`,
-                history: [],
-                maxTokens: 200,
-                model: "claude-haiku-4-5-20251001",
-              });
-              const text = resp?.content?.[0]?.text || "Choose a balanced meal!";
-              setRestRec(text);
-              const cacheKey = "rvn_rest_" + restaurant.toLowerCase().replace(/\s/g,"");
-              try { localStorage.setItem(cacheKey, text); } catch {}
+              const system = `You are Kailu, a fitness nutrition coach. The user is at a restaurant and tells you the name. Give them a SPECIFIC menu order that fits their remaining macros for the day. Be concrete: name the actual item from that restaurant's menu, list modifications (e.g. "no cheese, extra protein"), and quote approximate macros. Format:
+1) "Order: [specific item] with [modifications]"
+2) "Approx: [P]g protein, [C]g carbs, [F]g fat, [kcal] kcal"
+3) One short coaching note about why this fits their day.
+No fluff. No generic "choose balanced." Always pick something specific from that chain's actual menu.`;
+              const user = `Restaurant: ${restaurant}. Remaining macros today: ${remaining.protein}g protein, ${remaining.carbs}g carbs, ${remaining.fats}g fat. Recommend my order.`;
+              const reply = await callClaudeAPI({ system, user, history: [], maxTokens: 240, model: "haiku" });
+              const out = (typeof reply === "string" && reply.trim().length > 0)
+                ? reply
+                : "Couldn't reach Kailu right now. Check your connection and try again.";
+              setRestRec(out);
+              const cacheKey = "rvn_rest_" + restaurant.toLowerCase().replace(/\s/g, "");
+              try { localStorage.setItem(cacheKey, out); } catch {}
             } catch (e) {
-              console.error(e);
+              console.error("[Restaurant Mode] error:", e);
+              setRestRec("Something went wrong reaching Kailu. Try again in a moment.");
             }
             setRestScan(false);
           }}

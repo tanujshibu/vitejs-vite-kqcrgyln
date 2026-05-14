@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext, useReducer, Component } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@supabase/supabase-js";
-// ─── ICON SYSTEM (inline SVG — no external dependency) ───────────────────────
+// ─── ICON SYSTEM (inline SVG, no external dependency) ───────────────────────
 const SVG_PATHS = {
   dumbbell:   "M6 8h2m8 0h2M7 12h10M6 8v4m10-4v4M2 10h4m12 0h4M2 10v.5m0-.5v.5M18 10v.5",
   barChart:   "M18 20V10M12 20V4M6 20v-6",
@@ -53,10 +53,10 @@ function LI({ n, size = 15, color = "currentColor", style = {} }) {
 // backdrop-filter blur + many simultaneous animations overwhelm mobile GPUs.
 // On mobile: disable blurs, stop infinite loops → no more flickering.
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-const BF = isMobile ? "none" : null; // blur shorthand — null means use full value
+const BF = isMobile ? "none" : null; // blur shorthand, null means use full value
 
 // ─── SUPABASE CLIENT ──────────────────────────────────────────────────────────
-// Anon key is safe to expose in the frontend — RLS policies protect all data.
+// Anon key is safe to expose in the frontend, RLS policies protect all data.
 const SUPABASE_URL  = "https://pstqlqiitylggqchkzyh.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzdHFscWlpdHlsZ2dxY2hrenloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzk1MjQsImV4cCI6MjA5MTc1NTUyNH0.7Y-ZgSjLvc6yekWOFBjQnNKVRqpK8q3Iqm4UXLI6tqA";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -115,7 +115,7 @@ async function saveRemoteProfile(userId, profile) {
 
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  LAUNCH CANDIDATE  v6.0                                      ║
+// ║  RVN OS ,  LAUNCH CANDIDATE  v6.0                                      ║
 // ║  Bio-Intelligence · Circadian Logic · Multi-Mode Architecture           ║
 // ║  Production: Data Integrity · Security · Conversion · Compliance        ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
@@ -125,18 +125,18 @@ const OS_VERSION = "6.0.0";
 const OS_BUILD   = "LAUNCH-CANDIDATE";
 
 // ─── PRODUCTION CONFIG ───────────────────────────────────────────────────────
-// Set these before deploying. Never expose secret keys here — use env vars
+// Set these before deploying. Never expose secret keys here, use env vars
 // injected at build time (Vite: import.meta.env.VITE_*).
 const RVN_PROD = {
   // HTTPS enforcement: set to true in production to hard-redirect http→https
   enforceHTTPS:    true,
   // Mixpanel project token (replace with real token at deploy)
   mixpanelToken:   (typeof import.meta !== "undefined" && import.meta.env?.VITE_MIXPANEL_TOKEN) || "YOUR_MIXPANEL_TOKEN",
-  // Resend API — called from an Edge Function, never client-side
+  // Resend API, called from an Edge Function, never client-side
   resendFromEmail: "notifications@rvnos.com",
   // Apex milestone threshold
   apexBioScoreThreshold: 85,
-  // Onboarding target (seconds) — surgical defaults enforce this
+  // Onboarding target (seconds), surgical defaults enforce this
   onboardingTargetSeconds: 120,
 };
 
@@ -157,15 +157,15 @@ const RVN_PROD = {
 })();
 
 // ─── SECURITY HELPERS ────────────────────────────────────────────────────────
-// Input sanitizer — strips HTML tags and trims whitespace.
+// Input sanitizer, strips HTML tags and trims whitespace.
 // Use on every user-supplied string before writing to Supabase.
 function sanitize(str) {
   if (typeof str !== "string") return "";
   return str.replace(/<[^>]*>/g, "").trim().slice(0, 2000);
 }
 
-// Numeric validator — ensures a value is a finite number within [min, max].
-// Use for Bio-Score, reps, velocity — never trust the client to supply valid ranges.
+// Numeric validator, ensures a value is a finite number within [min, max].
+// Use for Bio-Score, reps, velocity, never trust the client to supply valid ranges.
 function validateNum(val, min, max, fallback = null) {
   const n = Number(val);
   if (!Number.isFinite(n)) return fallback;
@@ -173,18 +173,18 @@ function validateNum(val, min, max, fallback = null) {
   return n;
 }
 
-// Bio-Score validator — always re-derive on the server from raw biometrics,
+// Bio-Score validator, always re-derive on the server from raw biometrics,
 // never accept a client-submitted score directly.
 function validateBioScore(score) {
   return validateNum(score, 0, 100, 0);
 }
 
-// Workout set validator — ensures set/rep/velocity data is within athletic ranges.
+// Workout set validator, ensures set/rep/velocity data is within athletic ranges.
 function validateSetData({ reps, weight, velocityMs }) {
   return {
     reps:       validateNum(reps,       0,  200,  0),
     weight:     validateNum(weight,     0, 2000,  0),   // kg
-    velocityMs: validateNum(velocityMs, 0,    5,  null), // m/s — valid VBT range
+    velocityMs: validateNum(velocityMs, 0,    5,  null), // m/s, valid VBT range
   };
 }
 
@@ -209,7 +209,7 @@ function initMixpanel() {
   document.head.appendChild(script);
 }
 
-// track() — call anywhere. Safe before Mixpanel loads; queues events.
+// track(), call anywhere. Safe before Mixpanel loads; queues events.
 function track(event, properties = {}) {
   const payload = {
     ...properties,
@@ -235,9 +235,9 @@ function identifyUser(userId, traits = {}) {
   }
 }
 
-// ─── TYPOGRAPHY — Precision Sans 2026 (Apple-meets-Biotech) ─────────────────
+// ─── TYPOGRAPHY, Precision Sans 2026 (Apple-meets-Biotech) ─────────────────
 // Primary stack: SF Pro Display → system-ui → Inter
-// Stark, geometric, zero decoration — same stack Apple ships in every device
+// Stark, geometric, zero decoration, same stack Apple ships in every device
 const FONT_SANS  = `"SF Pro Display","SF Pro Text",system-ui,-apple-system,BlinkMacSystemFont,"Helvetica Neue","Inter",sans-serif`;
 // Monospace for biometric readouts, HRV numbers, scores
 const FONT_MONO  = `"SF Mono","Fira Code","Menlo","Roboto Mono",monospace`;
@@ -247,28 +247,28 @@ const FONT_LABEL = `"SF Pro Display","SF Compact Display","Helvetica Neue Conden
 const FONT_SERIF = FONT_SANS;
 const FONT_WORD  = FONT_SANS;
 
-// ─── DESIGN TOKENS ── Pure neutral base — accent color is the ONLY color ──────
+// ─── DESIGN TOKENS ── Pure neutral base, accent color is the ONLY color ──────
 const D = {
   dark: {
     id: "dark",
-    // Pure black base — no tints, no navy, nothing competing with accent color
-    bg:        "#000000",          // True black — same as Instagram dark
+    // Pure black base, no tints, no navy, nothing competing with accent color
+    bg:        "#000000",          // True black, same as Instagram dark
     bgDeep:    "#000000",
     bgMid:     "#0D0D0D",          // One step above black, zero tint
     bgBlur:    "rgba(0,0,0,0.92)",
-    // Cards: #1C1C1E on #000000 — same elevation Apple Health uses, visible without border
+    // Cards: #1C1C1E on #000000, same elevation Apple Health uses, visible without border
     glass:     "#1C1C1E",             // Solid card surface, clearly above pure black
     glassMid:  "#2C2C2E",             // Second elevation level
-    glassHi:   "#3A3A3C",             // Third elevation — modals, popovers
+    glassHi:   "#3A3A3C",             // Third elevation, modals, popovers
     border:    "rgba(255,255,255,0.08)",
     borderHi:  "rgba(255,255,255,0.16)",
     borderInner:"rgba(255,255,255,0.04)",
-    // Pure white text hierarchy — no blue cast
+    // Pure white text hierarchy, no blue cast
     text:      "#FFFFFF",
     dim:       "rgba(255,255,255,0.60)",
     muted:     "rgba(255,255,255,0.38)",
     faint:     "rgba(255,255,255,0.20)",
-    // System accent colors — only used for semantic states, never decoration
+    // System accent colors, only used for semantic states, never decoration
     blue:      "#0A84FF",
     gold:      "#C8A94A",
     green:     "#30D158",
@@ -276,7 +276,7 @@ const D = {
     purple:    "#BF5AF2",
     teal:      "#64D2FF",
     orange:    "#FF9F0A",
-    // Card surface: Apple's systemBackground elevated — pure neutral
+    // Card surface: Apple's systemBackground elevated, pure neutral
     card:      "#1C1C1E",
     ghost:     "rgba(255,255,255,0.06)",
     scanline:  "rgba(0,0,0,0)",
@@ -287,24 +287,24 @@ const D = {
   },
   light: {
     id: "light",
-    // Pure white base — same Instagram logic applied to light mode
+    // Pure white base, same Instagram logic applied to light mode
     bg:        "#FAFAFA",          // Instagram's exact light bg
     bgDeep:    "#FFFFFF",
     bgMid:     "#F2F2F7",          // Apple's grouped table background
     bgBlur:    "rgba(250,250,250,0.94)",
-    // #FFFFFF card on #FAFAFA bg — pure white card, visible without any border
+    // #FFFFFF card on #FAFAFA bg, pure white card, visible without any border
     glass:     "#FFFFFF",
     glassMid:  "#F2F2F7",
     glassHi:   "#FFFFFF",
     border:    "rgba(0,0,0,0.06)",
     borderHi:  "rgba(0,0,0,0.12)",
     borderInner:"rgba(255,255,255,0.80)",
-    // Pure black text hierarchy — no blue cast
+    // Pure black text hierarchy, no blue cast
     text:      "#000000",
     dim:       "rgba(0,0,0,0.60)",
     muted:     "rgba(0,0,0,0.38)",
     faint:     "rgba(0,0,0,0.20)",
-    // System accent colors — light-mode safe
+    // System accent colors, light-mode safe
     blue:      "#007AFF",
     gold:      "#A07820",
     green:     "#34C759",
@@ -377,7 +377,7 @@ function getBioScoreForecast(currentScore, doneThisWeek) {
   const delta      = projected - currentScore;
   const trend      = delta >= 4 ? "up" : delta <= -4 ? "down" : "steady";
   const msgs = {
-    up:     `On your current streak, your bio-score should reach ${projected} by end of week — keep it going.`,
+    up:     `On your current streak, your bio-score should reach ${projected} by end of week, keep it going.`,
     steady: `You're holding strong at ${currentScore}. One more session could push you to ~${projected}.`,
     down:   `If you miss another session, your score could dip to ${projected}. One workout puts you right back on track.`,
   };
@@ -397,18 +397,18 @@ function getVelocityNarrative(velocityLog) {
   const peak  = Math.max(...speeds);
   const peakIdx = speeds.indexOf(peak) + 1;
   if (drop >= 25) return {
-    headline: "Your body hit its limit — in a good way.",
-    detail:   `Speed dropped ${drop}% from your first rep to your last. That kind of drop means you fully loaded the muscle — exactly what drives growth. Plan an extra rest day before hitting this movement again.`,
+    headline: "Your body hit its limit, in a good way.",
+    detail:   `Speed dropped ${drop}% from your first rep to your last. That kind of drop means you fully loaded the muscle, exactly what drives growth. Plan an extra rest day before hitting this movement again.`,
     icon: "⚡", color: "#FF9F0A",
   };
   if (drop >= 10) return {
     headline: "Solid session. Load was right.",
-    detail:   `You peaked around rep ${peakIdx}. Speed fell ${drop}% through the session — healthy fatigue that tells us the weight was dialed in. Try adding 5% more next time.`,
+    detail:   `You peaked around rep ${peakIdx}. Speed fell ${drop}% through the session, healthy fatigue that tells us the weight was dialed in. Try adding 5% more next time.`,
     icon: "◉", color: "#30D158",
   };
   return {
     headline: "You had more in the tank.",
-    detail:   `Speed only dropped ${drop}% — your body wasn't fully pushed today. Try bumping the weight or adding a set next session to get more out of it.`,
+    detail:   `Speed only dropped ${drop}%, your body wasn't fully pushed today. Try bumping the weight or adding a set next session to get more out of it.`,
     icon: "◈", color: "#0A84FF",
   };
 }
@@ -441,7 +441,7 @@ function getArchetypeEvolution(archetypeId, sessionCount) {
   return {
     sessions: sessionCount,
     next,
-    message: `You've knocked out ${sessionCount} sessions on this plan. Your body has probably adapted — athletes who level up at this point usually break through to new results.`,
+    message: `You've knocked out ${sessionCount} sessions on this plan. Your body has probably adapted, athletes who level up at this point usually break through to new results.`,
   };
 }
 
@@ -491,7 +491,7 @@ function getCircadianWorkoutWarning() {
   if (h >= 5 && h < 8) return {
     level: "prime", icon: "◉", color: "#30D158",
     title: "Prime Window Open",
-    msg:   "Your cortisol is at its natural daily peak right now — the best possible time for heavy lifting. Make the most of it.",
+    msg:   "Your cortisol is at its natural daily peak right now, the best possible time for heavy lifting. Make the most of it.",
   };
   return null;
 }
@@ -504,7 +504,7 @@ function getSupplementTimingNote(biology) {
   };
   if (bottleneck === "fog" && h >= 5 && h < 10) return {
     icon: "⬡", color: "#30D158",
-    msg: "This is the best window for your focus supplements — your brain chemistry is most receptive right now.",
+    msg: "This is the best window for your focus supplements, your brain chemistry is most receptive right now.",
   };
   return null;
 }
@@ -572,17 +572,17 @@ const GYM_ARCHETYPES = [
     signature:"Shoulder-to-waist ratio dominance. The elite visual signature.",
     aiLine:  "Your back and shoulders are warmed up and ready. Today's a good day to push the weight.",
     narrative:[
-      "The V-Taper is the #1 most noticeable physique change you can make. Wide shoulders and a narrow waist literally make you look bigger, stronger, and more athletic — even in a t-shirt.",
-      "We're training your lats — the big muscles under your arms that create wing-like width. When they grow, your waist looks smaller even if it hasn't changed. That's the visual trick.",
-      "Protein within 20-30 minutes after your workout is critical. Think of it as the window where your muscles are literally waiting to rebuild — miss it and you lose up to 40% of the session's growth potential.",
+      "The V-Taper is the #1 most noticeable physique change you can make. Wide shoulders and a narrow waist literally make you look bigger, stronger, and more athletic, even in a t-shirt.",
+      "We're training your lats, the big muscles under your arms that create wing-like width. When they grow, your waist looks smaller even if it hasn't changed. That's the visual trick.",
+      "Protein within 20-30 minutes after your workout is critical. Think of it as the window where your muscles are literally waiting to rebuild, miss it and you lose up to 40% of the session's growth potential.",
     ],
-    cardio:  { type:"Incline LISS Walk", desc:"35 min @ 3.5mph, 8% grade", why:"Elevated lat elongation under sustained load — zero recovery cost" },
+    cardio:  { type:"Incline LISS Walk", desc:"35 min @ 3.5mph, 8% grade", why:"Elevated lat elongation under sustained load, zero recovery cost" },
     exercises:[
-      { name:"Weighted Wide-Grip Pull-Up",   sets:"5×6",  cue:"Drive elbows to hip — think 'protect your armpits'", ytq:"weighted+wide+pull+up", rest:180 },
+      { name:"Weighted Wide-Grip Pull-Up",   sets:"5×6",  cue:"Drive elbows to hip, think 'protect your armpits'", ytq:"weighted+wide+pull+up", rest:180 },
       { name:"Meadows Row",                  sets:"4×10", cue:"Lead with elbow, retract scapula hard at top",        ytq:"meadows+row+form",      rest:120 },
-      { name:"Cable Lat Pullover (Rope)",    sets:"3×15", cue:"Full overhead stretch — feel the deformation",        ytq:"cable+lat+pullover",    rest:90  },
-      { name:"Incline Y-Raise",              sets:"4×15", cue:"Thumbs up, reach forward — lower trap activation",    ytq:"incline+y+raise",       rest:90  },
-      { name:"Bradford Press",               sets:"3×12", cue:"Continuous arc — medial delt ignition",               ytq:"bradford+press",        rest:120 },
+      { name:"Cable Lat Pullover (Rope)",    sets:"3×15", cue:"Full overhead stretch, feel the deformation",        ytq:"cable+lat+pullover",    rest:90  },
+      { name:"Incline Y-Raise",              sets:"4×15", cue:"Thumbs up, reach forward, lower trap activation",    ytq:"incline+y+raise",       rest:90  },
+      { name:"Bradford Press",               sets:"3×12", cue:"Continuous arc, medial delt ignition",               ytq:"bradford+press",        rest:120 },
     ],
   },
   {
@@ -596,17 +596,17 @@ const GYM_ARCHETYPES = [
     signature:"Six-pack segmentation + oblique tie-in. The anatomy that stops rooms.",
     aiLine:  "Your body is actively burning fat right now. You just need to cut through the last layer covering your abs.",
     narrative:[
-      "Abs are made in the kitchen AND the gym. You already have abs — the goal is burning the layer of fat covering them. This protocol hits both at the same time.",
+      "Abs are made in the kitchen AND the gym. You already have abs, the goal is burning the layer of fat covering them. This protocol hits both at the same time.",
       "The side ab muscles (obliques) are what give you that 'carved' look between your ribs and hip. Most people skip these. We don't.",
       "L-Carnitine is basically a fat shuttle. It grabs stored fat cells and drives them into your muscles to be burned as energy. Take it 45 minutes before training for maximum effect.",
     ],
-    cardio:  { type:"Sprint Intervals", desc:"8×200m @ 90% effort, 90s rest", why:"Maximum EPOC response — 36hr post-session fat oxidation elevation" },
+    cardio:  { type:"Sprint Intervals", desc:"8×200m @ 90% effort, 90s rest", why:"Maximum EPOC response, 36hr post-session fat oxidation elevation" },
     exercises:[
-      { name:"Ab Wheel Rollout",              sets:"4×12",  cue:"Hollow body — ribs down, pelvis tucked under", ytq:"ab+wheel+rollout", rest:90  },
-      { name:"Hanging Leg Raise (Weighted)",  sets:"4×10",  cue:"Tuck your hips at the top — don't just lift legs", ytq:"hanging+leg+raise+weighted", rest:120 },
-      { name:"Cable Woodchop (High to Low)",  sets:"3×15ea",cue:"Rotate from obliques — arms are just levers",         ytq:"cable+woodchop+obliques", rest:90 },
-      { name:"Stomach Vacuum Hold",           sets:"5×25s", cue:"deep core squeeze — pull navel to spine, breathe",     ytq:"stomach+vacuum+technique", rest:60  },
-      { name:"Decline Weighted Crunch",       sets:"4×15",  cue:"Slow 3-second eccentric — time under tension",       ytq:"decline+weighted+crunch", rest:90  },
+      { name:"Ab Wheel Rollout",              sets:"4×12",  cue:"Hollow body, ribs down, pelvis tucked under", ytq:"ab+wheel+rollout", rest:90  },
+      { name:"Hanging Leg Raise (Weighted)",  sets:"4×10",  cue:"Tuck your hips at the top, don't just lift legs", ytq:"hanging+leg+raise+weighted", rest:120 },
+      { name:"Cable Woodchop (High to Low)",  sets:"3×15ea",cue:"Rotate from obliques, arms are just levers",         ytq:"cable+woodchop+obliques", rest:90 },
+      { name:"Stomach Vacuum Hold",           sets:"5×25s", cue:"deep core squeeze, pull navel to spine, breathe",     ytq:"stomach+vacuum+technique", rest:60  },
+      { name:"Decline Weighted Crunch",       sets:"4×15",  cue:"Slow 3-second eccentric, time under tension",       ytq:"decline+weighted+crunch", rest:90  },
     ],
   },
   {
@@ -618,19 +618,19 @@ const GYM_ARCHETYPES = [
     muscles: ["Chest","Quadriceps","Trapezius","Overall Muscle Density"],
     bioScore:88,
     signature:"The kind of mass that reads across a room. Presence protocol.",
-    aiLine:  "Your body is ready to add real size. Everything is lined up — hit the weights and it'll show.",
+    aiLine:  "Your body is ready to add real size. Everything is lined up, hit the weights and it'll show.",
     narrative:[
-      "There's a difference between looking big and looking powerful. This protocol builds the kind of dense, heavy muscle that makes people move out of your way — not just gym selfie muscle.",
-      "We're targeting the deepest muscle fibers — the ones that make muscles feel hard and look 3D rather than soft and flat. Heavy compound movements with controlled tempo are the only way to get there.",
-      "Creatine is the single most researched supplement in history. 5g a day literally makes your muscles produce more energy during heavy lifting — most people see 5-10% strength gains within 2 weeks.",
+      "There's a difference between looking big and looking powerful. This protocol builds the kind of dense, heavy muscle that makes people move out of your way, not just gym selfie muscle.",
+      "We're targeting the deepest muscle fibers, the ones that make muscles feel hard and look 3D rather than soft and flat. Heavy compound movements with controlled tempo are the only way to get there.",
+      "Creatine is the single most researched supplement in history. 5g a day literally makes your muscles produce more energy during heavy lifting, most people see 5-10% strength gains within 2 weeks.",
     ],
-    cardio:  { type:"Prowler Push (Heavy)", desc:"6×30m with 3-min recovery", why:"Lower body power output without spinal compression — zero interference with primary lifts" },
+    cardio:  { type:"Prowler Push (Heavy)", desc:"6×30m with 3-min recovery", why:"Lower body power output without spinal compression, zero interference with primary lifts" },
     exercises:[
-      { name:"Paused Low-Bar Squat",         sets:"5×5", cue:"3s pause in the hole — eliminate stretch reflex",    ytq:"low+bar+squat+pause", rest:240 },
-      { name:"Incline Barbell Press (3ct)",  sets:"5×6", cue:"3-count descent — touch lower chest line",           ytq:"incline+barbell+press+technique", rest:200 },
-      { name:"Trap Bar Deadlift",            sets:"4×6", cue:"Push the floor away — not a pull movement",          ytq:"trap+bar+deadlift+form", rest:240 },
-      { name:"Heavy Dumbbell Shrug",         sets:"4×15",cue:"Hold 2s at peak — full trap stretch at bottom",      ytq:"heavy+dumbbell+shrug", rest:90  },
-      { name:"Leg Press Full ROM",           sets:"4×15",cue:"Heels elevated, full depth — VMO bias",              ytq:"leg+press+full+range", rest:120 },
+      { name:"Paused Low-Bar Squat",         sets:"5×5", cue:"3s pause in the hole, eliminate stretch reflex",    ytq:"low+bar+squat+pause", rest:240 },
+      { name:"Incline Barbell Press (3ct)",  sets:"5×6", cue:"3-count descent, touch lower chest line",           ytq:"incline+barbell+press+technique", rest:200 },
+      { name:"Trap Bar Deadlift",            sets:"4×6", cue:"Push the floor away, not a pull movement",          ytq:"trap+bar+deadlift+form", rest:240 },
+      { name:"Heavy Dumbbell Shrug",         sets:"4×15",cue:"Hold 2s at peak, full trap stretch at bottom",      ytq:"heavy+dumbbell+shrug", rest:90  },
+      { name:"Leg Press Full ROM",           sets:"4×15",cue:"Heels elevated, full depth, VMO bias",              ytq:"leg+press+full+range", rest:120 },
     ],
   },
   {
@@ -642,19 +642,19 @@ const GYM_ARCHETYPES = [
     muscles: ["Full Kinetic Chain","Fast-Twitch Fibers","Cardiovascular System","Neural Drive"],
     bioScore:91,
     signature:"Fast, imposing, capable. The physique that matches its own energy.",
-    aiLine:  "You're built to be fast and strong at the same time. Most people pick one — you don't have to.",
+    aiLine:  "You're built to be fast and strong at the same time. Most people pick one, you don't have to.",
     narrative:[
       "The Athletic Performance protocol is the synthesis of all physical attributes. Enough structural mass to command presence, low enough body fat to reveal every muscular line, and athletic output that justifies the aesthetic.",
-      "Olympic lifting derivatives develop the explosive power that separates 'strong' from 'athletic' — the ability to produce maximum force in minimum time.",
+      "Olympic lifting derivatives develop the explosive power that separates 'strong' from 'athletic', the ability to produce maximum force in minimum time.",
       "This protocol's demands require comprehensive amino acid support. EAAs during training preserve muscle during the high-volume conditioning blocks, while creatine powers the heavy strength segments.",
     ],
     cardio:  { type:"Assault Bike MAX Intervals", desc:"10×30s full-out, 90s float", why:"Highest caloric burn per minute of any conditioning modality. Full-body systemic stress." },
     exercises:[
-      { name:"Power Clean",                  sets:"5×4", cue:"Triple extension — ankle, knee, hip in sequence",    ytq:"power+clean+technique", rest:240 },
-      { name:"Box Jump (Weighted Vest)",     sets:"4×6", cue:"Land soft — absorb don't bounce",                   ytq:"weighted+box+jump", rest:180 },
-      { name:"Romanian Deadlift",            sets:"4×10",cue:"Push hips back, not down — hamstring stretch",       ytq:"rdl+form", rest:120 },
+      { name:"Power Clean",                  sets:"5×4", cue:"Triple extension, ankle, knee, hip in sequence",    ytq:"power+clean+technique", rest:240 },
+      { name:"Box Jump (Weighted Vest)",     sets:"4×6", cue:"Land soft, absorb don't bounce",                   ytq:"weighted+box+jump", rest:180 },
+      { name:"Romanian Deadlift",            sets:"4×10",cue:"Push hips back, not down, hamstring stretch",       ytq:"rdl+form", rest:120 },
       { name:"Weighted Dip",                 sets:"4×10",cue:"Forward lean = chest. Upright = triceps. Your call.", ytq:"weighted+dips+technique", rest:120 },
-      { name:"Farmer's Carry (Max Load)",    sets:"4×40m",cue:"Pack scaps, tall spine — walk with purpose",        ytq:"heavy+farmers+carry", rest:90  },
+      { name:"Farmer's Carry (Max Load)",    sets:"4×40m",cue:"Pack scaps, tall spine, walk with purpose",        ytq:"heavy+farmers+carry", rest:90  },
     ],
   },
   // ── NEW MEN'S ARCHETYPES ─────────────────────────────────────────────────────
@@ -669,17 +669,17 @@ const GYM_ARCHETYPES = [
     signature:"The most visual muscles. Built for every shirt you own.",
     aiLine:  "Arms and chest show results faster than any other muscle. You'll notice the difference in the mirror first.",
     narrative:[
-      "Chest and arms are the most noticed muscles in everyday life — and the most trainable for visible results in under 8 weeks. This protocol targets both pushing and pulling to create balanced, full-looking upper arms.",
+      "Chest and arms are the most noticed muscles in everyday life, and the most trainable for visible results in under 8 weeks. This protocol targets both pushing and pulling to create balanced, full-looking upper arms.",
       "The key to chest growth most people miss is the mind-muscle connection. If you feel it in your shoulders, you're doing it wrong. We give you specific cues to lock into the pec during every rep.",
-      "Creatine is the reason your bench press goes up. It refills the energy your muscles burn in the first 6 seconds of a max-effort set — the exact rep range that builds the most chest.",
+      "Creatine is the reason your bench press goes up. It refills the energy your muscles burn in the first 6 seconds of a max-effort set, the exact rep range that builds the most chest.",
     ],
-    cardio:  { type:"Cable Crossover Finisher", desc:"3 sets to failure after main session", why:"Constant tension keeps chest engorged through training — maximizes pump-driven hypertrophy" },
+    cardio:  { type:"Cable Crossover Finisher", desc:"3 sets to failure after main session", why:"Constant tension keeps chest engorged through training, maximizes pump-driven hypertrophy" },
     exercises:[
-      { name:"Flat Barbell Bench Press",      sets:"5×8",  cue:"Touch lower chest, elbows at 45° — full pec stretch", ytq:"barbell+bench+press+form",   rest:180 },
-      { name:"Incline Dumbbell Fly",          sets:"4×12", cue:"Big arc, feel the stretch — don't just squeeze at top", ytq:"incline+dumbbell+fly",       rest:90  },
-      { name:"EZ-Bar Preacher Curl",          sets:"4×12", cue:"Full stretch at bottom — don't let it drop dead",       ytq:"preacher+curl+form",         rest:90  },
-      { name:"Overhead Tricep Extension",     sets:"4×15", cue:"Elbows in, reach back — long head gets a full stretch", ytq:"overhead+tricep+extension",  rest:75  },
-      { name:"Cable Hammer Curl (Rope)",      sets:"3×15", cue:"Neutral grip, slow eccentric — arm thickness",      ytq:"cable+hammer+curl",          rest:60  },
+      { name:"Flat Barbell Bench Press",      sets:"5×8",  cue:"Touch lower chest, elbows at 45°, full pec stretch", ytq:"barbell+bench+press+form",   rest:180 },
+      { name:"Incline Dumbbell Fly",          sets:"4×12", cue:"Big arc, feel the stretch, don't just squeeze at top", ytq:"incline+dumbbell+fly",       rest:90  },
+      { name:"EZ-Bar Preacher Curl",          sets:"4×12", cue:"Full stretch at bottom, don't let it drop dead",       ytq:"preacher+curl+form",         rest:90  },
+      { name:"Overhead Tricep Extension",     sets:"4×15", cue:"Elbows in, reach back, long head gets a full stretch", ytq:"overhead+tricep+extension",  rest:75  },
+      { name:"Cable Hammer Curl (Rope)",      sets:"3×15", cue:"Neutral grip, slow eccentric, arm thickness",      ytq:"cable+hammer+curl",          rest:60  },
     ],
   },
   {
@@ -691,19 +691,19 @@ const GYM_ARCHETYPES = [
     muscles: ["Quadriceps","Chest","Back Muscles","Lower Back"],
     bioScore:90,
     signature:"Numbers on the bar. The only metric that matters.",
-    aiLine:  "Your max lift is going up. Consistent heavy training is the only variable — and you're already on it.",
+    aiLine:  "Your max lift is going up. Consistent heavy training is the only variable, and you're already on it.",
     narrative:[
-      "Powerlifting is built around three lifts — squat, bench, deadlift. Every accessory movement in this protocol exists to make those three numbers go up. Nothing extra, nothing wasted.",
+      "Powerlifting is built around three lifts, squat, bench, deadlift. Every accessory movement in this protocol exists to make those three numbers go up. Nothing extra, nothing wasted.",
       "Heavy compound training recruits more muscle fibers in a single set than any machine ever built. The neural demand alone changes your body composition before your muscles visibly grow.",
       "Creatine phosphate is the fuel source for max 1-3 rep efforts. Loading your muscles with creatine monohydrate is non-negotiable for this protocol. 5g daily. That's all it takes.",
     ],
-    cardio:  { type:"Prowler Push (Moderate)", desc:"5×20m moderate load, 3-min rest", why:"Leg drive stimulus without spinal load — keeps the back muscles fresh for primary lifts" },
+    cardio:  { type:"Prowler Push (Moderate)", desc:"5×20m moderate load, 3-min rest", why:"Leg drive stimulus without spinal load, keeps the back muscles fresh for primary lifts" },
     exercises:[
-      { name:"Competition Squat (Low Bar)",   sets:"5×3",  cue:"Brace before you breathe — belt doesn't replace a brace", ytq:"low+bar+squat+powerlifting", rest:300 },
-      { name:"Paused Bench Press",            sets:"5×5",  cue:"1s pause on chest — removes leg drive, pure pressing strength", ytq:"paused+bench+press",     rest:240 },
-      { name:"Conventional Deadlift",         sets:"4×3",  cue:"Lat engagement before you pull — protect the lower back",  ytq:"conventional+deadlift+form", rest:300 },
-      { name:"Close-Grip Bench Press",        sets:"3×8",  cue:"Elbows in — builds tricep lockout strength for your main bench", ytq:"close+grip+bench+press", rest:180 },
-      { name:"Bulgarian Split Squat",         sets:"3×10", cue:"Front foot forward — glute-biased not quad-biased",         ytq:"bulgarian+split+squat",      rest:120 },
+      { name:"Competition Squat (Low Bar)",   sets:"5×3",  cue:"Brace before you breathe, belt doesn't replace a brace", ytq:"low+bar+squat+powerlifting", rest:300 },
+      { name:"Paused Bench Press",            sets:"5×5",  cue:"1s pause on chest, removes leg drive, pure pressing strength", ytq:"paused+bench+press",     rest:240 },
+      { name:"Conventional Deadlift",         sets:"4×3",  cue:"Lat engagement before you pull, protect the lower back",  ytq:"conventional+deadlift+form", rest:300 },
+      { name:"Close-Grip Bench Press",        sets:"3×8",  cue:"Elbows in, builds tricep lockout strength for your main bench", ytq:"close+grip+bench+press", rest:180 },
+      { name:"Bulgarian Split Squat",         sets:"3×10", cue:"Front foot forward, glute-biased not quad-biased",         ytq:"bulgarian+split+squat",      rest:120 },
     ],
   },
   {
@@ -717,17 +717,17 @@ const GYM_ARCHETYPES = [
     signature:"Strip the layer. Reveal what was always there.",
     aiLine:  "Your body is in fat-burning mode right now. Keep the intensity up and it stays that way all day.",
     narrative:[
-      "Fat loss is a hormonal game, not just a calorie game. The right training style keeps your metabolism elevated for 24+ hours after the session ends — this protocol does exactly that.",
-      "HIIT combined with heavy compound work triggers more fat-burning hormones than steady-state cardio alone. We do both — strategically sequenced so one enhances the other.",
+      "Fat loss is a hormonal game, not just a calorie game. The right training style keeps your metabolism elevated for 24+ hours after the session ends, this protocol does exactly that.",
+      "HIIT combined with heavy compound work triggers more fat-burning hormones than steady-state cardio alone. We do both, strategically sequenced so one enhances the other.",
       "L-Carnitine is the molecule that physically carries fat into the furnace. Without it, mobilized fat just floats back into storage. Take it 30 minutes before training and the fat your body releases actually gets burned.",
     ],
-    cardio:  { type:"HIIT Treadmill Sprints", desc:"10×30s sprint / 60s walk, 3% incline", why:"Maximum EPOC response — post-workout fat burning elevated for up to 24 hours" },
+    cardio:  { type:"HIIT Treadmill Sprints", desc:"10×30s sprint / 60s walk, 3% incline", why:"Maximum EPOC response, post-workout fat burning elevated for up to 24 hours" },
     exercises:[
-      { name:"Barbell Deadlift",              sets:"4×8",  cue:"Full body tension — highest caloric demand of any lift",    ytq:"deadlift+form+beginners",    rest:120 },
-      { name:"Dumbbell Thrusters",            sets:"4×12", cue:"Squat drives the press — one fluid movement, max metabolic stress", ytq:"dumbbell+thrusters+form", rest:90 },
-      { name:"Battle Rope Slams",             sets:"4×30s",cue:"Full body — every fiber firing at once",                    ytq:"battle+rope+slams",          rest:60  },
-      { name:"Cable Pull-Through",            sets:"3×15", cue:"Hip hinge, not squat — hamstring and glute drive",          ytq:"cable+pull+through+form",    rest:75  },
-      { name:"Box Jump",                      sets:"5×6",  cue:"Full hip extension at top — not just getting your feet up", ytq:"box+jump+technique",         rest:90  },
+      { name:"Barbell Deadlift",              sets:"4×8",  cue:"Full body tension, highest caloric demand of any lift",    ytq:"deadlift+form+beginners",    rest:120 },
+      { name:"Dumbbell Thrusters",            sets:"4×12", cue:"Squat drives the press, one fluid movement, max metabolic stress", ytq:"dumbbell+thrusters+form", rest:90 },
+      { name:"Battle Rope Slams",             sets:"4×30s",cue:"Full body, every fiber firing at once",                    ytq:"battle+rope+slams",          rest:60  },
+      { name:"Cable Pull-Through",            sets:"3×15", cue:"Hip hinge, not squat, hamstring and glute drive",          ytq:"cable+pull+through+form",    rest:75  },
+      { name:"Box Jump",                      sets:"5×6",  cue:"Full hip extension at top, not just getting your feet up", ytq:"box+jump+technique",         rest:90  },
     ],
   },
   {
@@ -739,19 +739,19 @@ const GYM_ARCHETYPES = [
     muscles: ["Chest","Back","Core","Scapular Stabilizers","Triceps"],
     bioScore:85,
     signature:"No machines. No excuses. Just you and gravity.",
-    aiLine:  "No machines, no excuses — and no ceiling either. The harder moves will always be there waiting for you.",
+    aiLine:  "No machines, no excuses, and no ceiling either. The harder moves will always be there waiting for you.",
     narrative:[
-      "Calisthenics builds a different kind of muscle — one that actually has to perform. Every exercise requires total body coordination, which fires more muscle fibers and burns more calories than isolated machine work.",
+      "Calisthenics builds a different kind of muscle, one that actually has to perform. Every exercise requires total body coordination, which fires more muscle fibers and burns more calories than isolated machine work.",
       "The progression in calisthenics is limitless. Once a regular push-up is easy, there are archer push-ups, then planche push-ups. Each level is harder than most gym exercises. Your ceiling doesn't exist.",
       "Joint health is everything here. Collagen peptides and omega-3s keep the elbows, wrists, and shoulders durable enough to handle the lever work this protocol demands as you progress.",
     ],
     cardio:  { type:"Ring Circuit", desc:"4 rounds: L-sit 20s / ring row ×10 / ring dip ×8", why:"Stabilizer recruitment and active recovery at the same time" },
     exercises:[
-      { name:"Weighted Pull-Up",              sets:"5×8",  cue:"Dead hang start — full range, chin over bar",               ytq:"weighted+pull+up+form",      rest:150 },
-      { name:"Archer Push-Up",                sets:"4×8ea",cue:"Straight arm on the side — shoulder loaded in a new angle", ytq:"archer+push+up+tutorial",    rest:90  },
-      { name:"L-Sit Hold (Parallel Bars)",    sets:"5×20s",cue:"Depress shoulders fully — compress the hips up hard",       ytq:"l+sit+tutorial+parallel+bars",rest:60  },
-      { name:"Planche Lean",                  sets:"4×30s",cue:"Lean forward on straight arms — protract the scapula",      ytq:"planche+lean+progression",   rest:90  },
-      { name:"Pistol Squat Progression",      sets:"4×6ea",cue:"Heel weighted, full depth — control the descent",           ytq:"pistol+squat+progression",   rest:90  },
+      { name:"Weighted Pull-Up",              sets:"5×8",  cue:"Dead hang start, full range, chin over bar",               ytq:"weighted+pull+up+form",      rest:150 },
+      { name:"Archer Push-Up",                sets:"4×8ea",cue:"Straight arm on the side, shoulder loaded in a new angle", ytq:"archer+push+up+tutorial",    rest:90  },
+      { name:"L-Sit Hold (Parallel Bars)",    sets:"5×20s",cue:"Depress shoulders fully, compress the hips up hard",       ytq:"l+sit+tutorial+parallel+bars",rest:60  },
+      { name:"Planche Lean",                  sets:"4×30s",cue:"Lean forward on straight arms, protract the scapula",      ytq:"planche+lean+progression",   rest:90  },
+      { name:"Pistol Squat Progression",      sets:"4×6ea",cue:"Heel weighted, full depth, control the descent",           ytq:"pistol+squat+progression",   rest:90  },
     ],
   },
 ];
@@ -771,15 +771,15 @@ const FEMALE_GYM_ARCHETYPES = [
     narrative:[
       "Glute architecture is the single highest-impact physique variable for the female form. Volume, roundness, and the gluteal shelf are each independently trainable.",
       "Hip thrust peak contraction outperforms squats for glutes activation by 40%. This protocol is sequenced to maximize glute-hamstring connection.",
-      "Collagen peptides pre-workout support connective tissue remodeling in the hip complex — directly relevant to both performance and aesthetic outcomes.",
+      "Collagen peptides pre-workout support connective tissue remodeling in the hip complex, directly relevant to both performance and aesthetic outcomes.",
     ],
     cardio:  { type:"StairMaster Glute Focus", desc:"25 min, lean forward, drive through heel", why:"Direct back muscles engagement with zero quad bias" },
     exercises:[
-      { name:"Barbell Hip Thrust",            sets:"5x10", cue:"Drive hips through full extension — squeeze hard at top", ytq:"barbell+hip+thrust+form", rest:90 },
-      { name:"Romanian Deadlift",             sets:"4x10", cue:"Push hips back, feel hamstring stretch — not a back exercise", ytq:"rdl+form+glutes", rest:90 },
-      { name:"Cable Kickback",                sets:"3x15ea",cue:"Squeeze at peak, don't swing — slow eccentric", ytq:"cable+kickback+glutes", rest:60 },
-      { name:"Sumo Goblet Squat",             sets:"4x12", cue:"Wide stance, toes out — inner glute activation", ytq:"sumo+goblet+squat", rest:75 },
-      { name:"Banded Lateral Walk",           sets:"3x20ea",cue:"Band above knees, stay low — glute med activation", ytq:"banded+lateral+walk", rest:60 },
+      { name:"Barbell Hip Thrust",            sets:"5x10", cue:"Drive hips through full extension, squeeze hard at top", ytq:"barbell+hip+thrust+form", rest:90 },
+      { name:"Romanian Deadlift",             sets:"4x10", cue:"Push hips back, feel hamstring stretch, not a back exercise", ytq:"rdl+form+glutes", rest:90 },
+      { name:"Cable Kickback",                sets:"3x15ea",cue:"Squeeze at peak, don't swing, slow eccentric", ytq:"cable+kickback+glutes", rest:60 },
+      { name:"Sumo Goblet Squat",             sets:"4x12", cue:"Wide stance, toes out, inner glute activation", ytq:"sumo+goblet+squat", rest:75 },
+      { name:"Banded Lateral Walk",           sets:"3x20ea",cue:"Band above knees, stay low, glute med activation", ytq:"banded+lateral+walk", rest:60 },
     ],
   },
   {
@@ -790,20 +790,20 @@ const FEMALE_GYM_ARCHETYPES = [
     glow:    "#C8A94A",
     muscles: ["Side Shoulders","Obliques","Side Glutes","Outer Ribs"],
     bioScore:78,
-    signature:"Shoulder-to-waist-to-hip ratio — the classic feminine silhouette.",
-    aiLine:  "Your body is built for this shape. Shoulders wider, waist tighter — that's engineering, not luck.",
+    signature:"Shoulder-to-waist-to-hip ratio, the classic feminine silhouette.",
+    aiLine:  "Your body is built for this shape. Shoulders wider, waist tighter, that's engineering, not luck.",
     narrative:[
       "The hourglass silhouette is created by widening the shoulders, defining the waist, and rounding the hips. These are three independently trainable variables.",
       "Lateral delt width is the most underutilized tool in female physique development. A 2cm addition to shoulder width creates 4x the visual waist-narrowing effect.",
-      "Magnesium glycinate supports the parasympathetic activation needed for cortisol regulation — essential for waist definition and preventing upper-body water retention.",
+      "Magnesium glycinate supports the parasympathetic activation needed for cortisol regulation, essential for waist definition and preventing upper-body water retention.",
     ],
     cardio:  { type:"Rowing Machine", desc:"20 min moderate pace", why:"Shoulder + core activation without bulk-inducing load" },
     exercises:[
       { name:"Lateral Raise (Cable)",         sets:"4x15", cue:"Lead with elbow, slight forward lean", ytq:"cable+lateral+raise+form", rest:60 },
-      { name:"Pallof Press",                  sets:"3x12ea",cue:"Anti-rotation — core resists, don't let it twist", ytq:"pallof+press+core", rest:75 },
-      { name:"DB Arnold Press",               sets:"4x12", cue:"Rotate on the way up — full delt activation", ytq:"arnold+press+form", rest:90 },
-      { name:"Oblique Cable Crunch",          sets:"3x15ea",cue:"Elbow to opposite knee — feel the oblique contract", ytq:"oblique+cable+crunch", rest:60 },
-      { name:"Side-Lying Hip Abduction",      sets:"3x20ea",cue:"Slight forward tilt — targets glute med", ytq:"hip+abduction+glute+med", rest:45 },
+      { name:"Pallof Press",                  sets:"3x12ea",cue:"Anti-rotation, core resists, don't let it twist", ytq:"pallof+press+core", rest:75 },
+      { name:"DB Arnold Press",               sets:"4x12", cue:"Rotate on the way up, full delt activation", ytq:"arnold+press+form", rest:90 },
+      { name:"Oblique Cable Crunch",          sets:"3x15ea",cue:"Elbow to opposite knee, feel the oblique contract", ytq:"oblique+cable+crunch", rest:60 },
+      { name:"Side-Lying Hip Abduction",      sets:"3x20ea",cue:"Slight forward tilt, targets glute med", ytq:"hip+abduction+glute+med", rest:45 },
     ],
   },
   {
@@ -817,16 +817,16 @@ const FEMALE_GYM_ARCHETYPES = [
     signature:"Low body fat, functional strength, and elite cardiovascular capacity.",
     aiLine:  "Your metabolism is running hot. Syncing your training to your body's cycle gets you more results from the same effort.",
     narrative:[
-      "Athletic leanness is the product of simultaneous muscle building and fat loss — body recomposition. It requires precision nutrition timing, not just caloric restriction.",
+      "Athletic leanness is the product of simultaneous muscle building and fat loss, body recomposition. It requires precision nutrition timing, not just caloric restriction.",
       "Female athletes have a metabolic advantage in fat oxidation during sub-maximal exercise. This protocol exploits that advantage through specific intensity zones.",
       "Electrolyte balance is critical for female athletes. Sodium, potassium, and magnesium requirements increase significantly during training blocks.",
     ],
     cardio:  { type:"HIIT Cycling", desc:"20 min: 30s all-out / 90s recovery x 8", why:"Maximum EPOC response with hormonal preservation" },
     exercises:[
-      { name:"Front Squat",                   sets:"4x8",  cue:"Elbows high, upright torso — quad dominance", ytq:"front+squat+form", rest:150 },
-      { name:"Push Press",                    sets:"4x8",  cue:"Dip and drive — use leg power to launch", ytq:"push+press+form", rest:120 },
-      { name:"Box Jump",                      sets:"4x6",  cue:"Land soft, absorb — knees track toes", ytq:"box+jump+technique", rest:90 },
-      { name:"TRX Row",                       sets:"3x15", cue:"Full retraction at top — squeeze shoulder blades", ytq:"trx+row+form", rest:60 },
+      { name:"Front Squat",                   sets:"4x8",  cue:"Elbows high, upright torso, quad dominance", ytq:"front+squat+form", rest:150 },
+      { name:"Push Press",                    sets:"4x8",  cue:"Dip and drive, use leg power to launch", ytq:"push+press+form", rest:120 },
+      { name:"Box Jump",                      sets:"4x6",  cue:"Land soft, absorb, knees track toes", ytq:"box+jump+technique", rest:90 },
+      { name:"TRX Row",                       sets:"3x15", cue:"Full retraction at top, squeeze shoulder blades", ytq:"trx+row+form", rest:60 },
       { name:"Sled Push",                     sets:"5x20m",cue:"Low hips, push from the hips", ytq:"sled+push+form", rest:120 },
     ],
   },
@@ -838,20 +838,20 @@ const FEMALE_GYM_ARCHETYPES = [
     glow:    "#0A84FF",
     muscles: ["Biceps","Triceps","Abs","Front Shoulders"],
     bioScore:72,
-    signature:"Visible muscle definition without bulk — the lean sculpted aesthetic.",
+    signature:"Visible muscle definition without bulk, the lean sculpted aesthetic.",
     aiLine:  "Your muscles are ready to show. What you put in today will be visible in the mirror in a few weeks.",
     narrative:[
-      "Muscle tone is not a different type of muscle growth — it's low body fat revealing existing muscle. This protocol builds the right muscles and simultaneously optimizes fat oxidation.",
+      "Muscle tone is not a different type of muscle growth, it's low body fat revealing existing muscle. This protocol builds the right muscles and simultaneously optimizes fat oxidation.",
       "Higher rep ranges (15-20) with shorter rest periods elevate growth hormone more than heavy low-rep training in female physiology.",
       "L-Carnitine + CLA combination uniquely supports female fat metabolism pathways, particularly for the stubborn fat areas around the hips and thighs.",
     ],
-    cardio:  { type:"Incline Walk", desc:"35 min @ 3.5mph, 10% grade", why:"Zone 2 fat oxidation — no cortisol spike, no muscle loss" },
+    cardio:  { type:"Incline Walk", desc:"35 min @ 3.5mph, 10% grade", why:"Zone 2 fat oxidation, no cortisol spike, no muscle loss" },
     exercises:[
-      { name:"Cable Curl (21s method)",       sets:"3x21", cue:"7 bottom half, 7 top half, 7 full — constant tension", ytq:"cable+curl+21s", rest:75 },
-      { name:"Tricep Overhead Extension",     sets:"4x15", cue:"Elbows in, stretch at bottom — long head stretch", ytq:"tricep+overhead+extension", rest:60 },
-      { name:"Plank with Hip Dip",            sets:"3x20ea",cue:"Slow rotation — oblique + deep core squeeze", ytq:"plank+hip+dip", rest:45 },
-      { name:"Lateral Raise (Light/High Rep)",sets:"3x20", cue:"No momentum — feel the burn through full range", ytq:"lateral+raise+high+rep", rest:45 },
-      { name:"Glute Bridge Pulse",            sets:"3x30", cue:"Small pulses at peak — isometric hold variation", ytq:"glute+bridge+pulse", rest:45 },
+      { name:"Cable Curl (21s method)",       sets:"3x21", cue:"7 bottom half, 7 top half, 7 full, constant tension", ytq:"cable+curl+21s", rest:75 },
+      { name:"Tricep Overhead Extension",     sets:"4x15", cue:"Elbows in, stretch at bottom, long head stretch", ytq:"tricep+overhead+extension", rest:60 },
+      { name:"Plank with Hip Dip",            sets:"3x20ea",cue:"Slow rotation, oblique + deep core squeeze", ytq:"plank+hip+dip", rest:45 },
+      { name:"Lateral Raise (Light/High Rep)",sets:"3x20", cue:"No momentum, feel the burn through full range", ytq:"lateral+raise+high+rep", rest:45 },
+      { name:"Glute Bridge Pulse",            sets:"3x30", cue:"Small pulses at peak, isometric hold variation", ytq:"glute+bridge+pulse", rest:45 },
     ],
   },
   // ── NEW WOMEN'S ARCHETYPES ───────────────────────────────────────────────────
@@ -864,19 +864,19 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Quadriceps","Hamstrings","Glutes","Inner Thighs"],
     bioScore:83,
     signature:"Strong legs you can see and feel in everything you do.",
-    aiLine:  "Training your legs builds your whole body — not just your legs. It floods everything with growth signals.",
+    aiLine:  "Training your legs builds your whole body, not just your legs. It floods everything with growth signals.",
     narrative:[
-      "Strong legs are the foundation of every movement your body makes. This protocol builds real lower body strength that translates outside the gym — stairs, runs, sports, everything gets easier.",
+      "Strong legs are the foundation of every movement your body makes. This protocol builds real lower body strength that translates outside the gym, stairs, runs, sports, everything gets easier.",
       "Squatting below parallel is non-negotiable here. Full-depth squats recruit three times more glute fiber than partial reps. We will build the mobility to get there if you are not there yet.",
-      "Protein timing matters most after leg day — the quadriceps and glutes are the largest muscle groups in the body. They need more raw material to rebuild. Hit 30g or more within 30 minutes of finishing.",
+      "Protein timing matters most after leg day, the quadriceps and glutes are the largest muscle groups in the body. They need more raw material to rebuild. Hit 30g or more within 30 minutes of finishing.",
     ],
-    cardio:  { type:"StairMaster (High Resistance)", desc:"20 min, leaning slightly forward", why:"Back muscles activation without quad overload — keeps hips fresh for strength work" },
+    cardio:  { type:"StairMaster (High Resistance)", desc:"20 min, leaning slightly forward", why:"Back muscles activation without quad overload, keeps hips fresh for strength work" },
     exercises:[
-      { name:"Back Squat",                    sets:"5×6",  cue:"Chest up, knees track toes — below parallel required",     ytq:"back+squat+form+women",      rest:180 },
-      { name:"Walking Dumbbell Lunge",        sets:"4×12ea",cue:"Long stride — front knee stays behind your toe",          ytq:"walking+lunge+form",         rest:90  },
-      { name:"Seated Leg Curl",              sets:"4×12", cue:"Plantarflex at peak — squeeze the hamstring fully",          ytq:"seated+leg+curl+form",       rest:75  },
-      { name:"Sumo Deadlift",                 sets:"4×8",  cue:"Wide stance, toes out — inner thigh and glute drive",       ytq:"sumo+deadlift+form",         rest:150 },
-      { name:"Leg Press (Heels High)",        sets:"4×15", cue:"Heels elevated on plate — glute-biased pressing",           ytq:"leg+press+high+heels",       rest:90  },
+      { name:"Back Squat",                    sets:"5×6",  cue:"Chest up, knees track toes, below parallel required",     ytq:"back+squat+form+women",      rest:180 },
+      { name:"Walking Dumbbell Lunge",        sets:"4×12ea",cue:"Long stride, front knee stays behind your toe",          ytq:"walking+lunge+form",         rest:90  },
+      { name:"Seated Leg Curl",              sets:"4×12", cue:"Plantarflex at peak, squeeze the hamstring fully",          ytq:"seated+leg+curl+form",       rest:75  },
+      { name:"Sumo Deadlift",                 sets:"4×8",  cue:"Wide stance, toes out, inner thigh and glute drive",       ytq:"sumo+deadlift+form",         rest:150 },
+      { name:"Leg Press (Heels High)",        sets:"4×15", cue:"Heels elevated on plate, glute-biased pressing",           ytq:"leg+press+high+heels",       rest:90  },
     ],
   },
   {
@@ -887,19 +887,19 @@ const FEMALE_GYM_ARCHETYPES = [
     glow:    "#FF9F0A",
     muscles: ["Full Body","Metabolic Rate","Lean Tissue","Cardiovascular System"],
     bioScore:80,
-    signature:"Less fat. More muscle. Same weight on the scale — and that is the point.",
-    aiLine:  "You can drop fat and build muscle at the same time. Your body is set up for it — the protocol makes it happen.",
+    signature:"Less fat. More muscle. Same weight on the scale, and that is the point.",
+    aiLine:  "You can drop fat and build muscle at the same time. Your body is set up for it, the protocol makes it happen.",
     narrative:[
-      "Body recomposition means building muscle and losing fat at the same time. Most people are told it is impossible — it is not. It requires precision training and nutrition, but the results are the most dramatic transformation available.",
-      "The scale is not your friend during recomp. Fat takes up more space than muscle by volume — you might drop a dress size while the number barely moves. Progress photos and measurements are the only honest tracker here.",
+      "Body recomposition means building muscle and losing fat at the same time. Most people are told it is impossible, it is not. It requires precision training and nutrition, but the results are the most dramatic transformation available.",
+      "The scale is not your friend during recomp. Fat takes up more space than muscle by volume, you might drop a dress size while the number barely moves. Progress photos and measurements are the only honest tracker here.",
       "Protein at every meal is non-negotiable during recomp. 0.8 to 1g per pound of bodyweight keeps muscle-building signals active even while your body is in a slight caloric deficit.",
     ],
-    cardio:  { type:"Fasted Zone 2 Walk", desc:"30 min before breakfast, moderate pace", why:"Targets fat oxidation without cortisol spike — preserves muscle during the deficit" },
+    cardio:  { type:"Fasted Zone 2 Walk", desc:"30 min before breakfast, moderate pace", why:"Targets fat oxidation without cortisol spike, preserves muscle during the deficit" },
     exercises:[
-      { name:"Goblet Squat",                  sets:"4×15", cue:"Elbows in, chest up — quad and glute both firing",          ytq:"goblet+squat+form",          rest:75  },
-      { name:"Dumbbell Romanian Deadlift",    sets:"4×12", cue:"Push hips back, soft knee — feel the hamstring stretch",    ytq:"dumbbell+rdl+form",          rest:90  },
-      { name:"Push-Up to Row",                sets:"3×10ea",cue:"Row elbow to hip — full body tension the whole time",      ytq:"push+up+to+row+dumbbells",   rest:75  },
-      { name:"Lateral Raise Superset",        sets:"3×12", cue:"Raise first, then press — delts pre-exhausted for press",   ytq:"lateral+raise+superset",     rest:60  },
+      { name:"Goblet Squat",                  sets:"4×15", cue:"Elbows in, chest up, quad and glute both firing",          ytq:"goblet+squat+form",          rest:75  },
+      { name:"Dumbbell Romanian Deadlift",    sets:"4×12", cue:"Push hips back, soft knee, feel the hamstring stretch",    ytq:"dumbbell+rdl+form",          rest:90  },
+      { name:"Push-Up to Row",                sets:"3×10ea",cue:"Row elbow to hip, full body tension the whole time",      ytq:"push+up+to+row+dumbbells",   rest:75  },
+      { name:"Lateral Raise Superset",        sets:"3×12", cue:"Raise first, then press, delts pre-exhausted for press",   ytq:"lateral+raise+superset",     rest:60  },
       { name:"Jump Squat",                    sets:"4×12", cue:"Land soft, load into next rep immediately",                  ytq:"jump+squat+form",            rest:60  },
     ],
   },
@@ -912,19 +912,19 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Biceps","Triceps","Lats","Rear Shoulders"],
     bioScore:75,
     signature:"Defined arms. A back worth showing off. Tank top season is always open.",
-    aiLine:  "Arms and back are the muscles that change how every outfit fits. They respond fast — you'll see it quickly.",
+    aiLine:  "Arms and back are the muscles that change how every outfit fits. They respond fast, you'll see it quickly.",
     narrative:[
-      "Defined arms and a strong back are the most requested upper body goals — and the most achievable. Arms respond incredibly fast to direct training because they are often completely undertrained.",
+      "Defined arms and a strong back are the most requested upper body goals, and the most achievable. Arms respond incredibly fast to direct training because they are often completely undertrained.",
       "The back is the biggest canvas in the upper body. Building lat width creates the illusion of a smaller waist without touching the waist at all. Rows, pulldowns, and cables are your best tools here.",
-      "EAAs during your training session prevent muscle breakdown while you work — critical during upper body training where volume is high and recovery demand is constant.",
+      "EAAs during your training session prevent muscle breakdown while you work, critical during upper body training where volume is high and recovery demand is constant.",
     ],
-    cardio:  { type:"Rowing Machine", desc:"25 min at moderate resistance", why:"Active back engagement — builds endurance while reinforcing lat activation pattern" },
+    cardio:  { type:"Rowing Machine", desc:"25 min at moderate resistance", why:"Active back engagement, builds endurance while reinforcing lat activation pattern" },
     exercises:[
-      { name:"Lat Pulldown (Underhand)",      sets:"4×12", cue:"Pull to upper chest, retract at bottom — feel the lats",    ytq:"lat+pulldown+underhand+form", rest:90 },
-      { name:"Seated Cable Row",             sets:"4×12", cue:"Drive elbows back, not hands — back-led movement",            ytq:"seated+cable+row+form",       rest:90 },
-      { name:"Incline Dumbbell Curl",        sets:"3×15", cue:"Elbows behind body — full bicep stretch at bottom",           ytq:"incline+dumbbell+curl",       rest:60 },
-      { name:"Tricep Pushdown (Rope)",       sets:"4×15", cue:"Split at bottom, pronate — full tricep contraction",          ytq:"tricep+rope+pushdown",        rest:60 },
-      { name:"Face Pull",                    sets:"3×15", cue:"Pull to forehead, elbows high — rear delt and rotator cuff",  ytq:"face+pull+form",              rest:45 },
+      { name:"Lat Pulldown (Underhand)",      sets:"4×12", cue:"Pull to upper chest, retract at bottom, feel the lats",    ytq:"lat+pulldown+underhand+form", rest:90 },
+      { name:"Seated Cable Row",             sets:"4×12", cue:"Drive elbows back, not hands, back-led movement",            ytq:"seated+cable+row+form",       rest:90 },
+      { name:"Incline Dumbbell Curl",        sets:"3×15", cue:"Elbows behind body, full bicep stretch at bottom",           ytq:"incline+dumbbell+curl",       rest:60 },
+      { name:"Tricep Pushdown (Rope)",       sets:"4×15", cue:"Split at bottom, pronate, full tricep contraction",          ytq:"tricep+rope+pushdown",        rest:60 },
+      { name:"Face Pull",                    sets:"3×15", cue:"Pull to forehead, elbows high, rear delt and rotator cuff",  ytq:"face+pull+form",              rest:45 },
     ],
   },
   {
@@ -936,19 +936,19 @@ const FEMALE_GYM_ARCHETYPES = [
     muscles: ["Full Body","Compound Patterns","Glutes & Core","Metabolic Rate"],
     bioScore:82,
     signature:"Everything, every session. The most efficient path to total transformation.",
-    aiLine:  "Every session is quietly stacking. Fat dropping, muscle building — by week 24 the whole picture changes.",
+    aiLine:  "Every session is quietly stacking. Fat dropping, muscle building, by week 24 the whole picture changes.",
     narrative:[
-      "Full body training three times a week is scientifically the most effective protocol for body composition change. You hit each muscle twice as often as a split routine — faster results with less total gym time.",
+      "Full body training three times a week is scientifically the most effective protocol for body composition change. You hit each muscle twice as often as a split routine, faster results with less total gym time.",
       "Compound movements like squats, deadlifts, and presses recruit dozens of muscles at once. A full body session burns more calories, releases more growth hormone, and creates more metabolic stress than any isolation workout.",
-      "Magnesium before bed and protein within 30 minutes after training are the two non-negotiables here. Recovery is compressed because frequency is high — you have to be smart about nutrition.",
+      "Magnesium before bed and protein within 30 minutes after training are the two non-negotiables here. Recovery is compressed because frequency is high, you have to be smart about nutrition.",
     ],
-    cardio:  { type:"Incline Walk (End of Session)", desc:"20 min, 8% grade, steady pace", why:"Finishes the metabolic window without taxing recovery — frequency demands efficient cardio" },
+    cardio:  { type:"Incline Walk (End of Session)", desc:"20 min, 8% grade, steady pace", why:"Finishes the metabolic window without taxing recovery, frequency demands efficient cardio" },
     exercises:[
-      { name:"Barbell Back Squat",            sets:"4×10", cue:"Depth past parallel — full range for full results",          ytq:"back+squat+beginner+women",  rest:120 },
-      { name:"Dumbbell Bench Press",          sets:"4×12", cue:"Slight arch, full stretch — chest-led not shoulder-led",     ytq:"dumbbell+bench+press+form",  rest:90  },
-      { name:"Romanian Deadlift",            sets:"4×12", cue:"Hinge at hips, soft knee — feel the hamstring before bending",ytq:"rdl+beginner+form",          rest:90  },
-      { name:"Dumbbell Row",                  sets:"3×12ea",cue:"Elbow to ceiling, retract at top — back dominant",          ytq:"dumbbell+row+form",          rest:75  },
-      { name:"Plank Hold",                    sets:"3×40s",cue:"Neutral spine, breathe steady — no hip drop",                ytq:"plank+form+core",            rest:45  },
+      { name:"Barbell Back Squat",            sets:"4×10", cue:"Depth past parallel, full range for full results",          ytq:"back+squat+beginner+women",  rest:120 },
+      { name:"Dumbbell Bench Press",          sets:"4×12", cue:"Slight arch, full stretch, chest-led not shoulder-led",     ytq:"dumbbell+bench+press+form",  rest:90  },
+      { name:"Romanian Deadlift",            sets:"4×12", cue:"Hinge at hips, soft knee, feel the hamstring before bending",ytq:"rdl+beginner+form",          rest:90  },
+      { name:"Dumbbell Row",                  sets:"3×12ea",cue:"Elbow to ceiling, retract at top, back dominant",          ytq:"dumbbell+row+form",          rest:75  },
+      { name:"Plank Hold",                    sets:"3×40s",cue:"Neutral spine, breathe steady, no hip drop",                ytq:"plank+form+core",            rest:45  },
     ],
   },
 ];
@@ -956,119 +956,119 @@ const FEMALE_GYM_ARCHETYPES = [
 // ─── EXERCISE BANK (Agile Protocol Editor) ──────────────────────────────────
 const EXERCISE_BANK = {
   vtaper: [
-    { name:"Incline DB Press",       sets:"4x10",   cue:"Control the negative — 3 seconds down",              ytq:"incline+db+press+form",         rest:90  },
+    { name:"Incline DB Press",       sets:"4x10",   cue:"Control the negative, 3 seconds down",              ytq:"incline+db+press+form",         rest:90  },
     { name:"Cable Fly",              sets:"3x15",   cue:"Slight elbow bend, cross at midline",                ytq:"cable+fly+chest+form",          rest:60  },
-    { name:"Face Pull",              sets:"4x20",   cue:"Pull to forehead — rear delt and rotator cuff",      ytq:"face+pull+form",                rest:45  },
-    { name:"EZ Bar Curl",            sets:"3x12",   cue:"Full extension at bottom — no cheating",             ytq:"ez+bar+curl",                   rest:60  },
-    { name:"Tricep Pushdown",        sets:"3x15",   cue:"Elbows pinned — isolate the tricep",                 ytq:"tricep+pushdown+form",          rest:60  },
-    { name:"Hammer Curl",            sets:"3x12",   cue:"Neutral grip — arm thickness",              ytq:"hammer+curl+arm muscle",        rest:60  },
+    { name:"Face Pull",              sets:"4x20",   cue:"Pull to forehead, rear delt and rotator cuff",      ytq:"face+pull+form",                rest:45  },
+    { name:"EZ Bar Curl",            sets:"3x12",   cue:"Full extension at bottom, no cheating",             ytq:"ez+bar+curl",                   rest:60  },
+    { name:"Tricep Pushdown",        sets:"3x15",   cue:"Elbows pinned, isolate the tricep",                 ytq:"tricep+pushdown+form",          rest:60  },
+    { name:"Hammer Curl",            sets:"3x12",   cue:"Neutral grip, arm thickness",              ytq:"hammer+curl+arm muscle",        rest:60  },
   ],
   abs: [
-    { name:"Hanging Leg Raise",      sets:"4x12",   cue:"Control descent — slow eccentric",                   ytq:"hanging+leg+raise",             rest:75  },
-    { name:"Cable Crunch",           sets:"3x20",   cue:"Round the spine — spine flexion not hip flexion",    ytq:"cable+crunch+abs",              rest:60  },
-    { name:"Reverse Crunch",         sets:"3x15",   cue:"Tilt the pelvis — lower abs targeted",               ytq:"reverse+crunch",                rest:60  },
-    { name:"Ab Wheel Rollout",       sets:"3x10",   cue:"Core braced — do not let hips drop",                 ytq:"ab+wheel+rollout",              rest:90  },
-    { name:"Dragon Flag",            sets:"3x6",    cue:"Straight body slow descent — elite core control",    ytq:"dragon+flag+exercise",          rest:120 },
+    { name:"Hanging Leg Raise",      sets:"4x12",   cue:"Control descent, slow eccentric",                   ytq:"hanging+leg+raise",             rest:75  },
+    { name:"Cable Crunch",           sets:"3x20",   cue:"Round the spine, spine flexion not hip flexion",    ytq:"cable+crunch+abs",              rest:60  },
+    { name:"Reverse Crunch",         sets:"3x15",   cue:"Tilt the pelvis, lower abs targeted",               ytq:"reverse+crunch",                rest:60  },
+    { name:"Ab Wheel Rollout",       sets:"3x10",   cue:"Core braced, do not let hips drop",                 ytq:"ab+wheel+rollout",              rest:90  },
+    { name:"Dragon Flag",            sets:"3x6",    cue:"Straight body slow descent, elite core control",    ytq:"dragon+flag+exercise",          rest:120 },
   ],
   density: [
     { name:"Incline Barbell Press",  sets:"5x6",    cue:"Touch chest explosive press",                        ytq:"incline+barbell+press",         rest:150 },
-    { name:"T-Bar Row",              sets:"4x10",   cue:"Full retraction at top — mind-muscle connection",    ytq:"t+bar+row",                     rest:120 },
-    { name:"DB Shrug",               sets:"4x15",   cue:"Hold at top 1 second — full trap contraction",       ytq:"db+shrug+traps",                rest:60  },
-    { name:"Spider Curl",            sets:"3x12",   cue:"Against the bench — no shoulder involvement",        ytq:"spider+curl",                   rest:75  },
-    { name:"Skull Crusher",          sets:"4x12",   cue:"Elbows in — loaded long-head stretch",               ytq:"skull+crusher",                 rest:90  },
+    { name:"T-Bar Row",              sets:"4x10",   cue:"Full retraction at top, mind-muscle connection",    ytq:"t+bar+row",                     rest:120 },
+    { name:"DB Shrug",               sets:"4x15",   cue:"Hold at top 1 second, full trap contraction",       ytq:"db+shrug+traps",                rest:60  },
+    { name:"Spider Curl",            sets:"3x12",   cue:"Against the bench, no shoulder involvement",        ytq:"spider+curl",                   rest:75  },
+    { name:"Skull Crusher",          sets:"4x12",   cue:"Elbows in, loaded long-head stretch",               ytq:"skull+crusher",                 rest:90  },
   ],
   athletic: [
-    { name:"Power Clean",            sets:"4x5",    cue:"Triple extension — hips knees ankles",               ytq:"power+clean+form",              rest:180 },
-    { name:"Bulgarian Split Squat",  sets:"3x10ea", cue:"Front foot forward — knee tracks toes",              ytq:"bulgarian+split+squat",         rest:90  },
-    { name:"Battle Ropes",           sets:"5x30s",  cue:"Stay low — generate waves from the hips",            ytq:"battle+ropes+workout",          rest:60  },
-    { name:"Med Ball Slam",          sets:"4x10",   cue:"Full overhead extension — explosive deceleration",   ytq:"med+ball+slam",                 rest:60  },
-    { name:"Kettlebell Swing",       sets:"4x20",   cue:"Hip hinge power — not a squat",                      ytq:"kettlebell+swing+form",         rest:75  },
+    { name:"Power Clean",            sets:"4x5",    cue:"Triple extension, hips knees ankles",               ytq:"power+clean+form",              rest:180 },
+    { name:"Bulgarian Split Squat",  sets:"3x10ea", cue:"Front foot forward, knee tracks toes",              ytq:"bulgarian+split+squat",         rest:90  },
+    { name:"Battle Ropes",           sets:"5x30s",  cue:"Stay low, generate waves from the hips",            ytq:"battle+ropes+workout",          rest:60  },
+    { name:"Med Ball Slam",          sets:"4x10",   cue:"Full overhead extension, explosive deceleration",   ytq:"med+ball+slam",                 rest:60  },
+    { name:"Kettlebell Swing",       sets:"4x20",   cue:"Hip hinge power, not a squat",                      ytq:"kettlebell+swing+form",         rest:75  },
   ],
   glutes: [
-    { name:"Frog Pump",              sets:"3x30",   cue:"Feet soles touching — glute max isolation",          ytq:"frog+pump+glutes",              rest:45  },
-    { name:"Bulgarian Split Squat",  sets:"4x10ea", cue:"Front foot far — maximize hip stretch",              ytq:"bulgarian+split+squat+glutes",  rest:90  },
-    { name:"Single-Leg Press",       sets:"3x15ea", cue:"High foot placement — glute dominant pressing",      ytq:"single+leg+press+high+foot",    rest:75  },
-    { name:"Nordic Hamstring Curl",  sets:"3x6",    cue:"Slow descent explosive up — max hamstring strength", ytq:"nordic+hamstring+curl",         rest:120 },
-    { name:"Glute Ham Raise",        sets:"3x10",   cue:"Control the eccentric — loaded hip extension",       ytq:"glute+ham+raise+form",          rest:90  },
+    { name:"Frog Pump",              sets:"3x30",   cue:"Feet soles touching, glute max isolation",          ytq:"frog+pump+glutes",              rest:45  },
+    { name:"Bulgarian Split Squat",  sets:"4x10ea", cue:"Front foot far, maximize hip stretch",              ytq:"bulgarian+split+squat+glutes",  rest:90  },
+    { name:"Single-Leg Press",       sets:"3x15ea", cue:"High foot placement, glute dominant pressing",      ytq:"single+leg+press+high+foot",    rest:75  },
+    { name:"Nordic Hamstring Curl",  sets:"3x6",    cue:"Slow descent explosive up, max hamstring strength", ytq:"nordic+hamstring+curl",         rest:120 },
+    { name:"Glute Ham Raise",        sets:"3x10",   cue:"Control the eccentric, loaded hip extension",       ytq:"glute+ham+raise+form",          rest:90  },
   ],
   hourglass: [
-    { name:"Upright Row Wide Grip",  sets:"4x15",   cue:"Wide grip targets lateral delts — lead with elbows",ytq:"upright+row+lateral+delt",      rest:60  },
-    { name:"Cable Wood Chop",        sets:"3x15ea", cue:"Diagonal pull — oblique sling activation",           ytq:"cable+wood+chop",               rest:60  },
-    { name:"Seated Row Wide Grip",   sets:"4x12",   cue:"Squeeze shoulder blades — counters shoulder rounding",     ytq:"seated+row+wide+grip",          rest:75  },
-    { name:"Vacuum Hold",            sets:"3x30s",  cue:"Exhale fully draw navel to spine — deep core squeeze",  ytq:"stomach+vacuum+exercise",       rest:30  },
-    { name:"DB Arnold Press",        sets:"3x12",   cue:"Rotate on the way up — full delt recruitment",       ytq:"arnold+press+form",             rest:90  },
+    { name:"Upright Row Wide Grip",  sets:"4x15",   cue:"Wide grip targets lateral delts, lead with elbows",ytq:"upright+row+lateral+delt",      rest:60  },
+    { name:"Cable Wood Chop",        sets:"3x15ea", cue:"Diagonal pull, oblique sling activation",           ytq:"cable+wood+chop",               rest:60  },
+    { name:"Seated Row Wide Grip",   sets:"4x12",   cue:"Squeeze shoulder blades, counters shoulder rounding",     ytq:"seated+row+wide+grip",          rest:75  },
+    { name:"Vacuum Hold",            sets:"3x30s",  cue:"Exhale fully draw navel to spine, deep core squeeze",  ytq:"stomach+vacuum+exercise",       rest:30  },
+    { name:"DB Arnold Press",        sets:"3x12",   cue:"Rotate on the way up, full delt recruitment",       ytq:"arnold+press+form",             rest:90  },
   ],
   lean_athlete: [
     { name:"Clean and Press",        sets:"4x6",    cue:"Smooth pull to rack then press overhead",            ytq:"clean+and+press+form",          rest:150 },
-    { name:"Jump Squat",             sets:"4x8",    cue:"Full squat depth explosive jump — land soft",        ytq:"jump+squat+form",               rest:90  },
-    { name:"Pull-Up",                sets:"4x8",    cue:"Dead hang start full range — no kipping",            ytq:"pull+up+form+strict",           rest:90  },
-    { name:"Sprint Intervals",       sets:"8x30s",  cue:"Max speed effort — rest 90s between each",           ytq:"treadmill+sprint+interval",     rest:90  },
-    { name:"Farmers Walk",           sets:"4x40m",  cue:"Shoulders packed core braced — posture is the work", ytq:"farmers+walk+form",             rest:120 },
+    { name:"Jump Squat",             sets:"4x8",    cue:"Full squat depth explosive jump, land soft",        ytq:"jump+squat+form",               rest:90  },
+    { name:"Pull-Up",                sets:"4x8",    cue:"Dead hang start full range, no kipping",            ytq:"pull+up+form+strict",           rest:90  },
+    { name:"Sprint Intervals",       sets:"8x30s",  cue:"Max speed effort, rest 90s between each",           ytq:"treadmill+sprint+interval",     rest:90  },
+    { name:"Farmers Walk",           sets:"4x40m",  cue:"Shoulders packed core braced, posture is the work", ytq:"farmers+walk+form",             rest:120 },
   ],
   tone_define: [
-    { name:"Resistance Band Curl",   sets:"3x20",   cue:"Constant tension — no slack at any point",           ytq:"resistance+band+curl",          rest:45  },
-    { name:"Tricep Kickback",        sets:"3x20ea", cue:"Upper arm parallel — full extension required",       ytq:"tricep+kickback+form",          rest:45  },
-    { name:"Dead Bug",               sets:"3x10ea", cue:"Lower back pressed to floor — core stabilization",   ytq:"dead+bug+exercise",             rest:45  },
-    { name:"Incline Rear Delt Fly",  sets:"3x15",   cue:"Neutral spine on incline — rear delt isolation",     ytq:"incline+rear+delt+fly",         rest:60  },
-    { name:"Wall Sit",               sets:"3x45s",  cue:"90 degree knee angle — isometric quad and glute",    ytq:"wall+sit+technique",            rest:30  },
+    { name:"Resistance Band Curl",   sets:"3x20",   cue:"Constant tension, no slack at any point",           ytq:"resistance+band+curl",          rest:45  },
+    { name:"Tricep Kickback",        sets:"3x20ea", cue:"Upper arm parallel, full extension required",       ytq:"tricep+kickback+form",          rest:45  },
+    { name:"Dead Bug",               sets:"3x10ea", cue:"Lower back pressed to floor, core stabilization",   ytq:"dead+bug+exercise",             rest:45  },
+    { name:"Incline Rear Delt Fly",  sets:"3x15",   cue:"Neutral spine on incline, rear delt isolation",     ytq:"incline+rear+delt+fly",         rest:60  },
+    { name:"Wall Sit",               sets:"3x45s",  cue:"90 degree knee angle, isometric quad and glute",    ytq:"wall+sit+technique",            rest:30  },
   ],
   // ── Male archetype banks ───────────────────────────────────────────────────
   chest_arms: [
-    { name:"Flat DB Fly",            sets:"3x15",   cue:"Wide arc — stretch at the bottom is the stimulus",   ytq:"dumbbell+fly+form",             rest:60  },
-    { name:"Cable Crossover Low",    sets:"3x15",   cue:"Angle upward — hits upper chest fibers",             ytq:"cable+crossover+upper+chest",   rest:60  },
-    { name:"Concentration Curl",     sets:"3x12ea", cue:"Elbow on knee — pure isolation, full supination",    ytq:"concentration+curl+form",       rest:60  },
-    { name:"Rope Pushdown",          sets:"3x15",   cue:"Spread rope at bottom — lateral head activation",    ytq:"rope+tricep+pushdown",          rest:45  },
-    { name:"Reverse Curl",           sets:"3x15",   cue:"Overhand grip — forearm and upper arm",     ytq:"reverse+curl+arm muscle",       rest:45  },
+    { name:"Flat DB Fly",            sets:"3x15",   cue:"Wide arc, stretch at the bottom is the stimulus",   ytq:"dumbbell+fly+form",             rest:60  },
+    { name:"Cable Crossover Low",    sets:"3x15",   cue:"Angle upward, hits upper chest fibers",             ytq:"cable+crossover+upper+chest",   rest:60  },
+    { name:"Concentration Curl",     sets:"3x12ea", cue:"Elbow on knee, pure isolation, full supination",    ytq:"concentration+curl+form",       rest:60  },
+    { name:"Rope Pushdown",          sets:"3x15",   cue:"Spread rope at bottom, lateral head activation",    ytq:"rope+tricep+pushdown",          rest:45  },
+    { name:"Reverse Curl",           sets:"3x15",   cue:"Overhand grip, forearm and upper arm",     ytq:"reverse+curl+arm muscle",       rest:45  },
   ],
   powerlifter: [
-    { name:"Box Squat",              sets:"4x5",    cue:"Sit back to box, explode up — back muscles drive", ytq:"box+squat+technique",           rest:240 },
-    { name:"Board Press",            sets:"4x5",    cue:"Partial ROM — builds lockout strength",              ytq:"board+press+technique",         rest:180 },
-    { name:"Good Morning",           sets:"3x10",   cue:"Hinge at hips, soft knee — erector stretch",         ytq:"good+morning+exercise",         rest:120 },
-    { name:"Leg Press (High Foot)",  sets:"4x12",   cue:"High foot placement — glute and hamstring dominant", ytq:"high+foot+leg+press",           rest:120 },
-    { name:"Tricep Dip (Weighted)",  sets:"3x10",   cue:"Upright torso — pure tricep lockout work",           ytq:"weighted+dips+lockout",         rest:120 },
+    { name:"Box Squat",              sets:"4x5",    cue:"Sit back to box, explode up, back muscles drive", ytq:"box+squat+technique",           rest:240 },
+    { name:"Board Press",            sets:"4x5",    cue:"Partial ROM, builds lockout strength",              ytq:"board+press+technique",         rest:180 },
+    { name:"Good Morning",           sets:"3x10",   cue:"Hinge at hips, soft knee, erector stretch",         ytq:"good+morning+exercise",         rest:120 },
+    { name:"Leg Press (High Foot)",  sets:"4x12",   cue:"High foot placement, glute and hamstring dominant", ytq:"high+foot+leg+press",           rest:120 },
+    { name:"Tricep Dip (Weighted)",  sets:"3x10",   cue:"Upright torso, pure tricep lockout work",           ytq:"weighted+dips+lockout",         rest:120 },
   ],
   shred: [
-    { name:"Jump Rope",              sets:"5x60s",  cue:"Light on feet — rhythmic jump not heavy impact",     ytq:"jump+rope+workout",             rest:30  },
-    { name:"Goblet Squat",           sets:"4x15",   cue:"Elbows to thighs at depth — full hip flexion",       ytq:"goblet+squat+form",             rest:60  },
-    { name:"Burpee",                 sets:"4x12",   cue:"Plank tight at bottom — jump with full hip extension",ytq:"burpee+technique",              rest:45  },
-    { name:"Sled Push",              sets:"5x20m",  cue:"Low hips, drive with legs — pure power output",      ytq:"sled+push+exercise",            rest:60  },
-    { name:"Mountain Climber",       sets:"4x30s",  cue:"Hips level — core stabilization while driving",      ytq:"mountain+climbers+form",        rest:30  },
+    { name:"Jump Rope",              sets:"5x60s",  cue:"Light on feet, rhythmic jump not heavy impact",     ytq:"jump+rope+workout",             rest:30  },
+    { name:"Goblet Squat",           sets:"4x15",   cue:"Elbows to thighs at depth, full hip flexion",       ytq:"goblet+squat+form",             rest:60  },
+    { name:"Burpee",                 sets:"4x12",   cue:"Plank tight at bottom, jump with full hip extension",ytq:"burpee+technique",              rest:45  },
+    { name:"Sled Push",              sets:"5x20m",  cue:"Low hips, drive with legs, pure power output",      ytq:"sled+push+exercise",            rest:60  },
+    { name:"Mountain Climber",       sets:"4x30s",  cue:"Hips level, core stabilization while driving",      ytq:"mountain+climbers+form",        rest:30  },
   ],
   calisthenics: [
-    { name:"Ring Push-Up",           sets:"4x12",   cue:"Rings turned out at top — chest and shoulder stretch", ytq:"ring+push+up+form",            rest:75  },
-    { name:"Tuck Planche",           sets:"4x20s",  cue:"Lean forward, tuck knees — scapula protracted fully", ytq:"tuck+planche+tutorial",         rest:90  },
-    { name:"Negative Pull-Up",       sets:"4x6",    cue:"5-second descent — maximum eccentric loading",        ytq:"negative+pull+up+form",         rest:120 },
-    { name:"Hollow Body Hold",       sets:"4x30s",  cue:"Lower back to floor — ribs down, feet 6 inches up",   ytq:"hollow+body+hold",              rest:60  },
-    { name:"Pike Push-Up",           sets:"3x12",   cue:"Hips high, head through — overhead press pattern",    ytq:"pike+push+up+form",             rest:75  },
+    { name:"Ring Push-Up",           sets:"4x12",   cue:"Rings turned out at top, chest and shoulder stretch", ytq:"ring+push+up+form",            rest:75  },
+    { name:"Tuck Planche",           sets:"4x20s",  cue:"Lean forward, tuck knees, scapula protracted fully", ytq:"tuck+planche+tutorial",         rest:90  },
+    { name:"Negative Pull-Up",       sets:"4x6",    cue:"5-second descent, maximum eccentric loading",        ytq:"negative+pull+up+form",         rest:120 },
+    { name:"Hollow Body Hold",       sets:"4x30s",  cue:"Lower back to floor, ribs down, feet 6 inches up",   ytq:"hollow+body+hold",              rest:60  },
+    { name:"Pike Push-Up",           sets:"3x12",   cue:"Hips high, head through, overhead press pattern",    ytq:"pike+push+up+form",             rest:75  },
   ],
   // ── Female archetype banks ─────────────────────────────────────────────────
   lower_build: [
-    { name:"Smith Machine Squat",    sets:"4x12",   cue:"Feet forward — glute and ham dominant angle",         ytq:"smith+machine+squat+glutes",    rest:90  },
-    { name:"Leg Curl (Seated)",      sets:"4x15",   cue:"Full stretch at start — hamstring length matters",    ytq:"seated+leg+curl",               rest:75  },
-    { name:"Cable Kickback",         sets:"3x20ea", cue:"Hip extension not back extension — glutes only",      ytq:"cable+kickback+glutes",         rest:45  },
-    { name:"Sumo Deadlift",          sets:"4x8",    cue:"Wide stance toes out — inner thigh and glute focus",  ytq:"sumo+deadlift+form",            rest:120 },
-    { name:"Step-Up (Weighted)",     sets:"3x15ea", cue:"Drive through heel — glute max activation",           ytq:"weighted+step+up",              rest:60  },
+    { name:"Smith Machine Squat",    sets:"4x12",   cue:"Feet forward, glute and ham dominant angle",         ytq:"smith+machine+squat+glutes",    rest:90  },
+    { name:"Leg Curl (Seated)",      sets:"4x15",   cue:"Full stretch at start, hamstring length matters",    ytq:"seated+leg+curl",               rest:75  },
+    { name:"Cable Kickback",         sets:"3x20ea", cue:"Hip extension not back extension, glutes only",      ytq:"cable+kickback+glutes",         rest:45  },
+    { name:"Sumo Deadlift",          sets:"4x8",    cue:"Wide stance toes out, inner thigh and glute focus",  ytq:"sumo+deadlift+form",            rest:120 },
+    { name:"Step-Up (Weighted)",     sets:"3x15ea", cue:"Drive through heel, glute max activation",           ytq:"weighted+step+up",              rest:60  },
   ],
   body_recomp: [
-    { name:"DB Row",                 sets:"4x12ea", cue:"Full retract at top — not just pulling with arms",    ytq:"dumbbell+row+form",             rest:90  },
-    { name:"Reverse Lunge",          sets:"3x12ea", cue:"Upright torso — front leg does the work",             ytq:"reverse+lunge+technique",       rest:60  },
-    { name:"Lateral Raise",          sets:"3x20",   cue:"Lead with pinky — lateral delt isolation",            ytq:"lateral+raise+form",            rest:45  },
-    { name:"Plank Hold",             sets:"4x40s",  cue:"Neutral spine — don't let hips rise or sag",          ytq:"plank+form+technique",          rest:30  },
-    { name:"Hip Thrust (Banded)",    sets:"4x15",   cue:"Band above knees — external rotation activates glutes", ytq:"banded+hip+thrust",           rest:60  },
+    { name:"DB Row",                 sets:"4x12ea", cue:"Full retract at top, not just pulling with arms",    ytq:"dumbbell+row+form",             rest:90  },
+    { name:"Reverse Lunge",          sets:"3x12ea", cue:"Upright torso, front leg does the work",             ytq:"reverse+lunge+technique",       rest:60  },
+    { name:"Lateral Raise",          sets:"3x20",   cue:"Lead with pinky, lateral delt isolation",            ytq:"lateral+raise+form",            rest:45  },
+    { name:"Plank Hold",             sets:"4x40s",  cue:"Neutral spine, don't let hips rise or sag",          ytq:"plank+form+technique",          rest:30  },
+    { name:"Hip Thrust (Banded)",    sets:"4x15",   cue:"Band above knees, external rotation activates glutes", ytq:"banded+hip+thrust",           rest:60  },
   ],
   arms_back_f: [
-    { name:"Wide Grip Lat Pulldown", sets:"4x15",   cue:"Pull to upper chest — elbows drive down and back",    ytq:"lat+pulldown+wide+grip",        rest:75  },
-    { name:"DB Curl",                sets:"3x15",   cue:"Supinate at the top — full bicep contraction",        ytq:"dumbbell+curl+form",            rest:45  },
-    { name:"Cable Row (Rope)",       sets:"3x15",   cue:"Separate the rope at the end — rear delt activation", ytq:"cable+row+rope+attachment",     rest:60  },
-    { name:"Overhead Tricep (Cable)",sets:"3x15",   cue:"Elbows in, reach back — long head stretch",           ytq:"overhead+tricep+cable",         rest:45  },
-    { name:"Band Pull-Apart",        sets:"3x25",   cue:"Full extension, slow — shoulder blades",       ytq:"band+pull+apart+form",          rest:30  },
+    { name:"Wide Grip Lat Pulldown", sets:"4x15",   cue:"Pull to upper chest, elbows drive down and back",    ytq:"lat+pulldown+wide+grip",        rest:75  },
+    { name:"DB Curl",                sets:"3x15",   cue:"Supinate at the top, full bicep contraction",        ytq:"dumbbell+curl+form",            rest:45  },
+    { name:"Cable Row (Rope)",       sets:"3x15",   cue:"Separate the rope at the end, rear delt activation", ytq:"cable+row+rope+attachment",     rest:60  },
+    { name:"Overhead Tricep (Cable)",sets:"3x15",   cue:"Elbows in, reach back, long head stretch",           ytq:"overhead+tricep+cable",         rest:45  },
+    { name:"Band Pull-Apart",        sets:"3x25",   cue:"Full extension, slow, shoulder blades",       ytq:"band+pull+apart+form",          rest:30  },
   ],
   full_body_f: [
-    { name:"Goblet Squat",           sets:"3x15",   cue:"Elbows to thighs at depth — full hip flexion",        ytq:"goblet+squat+form",             rest:75  },
-    { name:"Push-Up (Incline)",      sets:"3x15",   cue:"Control descent — 3 seconds down, explosive up",      ytq:"incline+push+up+form",          rest:60  },
-    { name:"Romanian Deadlift (DB)", sets:"3x12",   cue:"Push hips back, soft knee — hamstring stretch",       ytq:"rdl+dumbbell+form",             rest:90  },
-    { name:"Seated DB Press",        sets:"3x12",   cue:"Neutral grip — shoulder-safe overhead pressing",      ytq:"seated+dumbbell+press",         rest:90  },
-    { name:"Plank Row",              sets:"3x10ea", cue:"Hips square — row without rotating the torso",        ytq:"plank+row+exercise",            rest:60  },
+    { name:"Goblet Squat",           sets:"3x15",   cue:"Elbows to thighs at depth, full hip flexion",        ytq:"goblet+squat+form",             rest:75  },
+    { name:"Push-Up (Incline)",      sets:"3x15",   cue:"Control descent, 3 seconds down, explosive up",      ytq:"incline+push+up+form",          rest:60  },
+    { name:"Romanian Deadlift (DB)", sets:"3x12",   cue:"Push hips back, soft knee, hamstring stretch",       ytq:"rdl+dumbbell+form",             rest:90  },
+    { name:"Seated DB Press",        sets:"3x12",   cue:"Neutral grip, shoulder-safe overhead pressing",      ytq:"seated+dumbbell+press",         rest:90  },
+    { name:"Plank Row",              sets:"3x10ea", cue:"Hips square, row without rotating the torso",        ytq:"plank+row+exercise",            rest:60  },
   ],
 };
 
@@ -1121,7 +1121,7 @@ function calcComprehensiveBioScore(perfData, biology, age) {
   const benchRatio = bench / bw;
   const squatRatio = squat / bw;
 
-  // BASE SCORE — everyone entering data starts here
+  // BASE SCORE, everyone entering data starts here
   let score = 60;
 
   // ── BENCH STRENGTH (0–20 pts) ─────────────────────────────────────────────
@@ -1202,7 +1202,7 @@ function calcComprehensiveBioScore(perfData, biology, age) {
   return Math.min(Math.max(score, 40), 98);
 }
 
-// Legacy wrapper — kept for any direct callers outside calcBioScore
+// Legacy wrapper, kept for any direct callers outside calcBioScore
 function calcHypertrophyScore(perfData) {
   return calcComprehensiveBioScore(perfData, null, null);
 }
@@ -1224,7 +1224,7 @@ function calcLogicCitation(archetypeId, perfData) {
     + (bench > 0
        ? `Your bench-to-bodyweight ratio is ${benchRatio}×, placing your eccentric demand `
          + `${demand > 0 ? demand+'% above' : 'at'} the ${archetypeId.replace('_',' ')} baseline `
-         + `— increasing BCAA requirement by ${Math.max(0, Math.round(bwKg * (req.mult - 1.2)))}g/day above minimum.`
+         + `- increasing BCAA requirement by ${Math.max(0, Math.round(bwKg * (req.mult - 1.2)))}g/day above minimum.`
        : `Complete your strength baseline to unlock full deficit analysis.`)
   );
 }
@@ -1232,14 +1232,14 @@ function calcLogicCitation(archetypeId, perfData) {
 
 // ─── METRICS-TO-BENEFIT ENGINE ────────────────────────────────────────────────
 const BOTTLENECK_MOA = {
-  sleep:    { tag:"SLEEP RECOVERY",  insight:"Your Sleep bottleneck suppresses GH release in slow-wave sleep — the primary anabolic window. " },
-  soreness: { tag:"SORENESS",        insight:"Your Soreness bottleneck indicates elevated COX-2 inflammation — collagen repair is rate-limited. " },
-  fog:      { tag:"MENTAL FOG",      insight:"Your Mental Fog bottleneck signals acetylcholine substrate depletion — neural recruitment is impaired. " },
+  sleep:    { tag:"SLEEP RECOVERY",  insight:"Your Sleep bottleneck suppresses GH release in slow-wave sleep, the primary anabolic window. " },
+  soreness: { tag:"SORENESS",        insight:"Your Soreness bottleneck indicates elevated COX-2 inflammation, collagen repair is rate-limited. " },
+  fog:      { tag:"MENTAL FOG",      insight:"Your Mental Fog bottleneck signals acetylcholine substrate depletion, neural recruitment is impaired. " },
 };
 const FREQ_MOA = {
   high:  "At 5+ sessions per week your oxidative stress load is classified as elite-tier.",
   med:   "At 3-4 sessions per week your recovery demand is in the hypertrophy-optimal range.",
-  low:   "At 1-2 sessions per week your primary adaptation lever is neural — not structural.",
+  low:   "At 1-2 sessions per week your primary adaptation lever is neural, not structural.",
 };
 function calcPersonalizedWhy(perfData, supplementName, biology, archetypeId) {
   const bw   = perfData?.all?.bw   || 0;
@@ -1288,31 +1288,31 @@ const STORE_ARCHETYPES = [
     bioScore:84, signature:"Operate 10 biological years younger than your calendar age.",
     aiLine:"Your body is aging slower than your calendar says it should. Every workout adds biological years back.",
     narrative:[
-      "NAD+ levels decline approximately 50% per decade after 30. This single molecular change is responsible for the majority of what we call 'aging' — reduced energy, impaired repair, cognitive slowing.",
+      "NAD+ levels decline approximately 50% per decade after 30. This single molecular change is responsible for the majority of what we call 'aging', reduced energy, impaired repair, cognitive slowing.",
       "NMN supplementation directly restores NAD+ within hours of ingestion. Sirtuins activate. Mitochondria multiply. Cellular repair mechanisms return to a younger operating state.",
-      "The biological markers are measurable: improved resting HRV, reduced biological age markers, enhanced cognitive sharpness. Not theoretical — documented in peer-reviewed trials.",
+      "The biological markers are measurable: improved resting HRV, reduced biological age markers, enhanced cognitive sharpness. Not theoretical, documented in peer-reviewed trials.",
     ],
     lifestyle:[
-      { name:"Zone 2 Cardio",         dur:"45 min", cue:"Conversational pace — mitochondrial biogenesis stimulus", icon:"♡" },
-      { name:"Cold Exposure",         dur:"3 min",  cue:"Post-workout cold shower — brown adipose activation",      icon:"❄" },
+      { name:"Zone 2 Cardio",         dur:"45 min", cue:"Conversational pace, mitochondrial biogenesis stimulus", icon:"♡" },
+      { name:"Cold Exposure",         dur:"3 min",  cue:"Post-workout cold shower, brown adipose activation",      icon:"❄" },
       { name:"Time-Restricted Eating",dur:"16:8",   cue:"Autophagy activation window begins at 12hr fast",         icon:"◷" },
-      { name:"Sleep Architecture",    dur:"8hrs",   cue:"Prioritize deep sleep — GH and cellular repair surge",     icon:"◑" },
+      { name:"Sleep Architecture",    dur:"8hrs",   cue:"Prioritize deep sleep, GH and cellular repair surge",     icon:"◑" },
     ],
   },
   {
     id:"skin", name:"Luminous Skin", word:"RADIANCE", sub:"DERMAL ARCHITECTURE", glow:"#BF5AF2",
-    bioScore:78, signature:"Glass skin — the visual signal of optimal internal health.",
+    bioScore:78, signature:"Glass skin, the visual signal of optimal internal health.",
     aiLine:"Your skin repairs and rebuilds during recovery. Sleep and training together make the biggest visible difference.",
     narrative:[
-      "Skin quality is an internal job. The entire topical skincare industry addresses symptoms at the surface while the actual drivers — collagen synthesis rates, oxidative stress, glycation — operate from within.",
+      "Skin quality is an internal job. The entire topical skincare industry addresses symptoms at the surface while the actual drivers, collagen synthesis rates, oxidative stress, glycation, operate from within.",
       "Marine collagen peptides absorbed orally appear directly in the dermis within 4 weeks, measurably increasing skin density, elasticity, and the luminosity that no serum can replicate.",
       "Vitamin C is a required co-factor in every single collagen cross-linking reaction in your body. Without it, even perfect collagen peptide intake is partially wasted.",
     ],
     lifestyle:[
       { name:"Lymphatic Massage",  dur:"10 min AM", cue:"Reduce puffiness, increase nutrient delivery",           icon:"◌" },
-      { name:"Gua Sha Protocol",   dur:"5 min PM",  cue:"Stimulates fibroblast activity — measurable lift",       icon:"◇" },
+      { name:"Gua Sha Protocol",   dur:"5 min PM",  cue:"Stimulates fibroblast activity, measurable lift",       icon:"◇" },
       { name:"Blue Light Block",   dur:"By 8pm",    cue:"Melatonin preservation for cellular repair during sleep", icon:"◑" },
-      { name:"Omega-3 Rich Diet",  dur:"Daily",     cue:"EPA/DHA maintain membrane fluidity — the glow source",    icon:"◉" },
+      { name:"Omega-3 Rich Diet",  dur:"Daily",     cue:"EPA/DHA maintain membrane fluidity, the glow source",    icon:"◉" },
     ],
   },
   {
@@ -1320,63 +1320,63 @@ const STORE_ARCHETYPES = [
     bioScore:87, signature:"The sharpest, fastest, most magnetic version of your mind.",
     aiLine:"Your brain gets sharper after every workout. Focus, memory, and reaction time all improve within hours of training.",
     narrative:[
-      "Cognitive performance degrades through the same biological mechanisms as physical performance — inflammation, mitochondrial dysfunction, poor cerebrovascular flow. The interventions overlap completely.",
-      "Lion's Mane extract stimulates Nerve Growth Factor — the protein responsible for new neuron growth and maintenance of existing neural connections. This is not a stimulant. This is construction.",
-      "Alpha-GPC provides the highest-bioavailability choline available. It crosses the blood-brain barrier directly, immediately increasing acetylcholine synthesis — the neurotransmitter of learning and focus.",
+      "Cognitive performance degrades through the same biological mechanisms as physical performance, inflammation, mitochondrial dysfunction, poor cerebrovascular flow. The interventions overlap completely.",
+      "Lion's Mane extract stimulates Nerve Growth Factor, the protein responsible for new neuron growth and maintenance of existing neural connections. This is not a stimulant. This is construction.",
+      "Alpha-GPC provides the highest-bioavailability choline available. It crosses the blood-brain barrier directly, immediately increasing acetylcholine synthesis, the neurotransmitter of learning and focus.",
     ],
     lifestyle:[
-      { name:"Morning Sunlight",   dur:"10 min",   cue:"Within 30min of waking — cortisol and circadian anchor",  icon:"◉" },
-      { name:"NSDR Protocol",      dur:"20 min",   cue:"Non-sleep deep rest — dopamine restoration",              icon:"◷" },
-      { name:"No Caffeine Post-2pm",dur:"Daily",   cue:"Adenosine clearance — critical for deep sleep onset",     icon:"◌" },
+      { name:"Morning Sunlight",   dur:"10 min",   cue:"Within 30min of waking, cortisol and circadian anchor",  icon:"◉" },
+      { name:"NSDR Protocol",      dur:"20 min",   cue:"Non-sleep deep rest, dopamine restoration",              icon:"◷" },
+      { name:"No Caffeine Post-2pm",dur:"Daily",   cue:"Adenosine clearance, critical for deep sleep onset",     icon:"◌" },
       { name:"Cold Plunge",        dur:"5 min",    cue:"2.5x norepinephrine elevation. Sustained 3 hours.",        icon:"❄" },
     ],
   },
   {
     id:"metabolic", name:"Metabolic Reset", word:"LEAN", sub:"FAT-BURNING ARCHITECTURE", glow:"#FF9F0A",
     bioScore:83, signature:"Striations visible in side shoulders and upper chest. The fat-free signature.",
-    aiLine:"Your body is ready to drop fat. It just needs the right structure — that's exactly what this protocol gives it.",
+    aiLine:"Your body is ready to drop fat. It just needs the right structure, that's exactly what this protocol gives it.",
     narrative:[
       "Metabolic dysfunction is not a discipline problem. It's a cellular signaling problem. When insulin sensitivity degrades and AMPK pathway activation drops, fat loss becomes biochemically impaired regardless of effort.",
-      "Berberine activates AMPK through the same mechanism as metformin — the most studied diabetes medication in history — at therapeutic doses available in a natural supplement.",
+      "Berberine activates AMPK through the same mechanism as metformin, the most studied diabetes medication in history, at therapeutic doses available in a natural supplement.",
       "The CLA complex directly reduces adipocyte storage capacity, while the thyroid support stack provides the three direct substrates for T3 and T4 synthesis that most diets fail to deliver.",
     ],
     lifestyle:[
-      { name:"Fasted Morning Walk",  dur:"30 min",  cue:"Peak fatty acid oxidation in fasted state — daily non-negotiable", icon:"◌" },
+      { name:"Fasted Morning Walk",  dur:"30 min",  cue:"Peak fatty acid oxidation in fasted state, daily non-negotiable", icon:"◌" },
       { name:"Resistance Training",  dur:"45 min",  cue:"EPOC response = 24hr metabolic elevation",                         icon:"⬡" },
-      { name:"Sauna Protocol",       dur:"20 min",  cue:"180°F — growth hormone spike + heat shock protein activation",      icon:"◉" },
-      { name:"Sleep Optimization",   dur:"8hrs",    cue:"Ghrelin/leptin regulation — eliminates hunger dysregulation",       icon:"◷" },
+      { name:"Sauna Protocol",       dur:"20 min",  cue:"180°F, growth hormone spike + heat shock protein activation",      icon:"◉" },
+      { name:"Sleep Optimization",   dur:"8hrs",    cue:"Ghrelin/leptin regulation, eliminates hunger dysregulation",       icon:"◷" },
     ],
   },
   {
     id:"fat_loss", name:"Fat Loss Protocol", word:"SHRED", sub:"PRECISION FAT MOBILIZATION", glow:"#FF9F0A",
     bioScore:81, signature:"Visible vascularity. Striations in every major muscle group.",
-    aiLine:"You're close. Your body knows how to burn fat — it just needs consistency and the right protocol to finish the job.",
+    aiLine:"You're close. Your body knows how to burn fat, it just needs consistency and the right protocol to finish the job.",
     narrative:[
-      "Fat loss is a hormonal event, not a caloric arithmetic problem. When insulin is chronically elevated and AMPK signaling is impaired, the body is biochemically locked out of using fat as fuel — regardless of deficit size.",
-      "Berberine activates AMPK through the same mechanism as metformin, directly unlocking fatty acid oxidation. CLA reduces adipocyte storage capacity at the cellular level — not a stimulant, a structural shift.",
-      "L-Carnitine is the molecular transporter that physically moves fatty acids across the mitochondrial membrane. Without it, mobilized fat cannot be burned — it recirculates. This is the step most fat-loss stacks miss entirely.",
+      "Fat loss is a hormonal event, not a caloric arithmetic problem. When insulin is chronically elevated and AMPK signaling is impaired, the body is biochemically locked out of using fat as fuel, regardless of deficit size.",
+      "Berberine activates AMPK through the same mechanism as metformin, directly unlocking fatty acid oxidation. CLA reduces adipocyte storage capacity at the cellular level, not a stimulant, a structural shift.",
+      "L-Carnitine is the molecular transporter that physically moves fatty acids across the mitochondrial membrane. Without it, mobilized fat cannot be burned, it recirculates. This is the step most fat-loss stacks miss entirely.",
     ],
     lifestyle:[
-      { name:"Fasted Zone 2 Cardio", dur:"35 min",  cue:"Peak fat oxidation in low-glycogen state — non-negotiable",   icon:"◌" },
+      { name:"Fasted Zone 2 Cardio", dur:"35 min",  cue:"Peak fat oxidation in low-glycogen state, non-negotiable",   icon:"◌" },
       { name:"Resistance Training",  dur:"45 min",  cue:"EPOC response elevates metabolism 18-24 hours post-session",   icon:"⬡" },
-      { name:"16:8 Intermittent Fast",dur:"Daily",  cue:"AMPK activation after 14hr fast — fat mobilization window opens",icon:"◗" },
-      { name:"Cold Exposure",        dur:"5 min",   cue:"Brown adipose activation — thermogenic fat burning stimulus",   icon:"❅" },
+      { name:"16:8 Intermittent Fast",dur:"Daily",  cue:"AMPK activation after 14hr fast, fat mobilization window opens",icon:"◗" },
+      { name:"Cold Exposure",        dur:"5 min",   cue:"Brown adipose activation, thermogenic fat burning stimulus",   icon:"❅" },
     ],
   },
   {
     id:"muscle_build", name:"Muscle Builder", word:"MASS", sub:"HYPERTROPHY ARCHITECTURE", glow:"#FF453A",
     bioScore:85, signature:"Dense, powerful musculature. Size that commands immediate respect.",
-    aiLine:"Your muscles are ready to grow. Hit the food and the training consistently and the size comes — it's just biology.",
+    aiLine:"Your muscles are ready to grow. Hit the food and the training consistently and the size comes, it's just biology.",
     narrative:[
-      "Muscle growth is the result of mechanical tension, metabolic stress, and muscle damage — the three hypertrophy drivers. Nutrition determines whether the body has the raw materials to rebuild bigger after each session.",
+      "Muscle growth is the result of mechanical tension, metabolic stress, and muscle damage, the three hypertrophy drivers. Nutrition determines whether the body has the raw materials to rebuild bigger after each session.",
       "Creatine monohydrate is the single most validated performance supplement in existence: 200+ peer-reviewed studies, consistent 8-12% strength increases, direct ATP recycling support during max-effort sets.",
-      "Leucine is the molecular key that unlocks mTOR — the master regulator of muscle protein synthesis. Without 3.4g per sitting, the anabolic signal is incomplete. Hydrolyzed whey delivers this threshold within 15 minutes of ingestion.",
+      "Leucine is the molecular key that unlocks mTOR, the master regulator of muscle protein synthesis. Without 3.4g per sitting, the anabolic signal is incomplete. Hydrolyzed whey delivers this threshold within 15 minutes of ingestion.",
     ],
     lifestyle:[
-      { name:"Progressive Overload",  dur:"5x/week", cue:"Add weight or reps every session — the only rule that matters", icon:"⬡" },
-      { name:"Post-WO Protein Window",dur:"Within 30min", cue:"MPS window peaks and closes fast — hit it every time",     icon:"◎" },
-      { name:"9hr Sleep Target",      dur:"Nightly",  cue:"GH pulse occurs in slow-wave sleep — mass is built at night",  icon:"◑" },
-      { name:"Caloric Surplus",       dur:"Daily",    cue:"+300 kcal above TDEE — enough to build, not enough to fat",    icon:"◇" },
+      { name:"Progressive Overload",  dur:"5x/week", cue:"Add weight or reps every session, the only rule that matters", icon:"⬡" },
+      { name:"Post-WO Protein Window",dur:"Within 30min", cue:"MPS window peaks and closes fast, hit it every time",     icon:"◎" },
+      { name:"9hr Sleep Target",      dur:"Nightly",  cue:"GH pulse occurs in slow-wave sleep, mass is built at night",  icon:"◑" },
+      { name:"Caloric Surplus",       dur:"Daily",    cue:"+300 kcal above TDEE, enough to build, not enough to fat",    icon:"◇" },
     ],
   },
 ];
@@ -1400,9 +1400,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#FF453A",
     base:        "Coconut water + frozen mango + banana",
     addons: [
-      { name:"MCT Oil",        ml:"15ml", why:"Rapid ketone conversion — bypasses digestion entirely", price:2.50 },
-      { name:"Maca Root",      g:"5g",    why:"Adaptogenic energy — non-stimulant sustained output",   price:1.75 },
-      { name:"Ashwagandha KSM",mg:"300mg",why:"Cortisol modulation — real energy vs. stress energy",   price:2.25 },
+      { name:"MCT Oil",        ml:"15ml", why:"Rapid ketone conversion, bypasses digestion entirely", price:2.50 },
+      { name:"Maca Root",      g:"5g",    why:"Adaptogenic energy, non-stimulant sustained output",   price:1.75 },
+      { name:"Ashwagandha KSM",mg:"300mg",why:"Cortisol modulation, real energy vs. stress energy",   price:2.25 },
     ],
   },
   recovery: {
@@ -1411,9 +1411,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#0A84FF",
     base:        "Frozen berries + Greek yogurt + almond milk",
     addons: [
-      { name:"Whey Hydrolysate", g:"30g",  why:"15-min absorption — hits the MPS window before it closes", price:3.50 },
-      { name:"Creatine Mono",    g:"5g",   why:"ATP resynthesis — load the system while it's primed",      price:1.25 },
-      { name:"Tart Cherry",      ml:"30ml",why:"COX-2 inhibition — measurable DOMS reduction",             price:2.00 },
+      { name:"Whey Hydrolysate", g:"30g",  why:"15-min absorption, hits the MPS window before it closes", price:3.50 },
+      { name:"Creatine Mono",    g:"5g",   why:"ATP resynthesis, load the system while it's primed",      price:1.25 },
+      { name:"Tart Cherry",      ml:"30ml",why:"COX-2 inhibition, measurable DOMS reduction",             price:2.00 },
     ],
   },
   focus: {
@@ -1422,9 +1422,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#5AC8FA",
     base:        "Blueberries + avocado + cold brew concentrate",
     addons: [
-      { name:"Alpha-GPC",       mg:"300mg",why:"Direct BBB-crossing choline — focus in 20 minutes",        price:2.75 },
-      { name:"Lion's Mane",     mg:"500mg",why:"NGF stimulation — neuroplasticity support",                price:2.50 },
-      { name:"L-Theanine",      mg:"200mg",why:"Smooths caffeine — alpha wave promotion without sedation", price:1.50 },
+      { name:"Alpha-GPC",       mg:"300mg",why:"Direct BBB-crossing choline, focus in 20 minutes",        price:2.75 },
+      { name:"Lion's Mane",     mg:"500mg",why:"NGF stimulation, neuroplasticity support",                price:2.50 },
+      { name:"L-Theanine",      mg:"200mg",why:"Smooths caffeine, alpha wave promotion without sedation", price:1.50 },
     ],
   },
   stress: {
@@ -1433,9 +1433,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#BF5AF2",
     base:        "Frozen cherries + cacao + oat milk",
     addons: [
-      { name:"Ashwagandha KSM",  mg:"600mg",why:"Clinical-grade cortisol reduction — 26% in 60 days",      price:2.25 },
-      { name:"Rhodiola Rosea",   mg:"300mg",why:"Adaptogenic — stress resistance without sedation",         price:2.00 },
-      { name:"Magnesium Glyc.",  mg:"200mg",why:"GABA agonism — parasympathetic nervous system activation",  price:1.50 },
+      { name:"Ashwagandha KSM",  mg:"600mg",why:"Clinical-grade cortisol reduction, 26% in 60 days",      price:2.25 },
+      { name:"Rhodiola Rosea",   mg:"300mg",why:"Adaptogenic, stress resistance without sedation",         price:2.00 },
+      { name:"Magnesium Glyc.",  mg:"200mg",why:"GABA agonism, parasympathetic nervous system activation",  price:1.50 },
     ],
   },
   immunity: {
@@ -1444,9 +1444,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#30D158",
     base:        "Ginger + turmeric + pineapple + orange",
     addons: [
-      { name:"Vitamin D3+K2",    IU:"5000IU",why:"Master immune regulator — 70% of immune function depends on this", price:1.75 },
-      { name:"Zinc Glycinate",   mg:"30mg", why:"T-cell proliferation substrate — fastest immune response support",   price:1.50 },
-      { name:"Elderberry Conc.", ml:"15ml", why:"Neuraminidase inhibition — reduces viral replication speed",         price:2.25 },
+      { name:"Vitamin D3+K2",    IU:"5000IU",why:"Master immune regulator, 70% of immune function depends on this", price:1.75 },
+      { name:"Zinc Glycinate",   mg:"30mg", why:"T-cell proliferation substrate, fastest immune response support",   price:1.50 },
+      { name:"Elderberry Conc.", ml:"15ml", why:"Neuraminidase inhibition, reduces viral replication speed",         price:2.25 },
     ],
   },
   morning: {
@@ -1455,9 +1455,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#C9A84C",
     base:        "Banana + oats + cinnamon + almond milk",
     addons: [
-      { name:"Whey + Leucine",   g:"30g",   why:"Captures the morning anabolic window — 3.4g leucine threshold",    price:3.50 },
-      { name:"Vitamin C",        mg:"1000mg",why:"Collagen synthesis co-factor — daily non-negotiable",             price:1.25 },
-      { name:"NMN",              mg:"250mg", why:"NAD+ precursor — restores cellular energy baseline",              price:3.75 },
+      { name:"Whey + Leucine",   g:"30g",   why:"Captures the morning anabolic window, 3.4g leucine threshold",    price:3.50 },
+      { name:"Vitamin C",        mg:"1000mg",why:"Collagen synthesis co-factor, daily non-negotiable",             price:1.25 },
+      { name:"NMN",              mg:"250mg", why:"NAD+ precursor, restores cellular energy baseline",              price:3.75 },
     ],
   },
   fat_burn: {
@@ -1466,9 +1466,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#FF9F0A",
     base:        "Green tea + grapefruit + cucumber + mint",
     addons: [
-      { name:"L-Carnitine",      ml:"2000mg",why:"Fatty acid transporter — mobilized fat cannot burn without this",  price:2.25 },
+      { name:"L-Carnitine",      ml:"2000mg",why:"Fatty acid transporter, mobilized fat cannot burn without this",  price:2.25 },
       { name:"CLA Complex",      g:"3g",    why:"Reduces adipocyte storage capacity at the cellular level",              price:2.00 },
-      { name:"Green Tea Extract",mg:"400mg",why:"EGCG + catechins — 8% metabolic rate elevation, clinically dosed",  price:1.75 },
+      { name:"Green Tea Extract",mg:"400mg",why:"EGCG + catechins, 8% metabolic rate elevation, clinically dosed",  price:1.75 },
     ],
   },
   muscle: {
@@ -1477,9 +1477,9 @@ const SMOOTHIE_FORMULAS = {
     color:       "#FF453A",
     base:        "Banana + oats + peanut butter + whole milk",
     addons: [
-      { name:"Whey Hydrolysate",  g:"35g",   why:"15-min absorption — hits the 3.4g leucine threshold for mTOR",    price:3.50 },
-      { name:"Creatine Mono",     g:"5g",    why:"ATP resynthesis + 8-12% strength increase — 200+ studies confirm", price:1.25 },
-      { name:"HMB",              mg:"3000mg",why:"Anti-catabolic — preserves muscle during caloric surplus phases",   price:2.50 },
+      { name:"Whey Hydrolysate",  g:"35g",   why:"15-min absorption, hits the 3.4g leucine threshold for mTOR",    price:3.50 },
+      { name:"Creatine Mono",     g:"5g",    why:"ATP resynthesis + 8-12% strength increase, 200+ studies confirm", price:1.25 },
+      { name:"HMB",              mg:"3000mg",why:"Anti-catabolic, preserves muscle during caloric surplus phases",   price:2.50 },
     ],
   },
 };
@@ -1488,13 +1488,13 @@ const SMOOTHIE_FORMULAS = {
 const INVENTORY = {
   gym: {
     vtaper:   [
-      { id:"t_whey",  name:"Whey Elite™ Hydrolyzed",  brand:"Thorne",        price:68.99, stock:4, active:true, tag:"#1 Seller", tagColor:"#0A84FF", bioNeed:"Protein Synthesis",     reason:"Hydrolyzed WPI — 15min absorption. Captures MPS peak before it closes." },
+      { id:"t_whey",  name:"Whey Elite™ Hydrolyzed",  brand:"Thorne",        price:68.99, stock:4, active:true, tag:"#1 Seller", tagColor:"#0A84FF", bioNeed:"Protein Synthesis",     reason:"Hydrolyzed WPI, 15min absorption. Captures MPS peak before it closes." },
       { id:"cs_pump", name:"Pump Formula 400",         brand:"ChargedSupps™", price:44.99, stock:7, active:true, tag:"Pre-WO",    tagColor:"#C9A84C", bioNeed:"Vasodilation",           reason:"6g L-citrulline + 3.2g beta-alanine. Documented lat pump amplification." },
       { id:"t_elyte", name:"Electrolyte Complex",      brand:"Thorne",        price:38.99, stock:9, active:true, tag:"Recovery", tagColor:"#30D158", bioNeed:"Contraction Efficiency", reason:"Optimal Na/K/Mg ratio for peak myofibril contraction force." },
     ],
     abs:      [
-      { id:"t_carn",  name:"L-Carnitine Elite 2000",   brand:"Thorne",        price:44.99, stock:3, active:true, tag:"Low Stock", tagColor:"#FF453A", bioNeed:"Fat Transport",         reason:"Shuttles fatty acids into mitochondria — direct sub-q fat reduction." },
-      { id:"cs_burn", name:"Thermo Complex AM",         brand:"ChargedSupps™", price:49.99, stock:6, active:true, tag:"Thermogenic",tagColor:"#FF9F0A", bioNeed:"Metabolic Rate",         reason:"EGCG + synephrine — 8% metabolic rate elevation per clinical dose." },
+      { id:"t_carn",  name:"L-Carnitine Elite 2000",   brand:"Thorne",        price:44.99, stock:3, active:true, tag:"Low Stock", tagColor:"#FF453A", bioNeed:"Fat Transport",         reason:"Shuttles fatty acids into mitochondria, direct sub-q fat reduction." },
+      { id:"cs_burn", name:"Thermo Complex AM",         brand:"ChargedSupps™", price:49.99, stock:6, active:true, tag:"Thermogenic",tagColor:"#FF9F0A", bioNeed:"Metabolic Rate",         reason:"EGCG + synephrine, 8% metabolic rate elevation per clinical dose." },
       { id:"t_fish",  name:"Super EPA Fish Oil",        brand:"Thorne",        price:42.99, stock:8, active:true, tag:"Anti-Inflam",tagColor:"#5AC8FA", bioNeed:"Inflammation Control",  reason:"EPA suppresses the inflammation cascade that promotes visceral fat." },
     ],
     density:  [
@@ -1503,9 +1503,9 @@ const INVENTORY = {
       { id:"t_zma",   name:"Zinc Magnesium Aspartate",   brand:"Thorne",       price:38.99, stock:7, active:true, tag:"Recovery", tagColor:"#30D158", bioNeed:"Testosterone Recovery",  reason:"Zinc restores testosterone suppressed by high-volume training cycles." },
     ],
     athletic: [
-      { id:"cs_eaa",  name:"Essential Amino Complex",    brand:"ChargedSupps™",price:44.99, stock:6, active:true, tag:"Intra-WO", tagColor:"#0A84FF", bioNeed:"Muscle Preservation",   reason:"All 9 EAAs — prevents catabolism during extended conditioning blocks." },
+      { id:"cs_eaa",  name:"Essential Amino Complex",    brand:"ChargedSupps™",price:44.99, stock:6, active:true, tag:"Intra-WO", tagColor:"#0A84FF", bioNeed:"Muscle Preservation",   reason:"All 9 EAAs, prevents catabolism during extended conditioning blocks." },
       { id:"t_beta",  name:"Beta-Alanine SR",             brand:"Thorne",       price:36.99, stock:8, active:true, tag:"Endurance",tagColor:"#C9A84C", bioNeed:"Carnosine Buffer",       reason:"Sustained-release maximizes carnosine loading without tingling." },
-      { id:"cs_adpt", name:"Adaptogen Complex",           brand:"ChargedSupps™",price:52.99, stock:5, active:true, tag:"Recovery", tagColor:"#30D158", bioNeed:"Cortisol Control",       reason:"Ashwagandha + Rhodiola — 26% cortisol reduction in trained athletes." },
+      { id:"cs_adpt", name:"Adaptogen Complex",           brand:"ChargedSupps™",price:52.99, stock:5, active:true, tag:"Recovery", tagColor:"#30D158", bioNeed:"Cortisol Control",       reason:"Ashwagandha + Rhodiola, 26% cortisol reduction in trained athletes." },
     ],
     glutes: [
       { id:"g_pump",  name:"Glute Complex Formula",    brand:"ChargedSupps",  price:44.99, stock:5, active:true, tag:"Glute Pump",   tagColor:"#FF453A", bioNeed:"Blood Flow",         reason:"L-arginine + citrulline gives maximum hip-thrust pump and nutrient delivery to glute tissue." },
@@ -1514,13 +1514,13 @@ const INVENTORY = {
     ],
     hourglass: [
       { id:"h_mag",   name:"Magnesium Glycinate 400",  brand:"Thorne",        price:36.99, stock:6, active:true, tag:"Cortisol",     tagColor:"#C8A94A", bioNeed:"Waist Definition",   reason:"Cortisol drives water retention around the midsection. Magnesium suppresses it at the source." },
-      { id:"h_cla",   name:"CLA Complex 3000mg",       brand:"ChargedSupps",  price:38.99, stock:5, active:true, tag:"Fat Cell",     tagColor:"#FF453A", bioNeed:"Hip Fat Reduction",  reason:"Reduces adipocyte storage capacity — specifically targets the hip and waist area." },
+      { id:"h_cla",   name:"CLA Complex 3000mg",       brand:"ChargedSupps",  price:38.99, stock:5, active:true, tag:"Fat Cell",     tagColor:"#FF453A", bioNeed:"Hip Fat Reduction",  reason:"Reduces adipocyte storage capacity, specifically targets the hip and waist area." },
       { id:"h_fish",  name:"Super EPA Fish Oil",       brand:"Thorne",        price:42.99, stock:7, active:true, tag:"Anti-Inflam",  tagColor:"#0A84FF", bioNeed:"Inflammation",       reason:"EPA blocks the inflammation that causes water retention. Less bloat equals defined waist." },
     ],
     lean_athlete: [
       { id:"l_eaa",   name:"Essential Amino Complex",  brand:"ChargedSupps",  price:44.99, stock:6, active:true, tag:"Intra-WO",    tagColor:"#30D158", bioNeed:"Muscle Preservation", reason:"All 9 EAAs during training prevent muscle breakdown during high-intensity conditioning blocks." },
       { id:"l_elyte", name:"Electrolyte Complex",      brand:"Thorne",        price:38.99, stock:9, active:true, tag:"Performance", tagColor:"#30D158", bioNeed:"Hydration",           reason:"Female athletes lose more sodium per sweat session. This replaces all three key electrolytes." },
-      { id:"l_carn",  name:"L-Carnitine Elite 2000",   brand:"Thorne",        price:44.99, stock:4, active:true, tag:"Fat as Fuel",  tagColor:"#FF453A", bioNeed:"Fat Oxidation",      reason:"Shuttles fatty acids into mitochondria — essential for the body recomp effect this protocol drives." },
+      { id:"l_carn",  name:"L-Carnitine Elite 2000",   brand:"Thorne",        price:44.99, stock:4, active:true, tag:"Fat as Fuel",  tagColor:"#FF453A", bioNeed:"Fat Oxidation",      reason:"Shuttles fatty acids into mitochondria, essential for the body recomp effect this protocol drives." },
     ],
     tone_define: [
       { id:"td_stack",name:"L-Carnitine + CLA Stack",  brand:"ChargedSupps",  price:52.99, stock:5, active:true, tag:"Definition",  tagColor:"#0A84FF", bioNeed:"Fat Metabolism",     reason:"CLA + L-Carnitine targets the stubborn hip and thigh fat areas specific to female fat distribution." },
@@ -1531,7 +1531,7 @@ const INVENTORY = {
     chest_arms: [
       { id:"ca_creat",name:"Creatine Monohydrate 500g", brand:"Thorne",        price:54.99, stock:6, active:true, tag:"Strength",   tagColor:"#FF9F0A", bioNeed:"Power Output",       reason:"5g daily adds 8–14% to your bench press within 2 weeks. The most validated supplement on Earth." },
       { id:"ca_whey", name:"Whey Isolate Premium",      brand:"ChargedSupps™", price:58.99, stock:5, active:true, tag:"Recovery",   tagColor:"#FF9F0A", bioNeed:"Muscle Repair",      reason:"Rapid amino acid delivery hits the chest and bicep MPS window within 15 minutes of training." },
-      { id:"ca_cit",  name:"Citrulline Malate 3000",    brand:"Thorne",        price:36.99, stock:8, active:true, tag:"Pump",       tagColor:"#FF9F0A", bioNeed:"Vasodilation",       reason:"6g citrulline drives blood directly into the pec and bicep belly — maximizes the training pump." },
+      { id:"ca_cit",  name:"Citrulline Malate 3000",    brand:"Thorne",        price:36.99, stock:8, active:true, tag:"Pump",       tagColor:"#FF9F0A", bioNeed:"Vasodilation",       reason:"6g citrulline drives blood directly into the pec and bicep belly, maximizes the training pump." },
     ],
     powerlifter: [
       { id:"pl_creat",name:"Creatine HMB Formula",      brand:"Thorne",        price:62.99, stock:5, active:true, tag:"1RM Fuel",   tagColor:"#BF5AF2", bioNeed:"ATP Resynthesis",    reason:"Creatine phosphate is the exact fuel your muscles burn on a max-effort 1–3 rep set." },
@@ -1541,7 +1541,7 @@ const INVENTORY = {
     shred: [
       { id:"sh_carn", name:"L-Carnitine Elite 2000",     brand:"Thorne",        price:44.99, stock:5, active:true, tag:"Fat Fuel",   tagColor:"#FF3B30", bioNeed:"Fat Transport",      reason:"Physically moves mobilized fat into mitochondria. Without it, fat cells just refill. Game-changer." },
       { id:"sh_therm",name:"Thermo Complex AM",           brand:"ChargedSupps™", price:49.99, stock:6, active:true, tag:"Metabolic",  tagColor:"#FF3B30", bioNeed:"Resting Burn",       reason:"EGCG + synephrine raises resting metabolic rate by 8%. That's 140 extra calories burned every day." },
-      { id:"sh_cla",  name:"CLA Complex 3000mg",          brand:"ChargedSupps™", price:38.99, stock:8, active:true, tag:"Body Comp",  tagColor:"#FF3B30", bioNeed:"Fat Cell Size",      reason:"Reduces adipocyte storage capacity — tells fat cells to stay small at the molecular level." },
+      { id:"sh_cla",  name:"CLA Complex 3000mg",          brand:"ChargedSupps™", price:38.99, stock:8, active:true, tag:"Body Comp",  tagColor:"#FF3B30", bioNeed:"Fat Cell Size",      reason:"Reduces adipocyte storage capacity, tells fat cells to stay small at the molecular level." },
     ],
     calisthenics: [
       { id:"cs2_coll",name:"Marine Collagen Peptides",   brand:"Thorne",        price:62.99, stock:5, active:true, tag:"Joints",     tagColor:"#5AC8FA", bioNeed:"Tendon Strength",    reason:"Lever work places extreme load on elbow and wrist tendons. Collagen directly rebuilds connective tissue." },
@@ -1551,7 +1551,7 @@ const INVENTORY = {
     // ── New women's archetype inventory ─────────────────────────────────────────
     lower_build: [
       { id:"lb_creat",name:"Creatine Monohydrate 500g",  brand:"Thorne",        price:54.99, stock:5, active:true, tag:"Strength",   tagColor:"#BF5AF2", bioNeed:"Leg Strength",       reason:"5g daily adds measurable strength to squat and deadlift within 2 weeks. Backed by 200+ studies." },
-      { id:"lb_whey", name:"Whey Elite™ Hydrolyzed",     brand:"Thorne",        price:68.99, stock:4, active:true, tag:"Recovery",   tagColor:"#BF5AF2", bioNeed:"Protein Synthesis",  reason:"Legs are the largest muscle group. Recovery demand is highest after lower body sessions — hit protein fast." },
+      { id:"lb_whey", name:"Whey Elite™ Hydrolyzed",     brand:"Thorne",        price:68.99, stock:4, active:true, tag:"Recovery",   tagColor:"#BF5AF2", bioNeed:"Protein Synthesis",  reason:"Legs are the largest muscle group. Recovery demand is highest after lower body sessions, hit protein fast." },
       { id:"lb_joint",name:"Joint Support Complex",       brand:"Thorne",        price:48.99, stock:7, active:true, tag:"Joints",     tagColor:"#30D158", bioNeed:"Knee Health",        reason:"Heavy squatting demands knee and hip joint support. Glucosamine + Collagen builds the cartilage base." },
     ],
     body_recomp: [
@@ -1573,34 +1573,34 @@ const INVENTORY = {
   },
   store: {
     longevity:[
-      { id:"t_nmn",   name:"NMN Restorative Complex",   brand:"Thorne",        price:78.99, stock:3, active:true, tag:"Longevity #1",tagColor:"#30D158", bioNeed:"NAD+ Restoration",    reason:"Direct NAD+ precursor — 40% NAD+ elevation in 60 days." },
+      { id:"t_nmn",   name:"NMN Restorative Complex",   brand:"Thorne",        price:78.99, stock:3, active:true, tag:"Longevity #1",tagColor:"#30D158", bioNeed:"NAD+ Restoration",    reason:"Direct NAD+ precursor, 40% NAD+ elevation in 60 days." },
       { id:"t_resv",  name:"Resveratrol Phytosome",      brand:"Thorne",        price:58.99, stock:5, active:true, tag:"SIRT1",      tagColor:"#C9A84C", bioNeed:"Sirtuin Activation",   reason:"Phytosome delivery = 10x bioavailability vs standard resveratrol." },
-      { id:"cs_coq",  name:"Ubiquinol CoQ10 200mg",      brand:"ChargedSupps™", price:48.99, stock:7, active:true, tag:"Mito",       tagColor:"#30D158", bioNeed:"Electron Transport",   reason:"Active CoQ10 form — powers every mitochondrial ATP reaction." },
+      { id:"cs_coq",  name:"Ubiquinol CoQ10 200mg",      brand:"ChargedSupps™", price:48.99, stock:7, active:true, tag:"Mito",       tagColor:"#30D158", bioNeed:"Electron Transport",   reason:"Active CoQ10 form, powers every mitochondrial ATP reaction." },
     ],
     skin:     [
-      { id:"t_coll",  name:"Marine Collagen Peptides",   brand:"Thorne",        price:62.99, stock:4, active:true, tag:"Dermal",    tagColor:"#BF5AF2", bioNeed:"Collagen Synthesis",   reason:"Type I + III peptides — incorporated directly into the dermis." },
+      { id:"t_coll",  name:"Marine Collagen Peptides",   brand:"Thorne",        price:62.99, stock:4, active:true, tag:"Dermal",    tagColor:"#BF5AF2", bioNeed:"Collagen Synthesis",   reason:"Type I + III peptides, incorporated directly into the dermis." },
       { id:"t_vitc",  name:"Vitamin C Bisglycinate 1g",  brand:"Thorne",        price:34.99, stock:9, active:true, tag:"Co-Factor", tagColor:"#5AC8FA", bioNeed:"Cross-Linking Agent",  reason:"Required for every collagen synthesis reaction in the body." },
-      { id:"cs_hyal", name:"Hyaluronic Acid Complex",    brand:"ChargedSupps™", price:44.99, stock:6, active:true, tag:"Hydration", tagColor:"#BF5AF2", bioNeed:"Dermal Hydration",     reason:"Low MW HA penetrates dermis — holds 1000x its weight in water." },
+      { id:"cs_hyal", name:"Hyaluronic Acid Complex",    brand:"ChargedSupps™", price:44.99, stock:6, active:true, tag:"Hydration", tagColor:"#BF5AF2", bioNeed:"Dermal Hydration",     reason:"Low MW HA penetrates dermis, holds 1000x its weight in water." },
     ],
     cognitive:[
-      { id:"t_lion",  name:"Lion's Mane Extract 1000",   brand:"Thorne",        price:54.99, stock:5, active:true, tag:"BDNF",      tagColor:"#5AC8FA", bioNeed:"Neurogenesis",         reason:"Hericenones stimulate NGF — documented new neuron growth in adults." },
-      { id:"cs_agpc", name:"Alpha-GPC 600mg",             brand:"ChargedSupps™", price:46.99, stock:7, active:true, tag:"Focus",     tagColor:"#0A84FF", bioNeed:"Acetylcholine",        reason:"Highest-bioavailability choline — crosses blood-brain barrier directly." },
+      { id:"t_lion",  name:"Lion's Mane Extract 1000",   brand:"Thorne",        price:54.99, stock:5, active:true, tag:"BDNF",      tagColor:"#5AC8FA", bioNeed:"Neurogenesis",         reason:"Hericenones stimulate NGF, documented new neuron growth in adults." },
+      { id:"cs_agpc", name:"Alpha-GPC 600mg",             brand:"ChargedSupps™", price:46.99, stock:7, active:true, tag:"Focus",     tagColor:"#0A84FF", bioNeed:"Acetylcholine",        reason:"Highest-bioavailability choline, crosses blood-brain barrier directly." },
       { id:"t_omg3",  name:"Omega-3 w/ CoQ10",            brand:"Thorne",        price:48.99, stock:6, active:true, tag:"Neuro",     tagColor:"#30D158", bioNeed:"Synaptic Integrity",   reason:"DHA is the structural lipid of every neuronal cell membrane." },
     ],
     metabolic:[
-      { id:"t_berb",  name:"Berberine HCl 1000mg",       brand:"Thorne",        price:52.99, stock:4, active:true, tag:"AMPK",      tagColor:"#FF9F0A", bioNeed:"Glucose Control",      reason:"Activates AMPK — same pathway as metformin, naturally occurring." },
+      { id:"t_berb",  name:"Berberine HCl 1000mg",       brand:"Thorne",        price:52.99, stock:4, active:true, tag:"AMPK",      tagColor:"#FF9F0A", bioNeed:"Glucose Control",      reason:"Activates AMPK, same pathway as metformin, naturally occurring." },
       { id:"cs_cla",  name:"CLA Complex 3000mg",          brand:"ChargedSupps™", price:38.99, stock:6, active:true, tag:"Fat Cell",  tagColor:"#FF453A", bioNeed:"Adipocyte Reduction",  reason:"Directly reduces adipocyte storage capacity at the cellular level." },
-      { id:"t_thyro", name:"Thyroid Metabolism Support",  brand:"Thorne",        price:44.99, stock:5, active:true, tag:"T3/T4",     tagColor:"#FF9F0A", bioNeed:"Thyroid Optimization", reason:"Iodine + selenium + tyrosine — all three T3/T4 synthesis substrates." },
+      { id:"t_thyro", name:"Thyroid Metabolism Support",  brand:"Thorne",        price:44.99, stock:5, active:true, tag:"T3/T4",     tagColor:"#FF9F0A", bioNeed:"Thyroid Optimization", reason:"Iodine + selenium + tyrosine, all three T3/T4 synthesis substrates." },
     ],
     fat_loss: [
-      { id:"fl_carn",  name:"L-Carnitine Elite 2000",    brand:"Thorne",        price:44.99, stock:5, active:true, tag:"#1 Fat Burn", tagColor:"#FF9F0A", bioNeed:"Fat Transport",         reason:"Shuttles fatty acids into mitochondria — the missing step in most fat-loss stacks." },
-      { id:"fl_cla",   name:"CLA Complex 3g",            brand:"ChargedSupps™", price:36.99, stock:8, active:true, tag:"Shred",      tagColor:"#FF453A", bioNeed:"Adipocyte Control",     reason:"Reduces fat cell storage capacity at the cellular level — not a stimulant." },
+      { id:"fl_carn",  name:"L-Carnitine Elite 2000",    brand:"Thorne",        price:44.99, stock:5, active:true, tag:"#1 Fat Burn", tagColor:"#FF9F0A", bioNeed:"Fat Transport",         reason:"Shuttles fatty acids into mitochondria, the missing step in most fat-loss stacks." },
+      { id:"fl_cla",   name:"CLA Complex 3g",            brand:"ChargedSupps™", price:36.99, stock:8, active:true, tag:"Shred",      tagColor:"#FF453A", bioNeed:"Adipocyte Control",     reason:"Reduces fat cell storage capacity at the cellular level, not a stimulant." },
       { id:"fl_egt",   name:"EGCG Green Tea 400mg",      brand:"Thorne",        price:29.99, stock:11, active:true, tag:"Thermogenic",tagColor:"#30D158", bioNeed:"Metabolic Rate",         reason:"8% metabolic elevation per clinical dose. COX-2 modulation for clean energy output." },
     ],
     muscle_build: [
-      { id:"mb_whey",  name:"Whey Elite™ Hydrolyzed",   brand:"Thorne",        price:68.99, stock:4, active:true, tag:"#1 Seller", tagColor:"#0A84FF", bioNeed:"Protein Synthesis",     reason:"Hydrolyzed WPI — 15min absorption. Hits the 3.4g leucine threshold before the MPS window closes." },
+      { id:"mb_whey",  name:"Whey Elite™ Hydrolyzed",   brand:"Thorne",        price:68.99, stock:4, active:true, tag:"#1 Seller", tagColor:"#0A84FF", bioNeed:"Protein Synthesis",     reason:"Hydrolyzed WPI, 15min absorption. Hits the 3.4g leucine threshold before the MPS window closes." },
       { id:"mb_creat", name:"Creatine Monohydrate 500g",  brand:"ChargedSupps™", price:32.99, stock:14, active:true, tag:"Power",     tagColor:"#FF453A", bioNeed:"ATP Resynthesis",       reason:"200+ peer-reviewed studies. Consistent 8-12% strength increase. The most proven supplement that exists." },
-      { id:"mb_hmb",   name:"HMB Free Acid 3g",          brand:"Thorne",        price:54.99, stock:6, active:true, tag:"Anti-Catabolic",tagColor:"#BF5AF2", bioNeed:"Muscle Preservation",  reason:"Prevents muscle breakdown during surplus phases — maximizes net muscle gain per calorie consumed." },
+      { id:"mb_hmb",   name:"HMB Free Acid 3g",          brand:"Thorne",        price:54.99, stock:6, active:true, tag:"Anti-Catabolic",tagColor:"#BF5AF2", bioNeed:"Muscle Preservation",  reason:"Prevents muscle breakdown during surplus phases, maximizes net muscle gain per calorie consumed." },
     ],
   },
 };
@@ -1619,27 +1619,27 @@ const TRUTH_COMPARISONS = [
     name:    "Omega-3 Fish Oil",
     generic: { name:"Fish Oil 1000mg",       brand:"Generic",       price:14.99, epa:"180mg", dha:"120mg", form:"Ethyl Ester",  oxidation:"HIGH",   bioavail:45 },
     store:   { name:"Super EPA",             brand:"Thorne",        price:42.99, epa:"420mg", dha:"280mg", form:"Triglyceride", oxidation:"MINIMAL", bioavail:88 },
-    verdict: "Triglyceride-form omega-3 absorbs 70% better than ethyl ester. Most budget fish oils are already rancid before you open the bottle — measurable via TOTOX value.",
+    verdict: "Triglyceride-form omega-3 absorbs 70% better than ethyl ester. Most budget fish oils are already rancid before you open the bottle, measurable via TOTOX value.",
   },
   {
     id:      "creatine",
     name:    "Creatine",
     generic: { name:"Creatine Monohydrate",  brand:"Generic",       price:19.99, purity:"88%", form:"Monohydrate Blend", micron:"200 mesh",  bioavail:84 },
     store:   { name:"Creatine Mono 500g",    brand:"Thorne",        price:54.99, purity:"99.9%",form:"Creapure® Mono",  micron:"400 mesh",  bioavail:96 },
-    verdict: "Creapure® is the only third-party tested creatine certified free of dihydrotriazine — a known hepatotoxin found in cheaper creatine sources. The 12% purity gap is biologically meaningful.",
+    verdict: "Creapure® is the only third-party tested creatine certified free of dihydrotriazine, a known hepatotoxin found in cheaper creatine sources. The 12% purity gap is biologically meaningful.",
   },
 ];
 
 // ─── SUPPLEMENT MOA ───────────────────────────────────────────────────────────
 const SUPPLEMENT_MOA = [
-  { id:"nad",   name:"NAD+ Complex",         brand:"Thorne NMN",      tag:"Cellular Energy Boost",  tagColor:"#C9A84C", headline:"More Energy, Faster Recovery", hook:"Feel the difference in your first workout. People describe it as their body switching from battery-saver mode to full power.", body:"NAD+ is the fuel your cells run on. After 25, your levels drop ~50% — that's why recovery feels slower. NMN restores those levels in minutes. More energy, better focus, faster muscle repair.", anim:"nad",   color:"#C9A84C" },
+  { id:"nad",   name:"NAD+ Complex",         brand:"Thorne NMN",      tag:"Cellular Energy Boost",  tagColor:"#C9A84C", headline:"More Energy, Faster Recovery", hook:"Feel the difference in your first workout. People describe it as their body switching from battery-saver mode to full power.", body:"NAD+ is the fuel your cells run on. After 25, your levels drop ~50%, that's why recovery feels slower. NMN restores those levels in minutes. More energy, better focus, faster muscle repair.", anim:"nad",   color:"#C9A84C" },
   { id:"omega", name:"Omega-3 Elite",        brand:"Thorne EPA/DHA",  tag:"Anti-Inflammation",       tagColor:"#0A84FF", headline:"Less Soreness, Cleaner Gains", hook:"If you're sore for 3+ days after training, inflammation is the culprit. This fixes that.", body:"Omega-3s reduce the inflammation that causes joint pain and muscle soreness. Premium triglyceride form absorbs 70% better than the cheap stuff. You'll notice the difference in how you feel day-to-day.", anim:"omega", color:"#0A84FF" },
-  { id:"resv",  name:"Resveratrol Phytosome",brand:"Thorne",          tag:"Longevity & Recovery",    tagColor:"#30D158", headline:"The Anti-Aging Compound", hook:"The supplement that scientists take themselves. Found in red wine — but you'd need 100 bottles to match one capsule.", body:"Resveratrol activates your body's own repair genes. Think of it as a system update for your cells. Phytosome form means it actually gets absorbed — most resveratrol pills are wasted in digestion.", anim:"resv",  color:"#30D158" },
+  { id:"resv",  name:"Resveratrol Phytosome",brand:"Thorne",          tag:"Longevity & Recovery",    tagColor:"#30D158", headline:"The Anti-Aging Compound", hook:"The supplement that scientists take themselves. Found in red wine, but you'd need 100 bottles to match one capsule.", body:"Resveratrol activates your body's own repair genes. Think of it as a system update for your cells. Phytosome form means it actually gets absorbed, most resveratrol pills are wasted in digestion.", anim:"resv",  color:"#30D158" },
 ];
 
 // ─── BIO SCORE CALCULATOR ─────────────────────────────────────────────────────
-// biology: { gender, frequency, caffeine, bottleneck } — from BiologyStep
-// age: number — from PersonalizeStep (optional, falls back to localStorage)
+// biology: { gender, frequency, caffeine, bottleneck }, from BiologyStep
+// age: number, from PersonalizeStep (optional, falls back to localStorage)
 function calcBioScore(archetypeId, performanceData, biology, age) {
   // Full multi-factor calculation when gym performance data is present
   const comprehensive = calcComprehensiveBioScore(performanceData, biology, age);
@@ -1694,7 +1694,7 @@ const TESTIMONIALS = [
     name:"Marcus T.", handle:"@marcust_fit", age:34, location:"Austin, TX",
     avatar:"M", avatarColor:"#C8A94A",
     rating:5, daysAgo:12,
-    text:"NAD+ Cell Restore literally changed how I age. Bloodwork confirmed — my biological age dropped 6 years in 8 months. My doctor was shocked.",
+    text:"NAD+ Cell Restore literally changed how I age. Bloodwork confirmed, my biological age dropped 6 years in 8 months. My doctor was shocked.",
     verifiedResult:"Verified: −6 Biological Age Years",
     resultBadgeColor:"#C8A94A",
     benchRatio:0.82,
@@ -1718,7 +1718,7 @@ const TESTIMONIALS = [
     name:"Priya S.", handle:"@priyaruns", age:29, location:"Chicago, IL",
     avatar:"P", avatarColor:"#30D158",
     rating:5, daysAgo:21,
-    text:"NSF certified matters when you're competing. Klean Athlete magnesium + B12 — 34% faster recovery between sessions. No more DOMS killing my week.",
+    text:"NSF certified matters when you're competing. Klean Athlete magnesium + B12, 34% faster recovery between sessions. No more DOMS killing my week.",
     verifiedResult:"Verified: 34% Increase in Recovery Speed",
     resultBadgeColor:"#30D158",
     benchRatio:0.65,
@@ -1730,7 +1730,7 @@ const TESTIMONIALS = [
     name:"DeShawn W.", handle:"@deshawnwlifts", age:31, location:"Atlanta, GA",
     avatar:"D", avatarColor:"#FF9F0A",
     rating:5, daysAgo:3,
-    text:"Store brand but absolutely ELITE quality. The Charged Whey protein — 44g per serving, no bloat, incredible taste. First scoop you know it's different.",
+    text:"Store brand but absolutely ELITE quality. The Charged Whey protein, 44g per serving, no bloat, incredible taste. First scoop you know it's different.",
     verifiedResult:"Verified: V-Taper Progress Documented",
     resultBadgeColor:"#FF9F0A",
     benchRatio:0.91,
@@ -1792,7 +1792,7 @@ const BRAND_LOGO_SVG = {
 };
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  ENVIRONMENTAL STATE MANAGER  (Phase 1)                      ║
+// ║  RVN OS ,  ENVIRONMENTAL STATE MANAGER  (Phase 1)                      ║
 // ║  EnvContext · envReducer · EnvProvider · useEnv / useEnvDispatch        ║
 // ║                                                                          ║
 // ║  Single source of truth for the entire OS. Existing components continue ║
@@ -1800,7 +1800,7 @@ const BRAND_LOGO_SVG = {
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 // ─── Augment OS_MODES with Personal (default mode, no-protocol surface) ──────
-// Guarded — existing screens that key into OS_MODES[mode] won't crash if
+// Guarded, existing screens that key into OS_MODES[mode] won't crash if
 // mode happens to resolve to "personal" at any point.
 if (typeof OS_MODES !== "undefined" && !OS_MODES.personal) {
   OS_MODES.personal = {
@@ -1810,7 +1810,7 @@ if (typeof OS_MODES !== "undefined" && !OS_MODES.personal) {
     icon:       "◉",
     accentKey:  "blue",
     heroWords:  ["LIVE",  "BY",  "YOUR", "BIOLOGY"],
-    heroBio:    "Kailu listening. Log anything — food, sleep, training, feelings — in plain language.",
+    heroBio:    "Kailu listening. Log anything, food, sleep, training, feelings, in plain language.",
     ctaLabel:   "Open Bio-Brief",
     bgGradient: (T) => `radial-gradient(ellipse 80% 55% at 50% 0%, ${T.blue}1A 0%, transparent 65%)`,
     pulse:      "#0A84FF",
@@ -1829,7 +1829,7 @@ const INITIAL_ENV_STATE = {
   // ─── Mode & context awareness ───
   mode:         "personal",     // "personal" | "gym" | "store" | "smoothie"
   modeLockedBy: "default",      // "default" | "manual" | "nfc"
-  location:     null,           // { venueId, venueName, brand } — populated by NFC
+  location:     null,           // { venueId, venueName, brand }, populated by NFC
 
   // ─── Session / flow state (was in RVNVision) ───
   screen:       "splash",       // splash | landing | biology | target | performance | account | narrative | protocol | manager | hub
@@ -1839,7 +1839,7 @@ const INITIAL_ENV_STATE = {
   user:         null,
   inventory:    (typeof INVENTORY !== "undefined") ? INVENTORY : {},
 
-  // ─── Bio-Logic — the live physiological model (Phase 3) ───
+  // ─── Bio-Logic, the live physiological model (Phase 3) ───
   bioLogic: {
     readiness: 82,                            // 0–100 recovery score
     nutrition: {
@@ -1861,7 +1861,7 @@ const INITIAL_ENV_STATE = {
     messages:   [],                           // [{ role:"user"|"pal", text, intent, appliedDelta, at }]
   },
 
-  // ─── Agentic schedule slice — plans pending user confirmation, then locked ─
+  // ─── Agentic schedule slice, plans pending user confirmation, then locked ─
   schedule: {
     items:   [],         // [{ id, time, title, category, note, locked, createdAt }]
     pending: null,       // most recent un-locked plan from RVN Vision
@@ -1891,8 +1891,8 @@ const EnvActions = {
   SET_INVENTORY:    "SET_INVENTORY",
   TOGGLE_INVENTORY: "TOGGLE_INVENTORY",       // { modeKey, arcId, prodId }
 
-  // bio-logic (Phase 3 foundations — safe to dispatch now)
-  BIO_LOGIC_UPDATE: "BIO_LOGIC_UPDATE",       // { patch }  — deep-ish merge
+  // bio-logic (Phase 3 foundations, safe to dispatch now)
+  BIO_LOGIC_UPDATE: "BIO_LOGIC_UPDATE",       // { patch } , deep-ish merge
   BIO_LOGIC_LOG:    "BIO_LOGIC_LOG",          // { kind, amount, unit, note? }
 
   // bio-pal (Phase 3)
@@ -2158,7 +2158,7 @@ function useEnvDispatch() {
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  VISUAL ENGINE  v5.0                                         ║
+// ║  RVN OS ,  VISUAL ENGINE  v5.0                                         ║
 // ║  Glassmorphism · Neural Mesh · 3D Avatar · Bio-Animations               ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -2182,7 +2182,7 @@ function GlobalStyles({ theme }) {
         -webkit-user-select: none;
         outline: none;
       }
-      /* Scoped transitions — Framer Motion owns opacity/transform, so we only transition paint props on interactive elements */
+      /* Scoped transitions, Framer Motion owns opacity/transform, so we only transition paint props on interactive elements */
       button, a, [role="button"] {
         transition: background-color 0.18s cubic-bezier(0.22,1,0.36,1),
                     border-color    0.18s cubic-bezier(0.22,1,0.36,1),
@@ -2194,7 +2194,7 @@ function GlobalStyles({ theme }) {
         background:transparent; caret-color:${T.text}; border:none; outline:none; font-family:inherit;
         /* iOS: prevent default rounded-rect appearance on text inputs */
         -webkit-appearance:none; appearance:none;
-        /* iOS: prevent zoom on focus — must be ≥16px */
+        /* iOS: prevent zoom on focus, must be ≥16px */
         font-size:16px;
       }
       input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus {
@@ -2228,7 +2228,7 @@ function GlobalStyles({ theme }) {
       @keyframes os_particle { 0%{transform:translate(0,0) scale(1);opacity:0;} 10%{opacity:1;} 90%{opacity:.6;} 100%{transform:translate(var(--pdx),var(--pdy)) scale(.1);opacity:0;} }
       @keyframes os_radar_pulse { 0%,100%{opacity:.35;transform:scale(1);} 50%{opacity:.7;transform:scale(1.03);} }
       @keyframes os_holo { 0%{background-position:0% 50%;} 50%{background-position:100% 50%;} 100%{background-position:0% 50%;} }
-      /* filter: in keyframes forces CPU rendering on iOS — replaced with opacity/scale only */
+      /* filter: in keyframes forces CPU rendering on iOS, replaced with opacity/scale only */
       @keyframes os_glitch { 0%,90%,100%{transform:translate(0);opacity:1;} 92%{transform:translate(-2px,0);opacity:.85;} 94%{transform:translate(2px,0);opacity:.9;} 96%{transform:translate(0);opacity:1;} }
       @keyframes os_heartbeat { 0%,100%{transform:scale(1);opacity:.85;} 14%{transform:scale(1.04);opacity:1;} 28%{transform:scale(1);} 42%{transform:scale(1.028);} 70%{transform:scale(1);} }
       .os_heartbeat { animation: os_heartbeat 1.4s ease-in-out infinite; }
@@ -2241,7 +2241,7 @@ function GlobalStyles({ theme }) {
       /* Safe-area utility classes */
       .pb-safe { padding-bottom:env(safe-area-inset-bottom); }
       .pb-safe-nav { padding-bottom:calc(52px + env(safe-area-inset-bottom)); }
-      /* Minimum tap targets — wrap small interactive elements */
+      /* Minimum tap targets, wrap small interactive elements */
       .tap-target { min-height:44px; min-width:44px; display:flex; align-items:center; justify-content:center; }
 
     `}</style>
@@ -2337,7 +2337,7 @@ function CobaltSpinner({ size = 32, color }) {
   ensure("mobile-web-app-capable", "yes");
   ensure("apple-mobile-web-app-capable", "yes");
   ensure("apple-mobile-web-app-status-bar-style", "black-translucent");
-  // Content Security Policy — tighten before prod (adjust src as needed)
+  // Content Security Policy, tighten before prod (adjust src as needed)
   const cspContent = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.mxpnl.com https://js.stripe.com",
@@ -2374,9 +2374,9 @@ function AITyping({ theme }) {
 
 // ─── AI TICKER ───────────────────────────────────────────────────────────────
 const AI_TICKER_LINES = {
-  gym:   ["◉ MUSCLE PROTEIN SYNTHESIS WINDOW: 45 MIN POST-TRAINING","\u2b21 HYPERTROPHY SIGNAL ACTIVE — ECCENTRIC LOAD OPTIMAL","◈ CREATINE PHOSPHATE STORES: REPLENISHING","∞ TESTOSTERONE PEAK: 18–36HRS POST HEAVY COMPOUND","◉ LEUCINE THRESHOLD: 3.4G REQUIRED FOR MTOR ACTIVATION","\u25d7 RECOVERY DEBT DETECTED — PRIORITIZE SLEEP ARCHITECTURE"],
-  store: ["◉ NAD+ DEPLETION DETECTED AT 52% FROM PEAK","◈ COLLAGEN SYNTHESIS PATHWAY ACTIVE — CO-FACTOR REQUIRED","\u2b21 AMPK PATHWAY SUBOPTIMAL — BERBERINE PROTOCOL AVAILABLE","∞ BDNF UPREGULATION WINDOW: OPEN","◉ INSULIN SENSITIVITY ANALYSIS RUNNING","\u25d7 MITOCHONDRIAL RESTORATION PROTOCOL READY"],
-  smoothie: ["◉ ACETYLCHOLINE SUBSTRATE DEPLETION DETECTED","◈ CORTISOL ELEVATION ABOVE BASELINE — ADAPT PROTOCOL ACTIVE","\u2b21 POST-WORKOUT ANABOLIC WINDOW: 28 MINUTES REMAINING","∞ MITOCHONDRIAL FUEL: REPLENISHMENT SEQUENCE INITIATED","◉ NK CELL ACTIVATION: IMMUNE ARCHITECTURE ONLINE","\u25d7 DOPAMINE PRECURSOR LOADING — TYROSINE THRESHOLD APPROACHING"],
+  gym:   ["◉ MUSCLE PROTEIN SYNTHESIS WINDOW: 45 MIN POST-TRAINING","\u2b21 HYPERTROPHY SIGNAL ACTIVE, ECCENTRIC LOAD OPTIMAL","◈ CREATINE PHOSPHATE STORES: REPLENISHING","∞ TESTOSTERONE PEAK: 18–36HRS POST HEAVY COMPOUND","◉ LEUCINE THRESHOLD: 3.4G REQUIRED FOR MTOR ACTIVATION","\u25d7 RECOVERY DEBT DETECTED, PRIORITIZE SLEEP ARCHITECTURE"],
+  store: ["◉ NAD+ DEPLETION DETECTED AT 52% FROM PEAK","◈ COLLAGEN SYNTHESIS PATHWAY ACTIVE, CO-FACTOR REQUIRED","\u2b21 AMPK PATHWAY SUBOPTIMAL, BERBERINE PROTOCOL AVAILABLE","∞ BDNF UPREGULATION WINDOW: OPEN","◉ INSULIN SENSITIVITY ANALYSIS RUNNING","\u25d7 MITOCHONDRIAL RESTORATION PROTOCOL READY"],
+  smoothie: ["◉ ACETYLCHOLINE SUBSTRATE DEPLETION DETECTED","◈ CORTISOL ELEVATION ABOVE BASELINE, ADAPT PROTOCOL ACTIVE","\u2b21 POST-WORKOUT ANABOLIC WINDOW: 28 MINUTES REMAINING","∞ MITOCHONDRIAL FUEL: REPLENISHMENT SEQUENCE INITIATED","◉ NK CELL ACTIVATION: IMMUNE ARCHITECTURE ONLINE","\u25d7 DOPAMINE PRECURSOR LOADING, TYROSINE THRESHOLD APPROACHING"],
 };
 function AITicker({ theme, mode }) {
   const T = D[theme]||D.dark;
@@ -2436,12 +2436,12 @@ function NeuralMesh({ theme, accentColor, density = 12 }) {
 }
 
 // ─── SCANLINE OVERLAY ─────────────────────────────────────────────────────────
-// Removed — CRT scanlines are a retro game aesthetic, not premium health tech
+// Removed, CRT scanlines are a retro game aesthetic, not premium health tech
 function Scanlines() { return null; }
 
 // ─── RVN LOGO ─────────────────────────────────────────────────────────────────
 function RVNLogo({ size = 56, glow, style = {} }) {
-  // Transparent PNG — no border-radius, no background, no box masking
+  // Transparent PNG, no border-radius, no background, no box masking
   return (
     <img src={LOGO_DATA_URL} alt="RVN Vision"
       style={{
@@ -2487,14 +2487,14 @@ function NfcAutoLeaveTimer({ ac, T, onLeave }) {
 }
 
 // ─── GLASS CARD ────────────────────────────────────────────────────────────────
-// Solid elevation card — bg contrast does the work, no blur/border needed
+// Solid elevation card, bg contrast does the work, no blur/border needed
 function GlassCard({ children, theme, glow, style={}, onClick }) {
   const T = D[theme];
   const isDark = theme === "dark";
   return (
     <div onClick={onClick}
       style={{
-        // Solid card — #1C1C1E on black, #FFF on #FAFAFA. Clean, no tricks.
+        // Solid card, #1C1C1E on black, #FFF on #FAFAFA. Clean, no tricks.
         background: T.glass,
         borderRadius:16,
         // Only show a faint border on light mode (cards need separation from white bg)
@@ -2567,7 +2567,7 @@ function FuelRecipeScanner({ theme, T, arch }) {
         <>
           <div style={{ display:"flex", gap:8, marginBottom:8 }}>
             <input value={url} onChange={e => { setUrl(e.target.value); setError(""); }}
-              placeholder="Paste link — Instagram, TikTok, any recipe site"
+              placeholder="Paste link, Instagram, TikTok, any recipe site"
               style={{ flex:1, padding:"11px 13px", borderRadius:11, background:T.glass,
                 border:`1px solid ${isValidUrl ? ac+"66" : T.border}`,
                 color:T.text, fontSize:13, outline:"none" }}/>
@@ -2705,7 +2705,7 @@ function FuelRecipeScanner({ theme, T, arch }) {
 // Curated menu items for common chains so Kailu recommends REAL items, not
 // hallucinated ones. Macros are approximate (within ~10%) and based on each
 // chain's published nutrition info. When a chain matches, the items are
-// injected into Kailu's prompt — she picks one that fits the user's remaining
+// injected into Kailu's prompt, she picks one that fits the user's remaining
 // macros and explains modifications. When NO chain matches, Kailu is told to
 // give macro TARGETS and ask the user to pick (no hallucinating menu items).
 const RESTAURANT_MENU_DB = [
@@ -2740,7 +2740,7 @@ const RESTAURANT_MENU_DB = [
     { item: "Mac Daddy Chicken Plate (spicy, rice + mac salad)", p: 49, c: 90, f: 32, cal: 850 },
     { item: "Pulehu Steak Plate (rice + mac salad)", p: 44, c: 89, f: 26, cal: 800 },
     { item: "Huli Huli Chicken Mini (one scoop rice, no mac)", p: 32, c: 56, f: 12, cal: 460 },
-    { item: "Sub steamed veggies for mac salad — saves about 250 kcal, 30g carbs, 14g fat", p: 0, c: 0, f: 0, cal: 0 },
+    { item: "Sub steamed veggies for mac salad, saves about 250 kcal, 30g carbs, 14g fat", p: 0, c: 0, f: 0, cal: 0 },
   ]},
   { match: /panera/i, name: "Panera", items: [
     { item: "Mediterranean Bowl with chicken", p: 36, c: 60, f: 16, cal: 540 },
@@ -2792,7 +2792,7 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
   const [restaurant, setRestaurant] = React.useState("");
   const [restRec, setRestRec] = React.useState(null);
   const [restScan, setRestScan] = React.useState(false);
-  // Optional user-pasted menu — used when the chain isn't in RESTAURANT_MENU_DB.
+  // Optional user-pasted menu, used when the chain isn't in RESTAURANT_MENU_DB.
   // User can paste 3-5 items they see ("Chicken Madeira, Glamburger, Salmon Avocado")
   // and Kailu picks the one that best fits their remaining macros. This makes
   // Restaurant Mode work for ANY restaurant on Earth, not just the cached chains.
@@ -2858,7 +2858,7 @@ function FuelRestaurantMode({ theme, T, arch, callClaudeAPI, profile }) {
       {restaurant.trim() && !matched && (
         <div style={{ marginBottom:10 }}>
           <div style={{ fontSize:10.5, color:T.faint, marginBottom:4, lineHeight:1.4 }}>
-            No menu cached for "{restaurant}". Paste 3–5 items you're considering (or a menu link) and Kailu picks the best fit — honest, not hallucinated.
+            No menu cached for "{restaurant}". Paste 3–5 items you're considering (or a menu link) and Kailu picks the best fit, honest, not hallucinated.
           </div>
           <textarea value={menuItems} onChange={e => setMenuItems(e.target.value)}
             placeholder="e.g. Chicken Madeira, Glamburger, Grilled Salmon, Avocado Eggrolls"
@@ -2905,7 +2905,7 @@ function FitnessClaimChecker({ theme, T, color }) {
     setLoading(true); setError(null); setResult(null);
     const system = `You are a fitness science fact-checker with deep expertise in exercise physiology, sports nutrition, and peer-reviewed research. Evaluate fitness and nutrition claims objectively.
 Respond ONLY with valid JSON in this exact format (no markdown, no explanation):
-{"verdict":"VERIFIED","confidence":85,"summary":"One sentence verdict","evidence":"2-3 sentences explaining the evidence and research basis","sources":["Author et al. (Year) — Study name / Journal","Author et al. (Year) — Study name / Journal"],"nuance":"Any important caveats, context, or population-specific notes"}
+{"verdict":"VERIFIED","confidence":85,"summary":"One sentence verdict","evidence":"2-3 sentences explaining the evidence and research basis","sources":["Author et al. (Year), Study name / Journal","Author et al. (Year), Study name / Journal"],"nuance":"Any important caveats, context, or population-specific notes"}
 Verdict options: VERIFIED (well-supported by multiple studies), MISLEADING (partially true but overstated/missing key context), FALSE (contradicted by evidence), UNVERIFIED (insufficient research). Confidence is 0-100.
 If the input is the FULL caption of a social-media post (multiple sentences), identify the SPECIFIC fitness/nutrition claim being made and fact-check THAT, not the entire post.`;
     try {
@@ -2946,7 +2946,7 @@ If the input is the FULL caption of a social-media post (multiple sentences), id
         await runCheck(caption);
         return;
       }
-      // Failed to fetch — prompt user to paste caption manually
+      // Failed to fetch, prompt user to paste caption manually
       setLinkBusy(false);
       setLinkFailed(true);
       setMode("text");
@@ -3100,15 +3100,15 @@ If the input is the FULL caption of a social-media post (multiple sentences), id
 // ─── SCREEN SHELL ─────────────────────────────────────────────────────────────
 // topGradient: optional gradient CSS string.
 // When provided, uses a two-layer layout:
-//   1. Outer fixed wrapper (non-scrolling) — gradient painted here, stays put
-//   2. Inner transparent scroll container — content slides over the gradient
+//   1. Outer fixed wrapper (non-scrolling), gradient painted here, stays put
+//   2. Inner transparent scroll container, content slides over the gradient
 // This achieves the Apple Health scroll-over gradient effect.
 function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient }) {
   const T = D[theme];
   if (topGradient) {
     return (
       <div style={{ position:"fixed", inset:0, background:T.bg }}>
-        {/* Non-scrolling gradient backdrop — full inset so CSS gradient fades
+        {/* Non-scrolling gradient backdrop, full inset so CSS gradient fades
              naturally; no rectangular edge visible against the bg.
              Slow breathing animation makes it feel alive (not a static block). */}
         <div style={{
@@ -3123,7 +3123,7 @@ function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient
             50%       { opacity: 0.75; transform: scale(1.04); }
           }
         `}</style>
-        {/* Scrolling content — transparent so gradient shows through at top */}
+        {/* Scrolling content, transparent so gradient shows through at top */}
         <motion.div {...FX.page}
           ref={refProp}
           onScroll={onScroll}
@@ -3270,10 +3270,10 @@ function CycleSyncCard({ theme }) {
   const [phase, setPhase] = useState("follicular");
 
   const phases = {
-    follicular: "Estrogen rising — great time for high intensity and PR attempts",
-    ovulatory: "Peak strength window — push compound lifts today",
+    follicular: "Estrogen rising, great time for high intensity and PR attempts",
+    ovulatory: "Peak strength window, push compound lifts today",
     luteal: "Reduce intensity, increase protein, prioritize sleep",
-    menstrual: "Active recovery preferred — gentle movement supports hormonal reset",
+    menstrual: "Active recovery preferred, gentle movement supports hormonal reset",
   };
 
   return (
@@ -3428,7 +3428,7 @@ function HapticLog({ logged, onLog, theme, label = "LOG SESSION" }) {
 // ─── BIO SCORE RING ───────────────────────────────────────────────────────────
 function BioRing({ score, color, size=110, theme, label="BIO-SCORE" }) {
   const T = D[theme];
-  // Dynamic scaling — stroke and font shrink proportionally
+  // Dynamic scaling, stroke and font shrink proportionally
   const sw   = Math.max(4, size * 0.07);           // stroke width
   const pad  = sw + size * 0.04;                   // ring inset from edge
   const r    = size/2 - pad;
@@ -3579,31 +3579,31 @@ function AnatomyDefs({ p, g }) {
   // p = id prefix (string), g = rim-light accent (RVN Blue default)
   return (
     <defs>
-      {/* Deep tissue — dark oxygenated red under skin */}
+      {/* Deep tissue, dark oxygenated red under skin */}
       <radialGradient id={`${p}_deep`} cx="50%" cy="35%" r="70%">
         <stop offset="0%"   stopColor="#5A1A12"/>
         <stop offset="55%"  stopColor="#3A0C08"/>
         <stop offset="100%" stopColor="#1A0402"/>
       </radialGradient>
-      {/* Mid muscle — subsurface scattering warm red/amber */}
+      {/* Mid muscle, subsurface scattering warm red/amber */}
       <radialGradient id={`${p}_mid`} cx="50%" cy="40%" r="65%">
         <stop offset="0%"   stopColor="#E87A58"/>
         <stop offset="45%"  stopColor="#B8482A"/>
         <stop offset="100%" stopColor="#5A1A12"/>
       </radialGradient>
-      {/* Flesh layer — translucent skin w/ SSS warmth */}
+      {/* Flesh layer, translucent skin w/ SSS warmth */}
       <linearGradient id={`${p}_flesh`} x1="50%" y1="0%" x2="50%" y2="100%">
         <stop offset="0%"   stopColor="#F5C8AE" stopOpacity=".92"/>
         <stop offset="40%"  stopColor="#D89A78" stopOpacity=".88"/>
         <stop offset="100%" stopColor="#8A5038" stopOpacity=".95"/>
       </linearGradient>
-      {/* Specular peak — chrome-like wet highlight */}
+      {/* Specular peak, chrome-like wet highlight */}
       <linearGradient id={`${p}_spec`} x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%"  stopColor="#FFFFFF" stopOpacity=".85"/>
         <stop offset="50%" stopColor="#FFFFFF" stopOpacity=".15"/>
         <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0"/>
       </linearGradient>
-      {/* Rim light — RVN Blue edge glow */}
+      {/* Rim light, RVN Blue edge glow */}
       <linearGradient id={`${p}_rim`} x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%"   stopColor={g} stopOpacity=".0"/>
         <stop offset="50%"  stopColor={g} stopOpacity="1"/>
@@ -3645,12 +3645,12 @@ function AnatomyDefs({ p, g }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// AVATAR · V-TAPER — Hyper-real anatomical torso with SSS + rim + shimmer
+// AVATAR · V-TAPER, Hyper-real anatomical torso with SSS + rim + shimmer
 // ═══════════════════════════════════════════════════════════════════════════════
 function AvatarVTaper({ active, glow, size=160, animating=false }) {
   const g = glow || "#0A84FF";
   const p = "vt";
-  // Torso silhouette path — used for clipping shimmer and rim
+  // Torso silhouette path, used for clipping shimmer and rim
   const torsoPath = "M27,46 Q16,54 14,78 L18,122 L82,122 L86,78 Q84,54 73,46 Q60,38 50,38 Q40,38 27,46Z";
   return (
     <svg viewBox="0 0 100 185" width={size} height={size*1.85}
@@ -3663,26 +3663,26 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
         <path d={torsoPath}/>
       </clipPath>
 
-      {/* L1 — Deep tissue shadow (outer silhouette glow) */}
+      {/* L1, Deep tissue shadow (outer silhouette glow) */}
       {active && (
         <path d={torsoPath} fill="none" stroke={g} strokeWidth="3"
           opacity=".35" filter={`url(#${p}_rimglow)`}/>
       )}
 
-      {/* L2 — Deep tissue base */}
+      {/* L2, Deep tissue base */}
       <path d={torsoPath} fill={`url(#${p}_deep)`}/>
 
-      {/* L3 — Mid muscle SSS wash (under skin) */}
+      {/* L3, Mid muscle SSS wash (under skin) */}
       <g clipPath={`url(#${p}_clipBody)`}>
         <ellipse cx="50" cy="70" rx="44" ry="48" fill={`url(#${p}_mid)`} opacity=".92" filter={`url(#${p}_sss)`}/>
       </g>
 
-      {/* L4 — Translucent flesh envelope */}
+      {/* L4, Translucent flesh envelope */}
       <path d={torsoPath} fill={`url(#${p}_flesh)`} opacity=".86"/>
 
-      {/* L5 — Deep anatomical muscle shading */}
+      {/* L5, Deep anatomical muscle shading */}
       <g clipPath={`url(#${p}_clipBody)`} filter={`url(#${p}_def)`}>
-        {/* Lat wings — defining the V-taper */}
+        {/* Lat wings, defining the V-taper */}
         <path d="M27,46 Q12,55 10,78 L18,84 Q20,64 29,53Z" fill="#2A0806" opacity=".55"/>
         <path d="M73,46 Q88,55 90,78 L82,84 Q80,64 71,53Z" fill="#2A0806" opacity=".55"/>
         {/* Outer Ribs grooves */}
@@ -3702,7 +3702,7 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
         <path d="M66,96 Q70,104 66,114" stroke="#2A0604" strokeWidth=".7" fill="none" opacity=".6"/>
       </g>
 
-      {/* L6 — Muscle peaks with active-state RVN Blue wash */}
+      {/* L6, Muscle peaks with active-state RVN Blue wash */}
       <g clipPath={`url(#${p}_clipBody)`}>
         {/* Pec peaks (subsurface-lit w/ chrome spec) */}
         <motion.ellipse
@@ -3737,7 +3737,7 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
         )}
       </g>
 
-      {/* L7 — Chrome specular wet highlights on muscle peaks */}
+      {/* L7, Chrome specular wet highlights on muscle peaks */}
       <g clipPath={`url(#${p}_clipBody)`}>
         <ellipse cx="38" cy="55" rx="4.5" ry="2.2" fill={`url(#${p}_spec)`} opacity=".75"/>
         <ellipse cx="62" cy="55" rx="4.5" ry="2.2" fill={`url(#${p}_spec)`} opacity=".75"/>
@@ -3746,11 +3746,11 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
         <ellipse cx="50" cy="90" rx="3" ry="1.6" fill={`url(#${p}_spec)`} opacity=".45"/>
       </g>
 
-      {/* L8 — RVN Blue rim light tracing the silhouette */}
+      {/* L8, RVN Blue rim light tracing the silhouette */}
       <path d={torsoPath} fill="none" stroke={`url(#${p}_rim)`} strokeWidth="1.4"
         opacity={active?1:.45} filter={active?`url(#${p}_rimglow)`:""}/>
 
-      {/* L9 — Shimmer pass (micro-animation on hover/active) */}
+      {/* L9, Shimmer pass (micro-animation on hover/active) */}
       {active && animating && (
         <motion.g clipPath={`url(#${p}_clipBody)`}
           initial={{ x:-120 }} animate={{ x:120 }}
@@ -3759,7 +3759,7 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
         </motion.g>
       )}
 
-      {/* Head — skin-layered */}
+      {/* Head, skin-layered */}
       <ellipse cx="50" cy="28" rx="12" ry="14" fill={`url(#${p}_flesh)`}/>
       <ellipse cx="50" cy="24" rx="8" ry="5" fill={`url(#${p}_spec)`} opacity=".45"/>
       {/* Neck */}
@@ -3785,7 +3785,7 @@ function AvatarVTaper({ active, glow, size=160, animating=false }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// AVATAR · ABS — Deep ab definition, 6-pack with SSS, def shading, shimmer
+// AVATAR · ABS, Deep ab definition, 6-pack with SSS, def shading, shimmer
 // ═══════════════════════════════════════════════════════════════════════════════
 function AvatarAbs({ active, glow, size=160, animating=false }) {
   const g = glow || "#C9A84C";
@@ -3839,7 +3839,7 @@ function AvatarAbs({ active, glow, size=160, animating=false }) {
         <path d="M67,90 Q72,100 69,110" stroke="#3A0A06" strokeWidth=".6" fill="none" opacity=".55"/>
       </g>
 
-      {/* Ab blocks — SSS-lit with flex micro-animation */}
+      {/* Ab blocks, SSS-lit with flex micro-animation */}
       <g clipPath={`url(#${p}_clipBody)`}>
         {abBlocks.map(([cx, cy, rx, ry], i) => (
           <motion.ellipse
@@ -3902,7 +3902,7 @@ function AvatarAbs({ active, glow, size=160, animating=false }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// AVATAR · DENSITY — Bench/powerlifter mass with chrome bar, SSS pecs, rim
+// AVATAR · DENSITY, Bench/powerlifter mass with chrome bar, SSS pecs, rim
 // ═══════════════════════════════════════════════════════════════════════════════
 function AvatarDensity({ active, glow, size=160, animating=false }) {
   const g = glow || "#FF453A";
@@ -3945,7 +3945,7 @@ function AvatarDensity({ active, glow, size=160, animating=false }) {
         <path d="M42,100 Q50,102 58,100" stroke="#2A0604" strokeWidth=".7" fill="none" opacity=".55"/>
       </g>
 
-      {/* Pec masses — SSS-lit, flex-animated */}
+      {/* Pec masses, SSS-lit, flex-animated */}
       <g clipPath={`url(#${p}_clipBody)`}>
         <motion.ellipse
           cx="37" cy="58" rx="15" ry="12" fill={g} opacity={active?.42:.14}
@@ -3966,7 +3966,7 @@ function AvatarDensity({ active, glow, size=160, animating=false }) {
           fill={g} opacity={active?.52:.18} filter={active?`url(#${p}_sss)`:""}/>
       </g>
 
-      {/* Chrome barbell overlay — skeuomorphic */}
+      {/* Chrome barbell overlay, skeuomorphic */}
       {active && (
         <g>
           {/* Bar shaft */}
@@ -4060,7 +4060,7 @@ function AvatarCell({ active, glow, size=140, animating=false }) {
 // Dispatcher
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// HOLO AVATAR — Medical-grade holographic scan with 360° hover rotation
+// HOLO AVATAR, Medical-grade holographic scan with 360° hover rotation
 // ═══════════════════════════════════════════════════════════════════════════════
 function HoloAvatar({ archetypeId, gender="male", glow="#0A84FF", size=160, active=false }) {
   const [hovered, setHovered] = useState(false);
@@ -4786,10 +4786,10 @@ function VideoReviewPlayer({ review, color, theme, onClose }) {
   }, [playing]);
 
   const lines = [
-    "Week 1 — Started the protocol. Skeptical but committed.",
-    "Week 3 — Energy shifted. Sleep improved noticeably.",
-    "Week 6 — Visible changes. People asking what I'm doing.",
-    "Week 12 — " + review.verifiedResult,
+    "Week 1, Started the protocol. Skeptical but committed.",
+    "Week 3, Energy shifted. Sleep improved noticeably.",
+    "Week 6, Visible changes. People asking what I'm doing.",
+    "Week 12, " + review.verifiedResult,
   ];
   const lineIdx = Math.min(Math.floor(progress * lines.length), lines.length - 1);
 
@@ -5341,52 +5341,52 @@ const PROTOCOL_MILESTONES = {
   ],
   core_definition: [
     { week:3,  supp:"L-Carnitine",       why:"L-Carnitine is now physically moving fatty acids across the mitochondrial membrane. Fat oxidation during training is measurably higher.", metric:"Fat Burn",   rvn:"+18%", std:"+5%",  color:null },
-    { week:6,  supp:"CLA + Omega-3",     why:"Omega-3 has integrated into cell membranes. Inflammation is down — meaning you recover faster and train harder. CLA is redirecting stored fat.", metric:"Definition", rvn:"+22%", std:"+7%",  color:null },
-    { week:9,  supp:"Green Tea Extract", why:"EGCG is now potentiating thermogenesis around the clock — not just in training. Resting metabolism is measurably elevated.", metric:"Resting Burn", rvn:"+15%", std:"+3%",  color:null },
+    { week:6,  supp:"CLA + Omega-3",     why:"Omega-3 has integrated into cell membranes. Inflammation is down, meaning you recover faster and train harder. CLA is redirecting stored fat.", metric:"Definition", rvn:"+22%", std:"+7%",  color:null },
+    { week:9,  supp:"Green Tea Extract", why:"EGCG is now potentiating thermogenesis around the clock, not just in training. Resting metabolism is measurably elevated.", metric:"Resting Burn", rvn:"+15%", std:"+3%",  color:null },
     { week:12, supp:"Full Protocol",     why:"Striated muscle visible. Vascularity established. The definition you're seeing is the compound result of 3 months of molecular-level optimization.", metric:"Body Comp",  rvn:"-18%BF", std:"-6%BF", color:null },
   ],
   athletic_performance: [
     { week:3,  supp:"Creatine + Pre",    why:"CNS stimulation is now fully calibrated. Explosive output in the first 3 sets is 19% higher than week 1. Your nervous system has adapted.", metric:"Power",     rvn:"+19%", std:"+5%",  color:null },
-    { week:6,  supp:"Magnesium Glycinate",why:"Magnesium has replenished the chronic deficit most athletes don't know they have. Deep sleep improved — this is where growth happens.", metric:"Recovery",   rvn:"+34%", std:"+8%",  color:null },
-    { week:9,  supp:"Vitamin D3 + K2",   why:"Testosterone optimization is underway. D3 and K2 together direct calcium to bone, not arteries — injury resilience is now significantly higher.", metric:"Resilience", rvn:"+28%", std:"+6%",  color:null },
-    { week:12, supp:"Full Protocol",     why:"You are operating at genuine athletic peak. Every system — power, recovery, hormonal — has been systematically optimized over 12 weeks.", metric:"Performance", rvn:"+41%", std:"+12%", color:null },
+    { week:6,  supp:"Magnesium Glycinate",why:"Magnesium has replenished the chronic deficit most athletes don't know they have. Deep sleep improved, this is where growth happens.", metric:"Recovery",   rvn:"+34%", std:"+8%",  color:null },
+    { week:9,  supp:"Vitamin D3 + K2",   why:"Testosterone optimization is underway. D3 and K2 together direct calcium to bone, not arteries, injury resilience is now significantly higher.", metric:"Resilience", rvn:"+28%", std:"+6%",  color:null },
+    { week:12, supp:"Full Protocol",     why:"You are operating at genuine athletic peak. Every system, power, recovery, hormonal, has been systematically optimized over 12 weeks.", metric:"Performance", rvn:"+41%", std:"+12%", color:null },
   ],
   longevity: [
-    { week:3,  supp:"NAD+ (NMN/NR)",     why:"NAD+ levels are rising in every cell. Sirtuin pathways activating — these are the same pathways that caloric restriction activates. Cellular energy is measurably higher.", metric:"Cellular ATP", rvn:"+24%", std:"+2%",  color:null },
+    { week:3,  supp:"NAD+ (NMN/NR)",     why:"NAD+ levels are rising in every cell. Sirtuin pathways activating, these are the same pathways that caloric restriction activates. Cellular energy is measurably higher.", metric:"Cellular ATP", rvn:"+24%", std:"+2%",  color:null },
     { week:6,  supp:"Resveratrol",       why:"Resveratrol has activated AMPK and SIRT1. Inflammation biomarkers are measurably lower. Cells are beginning to clear damaged components (autophagy).", metric:"Inflammation", rvn:"-31%", std:"-5%",  color:null },
-    { week:9,  supp:"Omega-3 + CoQ10",   why:"Mitochondrial membranes are now omega-3 enriched — more fluid, more efficient. CoQ10 is the final electron carrier in ATP synthesis. Energy per cell is at its peak.", metric:"Mitochondria", rvn:"+38%", std:"+4%",  color:null },
-    { week:12, supp:"Full Bio-Stack",    why:"Biological age markers have shifted. This isn't about feeling better — it's about measurable epigenetic change. The protocol has done what no single supplement could.", metric:"Bio Age",    rvn:"-6yr", std:"-1yr",  color:null },
+    { week:9,  supp:"Omega-3 + CoQ10",   why:"Mitochondrial membranes are now omega-3 enriched, more fluid, more efficient. CoQ10 is the final electron carrier in ATP synthesis. Energy per cell is at its peak.", metric:"Mitochondria", rvn:"+38%", std:"+4%",  color:null },
+    { week:12, supp:"Full Bio-Stack",    why:"Biological age markers have shifted. This isn't about feeling better, it's about measurable epigenetic change. The protocol has done what no single supplement could.", metric:"Bio Age",    rvn:"-6yr", std:"-1yr",  color:null },
   ],
   fat_loss: [
-    { week:3,  supp:"Thermogenic Stack", why:"Core temperature is 0.4°C higher at rest. This isn't subtle — it's an additional 200 calories per day being oxidised. The thermogenic effect is now active 24/7.", metric:"Resting Burn", rvn:"+200cal", std:"+40cal", color:null },
+    { week:3,  supp:"Thermogenic Stack", why:"Core temperature is 0.4°C higher at rest. This isn't subtle, it's an additional 200 calories per day being oxidised. The thermogenic effect is now active 24/7.", metric:"Resting Burn", rvn:"+200cal", std:"+40cal", color:null },
     { week:6,  supp:"L-Carnitine",       why:"Fat is being physically transported into mitochondria at a measurably higher rate. Mobilised fat that used to recirculate is now being burned.", metric:"Fat Oxidation", rvn:"+34%", std:"+6%",  color:null },
     { week:9,  supp:"CLA",               why:"CLA is selectively targeting adipose tissue while preserving lean muscle. This is the compound that prevents the 'skinny-fat' outcome of standard dieting.", metric:"Muscle Sparing", rvn:"+19%", std:"+2%",  color:null },
     { week:12, supp:"Full Protocol",     why:"22 lbs of fat lost. Muscle maintained. This result is only achievable when every link in the metabolic chain is supported simultaneously.", metric:"Fat Lost",   rvn:"-22lbs", std:"-6lbs", color:null },
   ],
   muscle_build: [
     { week:3,  supp:"Creatine Monohydrate",why:"Muscle creatine stores are now fully saturated. This translates to an immediate and measurable increase in strength output during compound lifts.", metric:"1RM Strength", rvn:"+16%", std:"+4%",  color:null },
-    { week:6,  supp:"Whey Isolate",      why:"Protein synthesis rate is elevated around the clock. You're now building muscle tissue even on rest days — which never happens without adequate protein.", metric:"Lean Tissue", rvn:"+7lbs",  std:"+2lbs", color:null },
+    { week:6,  supp:"Whey Isolate",      why:"Protein synthesis rate is elevated around the clock. You're now building muscle tissue even on rest days, which never happens without adequate protein.", metric:"Lean Tissue", rvn:"+7lbs",  std:"+2lbs", color:null },
     { week:9,  supp:"ZMA (Zinc+Mag)",    why:"Testosterone and IGF-1 are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now clean.", metric:"Hormonal",  rvn:"+22%", std:"+3%",  color:null },
-    { week:12, supp:"Full Stack",        why:"31 lbs of lean mass in 12 weeks. The stack compounds — creatine drives strength, protein drives synthesis, ZMA optimises the hormonal environment for maximum uptake.", metric:"Total Mass", rvn:"+31lbs", std:"+8lbs", color:null },
+    { week:12, supp:"Full Stack",        why:"31 lbs of lean mass in 12 weeks. The stack compounds, creatine drives strength, protein drives synthesis, ZMA optimises the hormonal environment for maximum uptake.", metric:"Total Mass", rvn:"+31lbs", std:"+8lbs", color:null },
   ],
   // ── New men's archetypes ──────────────────────────────────────────────────────
   chest_arms: [
     { week:3,  supp:"Creatine Mono",       why:"Muscles are now creatine-saturated. Bench press has jumped 10–15 lbs in 3 weeks. The number will keep climbing.", metric:"Bench Press",  rvn:"+14%", std:"+4%",  color:null },
-    { week:6,  supp:"Whey Isolate",        why:"Bicep peak is visibly more defined. Protein synthesis is running around the clock — chest and arm mass is being laid down.", metric:"Arm Size",    rvn:"+0.8in",std:"+0.2in",color:null },
+    { week:6,  supp:"Whey Isolate",        why:"Bicep peak is visibly more defined. Protein synthesis is running around the clock, chest and arm mass is being laid down.", metric:"Arm Size",    rvn:"+0.8in",std:"+0.2in",color:null },
     { week:9,  supp:"Citrulline Stack",    why:"Vascularity is emerging. Blood flow to the arms during training is 40% higher. Every rep is better fed, better pumped.", metric:"Definition",  rvn:"+29%", std:"+7%",  color:null },
     { week:12, supp:"Full Stack",          why:"Chest is thicker, arms are full. The combination of creatine strength + protein synthesis + pump compounds into visible transformation.", metric:"Total Gains", rvn:"+35%", std:"+10%", color:null },
   ],
   powerlifter: [
-    { week:3,  supp:"Creatine HMB",        why:"Creatine phosphate stores are now full. Your max squat has jumped — setting PRs in week 3 of 12. That is the creatine loading effect.", metric:"1RM Squat",   rvn:"+12%", std:"+3%",  color:null },
+    { week:3,  supp:"Creatine HMB",        why:"Creatine phosphate stores are now full. Your max squat has jumped, setting PRs in week 3 of 12. That is the creatine loading effect.", metric:"1RM Squat",   rvn:"+12%", std:"+3%",  color:null },
     { week:6,  supp:"Joint Complex",       why:"Connective tissue is being rebuilt. Heavy bilateral loading is getting more comfortable. Knee and hip discomfort between sessions is measurably lower.", metric:"Joint Health",rvn:"+41%", std:"+8%",  color:null },
-    { week:9,  supp:"ZMA Protocol",        why:"Testosterone baseline is restored. Zinc correction in heavy athletes accounts for a 22% hormonal improvement — recovery between sessions is faster.", metric:"Recovery",   rvn:"+22%", std:"+4%",  color:null },
+    { week:9,  supp:"ZMA Protocol",        why:"Testosterone baseline is restored. Zinc correction in heavy athletes accounts for a 22% hormonal improvement, recovery between sessions is faster.", metric:"Recovery",   rvn:"+22%", std:"+4%",  color:null },
     { week:12, supp:"Full Stack",          why:"Every major lift is at an all-time PR. ATP resynthesis + joint health + testosterone optimization is what competition-ready looks like.", metric:"Total PRs",  rvn:"+28%", std:"+7%",  color:null },
   ],
   shred: [
-    { week:3,  supp:"L-Carnitine",         why:"Fat oxidation during training is now measurably higher. The carnitine transport system is running at capacity — mobilized fat is being burned, not recycled.", metric:"Fat Burn",   rvn:"+22%", std:"+5%",  color:"#FF3B30" },
+    { week:3,  supp:"L-Carnitine",         why:"Fat oxidation during training is now measurably higher. The carnitine transport system is running at capacity, mobilized fat is being burned, not recycled.", metric:"Fat Burn",   rvn:"+22%", std:"+5%",  color:"#FF3B30" },
     { week:6,  supp:"Thermo Complex",      why:"Resting metabolic rate is elevated around the clock. 140 extra calories per day adds up to almost 1 additional lb per week of fat loss on top of training.", metric:"Resting Burn",rvn:"+140cal",std:"+30cal",color:null },
-    { week:9,  supp:"CLA Protocol",        why:"Fat cells are structurally smaller. CLA does not just burn fat — it changes how fat cells behave, making it harder for them to expand again after the cut.", metric:"Body Comp",  rvn:"-14%BF",std:"-4%BF",color:null },
-    { week:12, supp:"Full Stack",          why:"The shred is complete. Muscle is preserved. The stack ensured fat loss not muscle loss — and the body composition change is permanent, not just water weight.", metric:"Fat Lost",   rvn:"-20lbs",std:"-5lbs",color:null },
+    { week:9,  supp:"CLA Protocol",        why:"Fat cells are structurally smaller. CLA does not just burn fat, it changes how fat cells behave, making it harder for them to expand again after the cut.", metric:"Body Comp",  rvn:"-14%BF",std:"-4%BF",color:null },
+    { week:12, supp:"Full Stack",          why:"The shred is complete. Muscle is preserved. The stack ensured fat loss not muscle loss, and the body composition change is permanent, not just water weight.", metric:"Fat Lost",   rvn:"-20lbs",std:"-5lbs",color:null },
   ],
   calisthenics: [
     { week:3,  supp:"Collagen + Joints",   why:"Tendons and ligaments are beginning to adapt. Elbow and wrist discomfort from lever exercises is significantly reduced. The collagen framework is being rebuilt.", metric:"Joint Health",rvn:"+35%", std:"+7%",  color:"#5AC8FA" },
@@ -5396,34 +5396,34 @@ const PROTOCOL_MILESTONES = {
   ],
   // ── New women's archetypes ────────────────────────────────────────────────────
   lower_build: [
-    { week:3,  supp:"Creatine Mono",       why:"Squat and deadlift numbers are already up. Creatine saturation in the leg muscles means more ATP for heavy compound work — every session ends heavier.", metric:"Leg Strength",rvn:"+16%", std:"+4%",  color:null },
-    { week:6,  supp:"Whey Isolate",        why:"Quads and hamstrings are visibly developing. Protein synthesis in the lower body is running above baseline — muscle tissue is being built between sessions.", metric:"Leg Mass",   rvn:"+5lbs",std:"+1.2lbs",color:null },
-    { week:9,  supp:"Joint Support",       why:"Heavy lower body work taxes hips and knees. Glucosamine + collagen has rebuilt the cartilage layer — heavy sessions are now feeling smoother and safer.", metric:"Joint Health",rvn:"+38%", std:"+7%",  color:null },
+    { week:3,  supp:"Creatine Mono",       why:"Squat and deadlift numbers are already up. Creatine saturation in the leg muscles means more ATP for heavy compound work, every session ends heavier.", metric:"Leg Strength",rvn:"+16%", std:"+4%",  color:null },
+    { week:6,  supp:"Whey Isolate",        why:"Quads and hamstrings are visibly developing. Protein synthesis in the lower body is running above baseline, muscle tissue is being built between sessions.", metric:"Leg Mass",   rvn:"+5lbs",std:"+1.2lbs",color:null },
+    { week:9,  supp:"Joint Support",       why:"Heavy lower body work taxes hips and knees. Glucosamine + collagen has rebuilt the cartilage layer, heavy sessions are now feeling smoother and safer.", metric:"Joint Health",rvn:"+38%", std:"+7%",  color:null },
     { week:12, supp:"Full Stack",          why:"Visible quad sweep. Glute-hamstring tie-in defined. Three months of progressive overload supported by the right molecular environment.", metric:"Total Gains", rvn:"+34%", std:"+9%",  color:null },
   ],
   body_recomp: [
-    { week:3,  supp:"L-Carnitine",         why:"Your body is now using fat as the priority fuel source. Muscle tissue is being built simultaneously — the recomp effect is measurably active.", metric:"Fat Oxidation",rvn:"+24%", std:"+5%",  color:null },
-    { week:6,  supp:"Whey Isolate",        why:"Lean mass is up. Body fat is down. The scale may not move but measurements have changed — this is the definition of body recomposition.", metric:"Body Comp",  rvn:"+18%", std:"+4%",  color:null },
-    { week:9,  supp:"Magnesium Stack",     why:"Cortisol is controlled. When cortisol is high, fat deposits around the waist and muscle breaks down. Magnesium fixed that — recomp efficiency is at its peak.", metric:"Lean Ratio",  rvn:"+27%", std:"+5%",  color:null },
-    { week:12, supp:"Full Protocol",       why:"Less fat, more muscle, same or lower weight — this is what nobody tells you is possible, but the right stack made it happen.", metric:"Final Recomp",rvn:"+41%", std:"+10%", color:null },
+    { week:3,  supp:"L-Carnitine",         why:"Your body is now using fat as the priority fuel source. Muscle tissue is being built simultaneously, the recomp effect is measurably active.", metric:"Fat Oxidation",rvn:"+24%", std:"+5%",  color:null },
+    { week:6,  supp:"Whey Isolate",        why:"Lean mass is up. Body fat is down. The scale may not move but measurements have changed, this is the definition of body recomposition.", metric:"Body Comp",  rvn:"+18%", std:"+4%",  color:null },
+    { week:9,  supp:"Magnesium Stack",     why:"Cortisol is controlled. When cortisol is high, fat deposits around the waist and muscle breaks down. Magnesium fixed that, recomp efficiency is at its peak.", metric:"Lean Ratio",  rvn:"+27%", std:"+5%",  color:null },
+    { week:12, supp:"Full Protocol",       why:"Less fat, more muscle, same or lower weight, this is what nobody tells you is possible, but the right stack made it happen.", metric:"Final Recomp",rvn:"+41%", std:"+10%", color:null },
   ],
   arms_back_f: [
     { week:3,  supp:"EAA Complex",         why:"Upper body muscle breakdown during training is stopped. Every set is now building, not just surviving. Arm and back definition is beginning to emerge.", metric:"Definition", rvn:"+17%", std:"+4%",  color:"#5AC8FA" },
-    { week:6,  supp:"Pump Formula",        why:"Arm vascularity is visible. Citrulline has increased blood flow to the bicep and lat significantly — muscles are better fed and responding faster.", metric:"Vascularity",rvn:"+34%", std:"+6%",  color:null },
-    { week:9,  supp:"Omega-3 Stack",       why:"Recovery between upper body sessions is dramatically faster. Inflammation in the arms and shoulders is controlled — you can train with more frequency.", metric:"Recovery",   rvn:"+29%", std:"+7%",  color:null },
+    { week:6,  supp:"Pump Formula",        why:"Arm vascularity is visible. Citrulline has increased blood flow to the bicep and lat significantly, muscles are better fed and responding faster.", metric:"Vascularity",rvn:"+34%", std:"+6%",  color:null },
+    { week:9,  supp:"Omega-3 Stack",       why:"Recovery between upper body sessions is dramatically faster. Inflammation in the arms and shoulders is controlled, you can train with more frequency.", metric:"Recovery",   rvn:"+29%", std:"+7%",  color:null },
     { week:12, supp:"Full Protocol",       why:"Arms are defined. Back has width and depth. Building + pumping + recovering correctly compounded into the upper body transformation.", metric:"Total Gains", rvn:"+36%", std:"+10%", color:null },
   ],
   full_body_f: [
     { week:3,  supp:"Whey Isolate",        why:"Full body 3x/week demands protein after every session. Whey isolate delivers amino acids to every muscle group within 15 minutes of training ending.", metric:"Recovery",   rvn:"+21%", std:"+5%",  color:null },
-    { week:6,  supp:"Magnesium",           why:"Recovery is happening fully between sessions. Deep sleep quality improved — this is when growth hormone peaks and the muscle building actually happens.", metric:"Sleep Quality",rvn:"+38%", std:"+8%",  color:null },
-    { week:9,  supp:"L-Carnitine",         why:"Every full body session is now burning fat as the primary fuel. Body composition is shifting — less fat, more lean tissue, elevated metabolism.", metric:"Body Comp",  rvn:"+24%", std:"+6%",  color:null },
+    { week:6,  supp:"Magnesium",           why:"Recovery is happening fully between sessions. Deep sleep quality improved, this is when growth hormone peaks and the muscle building actually happens.", metric:"Sleep Quality",rvn:"+38%", std:"+8%",  color:null },
+    { week:9,  supp:"L-Carnitine",         why:"Every full body session is now burning fat as the primary fuel. Body composition is shifting, less fat, more lean tissue, elevated metabolism.", metric:"Body Comp",  rvn:"+24%", std:"+6%",  color:null },
     { week:12, supp:"Full Protocol",       why:"Total body transformation. Every muscle group has been trained 48 times in 12 weeks. With the right support, this is the fastest complete change available.", metric:"Total Change",rvn:"+38%", std:"+10%", color:null },
   ],
   smoothie: [
     { week:3,  supp:"Collagen + Vitamin C",why:"Collagen synthesis requires vitamin C as a cofactor. Joint tissue is being rebuilt at the cellular level. Morning stiffness is measurably reduced.", metric:"Joint Health", rvn:"+28%", std:"+4%",  color:null },
     { week:6,  supp:"Spirulina + Chlorella",why:"Phytonutrient density is now at therapeutic levels. Heavy metal chelation is occurring. Mitochondrial efficiency has measurably improved.", metric:"Detox Score", rvn:"+41%", std:"+5%",  color:null },
     { week:9,  supp:"Adaptogens (Ashwagandha)",why:"Cortisol is measurably lower. HRV (heart rate variability) is improved. Your nervous system is no longer in a chronic stress state.", metric:"Stress Index", rvn:"-34%", std:"-5%",  color:null },
-    { week:12, supp:"Full Formula",      why:"Every biomarker has shifted. Energy, sleep, skin, digestion — all improved because the formula addressed every system simultaneously.", metric:"Wellness Score", rvn:"+52%", std:"+8%",  color:null },
+    { week:12, supp:"Full Formula",      why:"Every biomarker has shifted. Energy, sleep, skin, digestion, all improved because the formula addressed every system simultaneously.", metric:"Wellness Score", rvn:"+52%", std:"+8%",  color:null },
   ],
 };
 
@@ -5491,11 +5491,11 @@ function BodySilhouette({ t, color, cx=55, isRVN=false, week, id="" }) {
           stroke={color} strokeWidth={14+curve*(isRVN?3:1.5)} strokeLinecap="round" fill="none" opacity={bodyOp-0.1}/>
         <path d={`M ${wR-4} 122 Q ${cx+ww*0.5} 134 ${cx+ww*0.4} 140 L ${cx+ww*0.3} 183`}
           stroke={color} strokeWidth={14+curve*(isRVN?3:1.5)} strokeLinecap="round" fill="none" opacity={bodyOp-0.1}/>
-        {/* Striations — RVN only */}
+        {/* Striations, RVN only */}
         {isRVN && curve > 0.42 && [[cx-7,52,cx-3,68],[cx+7,52,cx+3,68],[cx-9,65,cx-5,80],[cx+9,65,cx+5,80]].map(([x1,y1,x2,y2],i) => (
           <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={0.9} opacity={(curve-0.38)*1.5}/>
         ))}
-        {/* Pulse rings — RVN only at high progress */}
+        {/* Pulse rings, RVN only at high progress */}
         {isRVN && curve > 0.58 && <>
           <circle cx={cx} cy={82} r={sw*0.58} fill="none" stroke={color} strokeWidth={0.5} opacity={(curve-0.5)*0.5} strokeDasharray="3 4"/>
           <circle cx={cx} cy={82} r={sw*0.72} fill="none" stroke={color} strokeWidth={0.35} opacity={(curve-0.5)*0.3} strokeDasharray="2 5"/>
@@ -5518,83 +5518,83 @@ function BodySilhouette({ t, color, cx=55, isRVN=false, week, id="" }) {
 const SUPPLEMENT_CATALOG = {
   mass_builder: [
     { id:"creatine",    name:"Creatine HMB",       week:3,  weight:0.28, metric:"Strength",     value:"+14%",   color:"#0A84FF",
-      why:"Creatine phosphate stores reach full saturation at week 3 — ATP reserves are 23% higher. Explosive power in the first 5 reps of every set is measurably elevated, and fast-twitch fibre recruitment increases with every session." },
+      why:"Creatine phosphate stores reach full saturation at week 3, ATP reserves are 23% higher. Explosive power in the first 5 reps of every set is measurably elevated, and fast-twitch fibre recruitment increases with every session." },
     { id:"whey",        name:"Whey Protein Isolate",week:1,  weight:0.22, metric:"Lean Mass",    value:"+8 lbs", color:"#30D158",
-      why:"Leucine threshold is crossed every session, activating mTOR signalling and keeping muscle protein synthesis elevated for 48h post-workout. You build lean tissue on rest days — something that physiologically cannot happen without adequate high-quality protein." },
+      why:"Leucine threshold is crossed every session, activating mTOR signalling and keeping muscle protein synthesis elevated for 48h post-workout. You build lean tissue on rest days, something that physiologically cannot happen without adequate high-quality protein." },
     { id:"beta",        name:"Beta-Alanine",        week:6,  weight:0.20, metric:"Volume",       value:"+31%",   color:"#FF9F0A",
-      why:"Muscle carnosine buffering is now fully established. Lactic acid is neutralised faster — you complete 4-6 more reps per set before metabolic failure. Over a full week, that extra volume is a massive additional stimulus." },
+      why:"Muscle carnosine buffering is now fully established. Lactic acid is neutralised faster, you complete 4-6 more reps per set before metabolic failure. Over a full week, that extra volume is a massive additional stimulus." },
     { id:"zma",         name:"ZMA (Zinc + Mag)",    week:9,  weight:0.18, metric:"Hormonal",     value:"+22%",   color:"#C9A84C",
-      why:"Zinc and magnesium deficiencies — present in 70% of active individuals — are now corrected. Testosterone and IGF-1 production are unblocked. Recovery between sessions is accelerated by the restored hormonal environment." },
+      why:"Zinc and magnesium deficiencies, present in 70% of active individuals, are now corrected. Testosterone and IGF-1 production are unblocked. Recovery between sessions is accelerated by the restored hormonal environment." },
     { id:"preworkout",  name:"Pre-Workout",         week:1,  weight:0.12, metric:"Power Output", value:"+9%",    color:"#FF375F",
-      why:"CNS activation is maximised before each session. You recruit more motor units in the critical first working sets — higher motor unit recruitment equals a greater anabolic stimulus, which compounds over 12 weeks." },
+      why:"CNS activation is maximised before each session. You recruit more motor units in the critical first working sets, higher motor unit recruitment equals a greater anabolic stimulus, which compounds over 12 weeks." },
   ],
   core_definition: [
     { id:"lcarnitine",  name:"L-Carnitine",         week:3,  weight:0.28, metric:"Fat Burn",     value:"+18%",   color:"#FF9F0A",
-      why:"L-Carnitine is physically shuttling fatty acids across the mitochondrial membrane. Fat oxidation during every training session is measurably elevated from week 3 — you're literally burning fat you could not burn before." },
+      why:"L-Carnitine is physically shuttling fatty acids across the mitochondrial membrane. Fat oxidation during every training session is measurably elevated from week 3, you're literally burning fat you could not burn before." },
     { id:"cla_omega",   name:"CLA + Omega-3",       week:6,  weight:0.24, metric:"Definition",   value:"+22%",   color:"#0A84FF",
-      why:"Omega-3 has integrated into cell membranes — reducing exercise-induced inflammation so you recover faster and train harder. CLA is now redirecting stored fat toward oxidation instead of re-storage after training." },
+      why:"Omega-3 has integrated into cell membranes, reducing exercise-induced inflammation so you recover faster and train harder. CLA is now redirecting stored fat toward oxidation instead of re-storage after training." },
     { id:"greentea",    name:"Green Tea Extract",   week:9,  weight:0.20, metric:"Resting Burn",  value:"+15%",  color:"#30D158",
-      why:"EGCG is potentiating thermogenesis around the clock — not just during training. Your resting metabolic rate is measurably elevated. You burn more calories even while sedentary." },
+      why:"EGCG is potentiating thermogenesis around the clock, not just during training. Your resting metabolic rate is measurably elevated. You burn more calories even while sedentary." },
     { id:"whey",        name:"Whey Isolate",        week:1,  weight:0.16, metric:"Lean Sparing",  value:"+11%",  color:"#C9A84C",
       why:"Adequate protein prevents lean tissue loss during a caloric deficit. Muscle sparing is the difference between looking defined at the end of 12 weeks versus looking flat and depleted." },
     { id:"caffeine",    name:"Caffeine + B-Vitamins",week:1, weight:0.12, metric:"Training Output",value:"+8%",  color:"#FF375F",
-      why:"Caffeine mobilises free fatty acids from adipose tissue during exercise. B-vitamins ensure the metabolic pathways that burn those fats are operating at full capacity — a synergy that amplifies fat oxidation beyond either alone." },
+      why:"Caffeine mobilises free fatty acids from adipose tissue during exercise. B-vitamins ensure the metabolic pathways that burn those fats are operating at full capacity, a synergy that amplifies fat oxidation beyond either alone." },
   ],
   athletic_performance: [
     { id:"creatine",    name:"Creatine + Pre",      week:3,  weight:0.28, metric:"Power",        value:"+19%",   color:"#0A84FF",
       why:"CNS stimulation is fully calibrated and creatine stores saturated. Explosive output in the first 3 sets is 19% higher than week 1. Your nervous system has adapted to the loading pattern and is now firing optimally." },
     { id:"magnesium",   name:"Magnesium Glycinate", week:6,  weight:0.24, metric:"Recovery",     value:"+34%",   color:"#30D158",
-      why:"Magnesium deficiency — present in 60% of athletes — is corrected. Deep sleep quality has improved significantly, and deep sleep is when growth hormone secretion and tissue repair peak. Better sleep means faster recovery means more frequent hard training." },
+      why:"Magnesium deficiency, present in 60% of athletes, is corrected. Deep sleep quality has improved significantly, and deep sleep is when growth hormone secretion and tissue repair peak. Better sleep means faster recovery means more frequent hard training." },
     { id:"vitd3",       name:"Vitamin D3 + K2",     week:9,  weight:0.22, metric:"Resilience",   value:"+28%",   color:"#FF9F0A",
-      why:"D3 and K2 together direct calcium to bone and away from soft tissue. Testosterone optimisation is underway. Structural injury resilience is measurably higher — the compound effect on joints and connective tissue is only visible at this stage." },
+      why:"D3 and K2 together direct calcium to bone and away from soft tissue. Testosterone optimisation is underway. Structural injury resilience is measurably higher, the compound effect on joints and connective tissue is only visible at this stage." },
     { id:"electrolytes",name:"Electrolyte Stack",   week:1,  weight:0.14, metric:"Hydration",    value:"+12%",   color:"#C9A84C",
-      why:"Even 2% dehydration reduces power output by 11%. Full electrolyte balance guarantees every training session is performed with optimal fluid and mineral status — there is no recovery from poor session quality." },
+      why:"Even 2% dehydration reduces power output by 11%. Full electrolyte balance guarantees every training session is performed with optimal fluid and mineral status, there is no recovery from poor session quality." },
     { id:"omega3",      name:"Omega-3 EPA/DHA",     week:3,  weight:0.12, metric:"Inflammation", value:"-18%",   color:"#FF375F",
-      why:"Omega-3 EPA and DHA integrate into cell membranes, reducing exercise-induced inflammatory response. Lower soreness means you can train again sooner and accumulate more weekly volume — the single strongest predictor of athletic adaptation." },
+      why:"Omega-3 EPA and DHA integrate into cell membranes, reducing exercise-induced inflammatory response. Lower soreness means you can train again sooner and accumulate more weekly volume, the single strongest predictor of athletic adaptation." },
   ],
   longevity: [
     { id:"nad",         name:"NAD+ (NMN/NR)",       week:3,  weight:0.30, metric:"Cellular ATP", value:"+24%",   color:"#30D158",
-      why:"NAD+ levels are rising in every cell. Sirtuin pathways activate — the same pathways that caloric restriction activates. Cellular energy is measurably higher and mitochondrial biogenesis has begun. Fatigue decreases noticeably." },
+      why:"NAD+ levels are rising in every cell. Sirtuin pathways activate, the same pathways that caloric restriction activates. Cellular energy is measurably higher and mitochondrial biogenesis has begun. Fatigue decreases noticeably." },
     { id:"resveratrol", name:"Resveratrol",          week:6,  weight:0.25, metric:"Inflammation", value:"-31%",   color:"#0A84FF",
-      why:"AMPK and SIRT1 are now activated. Systemic inflammation biomarkers are measurably lower. Cells are beginning to clear damaged components via autophagy — the cellular recycling process that is the closest thing science has to anti-ageing." },
+      why:"AMPK and SIRT1 are now activated. Systemic inflammation biomarkers are measurably lower. Cells are beginning to clear damaged components via autophagy, the cellular recycling process that is the closest thing science has to anti-ageing." },
     { id:"coq10",       name:"Omega-3 + CoQ10",     week:9,  weight:0.22, metric:"Mitochondria", value:"+38%",   color:"#C9A84C",
-      why:"Mitochondrial membranes are now omega-3 enriched — more fluid, more efficient at electron transport. CoQ10 is the final carrier in the ATP synthesis chain. Energy output per cell is at its highest measurable point." },
+      why:"Mitochondrial membranes are now omega-3 enriched, more fluid, more efficient at electron transport. CoQ10 is the final carrier in the ATP synthesis chain. Energy output per cell is at its highest measurable point." },
     { id:"vitd3",       name:"Vitamin D3 + K2",     week:1,  weight:0.13, metric:"Immune Score", value:"+20%",   color:"#FF9F0A",
-      why:"D3 is the master hormonal regulator — immune function, mood, testosterone, and calcium metabolism all depend on it. Deficiency correction takes 6-8 weeks. Starting at week 1 ensures the compounding begins immediately." },
+      why:"D3 is the master hormonal regulator, immune function, mood, testosterone, and calcium metabolism all depend on it. Deficiency correction takes 6-8 weeks. Starting at week 1 ensures the compounding begins immediately." },
     { id:"ashwa",       name:"Ashwagandha",          week:3,  weight:0.10, metric:"Cortisol",     value:"-22%",   color:"#FF375F",
-      why:"Cortisol is the primary biological ageing accelerant. Ashwagandha measurably reduces cortisol, improving sleep depth and HRV — two of the most reliable longevity biomarkers currently measurable without lab work." },
+      why:"Cortisol is the primary biological ageing accelerant. Ashwagandha measurably reduces cortisol, improving sleep depth and HRV, two of the most reliable longevity biomarkers currently measurable without lab work." },
   ],
   fat_loss: [
     { id:"thermo",      name:"Thermogenic Stack",   week:3,  weight:0.28, metric:"Resting Burn",  value:"+200cal",color:"#FF9F0A",
-      why:"Core temperature is now 0.4°C higher at rest. This is an additional 200 calories per day being oxidised — not just during exercise, but around the clock. The thermogenic effect compounds every single day from week 3 onwards." },
+      why:"Core temperature is now 0.4°C higher at rest. This is an additional 200 calories per day being oxidised, not just during exercise, but around the clock. The thermogenic effect compounds every single day from week 3 onwards." },
     { id:"lcarnitine",  name:"L-Carnitine",         week:6,  weight:0.26, metric:"Fat Oxidation", value:"+34%",  color:"#0A84FF",
       why:"Fatty acids mobilised by thermogenics and exercise are now being physically escorted into mitochondria at a measurably higher rate. Mobilised fat that used to recirculate is now being burned. This is the lock-and-key mechanism." },
     { id:"cla",         name:"CLA",                 week:9,  weight:0.22, metric:"Muscle Sparing",value:"+19%",  color:"#30D158",
-      why:"CLA selectively targets adipose tissue while preserving lean muscle. This is the compound that prevents the 'skinny-fat' outcome of standard dieting — defined versus flat is a CLA story." },
+      why:"CLA selectively targets adipose tissue while preserving lean muscle. This is the compound that prevents the 'skinny-fat' outcome of standard dieting, defined versus flat is a CLA story." },
     { id:"caffeine",    name:"Caffeine + Green Tea", week:1, weight:0.14, metric:"Mobilisation",  value:"+16%",  color:"#C9A84C",
       why:"Caffeine mobilises free fatty acids into the bloodstream. Without L-Carnitine to escort them into mitochondria, many would recirculate. Taking both together prevents that waste and maximises the fat-burning window." },
     { id:"protein",     name:"Protein Powder",      week:1,  weight:0.10, metric:"Muscle Retention",value:"+12%",color:"#FF375F",
-      why:"In a caloric deficit your body will catabolise muscle for energy unless protein intake is high. Preserving lean mass keeps your metabolic rate elevated throughout the cut — fewer cuts fail because of this single variable." },
+      why:"In a caloric deficit your body will catabolise muscle for energy unless protein intake is high. Preserving lean mass keeps your metabolic rate elevated throughout the cut, fewer cuts fail because of this single variable." },
   ],
   muscle_build: [
     { id:"creatine",    name:"Creatine Monohydrate",week:3,  weight:0.28, metric:"1RM Strength", value:"+16%",   color:"#0A84FF",
-      why:"Muscle creatine stores are fully saturated. This is an immediate and measurable increase in strength output during compound lifts — you can load the bar heavier from this week, and heavier loading is the primary driver of hypertrophy." },
+      why:"Muscle creatine stores are fully saturated. This is an immediate and measurable increase in strength output during compound lifts, you can load the bar heavier from this week, and heavier loading is the primary driver of hypertrophy." },
     { id:"whey",        name:"Whey Isolate",        week:1,  weight:0.24, metric:"Lean Tissue",   value:"+7 lbs",color:"#30D158",
-      why:"Protein synthesis rate is elevated around the clock. You build lean tissue on rest days — which physiologically cannot happen without adequate leucine from high-quality protein crossing the mTOR threshold consistently." },
+      why:"Protein synthesis rate is elevated around the clock. You build lean tissue on rest days, which physiologically cannot happen without adequate leucine from high-quality protein crossing the mTOR threshold consistently." },
     { id:"zma",         name:"ZMA (Zinc + Mag)",    week:9,  weight:0.22, metric:"Hormonal",      value:"+22%",  color:"#FF9F0A",
-      why:"Testosterone and IGF-1 production are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now unobstructed — every gram of protein now has a cleaner hormonal environment to work in." },
+      why:"Testosterone and IGF-1 production are optimised by correcting the mineral deficiencies that blunt hormonal output in 70% of active males. Anabolic signalling is now unobstructed, every gram of protein now has a cleaner hormonal environment to work in." },
     { id:"hmb",         name:"HMB",                 week:6,  weight:0.15, metric:"Anti-Catabolic",value:"+18%",  color:"#C9A84C",
       why:"HMB blocks the enzyme that degrades muscle protein between sessions. Less catabolism means net anabolism is higher even at the same training volume. This is particularly powerful during any higher-intensity training blocks." },
     { id:"preworkout",  name:"Pre-Workout",         week:1,  weight:0.11, metric:"Training Volume",value:"+14%", color:"#FF375F",
-      why:"More reps, more sets, more weight per session. Training volume is the primary driver of hypertrophy — a pre-workout directly and measurably increases the total anabolic stimulus per week by extending working capacity in the 8-15 rep range." },
+      why:"More reps, more sets, more weight per session. Training volume is the primary driver of hypertrophy, a pre-workout directly and measurably increases the total anabolic stimulus per week by extending working capacity in the 8-15 rep range." },
   ],
   smoothie: [
     { id:"collagen",    name:"Collagen + Vitamin C",week:3,  weight:0.28, metric:"Joint Health",  value:"+28%",  color:"#30D158",
-      why:"Collagen synthesis requires vitamin C as a cofactor. Joint tissue is now being rebuilt at the cellular level — not just supplemented, rebuilt. Morning stiffness, one of the clearest signs of inflammation, measurably reduces by week 3." },
+      why:"Collagen synthesis requires vitamin C as a cofactor. Joint tissue is now being rebuilt at the cellular level, not just supplemented, rebuilt. Morning stiffness, one of the clearest signs of inflammation, measurably reduces by week 3." },
     { id:"spirulina",   name:"Spirulina + Chlorella",week:6, weight:0.25, metric:"Detox Score",   value:"+41%",  color:"#0A84FF",
-      why:"Phytonutrient density is now at therapeutic levels. Heavy metal chelation is occurring at a cellular level. Mitochondrial efficiency has measurably improved — cells produce more energy with less oxidative byproduct damage." },
+      why:"Phytonutrient density is now at therapeutic levels. Heavy metal chelation is occurring at a cellular level. Mitochondrial efficiency has measurably improved, cells produce more energy with less oxidative byproduct damage." },
     { id:"ashwa",       name:"Ashwagandha",          week:9, weight:0.22, metric:"Stress Index",  value:"-34%",  color:"#FF9F0A",
-      why:"Cortisol is measurably lower. HRV (heart rate variability) has improved. Your nervous system is no longer in a chronic stress state — the recovery cascade this unlocks improves sleep, mood, digestion, and every other biomarker simultaneously." },
+      why:"Cortisol is measurably lower. HRV (heart rate variability) has improved. Your nervous system is no longer in a chronic stress state, the recovery cascade this unlocks improves sleep, mood, digestion, and every other biomarker simultaneously." },
     { id:"probiotics",  name:"Probiotic Blend",     week:1,  weight:0.14, metric:"Gut Health",    value:"+22%",  color:"#C9A84C",
       why:"Gut microbiome diversity is the foundation of nutrient absorption, immune function, and mood regulation. Without this baseline, the benefits of every other supplement are reduced by 20-40%. This goes in first." },
     { id:"omega3",      name:"Omega-3 EPA/DHA",      week:3, weight:0.11, metric:"Inflammation",  value:"-19%",  color:"#FF375F",
@@ -5701,7 +5701,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
     setTimeout(step, 300);
   };
 
-  // Shared chart builder — RVN peaks at 88% chart height, standard at 28%
+  // Shared chart builder, RVN peaks at 88% chart height, standard at 28%
   // This makes the visual gap obvious: supplements end ~3x higher
   const chartW = 280; const chartH = 110;
   const RVN_PEAK = 0.88;  // fraction of chartH the RVN line reaches at week 12
@@ -5803,7 +5803,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
               <circle cx={dotX} cy={dotY} r={isRVN?5:4} fill={sColor}
                 style={{ filter: isRVN ? `drop-shadow(0 0 6px ${ac})` : "none" }}/>
             )}
-            {/* Y-axis labels — show actual gain endpoints */}
+            {/* Y-axis labels, show actual gain endpoints */}
             <text x={1} y={chartH-1} fontSize={6} fill={T.faint} fontFamily="system-ui,sans-serif">0</text>
             {isRVN && (
               <text x={1} y={chartH - RVN_PEAK*chartH + 10} fontSize={7} fontWeight="800"
@@ -5855,7 +5855,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
           <div style={{ fontSize:11, fontWeight:900, color:sColor, marginTop:6,
             textAlign:"center" }}>
             {week===0 ? "BASELINE" : week===12
-              ? (isRVN ? "PEAK — PROTOCOL COMPLETE" : "STANDARD RESULT")
+              ? (isRVN ? "PEAK, PROTOCOL COMPLETE" : "STANDARD RESULT")
               : `WEEK ${week}`}
           </div>
         </div>
@@ -5974,7 +5974,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
             <div>
               <div style={{ fontSize:11.5, fontWeight:900, color:customColor,
                 letterSpacing:".04em", marginBottom:2 }}>SELECT YOUR SUPPLEMENTS</div>
-              <div style={{ fontSize:11.5, color:T.muted }}>Stack any combination — chart updates live</div>
+              <div style={{ fontSize:11.5, color:T.muted }}>Stack any combination, chart updates live</div>
             </div>
             <div style={{ display:"flex", gap:6 }}>
               <motion.button whileTap={{ scale:.97 }}
@@ -6152,7 +6152,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                           flexShrink:0, boxShadow: fired ? `0 0 7px ${s.color}` : "none" }}/>
                         <div style={{ fontSize:11.5, fontWeight:900, letterSpacing:".03em",
                           color: fired ? s.color : pending ? s.color+"88" : T.faint }}>
-                          {fired ? `✓ WK ${s.week} — ACTIVE`
+                          {fired ? `✓ WK ${s.week}, ACTIVE`
                            : pending ? `⏳ ACTIVATES WK ${s.week} · ${wLeft}wk away`
                            : `WK ${s.week}`}
                         </div>
@@ -6222,7 +6222,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
         <div style={{ fontSize:11.5, color:T.muted, marginTop:3 }}>{label} · Both paths on the same timeline</div>
       </div>
 
-      {/* ─ Combined divergence chart — both lines on same axes ─ */}
+      {/* ─ Combined divergence chart, both lines on same axes ─ */}
       <div style={{ background:T.glass, border:`1.5px solid ${ac}44`,
         borderRadius:14, padding:"14px 14px 10px", marginBottom:14,
         boxShadow:`0 0 28px ${ac}14` }}>
@@ -6385,7 +6385,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                   justifyContent:"space-between", marginBottom:8 }}>
                   <div>
                     <div style={{ fontSize:11, fontWeight:900, color:ms.color,
-                      letterSpacing:".04em", marginBottom:2 }}>◉ WEEK {ms.week} — SUPPLEMENT ACTIVATING</div>
+                      letterSpacing:".04em", marginBottom:2 }}>◉ WEEK {ms.week}, SUPPLEMENT ACTIVATING</div>
                     <div style={{ fontSize:16, fontWeight:900, color:T.text, lineHeight:1.1 }}>{ms.supp}</div>
                   </div>
                   <div style={{ textAlign:"right" }}>
@@ -6438,7 +6438,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
               );
             })()}
 
-            {/* Sleep Quality — editable + log + cycle calculator */}
+            {/* Sleep Quality, editable + log + cycle calculator */}
             {(() => {
               const sleepDays = profile.sleepDays;
               const avgSleep = (sleepDays.reduce((a,b)=>a+b,0)/sleepDays.length).toFixed(1);
@@ -6562,11 +6562,11 @@ function ABBioComparison({ archetypeId, theme, color }) {
                     </div>
                     {prCelebration.exercises.map((ex, i) => (
                       <div key={ex} style={{ fontSize:15, fontWeight:700, color:T.text, marginBottom:4 }}>
-                        {ex} — <span style={{ color:"#FF9F0A" }}>{prCelebration.weights[i]} lbs</span>
+                        {ex}, <span style={{ color:"#FF9F0A" }}>{prCelebration.weights[i]} lbs</span>
                       </div>
                     ))}
                     <div style={{ fontSize:11, color:T.muted, marginTop:12, lineHeight:1.5 }}>
-                      Kailu logged your record. Keep the progressive overload going — next session aim for +2.5 lbs.
+                      Kailu logged your record. Keep the progressive overload going, next session aim for +2.5 lbs.
                     </div>
                     <motion.button
                       whileTap={{ scale:.95 }}
@@ -6767,9 +6767,9 @@ function ABBioComparison({ archetypeId, theme, color }) {
                         {hd.lastSync ? (
                           <div style={{ display:"flex", gap:8 }}>
                             {[
-                              { icon:"activity", label:"STEPS", val: hd.steps?.toLocaleString() || "—", color:T.blue  },
-                              { icon:"moon",     label:"SLEEP", val: hd.sleepHrs ? `${hd.sleepHrs}h` : "—", color:T.purple },
-                              { icon:"heart",    label:"HRV",   val: hd.hrv ? `${hd.hrv}ms` : "—",    color:"#FF3B30" },
+                              { icon:"activity", label:"STEPS", val: hd.steps?.toLocaleString() || "-", color:T.blue  },
+                              { icon:"moon",     label:"SLEEP", val: hd.sleepHrs ? `${hd.sleepHrs}h` : "-", color:T.purple },
+                              { icon:"heart",    label:"HRV",   val: hd.hrv ? `${hd.hrv}ms` : "-",    color:"#FF3B30" },
                             ].map(({ icon, label, val, color }) => (
                               <div key={label} style={{ flex:1, textAlign:"center", padding:"10px 6px", background:T.glass, borderRadius:10 }}>
                                 <div style={{ display:"flex", justifyContent:"center", marginBottom:2 }}><LI n={icon} size={16} color={color}/></div>
@@ -6799,7 +6799,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
             {(() => {
               const narrative = velocityLog.length > 0
                 ? getVelocityNarrative(velocityLog)
-                : { headline:"Track your speed next time.", detail:"Tap the 📷 camera button during your next set to get a real breakdown of how your body performed — rep by rep.", icon:"◈", color:T.blue };
+                : { headline:"Track your speed next time.", detail:"Tap the 📷 camera button during your next set to get a real breakdown of how your body performed, rep by rep.", icon:"◈", color:T.blue };
               if (!narrative) return null;
               return (
                 <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.1 }}
@@ -6977,7 +6977,7 @@ function HistoryFeed({ email, theme, accentColor }) {
   );
   if (error) return (
     <div style={{ fontSize:11.5, color:T.red, padding:"8px 14px", textAlign:"center" }}>
-      ⚠ Could not load history — {error}
+      ⚠ Could not load history, {error}
     </div>
   );
   if (!sessions.length) return (
@@ -7014,7 +7014,7 @@ function HistoryFeed({ email, theme, accentColor }) {
             </div>
             <div style={{ display:"flex", gap:14 }}>
               <div style={{ fontSize:11.5, color:ac, fontWeight:700 }}>
-                ◈ {s.bio_score ?? "—"} BIO
+                ◈ {s.bio_score ?? "-"} BIO
               </div>
               <div style={{ fontSize:11.5, color:T.dim }}>
                 {doneCnt}/{totalCnt} sets
@@ -7033,7 +7033,7 @@ function HistoryFeed({ email, theme, accentColor }) {
 }
 
 // ─── MORNING BRIEF SCREEN ─────────────────────────────────────────────────────
-// Daily "here's your plan" screen — shown in the morning or on demand.
+// Daily "here's your plan" screen, shown in the morning or on demand.
 function MorningBriefScreen({ theme, user, archetypeId, bioData, biology, onBack }) {
   const T = D[theme] || D.dark;
   const circadian = getCircadianState();
@@ -7235,7 +7235,7 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
 
       {/* Body */}
       <div style={{ padding:"18px 16px 40px" }}>
-        {/* Supplements demo — first time the user opens this screen */}
+        {/* Supplements demo, first time the user opens this screen */}
         <ContextualDemo id="supplements" theme={theme} accent={ac}/>
         <KailuSupplementProtocol archetypeId={archetypeId} theme={theme} color={ac} fallback={
           <ABBioComparison archetypeId={archetypeId} theme={theme} color={ac}/>
@@ -7281,7 +7281,7 @@ function DirectMessageThread({ theme, myEmail, myName, otherEmail, otherName, on
           }}>‹‹</button>
         )}
         <div style={{ flex:1, minWidth:0 }}>
-          <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em" }}>DIRECT — HUMAN ONLY</div>
+          <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em" }}>DIRECT, HUMAN ONLY</div>
           <div style={{ fontSize:15, fontWeight:900, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
             {otherName || otherEmail}
           </div>
@@ -7290,7 +7290,7 @@ function DirectMessageThread({ theme, myEmail, myName, otherEmail, otherName, on
       <div style={{ flex:1, overflowY:"auto", padding:"14px 16px", display:"flex", flexDirection:"column", gap:8 }}>
         {messages.length === 0 ? (
           <div style={{ textAlign:"center", color:T.muted, fontSize:12.5, padding:"30px 20px", lineHeight:1.55 }}>
-            No messages yet. This thread is a verified human-only channel — Kailu (your AI coach) lives in a separate chat.
+            No messages yet. This thread is a verified human-only channel, Kailu (your AI coach) lives in a separate chat.
           </div>
         ) : messages.map(m => {
           const mine = (m.fromEmail || "").toLowerCase() === (myEmail || "").toLowerCase();
@@ -7387,7 +7387,7 @@ function WeeklyCheckInForm({ theme, clientEmail, clientName, onSubmit }) {
         How was your week?
       </div>
       <div style={{ fontSize:12, color:T.muted, marginBottom:18, lineHeight:1.5 }}>
-        60 seconds. Your coach sees these every Monday — wins, struggles, what to adjust.
+        60 seconds. Your coach sees these every Monday, wins, struggles, what to adjust.
       </div>
       <Slider label="SLEEP QUALITY" value={sleep} setValue={setSleep} low="Wrecked" high="Dialed"/>
       <Slider label="SORENESS / FATIGUE" value={soreness} setValue={setSoreness} low="None" high="Crushed"/>
@@ -7450,7 +7450,7 @@ function TrainerCheckInDashboard({ theme }) {
             color: checkIns.length ? (theme==="dark"?"#000":"#fff") : T.faint,
             border:"none", fontSize:10.5, fontWeight:900, letterSpacing:".04em",
             textTransform:"uppercase", cursor: checkIns.length ? "pointer" : "not-allowed" }}>
-          {busy ? "Triaging…" : "✦ AI Triage"}
+          {busy ? "Triaging…" : "✦ Run Weekly Digest"}
         </motion.button>
       </div>
       {digest && (
@@ -7462,7 +7462,7 @@ function TrainerCheckInDashboard({ theme }) {
               <div style={{ fontSize:10.5, fontWeight:700, color:"#FF3B30", letterSpacing:".04em", marginBottom:5 }}>⚠ AT RISK</div>
               {digest.atRisk.map((r, i) => (
                 <div key={i} style={{ fontSize:12, color:T.text, marginBottom:5, lineHeight:1.45 }}>
-                  <span style={{ fontWeight:800 }}>{r.name}</span> — {r.reason}. <span style={{ color:T.muted, fontStyle:"italic" }}>{r.action}</span>
+                  <span style={{ fontWeight:800 }}>{r.name}</span>, {r.reason}. <span style={{ color:T.muted, fontStyle:"italic" }}>{r.action}</span>
                 </div>
               ))}
             </div>
@@ -7472,7 +7472,7 @@ function TrainerCheckInDashboard({ theme }) {
               <div style={{ fontSize:10.5, fontWeight:700, color:"#30D158", letterSpacing:".04em", marginBottom:5 }}>✓ WINS</div>
               {digest.wins.map((w, i) => (
                 <div key={i} style={{ fontSize:12, color:T.text, marginBottom:5, lineHeight:1.45 }}>
-                  <span style={{ fontWeight:800 }}>{w.name}</span> — {w.note}
+                  <span style={{ fontWeight:800 }}>{w.name}</span>, {w.note}
                 </div>
               ))}
             </div>
@@ -7482,7 +7482,7 @@ function TrainerCheckInDashboard({ theme }) {
               <div style={{ fontSize:10.5, fontWeight:700, color:"#FF9F0A", letterSpacing:".04em", marginBottom:5 }}>↻ ADJUST</div>
               {digest.adjustments.map((a, i) => (
                 <div key={i} style={{ fontSize:12, color:T.text, marginBottom:5, lineHeight:1.45 }}>
-                  <span style={{ fontWeight:800 }}>{a.name}</span> — {a.suggestion}
+                  <span style={{ fontWeight:800 }}>{a.name}</span>, {a.suggestion}
                 </div>
               ))}
             </div>
@@ -7545,7 +7545,7 @@ function TrainerAdherenceView({ theme }) {
   // For now, "adherence" reads from the client's own workout log if visible.
   // True multi-tenant remote-fetch comes when we wire trainer-scoped backend.
   const renderStrip = (clientEmail) => {
-    // 14-day strip — placeholder logic until we have per-client remote logs
+    // 14-day strip, placeholder logic until we have per-client remote logs
     const days = Array.from({ length: 14 }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - (13 - i));
@@ -7596,7 +7596,7 @@ function TrainerAdherenceView({ theme }) {
   );
 }
 
-// ─── "WHAT MY COACH SEES" — client-side consent panel ─────────────────────────
+// ─── "WHAT MY COACH SEES", client-side consent panel ─────────────────────────
 function WhatMyCoachSeesPanel({ theme }) {
   const T = D[theme] || D.dark;
   const ac = T.blue;
@@ -7623,7 +7623,7 @@ function WhatMyCoachSeesPanel({ theme }) {
         WHAT MY COACH SEES
       </div>
       <div style={{ fontSize:11.5, color:T.muted, marginBottom:14, lineHeight:1.55 }}>
-        You control exactly what your coach (if you have one) can read about you. Toggle off anything you&apos;d rather keep private. Kailu (your AI) reads everything regardless — it&apos;s only your coach&apos;s visibility we&apos;re controlling here.
+        You control exactly what your coach (if you have one) can read about you. Toggle off anything you&apos;d rather keep private. Kailu reads everything regardless, it&apos;s only your coach&apos;s visibility we&apos;re controlling here.
       </div>
       <Row label="Sleep data" sub="Hours, quality, HRV from wearable sync" k="shareSleep"/>
       <Row label="Mood / stress entries" sub="Your weekly check-in mood scores + notes" k="shareMood"/>
@@ -7636,7 +7636,7 @@ function WhatMyCoachSeesPanel({ theme }) {
   );
 }
 
-// ─── TRAINER HUB — dedicated B2B surface for personal trainers ────────────────
+// ─── TRAINER HUB, dedicated B2B surface for personal trainers ────────────────
 // Distinct from ManagerHub (gym owners). Focus: voice cloning, client roster,
 // pushed protocols. Entered from the "For Trainers" CTA on the landing page.
 // No PIN gate (trainer-friendly), but data is scoped to their device.
@@ -7729,7 +7729,7 @@ function TrainerHub({ theme, onBack }) {
                 Human-only thread with each of your clients.
               </div>
               <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.55 }}>
-                Once a client has your invite link, you can DM them here. Kailu (AI) never writes in these threads — your client knows every message in this thread came from you personally.
+                Once a client has your invite link, you can DM them here. Kailu (AI) never writes in these threads, your client knows every message in this thread came from you personally.
               </div>
             </div>
           </div>
@@ -7811,7 +7811,7 @@ function TrainerHub({ theme, onBack }) {
   );
 }
 
-// ─── PUSH TO CLIENT CTA — trainer sends this supplement stack to a client ────
+// ─── PUSH TO CLIENT CTA, trainer sends this supplement stack to a client ────
 // Renders inside the supplement protocol result when a trainer voice is configured.
 // Opens a tiny inline form: client name + email + optional note. On send, writes to
 // rvn_pushed_protocols. The client's app reads this on supplement-screen mount and
@@ -7864,7 +7864,7 @@ function PushToClientCTA({ stack, T, ac, theme }) {
         style={{ width:"100%", padding:"9px 12px", marginBottom:6, borderRadius:8, fontSize:12.5,
           border:`1px solid ${T.border}`, background:T.card, color:T.text, boxSizing:"border-box" }}/>
       <textarea value={note} onChange={e => setNote(e.target.value)}
-        placeholder="Personal note (optional). e.g. 'Sarah I added iron because of your bloodwork — start tomorrow.'"
+        placeholder="Personal note (optional). e.g. 'Sarah I added iron because of your bloodwork, start tomorrow.'"
         rows={3}
         style={{ width:"100%", padding:"9px 12px", marginBottom:10, borderRadius:8, fontSize:12,
           border:`1px solid ${T.border}`, background:T.card, color:T.text, boxSizing:"border-box",
@@ -7887,7 +7887,7 @@ function PushToClientCTA({ stack, T, ac, theme }) {
   );
 }
 
-// ─── COACH VOICE PANEL — let trainer feed Kailu their voice ──────────────────
+// ─── COACH VOICE PANEL, let trainer feed Kailu their voice ──────────────────
 // Lives in ManagerHub Coach tab. Trainer enters 3-5 sample messages + tone/emoji
 // preferences. Saves to rvn_trainer_voice. Once enabled, every Kailu reply for
 // this trainer's clients adopts their voice via the buildTrainerVoiceContext()
@@ -7934,7 +7934,7 @@ function CoachVoicePanel({ theme, T }) {
         </label>
       </div>
       <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.5, marginBottom:14 }}>
-        Teach Kailu to talk like YOU when responding to your clients. Three sample messages and a tone is enough — the AI will mimic your cadence and energy.
+        Teach Kailu to talk like YOU when responding to your clients. Three sample messages and a tone is enough, the AI will mimic your cadence and energy.
       </div>
 
       {/* Trainer name */}
@@ -8002,15 +8002,15 @@ function CoachVoicePanel({ theme, T }) {
         ))}
       </div>
 
-      {/* Voice samples — the heart of the system */}
+      {/* Voice samples, the heart of the system */}
       <div style={{ marginBottom:14 }}>
         <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em", marginBottom:6 }}>
           SAMPLE MESSAGES YOU'VE SENT CLIENTS <span style={{ color: sampleCount >= 2 ? T.green : T.faint }}>
-            ({sampleCount}/5 — need 2 minimum)
+            ({sampleCount}/5, need 2 minimum)
           </span>
         </div>
         <div style={{ fontSize:11, color:T.muted, marginBottom:8, lineHeight:1.4 }}>
-          Paste actual messages you've sent in real conversations. Don't clean them up — punctuation, run-ons, typos are signal. 2-3 sentences each.
+          Paste actual messages you've sent in real conversations. Don't clean them up, punctuation, run-ons, typos are signal. 2-3 sentences each.
         </div>
         {(voice.voiceSamples || []).map((s, i) => (
           <textarea key={i} value={s || ""}
@@ -8044,7 +8044,7 @@ function CoachVoicePanel({ theme, T }) {
         {saved && (
           <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }}
             style={{ fontSize:11.5, fontWeight:700, color:T.green }}>
-            ✓ Saved — Kailu now talks like you
+            ✓ Saved, Kailu now talks like you
           </motion.div>
         )}
         {!ready && voice.enabled && (
@@ -8057,7 +8057,7 @@ function CoachVoicePanel({ theme, T }) {
   );
 }
 
-// ─── KAILU SUPPLEMENT PROTOCOL — interactive questionnaire ────────────────────
+// ─── KAILU SUPPLEMENT PROTOCOL, interactive questionnaire ────────────────────
 // State machine: intro → asking (Q1..Q7) → generating → result → review-existing
 // User's answers are saved to rvn_supplement_protocol so they can come back to it.
 // On result, key facts feed into coach memory so Kailu references them later.
@@ -8091,7 +8091,7 @@ const SUPP_QUESTIONS = [
   },
   {
     id: "sleep", multi: false, label: "How's your sleep right now (1–10)?",
-    sub: "Be real — this drives recovery + hormone supplements heavily.",
+    sub: "Be real, this drives recovery + hormone supplements heavily.",
     options: [
       { value: 3,  label: "1–4 · Wrecked" },
       { value: 5,  label: "5–6 · Inconsistent" },
@@ -8102,9 +8102,9 @@ const SUPP_QUESTIONS = [
   {
     id: "caffeineSens", multi: false, label: "How does caffeine hit you?",
     options: [
-      { value: "high",  label: "High — jittery, anxious, bad sleep" },
-      { value: "med",   label: "Normal — pre-workout fine, no issues" },
-      { value: "low",   label: "Low — need it just to function" },
+      { value: "high",  label: "High, jittery, anxious, bad sleep" },
+      { value: "med",   label: "Normal, pre-workout fine, no issues" },
+      { value: "low",   label: "Low, need it just to function" },
       { value: "none",  label: "I avoid caffeine entirely" },
     ],
   },
@@ -8119,12 +8119,12 @@ const SUPP_QUESTIONS = [
   },
   {
     id: "budget", multi: false, label: "Monthly supplement budget?",
-    sub: "Be honest — we'll only recommend what fits.",
+    sub: "Be honest, we'll only recommend what fits.",
     options: [
-      { value: "tight",     label: "$25 or less — essentials only" },
-      { value: "moderate",  label: "$50–$100 — solid stack" },
-      { value: "flexible",  label: "$100–$200 — full optimization" },
-      { value: "any",       label: "$200+ — no constraint" },
+      { value: "tight",     label: "$25 or less, essentials only" },
+      { value: "moderate",  label: "$50–$100, solid stack" },
+      { value: "flexible",  label: "$100–$200, full optimization" },
+      { value: "any",       label: "$200+, no constraint" },
     ],
   },
   {
@@ -8174,7 +8174,7 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
       setPushedProtocols((pushed || []).slice(-3).reverse());
     } catch {}
   }, []);
-  // Trainer mode flag — when the trainer voice is configured, show "Push to client" CTA
+  // Trainer mode flag, when the trainer voice is configured, show "Push to client" CTA
   const trainerVoiceActive = (() => {
     try {
       const v = JSON.parse(localStorage.getItem("rvn_trainer_voice") || "null");
@@ -8222,7 +8222,7 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
           </div>
           <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.5, marginBottom:14 }}>
             Seven questions. About 3 minutes. Kailu cross-references your answers against {SUPPLEMENT_DB.length}+ supplements
-            and writes a personalized stack — no generic protein-bro recommendations.
+            and writes a personalized stack, no generic protein-bro recommendations.
           </div>
           <motion.button whileTap={{ scale:.97 }} onClick={() => setPhase("asking")}
             style={{ width:"100%", padding:"12px 16px", borderRadius:12, background:ac,
@@ -8355,7 +8355,7 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
   const total = stack.reduce((sum, s) => sum + (s.price || 0), 0);
   return (
     <div>
-      {/* Coach-pushed protocol tier — shows at top when a trainer has pushed a stack to this client */}
+      {/* Coach-pushed protocol tier, shows at top when a trainer has pushed a stack to this client */}
       {pushedProtocols.length > 0 && pushedProtocols.map(pp => (
         <motion.div key={pp.id} initial={{ opacity:0, y:6 }} animate={{ opacity:1, y:0 }}
           style={{
@@ -8417,7 +8417,7 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
           <PushToClientCTA stack={stack} T={T} ac={ac} theme={theme}/>
         )}
         <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.5 }}>
-          Built from your answers — goals, training, sleep, diet, budget, current stack, allergies.
+          Built from your answers, goals, training, sleep, diet, budget, current stack, allergies.
           Tap any item for dose + timing detail. ✦ = personalized for you.
         </div>
       </motion.div>
@@ -8431,7 +8431,7 @@ function KailuSupplementProtocol({ archetypeId, theme, color, fallback }) {
             <div style={{ flex:1, minWidth:0 }}>
               <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:3, flexWrap:"wrap" }}>
                 <div style={{ fontSize:14, fontWeight:900, color:T.text }}>{s.name}</div>
-                {/* Source pip — informational only. NEVER use language that implies the
+                {/* Source pip, informational only. NEVER use language that implies the
                     user should buy because we sell it. Coach-not-salesperson principle. */}
                 {s.source === "store" && s.inStock && (
                   <span style={{ fontSize:9, fontWeight:600, color:T.faint, background:T.glass,
@@ -8606,7 +8606,7 @@ const TOS_CONTENT = {
       },
       {
         heading: "3. Data Storage & Security",
-        body: "Your data is stored in Supabase (PostgreSQL) with Row Level Security enabled — each user can only access their own records. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). We enforce strict server-side validation; client-submitted biometric scores are never trusted without re-derivation.",
+        body: "Your data is stored in Supabase (PostgreSQL) with Row Level Security enabled, each user can only access their own records. All data is encrypted in transit (TLS 1.3) and at rest (AES-256). We enforce strict server-side validation; client-submitted biometric scores are never trusted without re-derivation.",
       },
       {
         heading: "4. Third-Party Services",
@@ -8707,7 +8707,7 @@ function TosScreen({ onBack, theme, initialTab = "tos" }) {
   );
 }
 
-// ─── AUTH SCREEN — magic link email sign-in ───────────────────────────────────
+// ─── AUTH SCREEN, magic link email sign-in ───────────────────────────────────
 function AuthScreen({ theme, onAuth }) {
   const T = D[theme] || D["dark"];
   const [email,   setEmail]   = useState("");
@@ -8726,7 +8726,7 @@ function AuthScreen({ theme, onAuth }) {
       if (error) {
         const msg = error.message?.toLowerCase() || "";
         if (msg.includes("rate") || msg.includes("too many") || msg.includes("security purposes") || msg.includes("seconds")) {
-          setErrMsg("Too many attempts — please wait a few minutes and try again.");
+          setErrMsg("Too many attempts, please wait a few minutes and try again.");
         } else if (msg.includes("invalid") || msg.includes("not found")) {
           setErrMsg("Couldn't send the link. Double-check your email address.");
         } else {
@@ -8773,7 +8773,7 @@ function AuthScreen({ theme, onAuth }) {
               <span style={{ color: T.text, fontWeight: 700 }}>{email}</span>
             </div>
             <div style={{ fontSize: 11, color: T.faint, marginTop: 24 }}>
-              Tap the link in your email — it'll sign you in instantly.<br/>
+              Tap the link in your email, it'll sign you in instantly.<br/>
               No password ever needed.
             </div>
             <button onClick={() => setStatus("idle")}
@@ -8840,11 +8840,11 @@ function SplashScreen({ onDone, theme }) {
   const [animReady, setAnimReady] = useState(false);
   // Use a ref so the timeout never resets when the parent re-renders
   const onDoneRef = useRef(onDone);
-  onDoneRef.current = onDone; // update synchronously — no effect needed
+  onDoneRef.current = onDone; // update synchronously, no effect needed
   useEffect(() => {
     // SPLASH FREEZE FIX: on mobile Safari, framer-motion sometimes doesn't kick
     // off animations on the first paint if the initial render is too heavy.
-    // We force a double-frame paint before activating any animation state —
+    // We force a double-frame paint before activating any animation state -
     // requestAnimationFrame chained twice guarantees the browser has rasterized
     // the initial frame so motion transitions actually trigger.
     let raf1, raf2, t1, t2;
@@ -8862,7 +8862,7 @@ function SplashScreen({ onDone, theme }) {
     };
   }, []);
 
-  // Pure delay-based animations — no React state controlling visibility.
+  // Pure delay-based animations, no React state controlling visibility.
   // Reactive animate props (driven by useState phase) are unreliable on mobile Safari.
   return (
     <motion.div
@@ -8879,7 +8879,7 @@ function SplashScreen({ onDone, theme }) {
         overflow:"hidden",
       }}>
 
-      {/* Radial halo — fades in after 0.6s */}
+      {/* Radial halo, fades in after 0.6s */}
       <motion.div
         initial={{ opacity:0, scale:0.6 }}
         animate={{ opacity:0.15, scale:1 }}
@@ -8892,7 +8892,7 @@ function SplashScreen({ onDone, theme }) {
       />
       <SmokeParticles visible={smokeVisible} count={isMobile ? 18 : 55}/>
 
-      {/* LOGO — fades in after 0.4s */}
+      {/* LOGO, fades in after 0.4s */}
       <motion.div
         initial={{ opacity:0, scale:0.92 }}
         animate={{ opacity:1, scale:1 }}
@@ -8901,7 +8901,7 @@ function SplashScreen({ onDone, theme }) {
         <RVNLogo size={260} glow={T.blue}/>
       </motion.div>
 
-      {/* ECG pulse — appears at 1.8s */}
+      {/* ECG pulse, appears at 1.8s */}
       <motion.div
         initial={{ opacity:0 }} animate={{ opacity:0.25 }}
         transition={{ delay:1.8, duration:0.4 }}
@@ -8940,7 +8940,7 @@ function _MockStatusBar() {
     }}>
       <span style={{ fontSize:11.5, color:"#fff", fontWeight:700, fontVariantNumeric:"tabular-nums" }}>{time}</span>
       <div style={{ display:"flex", gap:4, alignItems:"center" }}>
-        {/* Signal — 2 clean dots */}
+        {/* Signal, 2 clean dots */}
         <div style={{ display:"flex", gap:2.5, alignItems:"flex-end" }}>
           <div style={{ width:4, height:6, borderRadius:1, background:"rgba(255,255,255,0.5)" }}/>
           <div style={{ width:4, height:9, borderRadius:1, background:"#fff" }}/>
@@ -9111,7 +9111,7 @@ function LandingPhoneMockup({ ac, theme }) {
           </div>
         ))}
         <div style={{ padding:"8px 10px", background:"#1a1a1a", borderRadius:10, textAlign:"center" }}>
-          <span style={{ fontSize:11.5, color:"#30D158", fontWeight:700 }}>✓ Recovery score: 84 — GOOD</span>
+          <span style={{ fontSize:11.5, color:"#30D158", fontWeight:700 }}>✓ Recovery score: 84, GOOD</span>
         </div>
       </div>
     ),
@@ -9239,7 +9239,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onTrainers,
   const ac = T[M.accentKey];
   const words = M.heroWords;
 
-  // ─── NFC listener (Web NFC — Chrome Android) ─────────────────────────────
+  // ─── NFC listener (Web NFC, Chrome Android) ─────────────────────────────
   // Mode tags:    rvn://mode/<gym|store|smoothie>?venue=<name>
   // Station tags: rvn://station/<bench|squat|rows|deadlift|press>?venue=<name>
   // Gracefully no-ops on unsupported browsers / HTTPS contexts.
@@ -9287,7 +9287,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onTrainers,
       }>
       <NeuralMesh theme={theme} accentColor={ac} density={14}/>
 
-      {/* Top bar — logo left, menu right */}
+      {/* Top bar, logo left, menu right */}
       <div style={{
         display:"flex", alignItems:"center", justifyContent:"space-between",
         padding:"16px 22px", position:"relative", zIndex:10,
@@ -9310,7 +9310,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onTrainers,
           }}>···</motion.button>
       </div>
 
-      {/* Hero — phone mockup upper, headline + CTA lower (Cal AI layout) */}
+      {/* Hero, phone mockup upper, headline + CTA lower (Cal AI layout) */}
       <div style={{
         flex:1, display:"flex", flexDirection:"column",
         alignItems:"center", justifyContent:"space-between",
@@ -9374,7 +9374,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onTrainers,
             </button>
           </motion.div>
 
-          {/* B2B entry points — distribution channels (trainers + gym owners) */}
+          {/* B2B entry points, distribution channels (trainers + gym owners) */}
           <motion.div
             initial={{ opacity:0 }} animate={{ opacity:1 }}
             transition={{ delay:1.2 }}
@@ -9442,7 +9442,7 @@ function bumpStreak(type) {
   const last   = s[lastKey];
   let streak = s[streakKey] || 0;
   if (last === today)  return streak;           // already logged today
-  if (last === yest)   streak += 1;             // consecutive — extend
+  if (last === yest)   streak += 1;             // consecutive, extend
   else                 streak  = 1;             // broke streak
   _saveStreaks({ ...s, [lastKey]: today, [streakKey]: streak });
   return streak;
@@ -9471,7 +9471,7 @@ function scheduleDailyNotifs() {
   const now = new Date();
   const at = (h, m) => { const d=new Date(now); d.setHours(h,m,0,0); return d-now; };
   // Pre-workout caffeine: 4:20 pm (40 min before 5 pm)
-  if (at(16,20) > 0) _fireNotif("⚡ Pre-Workout Window","Take your pre-workout now — peaks in 40 min.",at(16,20));
+  if (at(16,20) > 0) _fireNotif("⚡ Pre-Workout Window","Take your pre-workout now, peaks in 40 min.",at(16,20));
   // Macro nudge: 6 pm
   if (at(18,0)  > 0) _fireNotif("🥩 Protein Check","Have you hit your protein today? Log to keep your streak alive.",at(18,0));
   // Sleep reminder: 10 pm
@@ -9484,7 +9484,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
   const ac = arch?.color || arch?.glow || "#0A84FF";
   const archName = arch?.name || "ATHLETE";
   const streak   = streaks?.best || streaks?.session || 0;
-  // Three sharable card variants. Only info worth flexing publicly —
+  // Three sharable card variants. Only info worth flexing publicly -
   // no sleep hours, no daily protein grams, no random body metrics.
   const [variant, setVariant] = React.useState("identity"); // identity | pr | streak
 
@@ -9523,7 +9523,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
     { id: "streak",   label: "STREAK"   },
   ];
 
-  // ── CARD VARIANT 1: IDENTITY — archetype, Bio-Score, streak ──
+  // ── CARD VARIANT 1: IDENTITY, archetype, Bio-Score, streak ──
   const IdentityCard = (
     <>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:22 }}>
@@ -9552,7 +9552,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
     </>
   );
 
-  // ── CARD VARIANT 2: PR FLEX — giant PR number + archetype tag ──
+  // ── CARD VARIANT 2: PR FLEX, giant PR number + archetype tag ──
   const PRCard = (
     <>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:30 }}>
@@ -9575,7 +9575,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
     </>
   );
 
-  // ── CARD VARIANT 3: STREAK — giant flame + day count ──
+  // ── CARD VARIANT 3: STREAK, giant flame + day count ──
   const StreakCard = (
     <>
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:18 }}>
@@ -9866,7 +9866,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:8, marginBottom:16 }}>
           {[
             { label:"SETS", value:`${doneSets}/${totalSets}` },
-            { label:"BIO-SCORE", value: bioScore || "—" },
+            { label:"BIO-SCORE", value: bioScore || "-" },
             { label:"STREAK", value:`${streak} 🔥` },
           ].map(s => (
             <div key={s.label} style={{
@@ -9914,7 +9914,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
         style={{ marginTop:20, width:"100%", maxWidth:320 }}>
         {exported ? (
           <div style={{ textAlign:"center", padding:"14px", fontSize:14, fontWeight:800, color:ac }}>
-            ✓ Exported — paste it to your story!
+            ✓ Exported, paste it to your story!
           </div>
         ) : (
           <motion.button whileTap={{ scale:.96 }} onClick={exportToImage} disabled={exporting}
@@ -9942,13 +9942,13 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
 // ─── FACT VISUALS (animated SVG illustrations) ────────────────────────────────
 function FactVisual({ type, color: C }) {
 
-  // 168 tiny dots (24×7 = 1 week of hours). 1 glows bright — the gym hour.
+  // 168 tiny dots (24×7 = 1 week of hours). 1 glows bright, the gym hour.
   if (type === "bar_compare") {
     // 168 dots = 1 week of hours. 10 lit = ~5 days × 2hrs gym time.
     const COLS = 24, ROWS = 7, S = 7, G = 2, PAD = 4;
     const W = PAD + COLS*(S+G);
     const H = PAD + ROWS*(S+G) + 16;
-    // 10 dots top-left going right — first 10 cells of row 0
+    // 10 dots top-left going right, first 10 cells of row 0
     const GYM_SLOTS = new Set([0,1,2,3,4,5,6,7,8,9]);
     return (
       <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} style={{ overflow:"visible" }}>
@@ -10014,7 +10014,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Three growing bars — CSS scaleY so it always fires
+  // Three growing bars, CSS scaleY so it always fires
   if (type === "bars_grow") {
     const TRACK_H = 82;
     const bars = [
@@ -10034,7 +10034,7 @@ function FactVisual({ type, color: C }) {
           <div key={b.l} style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:4 }}>
             {/* Track */}
             <div style={{ width:40, height:TRACK_H, borderRadius:8, background:C, opacity:0.15, position:"relative", overflow:"hidden" }}>
-              {/* Fill — scaleY from bottom */}
+              {/* Fill, scaleY from bottom */}
               <motion.div
                 initial={{ scaleY:0 }} animate={{ scaleY:1 }}
                 transition={{ delay:b.d, duration:0.55, ease:[.22,1,.36,1] }}
@@ -10053,7 +10053,7 @@ function FactVisual({ type, color: C }) {
     );
   }
 
-  // Two bars: TRAIN vs REST — CSS scaleY
+  // Two bars: TRAIN vs REST, CSS scaleY
   if (type === "two_bars") {
     const TRACK_H = 88;
     const bars = [
@@ -10105,7 +10105,7 @@ function FactVisual({ type, color: C }) {
       })}
       {/* Hour hand pointing up (12) */}
       <line x1="50" y1="50" x2="50" y2="22" stroke={C} strokeWidth="3" strokeLinecap="round" opacity={0.45}/>
-      {/* Minute hand — sweeps from 12 o'clock to :40 (240° CW = endpoint ~24,65) */}
+      {/* Minute hand, sweeps from 12 o'clock to :40 (240° CW = endpoint ~24,65) */}
       <motion.line x1="50" y1="50"
         stroke={C} strokeWidth="3" strokeLinecap="round"
         initial={{ x2:50, y2:20 }} animate={{ x2:24, y2:65 }}
@@ -10119,7 +10119,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Battery draining — CSS scaleX from right
+  // Battery draining, CSS scaleX from right
   if (type === "battery") return (
     <div style={{ position:"relative", width:160, height:60, display:"flex", alignItems:"center" }}>
       {/* Outer casing */}
@@ -10168,7 +10168,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Brain with radiating pulse rings — CNS recovery
+  // Brain with radiating pulse rings, CNS recovery
   if (type === "brain_pulse") return (
     <svg viewBox="0 0 120 96" width="120" height="96">
       {/* Brain silhouette */}
@@ -10196,7 +10196,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // 10 dots filling in — caffeine tolerance resets in 10 days
+  // 10 dots filling in, caffeine tolerance resets in 10 days
   if (type === "calendar_dots") return (
     <svg viewBox="0 0 198 56" width="198" height="56">
       {Array.from({length:10}).map((_,i) => (
@@ -10218,7 +10218,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Half-gauge speedometer — caffeine sweet spot
+  // Half-gauge speedometer, caffeine sweet spot
   if (type === "gauge") return (
     <svg viewBox="0 0 140 80" width="140" height="80">
       {/* Track */}
@@ -10232,7 +10232,7 @@ function FactVisual({ type, color: C }) {
       <motion.path d="M16 72 A 54 54 0 0 1 124 72" fill="none" stroke="#FF453A" strokeWidth="6"
         strokeLinecap="round" pathLength="1" strokeDasharray="0.25 0.75" strokeDashoffset="-0.75" opacity={0.4}
         initial={{ opacity:0 }} animate={{ opacity:0.35 }} transition={{ delay:0.9 }}/>
-      {/* Needle — sweeps from left (0) to center (sweet spot) */}
+      {/* Needle, sweeps from left (0) to center (sweet spot) */}
       <motion.line x1="70" y1="72"
         stroke={C} strokeWidth="3" strokeLinecap="round"
         initial={{ x2:26, y2:72 }} animate={{ x2:70, y2:28 }}
@@ -10273,7 +10273,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Fat layer slides up, abs blocks (2 cols × 3 rows — vertical six-pack) revealed
+  // Fat layer slides up, abs blocks (2 cols × 3 rows, vertical six-pack) revealed
   if (type === "layer_reveal") return (
     <svg viewBox="0 0 160 106" width="160" height="106" style={{ overflow:"visible" }}>
       {/* Abs: 2 cols × 3 rows, portrait blocks (vertical six-pack) */}
@@ -10288,7 +10288,7 @@ function FactVisual({ type, color: C }) {
             transition={{ delay:0.65+i*0.08, type:"spring", stiffness:260 }}/>
         );
       })}
-      {/* Fat layer — covers all 6 abs, slides up and fades out */}
+      {/* Fat layer, covers all 6 abs, slides up and fades out */}
       <motion.rect x="46" y="0" width="68" height="104" rx="12" fill={C}
         initial={{ opacity:0.32, y:0 }} animate={{ opacity:0, y:-108 }}
         transition={{ delay:0.15, duration:0.95, ease:[.22,1,.36,1] }}/>
@@ -10302,7 +10302,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Horizontal bar filled to N% — for legs (70%) etc.
+  // Horizontal bar filled to N%, for legs (70%) etc.
   if (type === "percent_fill") return (
     <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
       <defs>
@@ -10345,7 +10345,7 @@ function FactVisual({ type, color: C }) {
         <g key={b.l}>
           {/* Track */}
           <rect x={b.x} y={10} width="56" height={78} rx="8" fill={C} opacity={0.12}/>
-          {/* Filled bar — clipped to track bounds */}
+          {/* Filled bar, clipped to track bounds */}
           <g clipPath={`url(#age_${b.cid})`}>
             <motion.rect x={b.x} y={88} width="56" height={b.h} rx="8" fill={C}
               opacity={b.tag==="bio" ? 0.85 : 0.5}
@@ -10363,7 +10363,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Fat arrow DOWN + Muscle arrow UP — for recomp facts
+  // Fat arrow DOWN + Muscle arrow UP, for recomp facts
   if (type === "split_arrows") return (
     <svg viewBox="0 0 160 92" width="160" height="92" style={{ overflow:"visible" }}>
       <defs>
@@ -10404,7 +10404,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // Growing bar hits a biological ceiling cap — mass_builder/density
+  // Growing bar hits a biological ceiling cap, mass_builder/density
   if (type === "muscle_cap") return (
     <svg viewBox="0 0 160 100" width="160" height="100" style={{ overflow:"visible" }}>
       <defs>
@@ -10432,7 +10432,7 @@ function FactVisual({ type, color: C }) {
     </svg>
   );
 
-  // 40% fill bar — glute activation fact
+  // 40% fill bar, glute activation fact
   if (type === "glute_fill") return (
     <svg viewBox="0 0 160 72" width="160" height="72" style={{ overflow:"visible" }}>
       <defs>
@@ -10472,14 +10472,14 @@ function FactVisual({ type, color: C }) {
       <motion.text x="80" y="9" textAnchor="middle" fontSize="7.5" fill={C} opacity="0"
         fontFamily="inherit" fontWeight="800"
         animate={{ opacity:0.5 }} transition={{ delay:0.5 }}>SHOULDERS ↔</motion.text>
-      {/* Top bar — wide shoulders */}
+      {/* Top bar, wide shoulders */}
       <motion.rect x="6" y="13" width="148" height="22" rx="9" fill={C} opacity={0.25}
         initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 24px" }}
         transition={{ delay:0.1, duration:0.5, ease:[.22,1,.36,1] }}/>
       <motion.rect x="6" y="13" width="148" height="22" rx="9" fill="none" stroke={C} strokeWidth="2.5"
         initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 24px" }}
         transition={{ delay:0.1, duration:0.5, ease:[.22,1,.36,1] }}/>
-      {/* Taper lines — dramatic V toward waist */}
+      {/* Taper lines, dramatic V toward waist */}
       <motion.line x1="6" y1="35" x2="64" y2="54" stroke={C} strokeWidth="1.5" opacity={0.3}
         initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.45, duration:0.3 }}/>
       <motion.line x1="154" y1="35" x2="96" y2="54" stroke={C} strokeWidth="1.5" opacity={0.3}
@@ -10493,7 +10493,7 @@ function FactVisual({ type, color: C }) {
         initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.62, duration:0.3 }}/>
       <motion.line x1="96" y1="67" x2="140" y2="82" stroke={C} strokeWidth="1.5" opacity={0.3}
         initial={{ pathLength:0 }} animate={{ pathLength:1 }} transition={{ delay:0.62, duration:0.3 }}/>
-      {/* Bottom bar — hips (slightly narrower than shoulders) */}
+      {/* Bottom bar, hips (slightly narrower than shoulders) */}
       <motion.rect x="20" y="82" width="120" height="20" rx="9" fill={C} opacity={0.25}
         initial={{ scaleX:0 }} animate={{ scaleX:1 }} style={{ transformOrigin:"80px 92px" }}
         transition={{ delay:0.52, duration:0.5, ease:[.22,1,.36,1] }}/>
@@ -10510,14 +10510,14 @@ function FactVisual({ type, color: C }) {
 }
 
 // ─── FACT FLASH SVG ANIMATIONS ────────────────────────────────────────────────
-// Native SVG <animate> — no Lottie, no JSON parsing, zero runtime errors.
+// Native SVG <animate>, no Lottie, no JSON parsing, zero runtime errors.
 // Each animation is designed to TELL THE STORY of the fact, not just decorate it.
 
-// FactAnimSVG — native SVG animations, zero external dependencies.
+// FactAnimSVG, native SVG animations, zero external dependencies.
 // Each case is a visual metaphor that instantly communicates the fact's story.
 function FactAnimSVG({ type, color }) {
 
-  // ── split: 168 dot grid — 10 glow gold, 158 stay dim ────────────────────────
+  // ── split: 168 dot grid, 10 glow gold, 158 stay dim ────────────────────────
   // 14 cols × 12 rows = 168 dots. First 10 light up one by one.
   if (type === "split") {
     const cols = 14, rows = 12, pitch = 13, r = 4;
@@ -10567,12 +10567,12 @@ function FactAnimSVG({ type, color }) {
           <animate attributeName="opacity" values="0.5;0" dur="1.8s" begin="1.2s" repeatCount="indefinite"/>
           <animate attributeName="r" values="14;28;14" dur="1.8s" begin="1.2s" repeatCount="indefinite"/>
         </circle>
-        {/* No text labels — the curve tells the story */}
+        {/* No text labels, the curve tells the story */}
       </svg>
     );
   }
 
-  // ── twobar: labeled horizontal bars — REST dominates GYM ─────────────────────
+  // ── twobar: labeled horizontal bars, REST dominates GYM ─────────────────────
   if (type === "twobar") {
     return (
       <svg viewBox="0 0 200 160" width="195" height="155" style={{overflow:"visible"}}>
@@ -10587,7 +10587,7 @@ function FactAnimSVG({ type, color }) {
           <animate attributeName="width" from="0" to="130" dur="1.0s" begin="0.4s" fill="freeze"/>
           <animate attributeName="opacity" values="0.85;1;0.85" dur="2s" begin="1.5s" repeatCount="indefinite"/>
         </rect>
-        {/* Removed stray pulsing circle that lived at the end of the REST bar —
+        {/* Removed stray pulsing circle that lived at the end of the REST bar -
             it read as a UI artifact, not a designed indicator. */}
         <text x="52" y="83" fill={color} fontSize="9" fontFamily="system-ui,sans-serif" opacity="0.35">breaks muscle down</text>
         <text x="52" y="133" fill={color} fontSize="9" fontFamily="system-ui,sans-serif" opacity="0.75">builds it back stronger ↑</text>
@@ -10619,7 +10619,7 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── clock: sweeping hands — caffeine 40 min before ───────────────────────────
+  // ── clock: sweeping hands, caffeine 40 min before ───────────────────────────
   if (type === "clock") {
     const ticks = [0, 90, 180, 270].map((deg, i) => {
       const rad = (deg - 90) * Math.PI / 180;
@@ -10645,19 +10645,19 @@ function FactAnimSVG({ type, color }) {
         <circle cx="100" cy="100" r="6" fill={color}>
           <animate attributeName="r" values="5;9;5" dur="2.5s" repeatCount="indefinite"/>
         </circle>
-        {/* No text label — clean */}
+        {/* No text label, clean */}
       </svg>
     );
   }
 
-  // ── lightning: dose-response curve — 200mg is the sweet spot, more ≠ more ───
+  // ── lightning: dose-response curve, 200mg is the sweet spot, more ≠ more ───
   // Curve draws itself: rises to peak at 200mg marker, then dips → shows diminishing returns
   if (type === "lightning") {
     const curve = "M 24,148 C 50,148 72,38 110,34 C 138,34 158,98 178,115";
     const cLen = 230;
     return (
       <svg viewBox="0 0 200 180" width="195" height="175" style={{overflow:"visible"}}>
-        {/* Subtle axes — just enough structure, no labels */}
+        {/* Subtle axes, just enough structure, no labels */}
         <line x1="24" y1="148" x2="182" y2="148" stroke={color} strokeWidth="1.2" opacity="0.12"/>
         <line x1="24" y1="22"  x2="24"  y2="148" stroke={color} strokeWidth="1.2" opacity="0.12"/>
         {/* Curve draws itself */}
@@ -10665,7 +10665,7 @@ function FactAnimSVG({ type, color }) {
           strokeDasharray={cLen} strokeDashoffset={cLen}>
           <animate attributeName="stroke-dashoffset" from={cLen} to="0" dur="1.4s" fill="freeze"/>
         </path>
-        {/* Peak dot — pulses at the sweet spot, no text needed */}
+        {/* Peak dot, pulses at the sweet spot, no text needed */}
         <circle cx="110" cy="34" r="7" fill={color} opacity="0">
           <animate attributeName="opacity" values="0;1" dur="0.2s" begin="0.85s" fill="freeze"/>
           <animate attributeName="r" values="6;14;6" dur="2s" begin="1.4s" repeatCount="indefinite"/>
@@ -10681,7 +10681,7 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── reset: counter-spinning arcs — tolerance resets in 10 days ───────────────
+  // ── reset: counter-spinning arcs, tolerance resets in 10 days ───────────────
   if (type === "reset") {
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
@@ -10721,11 +10721,11 @@ function FactAnimSVG({ type, color }) {
     const mouthSmile = "M 72,116 Q 100,148 128,116";
     return (
       <svg viewBox="0 0 200 200" width="185" height="185" style={{overflow:"visible"}}>
-        {/* Face outline — dim in fog, brightens with smile */}
+        {/* Face outline, dim in fog, brightens with smile */}
         <circle cx="100" cy="100" r="65" fill="none" stroke={color} strokeWidth="3">
           <animate attributeName="opacity" values="0.35;0.35;0.9;0.9;0.35" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
         </circle>
-        {/* Left eye — dim + droopy in fog, perks up with smile */}
+        {/* Left eye, dim + droopy in fog, perks up with smile */}
         <circle cx="78" cy="88" r="8" fill={color}>
           <animate attributeName="opacity" values="0.28;0.28;1;1;0.28" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
           <animate attributeName="cy" values="92;92;88;88;92" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
@@ -10735,14 +10735,14 @@ function FactAnimSVG({ type, color }) {
           <animate attributeName="opacity" values="0.28;0.28;1;1;0.28" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
           <animate attributeName="cy" values="92;92;88;88;92" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
         </circle>
-        {/* Mouth — flat neutral → deep classic smile arc */}
+        {/* Mouth, flat neutral → deep classic smile arc */}
         <path fill="none" stroke={color} strokeWidth="5" strokeLinecap="round">
           <animate attributeName="d"
             values={`${mouthFlat};${mouthFlat};${mouthSmile};${mouthSmile};${mouthFlat}`}
             keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
           <animate attributeName="opacity" values="0.55;0.55;1;1;0.55" keyTimes="0;0.24;0.48;0.76;1" dur={dur} repeatCount="indefinite"/>
         </path>
-        {/* Fog particles — fully visible at start, fade as smile comes in */}
+        {/* Fog particles, fully visible at start, fade as smile comes in */}
         {fogDots.map((d, i) => (
           <circle key={i} cx={d.cx} cy={d.cy} r={d.r} fill={color}>
             <animate attributeName="opacity"
@@ -10755,7 +10755,7 @@ function FactAnimSVG({ type, color }) {
     );
   }
 
-  // ── fire: 💪 emoji rendered large + colorized — soreness = muscle breakdown ───
+  // ── fire: 💪 emoji rendered large + colorized, soreness = muscle breakdown ───
   if (type === "fire") {
     const filterId = "bicep-color";
     // Fiber particles: positioned around where the bicep dome would be (left-center)
@@ -10785,7 +10785,7 @@ function FactAnimSVG({ type, color }) {
           <animate attributeName="opacity" values="0.06;0.18;0.06" dur="2.4s" repeatCount="indefinite"/>
         </ellipse>
 
-        {/* 💪 emoji at 130px — always the right shape, colored via filter */}
+        {/* 💪 emoji at 130px, always the right shape, colored via filter */}
         <text x="105" y="148" textAnchor="middle" fontSize="130"
           filter={`url(#${filterId})`} style={{userSelect:"none"}}>
           💪
@@ -10840,7 +10840,7 @@ const ONBOARDING_FACTS = {
     female: {
       stat: "Zero", color: "#BF5AF2", visual: "dumbbell",
       headline: "Women who got bulky from lifting",
-      body: "15–20× less testosterone means lifting makes you leaner — not bigger.",
+      body: "15–20× less testosterone means lifting makes you leaner, not bigger.",
     },
   },
   frequency: {
@@ -10852,7 +10852,7 @@ const ONBOARDING_FACTS = {
     med: {
       stat: "Rest days", color: "#C9A84C", visual: "two_bars", lottie: "twobar",
       headline: "Are doing more work than your gym days",
-      body: "Muscles don't grow during training — they grow during rest. Your off days are building you.",
+      body: "Muscles don't grow during training, they grow during rest. Your off days are building you.",
     },
     low: {
       stat: "2 sessions", color: "#30D158", visual: "bar_compare", lottie: "check",
@@ -10869,7 +10869,7 @@ const ONBOARDING_FACTS = {
     med: {
       stat: "200mg", color: "#C9A84C", visual: "gauge", lottie: "lightning",
       headline: "More caffeine doesn't mean more performance",
-      body: "200mg maxes out training output. Most pre-workouts have double — that's anxiety, not energy.",
+      body: "200mg maxes out training output. Most pre-workouts have double, that's anxiety, not energy.",
     },
     low: {
       stat: "10 days", color: "#5AC8FA", visual: "calendar_dots", lottie: "reset",
@@ -10886,7 +10886,7 @@ const ONBOARDING_FACTS = {
     soreness: {
       stat: "72hrs", color: "#FF453A", visual: "timeline_dots", lottie: "fire",
       headline: "Soreness means you recovered poorly, not trained hard",
-      body: "Soreness is just inflammation — it doesn't mean you trained harder. The best athletes barely get sore because their recovery is that good.",
+      body: "Soreness is just inflammation, it doesn't mean you trained harder. The best athletes barely get sore because their recovery is that good.",
     },
     fog: {
       stat: "6×", color: "#BF5AF2", visual: "brain_pulse", lottie: "brain",
@@ -10901,27 +10901,27 @@ const ONBOARDING_FACTS = {
     density:      { stat: "0.5lbs", color: "#FF453A",  visual: "muscle_cap",     headline: "Per week. That's the biological ceiling.",                 body: "Natural athletes max at 0.5lbs of pure muscle weekly. We calculate your exact ceiling and hit it." },
     athletic:     { stat: "8%",     color: null,         visual: "bars_grow",      headline: "Structure unlocks 8% more of you",                        body: "Adding conditioning to strength training improves peak output by 8–12% in just 6 weeks." },
     chest_arms:   { stat: "8wks",   color: null,         visual: "two_bars",       headline: "Your arms will look different in 8 weeks. Guaranteed.",   body: "Arms and chest respond faster than any other muscle. The gains are early, visible, and compound." },
-    powerlifter:  { stat: "5g",     color: "#BF5AF2",  visual: "gauge",          headline: "Creatine has 400+ studies. No supplement is more proven.", body: "5g daily is all it takes. Your 1RM goes up within 2 weeks — not months." },
+    powerlifter:  { stat: "5g",     color: "#BF5AF2",  visual: "gauge",          headline: "Creatine has 400+ studies. No supplement is more proven.", body: "5g daily is all it takes. Your 1RM goes up within 2 weeks, not months." },
     shred:        { stat: "24hrs",  color: "#FF3B30",  visual: "battery",        headline: "Your metabolism stays elevated 24 hours after HIIT",      body: "This isn't about burning calories in the gym. HIIT reprograms your metabolic rate for the entire next day." },
-    calisthenics: { stat: "∞",      color: "#5AC8FA",  visual: "timeline_dots",  headline: "Calisthenics is the only training with no ceiling",       body: "There's always a harder progression. Planche, one-arm pull-up, front lever — the skill chain never ends." },
+    calisthenics: { stat: "∞",      color: "#5AC8FA",  visual: "timeline_dots",  headline: "Calisthenics is the only training with no ceiling",       body: "There's always a harder progression. Planche, one-arm pull-up, front lever, the skill chain never ends." },
     // ── Female archetypes ─────────────────────────────────────────────────────
     glutes:       { stat: "+40%",   color: "#BF5AF2",  visual: "glute_fill",     headline: "More activation. More growth. Better shape.",              body: "The right exercises and cues change glute activation by 40%+. Most people never learn them." },
-    hourglass:    { stat: "12wks",  color: "#BF5AF2",  visual: "hourglass_form", headline: "Shoulder-waist-hip balance. Engineered.",                 body: "Shoulder width and hip shape are trainable. The hourglass is built — not found — in 12 weeks." },
+    hourglass:    { stat: "12wks",  color: "#BF5AF2",  visual: "hourglass_form", headline: "Shoulder-waist-hip balance. Engineered.",                 body: "Shoulder width and hip shape are trainable. The hourglass is built, not found, in 12 weeks." },
     lean_athlete: { stat: "+20%",   color: null,         visual: "bars_grow",      headline: "Your cycle is a training superpower",                     body: "Syncing training to your hormonal cycle adds 15–20% more results from the exact same effort." },
     tone_define:  { stat: "16wks",  color: null,         visual: "timeline_dots",  headline: "Visible definition by week 16. Week 8 if you're dialed.", body: "Muscle definition is about protocol precision, not just lifting more. Your hormonal environment is the key." },
-    lower_build:  { stat: "70%",    color: null,         visual: "percent_fill",   headline: "Lower body is 70% of your total muscle mass",             body: "Training legs doesn't just build legs — it floods your entire body with anabolic hormones. Nothing drives results faster." },
+    lower_build:  { stat: "70%",    color: null,         visual: "percent_fill",   headline: "Lower body is 70% of your total muscle mass",             body: "Training legs doesn't just build legs, it floods your entire body with anabolic hormones. Nothing drives results faster." },
     body_recomp:  { stat: "Both",   color: null,         visual: "split_arrows",   headline: "Lose fat and build muscle at the same time",              body: "Sports science denied it for decades. Your protocol is built around doing both simultaneously." },
     arms_back_f:  { stat: "8wks",   color: "#5AC8FA",  visual: "dumbbell",       headline: "Arms and back define the athletic feminine silhouette",   body: "Visible definition in arms and upper back reshapes how every outfit fits. 8 weeks to visible change." },
     full_body_f:  { stat: "24wks",  color: null,         visual: "bars_grow",      headline: "At 24 weeks you're unrecognizable",                       body: "Fat loss and muscle gain peak visually around week 24. Every session until then is a layer being quietly added." },
     // ── Fallback ──────────────────────────────────────────────────────────────
-    longevity:    { stat: "14yrs",   color: null,        visual: "age_split",     headline: "People who train consistently are 14 years younger — biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed — all measurably younger. Your protocol builds a body that stays that way." },
+    longevity:    { stat: "14yrs",   color: null,        visual: "age_split",     headline: "People who train consistently are 14 years younger, biologically.", body: "Not a metaphor. Muscle, hormones, recovery speed, all measurably younger. Your protocol builds a body that stays that way." },
     default:      { stat: "10×",     color: "#0A84FF", visual: "two_bars",      headline: "A protocol beats motivation every single time.",                  body: "Motivated people skip. Protocols run. People with a real system are 10× more likely to reach their goal. You just started building yours." },
   },
 };
 
 function FactFlash({ data, onContinue, theme }) {
   const T = D[theme] || D.dark;
-  // Always provide a real color — several facts have color:null which breaks CSS filters
+  // Always provide a real color, several facts have color:null which breaks CSS filters
   const fc = data.color || T.blue || "#0A84FF";
 
   useEffect(() => {
@@ -10952,7 +10952,7 @@ function FactFlash({ data, onContinue, theme }) {
         style={{ position:"absolute", width:300, height:300, borderRadius:"50%",
           border:`1px solid ${fc}55`, pointerEvents:"none" }}/>
 
-      {/* VISUAL — no opacity delay, content always visible */}
+      {/* VISUAL, no opacity delay, content always visible */}
       <motion.div
         initial={{ scale:0.8, y:12 }} animate={{ scale:1, y:0 }}
         transition={{ duration:0.4, ease:[0.22,1,0.36,1] }}
@@ -10964,7 +10964,7 @@ function FactFlash({ data, onContinue, theme }) {
         }
       </motion.div>
 
-      {/* THE STAT — always visible, just scales in */}
+      {/* THE STAT, always visible, just scales in */}
       <motion.div
         initial={{ scale:0.6, y:16 }} animate={{ scale:1, y:0 }}
         transition={{ delay:0.08, duration:0.45, ease:[0.22,1,0.36,1] }}
@@ -10977,7 +10977,7 @@ function FactFlash({ data, onContinue, theme }) {
         {data.stat}
       </motion.div>
 
-      {/* ONE punchy headline — always visible */}
+      {/* ONE punchy headline, always visible */}
       <div style={{
         fontSize:21, fontWeight:900, color:T.text,
         letterSpacing:"-0.025em", textAlign:"center",
@@ -10986,7 +10986,7 @@ function FactFlash({ data, onContinue, theme }) {
         {data.headline}
       </div>
 
-      {/* Progress bar — 2.5s sweep (matches timeout) */}
+      {/* Progress bar, 2.5s sweep (matches timeout) */}
       <motion.div
         initial={{ scaleX:0 }} animate={{ scaleX:1 }}
         transition={{ duration:2.5, ease:"linear" }}
@@ -10997,7 +10997,7 @@ function FactFlash({ data, onContinue, theme }) {
   );
 }
 
-// ─── STORY HOOK — punchy one-liner that sets up tension before each question ──
+// ─── STORY HOOK, punchy one-liner that sets up tension before each question ──
 function StoryHook({ text, theme, accent, delay=0 }) {
   const T = D[theme] || D.dark;
   return (
@@ -11018,7 +11018,7 @@ function StoryHook({ text, theme, accent, delay=0 }) {
   );
 }
 
-// ─── ONBOARDING TAP CARD — fills its container, big and simple ───────────────
+// ─── ONBOARDING TAP CARD, fills its container, big and simple ───────────────
 function OBCard({ option, selected, onPick, index = 0, theme, fill = false }) {
   const T = D[theme] || D.dark;
   const isSelected = selected === option.value;
@@ -11103,7 +11103,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   ];
   useEffect(() => {
     if (phase !== -1) return;
-    // 4s interval — values are blurred so cycling is purely aesthetic,
+    // 4s interval, values are blurred so cycling is purely aesthetic,
     // not meant to be readable. 150ms was causing visible number-flash on mobile.
     const id = setInterval(() => setHookTick(t => t + 1), 4000);
     return () => clearInterval(id);
@@ -11121,13 +11121,13 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   if (factData) return <FactFlash data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
-  // Shared question wrapper — cinematic story-mode layout
+  // Shared question wrapper, cinematic story-mode layout
   function QWrap({ step, total=7, storyHook, headline, children, onBackFn }) {
     const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
     const stepColor = glows[(step - 1) % glows.length];
     return (
       <Screen theme={theme} style={{ overflow:"hidden" }}>
-        {/* Ambient colored glow — breathes */}
+        {/* Ambient colored glow, breathes */}
         <motion.div
           animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
           transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
@@ -11135,7 +11135,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
             background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
             zIndex:0 }}/>
 
-        {/* Giant faded step number — static on mobile, subtle pulse on desktop */}
+        {/* Giant faded step number, static on mobile, subtle pulse on desktop */}
         <motion.div
           animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
           transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
@@ -11171,7 +11171,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
           style={{ position:"relative", zIndex:1, flex:1, display:"flex",
             flexDirection:"column", padding:"24px 24px 48px" }}>
 
-          {/* Story hook — accent left border, subtle drift */}
+          {/* Story hook, accent left border, subtle drift */}
           {storyHook && (
             <motion.div
               initial={isMobile ? false : { opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
@@ -11204,7 +11204,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
                 boxShadow:`0 0 8px ${stepColor}99` }}/>
           </motion.div>
 
-          {/* Fill remaining space — cards stretch to fill */}
+          {/* Fill remaining space, cards stretch to fill */}
           <div style={{ flex:1, display:"flex", flexDirection:"column", gap:10 }}>
             {React.Children.map(children, (child, idx) => (
               <div key={idx} style={{ flex:1, display:"flex", flexDirection:"column" }}>
@@ -11227,14 +11227,14 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   // ── Phase -1: Hook screen ──────────────────────────────────────────────────
   if (phase === -1) return (
     <Screen theme={theme} style={{ overflow:"hidden" }}>
-      {/* bg glow — breathing */}
+      {/* bg glow, breathing */}
       <motion.div
         animate={{ opacity:[0.7,1,0.7], scale:[1,1.06,1] }}
         transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 100% 55% at 50% 35%, ${ac}28, transparent 70%)` }}/>
 
-      {/* ── HERO: teased protocol card — floats ── */}
+      {/* ── HERO: teased protocol card, floats ── */}
       <motion.div
         initial={isMobile ? false : { opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
         transition={{ duration:.6, ease:[.22,1,.36,1] }}
@@ -11278,7 +11278,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
               </motion.div>
             </div>
 
-            {/* 2×2 metric grid — values cycle under blur */}
+            {/* 2×2 metric grid, values cycle under blur */}
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
               {[
                 { label:"DAILY PROTEIN" },
@@ -11352,7 +11352,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
     </Screen>
   );
 
-  // ── Phase 0: Gender — two giant tiles ─────────────────────────────────────
+  // ── Phase 0: Gender, two giant tiles ─────────────────────────────────────
   if (phase === 0) return (
     <Screen theme={theme} style={{ overflow:"hidden" }}>
       {/* Breathing glow */}
@@ -11468,7 +11468,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
   if (phase === 2) return (
     <QWrap step={3} total={7}
       headline="How sensitive are you to caffeine?"
-      storyHook="Most people drink coffee wrong for the gym. Not too much — just at the wrong time."
+      storyHook="Most people drink coffee wrong for the gym. Not too much, just at the wrong time."
       onBackFn={() => setPhase(1)}>
       {[
         { value:"high", label:"Very sensitive",      sub:"Jittery on even one coffee",         icon:"alert",    color:"#FF453A" },
@@ -11492,7 +11492,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
         { value:"sleep",    label:"Sleep quality",     sub:"I don't sleep well or long enough",      icon:"moon",     color:"#5AC8FA" },
         { value:"soreness", label:"Muscle soreness",   sub:"Still sore before my next session",     icon:"dumbbell", color:"#FF453A" },
         { value:"fog",      label:"Mental fog",        sub:"Brain is slow the day after training",   icon:"brain",    color:"#BF5AF2" },
-        { value:"none",     label:"I recover well",    sub:"No real issues — just want to optimize", icon:"check",    color:"#30D158" },
+        { value:"none",     label:"I recover well",    sub:"No real issues, just want to optimize", icon:"check",    color:"#30D158" },
       ].map((opt, i) => (
         <OBCard key={opt.value} option={opt} selected={picked} index={i} theme={theme}
           onPick={v => {
@@ -11535,7 +11535,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
 
   return (
     <Screen theme={theme} style={{ overflowY:"auto", overflowX:"hidden" }}>
-      {/* Ambient glow — breathes */}
+      {/* Ambient glow, breathes */}
       <motion.div
         animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
         transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
@@ -11543,7 +11543,7 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
       {/* Removed giant pulsing "02" background ornament. Read as a misleading
           "Question 2" label (this is a CHOICE of archetype, not the literal
-          second question — biology has multiple questions before this).
+          second question, biology has multiple questions before this).
           The 5-dot progress indicator below already shows step position. */}
 
       <div style={{ position:"relative", zIndex:1,
@@ -11685,11 +11685,11 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
       const squat = allVals.squat || 185;
       const bwKg  = Math.round(bw * 0.4536);
       // ISSN Position Stand protein tiers by strength level (Stokes 2018, Phillips & Van Loon 2011)
-      // Competitive (90th pct lifters): 2.4g/kg — maximum MPS stimulus
-      // Elite (1.75-2x bench): 2.2g/kg — advanced hypertrophy protocol
-      // Advanced (1.5x bench): 2.0g/kg — solid training demand
-      // Intermediate (1.0-1.5x bench): 1.8g/kg — established ISSN minimum for muscle gain
-      // Novice (<1.0x bench): 1.6g/kg — baseline recommendation
+      // Competitive (90th pct lifters): 2.4g/kg, maximum MPS stimulus
+      // Elite (1.75-2x bench): 2.2g/kg, advanced hypertrophy protocol
+      // Advanced (1.5x bench): 2.0g/kg, solid training demand
+      // Intermediate (1.0-1.5x bench): 1.8g/kg, established ISSN minimum for muscle gain
+      // Novice (<1.0x bench): 1.6g/kg, baseline recommendation
       const benchRatio = bench / bw;
       const squatRatio = squat / bw;
       const isCompetitive = benchRatio >= 1.95 || squatRatio >= 2.83;
@@ -11703,8 +11703,8 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
       return {
         stat: `${multiplier}g/kg`,
         icon: "⬡",
-        headline: `Your protein multiplier — ${level} tier`,
-        body: `At ${bw}lbs (${bwKg}kg), your ${level}-level protocol uses ${multiplier}g of protein per kg of bodyweight — putting your target around ${proteinTarget}g/day. That's ~${perMeal}g per meal across 4 meals. The average person eats ~65g total. That gap is where transformations are won or lost.`,
+        headline: `Your protein multiplier, ${level} tier`,
+        body: `At ${bw}lbs (${bwKg}kg), your ${level}-level protocol uses ${multiplier}g of protein per kg of bodyweight, putting your target around ${proteinTarget}g/day. That's ~${perMeal}g per meal across 4 meals. The average person eats ~65g total. That gap is where transformations are won or lost.`,
         color: "#0A84FF",
       };
     } else {
@@ -11739,13 +11739,13 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
         </div>
       </div>
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"0 24px 36px" }}>
-        {/* Ambient glow — breathes */}
+        {/* Ambient glow, breathes */}
         <motion.div
           animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
           transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
           style={{ position:"absolute", inset:0, pointerEvents:"none",
             background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
-        {/* Giant faded step number — pulses */}
+        {/* Giant faded step number, pulses */}
         <motion.div
           animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
           transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
@@ -11871,19 +11871,19 @@ function generateAIGoals({ age, heightIn, bw, activityLevel, trainingDays, goalF
   const cAdj     = { muscle:+300, fat:-400, recomp:0 }[goalFocus] ?? 0;
   const calories = Math.round(tdee + cAdj);
 
-  // Protein — ISSN: 1.6-2.2g/kg for muscle, 1.8-2.4g/kg for fat loss
+  // Protein, ISSN: 1.6-2.2g/kg for muscle, 1.8-2.4g/kg for fat loss
   const protG    = { muscle:2.0, fat:2.2, recomp:1.8 }[goalFocus] ?? 2.0;
   const protein  = Math.round(bwKg * protG);
 
-  // Fats — ~25-30% of calories (keto: ~70%)
+  // Fats, ~25-30% of calories (keto: ~70%)
   const fatCals  = dietType === "keto" ? calories * 0.70 : calories * 0.27;
   const fats     = Math.round(fatCals / 9);
 
-  // Carbs — remaining after protein + fats
+  // Carbs, remaining after protein + fats
   const remainCals = calories - (protein * 4) - (fats * 9);
   const carbs      = Math.max(dietType === "keto" ? 20 : 80, Math.round(remainCals / 4));
 
-  // Sleep — Hirshkowitz et al. + training load factor
+  // Sleep, Hirshkowitz et al. + training load factor
   let sleepH = 7.5;
   if (a < 25) sleepH += 0.5;
   if (trainingDays >= 5) sleepH += 0.5;
@@ -11903,16 +11903,16 @@ function generateAIGoals({ age, heightIn, bw, activityLevel, trainingDays, goalF
     prs: { bench: bw ? Math.round(bw * 0.75) : 185, squat: bw ? Math.round(bw * 1.1) : 245, ohp: bw ? Math.round(bw * 0.45) : 115, deadlift: bw ? Math.round(bw * 1.3) : 295 },
     reasoning: {
       calories: `Your TDEE is ~${tdee} kcal/day (${actLabel}, Mifflin-St Jeor). ${cAdj > 0 ? `+${cAdj}` : cAdj} kcal surplus for ${goalLabel}.`,
-      protein:  `${protG}g per kg body weight (${Math.round(bwKg)}kg) — ISSN-recommended for ${goalLabel}.`,
+      protein:  `${protG}g per kg body weight (${Math.round(bwKg)}kg), ISSN-recommended for ${goalLabel}.`,
       carbs:    `Remaining calories after protein and fats. ${dietType === "keto" ? "Keto ceiling: 20g net carbs." : "Fuels training performance."}`,
       fats:     `${dietType === "keto" ? "70%" : "~27%"} of calories. Supports hormone production and recovery.`,
-      sleep:    `${sleepTarget}h nightly — adjusted for age ${a}${trainingDays >= 5 ? `, high training frequency (${trainingDays}×/week)` : ""}. Based on Hirshkowitz et al. NSF guidelines.`,
+      sleep:    `${sleepTarget}h nightly, adjusted for age ${a}${trainingDays >= 5 ? `, high training frequency (${trainingDays}×/week)` : ""}. Based on Hirshkowitz et al. NSF guidelines.`,
     },
     generatedAt: Date.now(),
   };
 }
 
-// ─── PERSONALIZE STEP — Cal AI-style one-question-per-screen ─────────────────
+// ─── PERSONALIZE STEP, Cal AI-style one-question-per-screen ─────────────────
 function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, theme }) {
   const T  = D[theme] || D.dark;
   const ac = T.blue;
@@ -11958,20 +11958,20 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
     onSubmit(profile);
   }
 
-  // Shared question screen — same cinematic layout as BiologyStep
+  // Shared question screen, same cinematic layout as BiologyStep
   function QScreen({ step, total, headline, storyHook, children, onBackFn, showContinue, onContinue }) {
     const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
     const stepColor = glows[(step - 1) % glows.length];
     return (
       <Screen theme={theme} style={{ overflow:"hidden" }}>
-        {/* Ambient glow — breathes */}
+        {/* Ambient glow, breathes */}
         <motion.div
           animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
           transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
           style={{ position:"absolute", inset:0, pointerEvents:"none",
             background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
             zIndex:0 }}/>
-        {/* Giant faded step number — static on mobile, subtle pulse on desktop */}
+        {/* Giant faded step number, static on mobile, subtle pulse on desktop */}
         <motion.div
           animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
           transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
@@ -12145,9 +12145,9 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
       storyHook="The best diet is the one you'll actually stick to. Pick the one that's actually you."
       onBackFn={() => advance(1)}>
       <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
-        { value:"standard",  icon:"utensils", label:"Standard",        sub:"Balanced macros — the default protocol",      color:"#C8A94A" },
+        { value:"standard",  icon:"utensils", label:"Standard",        sub:"Balanced macros, the default protocol",      color:"#C8A94A" },
         { value:"highcarb",  icon:"wheat",    label:"High Carb",       sub:"Performance-focused, carb-forward fueling",   color:"#FF9F0A" },
-        { value:"plant",     icon:"leaf",     label:"Plant-Based",     sub:"Vegan/vegetarian — protein sources optimized", color:"#30D158" },
+        { value:"plant",     icon:"leaf",     label:"Plant-Based",     sub:"Vegan/vegetarian, protein sources optimized", color:"#30D158" },
         { value:"keto",      icon:"droplets", label:"Keto / Low Carb", sub:"Fat-dominant, insulin management",             color:"#5AC8FA" },
       ]}/>
     </QScreen>
@@ -12336,7 +12336,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
   };
 
 
-  // Skip animation phase — go straight to form
+  // Skip animation phase, go straight to form
   const startSetup = () => { setPhase(1); setTimeout(() => setPhase(2), 1200); };
 
   return (
@@ -12352,7 +12352,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
             Save Your<br/>Protocol
           </div>
           <div style={{ fontSize:13, color:T.muted, marginTop:6 }}>
-            {phase<2 ? "Creating your secure account" : "Account ready — welcome to the OS"}
+            {phase<2 ? "Creating your secure account" : "Account ready, welcome to the OS"}
           </div>
         </motion.div>
 
@@ -12403,7 +12403,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                 style={{ width:"100%", fontSize:17, fontWeight:600 }}/>
             </GlassCard>
 
-            {/* Email — required for Supabase auth */}
+            {/* Email, required for Supabase auth */}
             <GlassCard theme={theme}
               style={{ padding:"14px 16px", marginBottom:10,
                 border:`1px solid ${ac}22` }}>
@@ -12448,7 +12448,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
               </div>
             )}
 
-            {/* Gym Code — optional, for corporate gym members */}
+            {/* Gym Code, optional, for corporate gym members */}
             <div style={{ marginBottom:14 }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
                 <div style={{ flex:1, height:1, background:T.border }}/>
@@ -12459,7 +12459,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
                 border:`1px solid ${gymInfo ? T.green+"66" : ac+"11"}` }}>
                 <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".03em", marginBottom:5 }}>
                   GYM CODE
-                  <span style={{ fontWeight:500, color:T.faint, marginLeft:6 }}>— enter if your gym is on RVN</span>
+                  <span style={{ fontWeight:500, color:T.faint, marginLeft:6 }}>- enter if your gym is on RVN</span>
                 </div>
                 <div style={{ display:"flex", alignItems:"center", gap:8 }}>
                   <input value={gymCode}
@@ -12505,7 +12505,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
               disabled={signingUp || !name.trim() || !email.trim() || password.length < 8 || !tosAgree}/>
 
 
-            {/* Signup / Account link — minimalist, high-end */}
+            {/* Signup / Account link, minimalist, high-end */}
             <div style={{ textAlign:"center", marginTop:18 }}>
               <div style={{ display:"flex", alignItems:"center", gap:8, justifyContent:"center",
                 marginBottom:10 }}>
@@ -12529,7 +12529,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
           </motion.div>
         )}
 
-        {/* Phase 3 — sign-in to existing account */}
+        {/* Phase 3, sign-in to existing account */}
         {phase===3 && (
           <motion.div
             initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
@@ -12634,7 +12634,7 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
   );
 }
 
-// ─── BIO-NARRATIVE — ATHLETE PROFILE REVEAL ───────────────────────────────────
+// ─── BIO-NARRATIVE, ATHLETE PROFILE REVEAL ───────────────────────────────────
 function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue, onBack, theme }) {
   const T = D[theme];
   const M = OS_MODES[mode];
@@ -12651,7 +12651,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
   const [statsVisible, setStatsVisible] = useState(false);
   const [ctaVisible, setCtaVisible] = useState(false);
 
-  // Build personalized stats — read from saved profile so calorie target matches FUEL tab
+  // Build personalized stats, read from saved profile so calorie target matches FUEL tab
   const _savedMg = (() => { try { return JSON.parse(localStorage.getItem("rvn_profile")||"{}").macroGoals || {}; } catch { return {}; } })();
   const bw = bioData?.all?.bw || bioData?.bw || (() => { try { const p=JSON.parse(localStorage.getItem("rvn_profile")||"{}"); return p.weight||175; } catch { return 175; } })();
   const bwKg = Math.round(bw * 0.453592);
@@ -12661,7 +12661,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
   const freqLabel = frequency === "high" ? "5–6×/week" : frequency === "med" ? "3–4×/week" : "1–2×/week";
 
   useEffect(() => {
-    // Phase 0: scanning animation — 1.6s
+    // Phase 0: scanning animation, 1.6s
     const t1 = setTimeout(() => setPhase(1), 1600);
     // Phase 1: bio score counter starts
     const t2 = setTimeout(() => {
@@ -12683,7 +12683,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
   const scanPct = Math.min(scoreFill / 100, 1);
   const circumference = 2 * Math.PI * 52;
 
-  // Personal stat cards — only PROFILE SCORE gets the accent color; others are neutral
+  // Personal stat cards, only PROFILE SCORE gets the accent color; others are neutral
   const stats = [
     { label:"DAILY PROTEIN",  value:`${proteinTarget}g`,   icon:"zap",      color:T.text },
     { label:"CALORIE TARGET", value:`${calorieTarget}`,    icon:"flame",    color:T.text },
@@ -12917,7 +12917,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
 // ╔══════════════════════════════════════════════════════════════════════════╗
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  MODE ENGINES  v5.0                                          ║
+// ║  RVN OS ,  MODE ENGINES  v5.0                                          ║
 // ║  Gym Protocol · Store Sommelier · Smoothie Booster                      ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -13066,7 +13066,7 @@ function BioGraph({ moa, arch, theme }) {
         style={{ marginTop:8, padding:"7px 11px",
           background:moa.color+"11", borderRadius:8,
           fontSize:11.5, color:moa.color, fontWeight:700, letterSpacing:".03em" }}>
-        Without {moa.name}: 35% goal progress in 6 months — vs 90% with RVN (1.8× clinical absorption rate)
+        Without {moa.name}: 35% goal progress in 6 months, vs 90% with RVN (1.8× clinical absorption rate)
       </motion.div>
     </div>
   );
@@ -13119,7 +13119,7 @@ function AgileEditor({ exercises, arch, theme, onSave, onClose }) {
 
       <div style={{ flex:1, overflowY:"auto", padding:"12px 18px 16px" }}>
 
-        {/* Auto-populate CTA — shown only when list is empty */}
+        {/* Auto-populate CTA, shown only when list is empty */}
         {exList.length === 0 && (
           <motion.div initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }} style={{ marginBottom:16 }}>
             <motion.button whileTap={{ scale:.97 }}
@@ -13277,7 +13277,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const { state: envState, setAccentColor } = useEnv();
   const _allArch = [...GYM_ARCHETYPES, ...FEMALE_GYM_ARCHETYPES];
   const _archRaw = _allArch.find(a=>a.id===archetypeId) || GYM_ARCHETYPES[0];
-  // Apply user's accent override — if set, all arch.glow refs pick it up automatically
+  // Apply user's accent override, if set, all arch.glow refs pick it up automatically
   const arch = envState.accentColor ? { ..._archRaw, glow: envState.accentColor } : _archRaw;
   const ac = arch?.glow || "#0A84FF";
   const products = (inventory?.gym?.[archetypeId] || []).filter(p=>p.active);
@@ -13304,7 +13304,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [igError,         setIgError]         = useState("");
   // Velocity data collected from VBT camera during session
   const [velocityLog, setVelocityLog] = useState([]);
-  // Session count — used for archetype evolution detection
+  // Session count, used for archetype evolution detection
   const [sessionCount] = useState(() => {
     try { return parseInt(localStorage.getItem("rvn_session_count") || "7", 10); } catch { return 7; }
   });
@@ -13320,15 +13320,15 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     sleepDays:  [7.2, 6.5, 8.1, 7.8, 6.9, 7.4, 7.0],
     lastResetDate: "",
     lastSleepLog:  null,  // { hours, bedtime, wakeTime, date }
-    // Kailu token system — free: 15 tokens, refill 5 every 3 hrs; premium: unlimited
+    // Kailu token system, free: 15 tokens, refill 5 every 3 hrs; premium: unlimited
     kailuTokens:     15,
     kailuLastRefill: Date.now(),
     isPremium:       false,
     // Health data (manually synced or via future wearable integration)
     healthData: { steps:0, sleepHrs:0, hrv:0, lastSync:null },
-    // Progress photos — array of { date, dataUrl, note }
+    // Progress photos, array of { date, dataUrl, note }
     progressPhotos: [],
-    // PR history — track when PRs were set for celebration
+    // PR history, track when PRs were set for celebration
     prHistory: [],
     // Venue brand override when NFC-tapped into a gym
     venueBrand: null,  // { logo, accentColor, welcomeMsg, bannerImg, gymName, checkIns, gymModeStart }
@@ -13793,7 +13793,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     });
   };
 
-  // handleLogWorkout — persists full session to Supabase workouts table
+  // handleLogWorkout, persists full session to Supabase workouts table
   const handleLogWorkout = async () => {
     setSaving(true);
     setSaveErr(null);
@@ -13835,7 +13835,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         });
       }
     } catch (e) {
-      setSaveErr("Save failed — session cached locally.");
+      setSaveErr("Save failed, session cached locally.");
       setLogged(true); // still mark logged for UX
     } finally {
       setSaving(false);
@@ -13862,7 +13862,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     if (granted) scheduleDailyNotifs();
   };
 
-  // Progress photo vars — lifted to component scope so the overlay can render
+  // Progress photo vars, lifted to component scope so the overlay can render
   // at the Screen top level (outside any motion.div with y-transforms)
   const ppPhotos = profile.progressPhotos || [];
   const ppLastPhoto = ppPhotos[ppPhotos.length - 1];
@@ -13872,7 +13872,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const ppLocked = ppDaysSinceLast < 7;
   const ppDaysUntilUnlock = ppLocked ? (7 - ppDaysSinceLast) : 0;
 
-  // Single wide arc using the archetype's colour — spans both corners so it
+  // Single wide arc using the archetype's colour, spans both corners so it
   // reads as one connected glow across the full top, not two separate spots.
   const _glowHex = arch.glow; // e.g. "#C9A84C", "#0A84FF", "#BF5AF2"
   const _gymGradient = `
@@ -13918,7 +13918,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         )}
       </AnimatePresence>
 
-      {/* ── Progress Photo full-screen overlay — rendered at Screen top level
+      {/* ── Progress Photo full-screen overlay, rendered at Screen top level
            so position:fixed is relative to viewport, not a transformed ancestor ── */}
       <AnimatePresence>
         {progressPhotoTab === "open" && (
@@ -13964,10 +13964,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   WHY ONCE A WEEK?
                 </div>
                 <div style={{ fontSize:13, fontWeight:700, color:T.text, lineHeight:1.55, marginBottom:8 }}>
-                  Daily mirror checks slow your progress — not measure it.
+                  Daily mirror checks slow your progress, not measure it.
                 </div>
                 <div style={{ fontSize:11, color:T.muted, lineHeight:1.6 }}>
-                  Your body changes on a 7–14 day cycle. Checking daily creates noise — lighting, hydration, bloat, and pump all skew perception. Weekly photos taken under the same conditions give you the actual signal. Studies show people who track weekly stay consistent 3× longer than those who check daily.
+                  Your body changes on a 7–14 day cycle. Checking daily creates noise, lighting, hydration, bloat, and pump all skew perception. Weekly photos taken under the same conditions give you the actual signal. Studies show people who track weekly stay consistent 3× longer than those who check daily.
                 </div>
                 <div style={{ marginTop:10, fontSize:11.5, color:"#BF5AF2", fontWeight:700, letterSpacing:".01em" }}>
                   ✦ SAME DAY · SAME LIGHTING · SAME TIME
@@ -14072,7 +14072,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         )}
       </AnimatePresence>
 
-      {/* Sticky header — transparent at top, frosted on scroll (Apple Health style) */}
+      {/* Sticky header, transparent at top, frosted on scroll (Apple Health style) */}
       <div style={{
         position:"sticky", top:0, zIndex:50,
         background: gymScrolled ? `${T.bg}ee` : "transparent",
@@ -14119,7 +14119,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           </div>
         </div>
 
-        {/* ── Tab navigation — iOS style: no box, just color change on active ── */}
+        {/* ── Tab navigation, iOS style: no box, just color change on active ── */}
         <div style={{ display:"flex", marginBottom:2,
           borderBottom:`1px solid ${T.border}` }}>
           {[
@@ -14150,7 +14150,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           })}
         </div>
 
-      {/* Streak bar — NFC tap registers attendance, no manual button */}
+      {/* Streak bar, NFC tap registers attendance, no manual button */}
         <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:7 }}>
           <div style={{
             display:"flex", alignItems:"center", gap:6,
@@ -14241,20 +14241,20 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
         {/* ══ TAB CONTENT ══════════════════════════════════════════════════ */}
 
-        {/* Welcome tour — fires once on first dashboard land */}
+        {/* Welcome tour, fires once on first dashboard land */}
         <ContextualDemo id="welcome" theme={theme} accent={arch.glow}/>
 
         {/* ── TRAIN TAB ─────────────────────────────────────────────────────── */}
         {activeGymTab === "train" && (() => {
           const todayBio = (() => { try { return JSON.parse(localStorage.getItem("rvn_biometrics_" + new Date().toISOString().slice(0,10)) || "null"); } catch { return null; } })();
           const bioAlert = todayBio ? (
-            todayBio.hrv && todayBio.hrv < 40 ? { msg: "Low HRV detected — reduce today's intensity by 20%", color: "gold" } :
-            todayBio.sleep && todayBio.sleep < 6 ? { msg: "Sleep debt detected — deload recommended today", color: "red" } :
-            todayBio.stress && todayBio.stress >= 4 ? { msg: "High stress logged — Kailu adjusted macros: +20g protein", color: "orange" } :
+            todayBio.hrv && todayBio.hrv < 40 ? { msg: "Low HRV detected, reduce today's intensity by 20%", color: "gold" } :
+            todayBio.sleep && todayBio.sleep < 6 ? { msg: "Sleep debt detected, deload recommended today", color: "red" } :
+            todayBio.stress && todayBio.stress >= 4 ? { msg: "High stress logged, Kailu adjusted macros: +20g protein", color: "orange" } :
             null
           ) : null;
           return <>
-        {/* Train-tab demo — first time the user lands on TRAIN */}
+        {/* Train-tab demo, first time the user lands on TRAIN */}
         <ContextualDemo id="train" theme={theme} accent={arch.glow}/>
         {/* ── BIOMETRIC ALERT BANNER ────────────────────────────────────── */}
         {bioAlert && (
@@ -14306,7 +14306,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     {avgScore > 0 ? ` · avg score ${avgScore}` : ""}
                   </div>
                   <div style={{ fontSize:11, color:T.muted }}>
-                    {lastWeek.length >= 4 ? "Elite consistency — you're in the top tier. Keep it up." 
+                    {lastWeek.length >= 4 ? "Elite consistency, you're in the top tier. Keep it up." 
                      : lastWeek.length >= 2 ? "Solid week. One more session and you hit your target."
                      : "New week, fresh start. Lock in today."}
                   </div>
@@ -14402,7 +14402,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           </GlassCard>
         </motion.div>
 
-        {/* Day-1 onboarding bridge — shown only if no workouts logged yet */}
+        {/* Day-1 onboarding bridge, shown only if no workouts logged yet */}
         {(() => {
           const workouts = (() => { try { return JSON.parse(localStorage.getItem("rvn_workouts")||"[]"); } catch { return []; } })();
           if (workouts.length > 0) return null;
@@ -14429,7 +14429,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
         {/* ── Workout setup / exercise list ─────────────────────────────── */}
         {customExercises === null ? (
-          /* No workout selected yet — show three setup options */
+          /* No workout selected yet, show three setup options */
           <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} style={{ marginTop:14 }}>
             <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
               TODAY'S WORKOUT
@@ -14574,7 +14574,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           );
         })}
 
-        {/* Supplement Protocol button — now its own page */}
+        {/* Supplement Protocol button, now its own page */}
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
           transition={{ delay:.25, duration:.5 }}
           style={{ marginBottom:16 }}>
@@ -14592,7 +14592,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               See Your 12-Week Results
             </div>
             <div style={{ fontSize:11.5, color:T.muted, marginBottom:10 }}>
-              Compare your trajectory with vs without the RVN supplement stack —
+              Compare your trajectory with vs without the RVN supplement stack -
               week-by-week divergence, milestone activations, and final outcome gap.
             </div>
             <div style={{ display:"flex", alignItems:"center", gap:6 }}>
@@ -14637,7 +14637,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           </motion.div>
         )}
 
-        {/* Share Workout card — appears after logging */}
+        {/* Share Workout card, appears after logging */}
         {logged && !saving && (
           <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }} transition={{ delay:.3 }}
             style={{ marginBottom:12, display:"flex", justifyContent:"center" }}>
@@ -14659,7 +14659,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             If the user has built their personalized supplement protocol, show
             the relevant items here. Otherwise show a "Build your protocol" CTA
             so we are not pushing generic Thorne picks at someone who skipped it.
-            Brands are ALWAYS hidden in the consumer view — generic supplement
+            Brands are ALWAYS hidden in the consumer view, generic supplement
             names only. Gym managers can layer their own brand recs via the
             manager-supplements DB. */}
         {logged && !saving && !suppUpsellShown && (() => {
@@ -14766,7 +14766,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 ) : (
                   <>
                     <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.55, marginBottom:14 }}>
-                      Answer 7 quick questions — Kailu builds a personalized supplement stack from a curated DB based on your goals, diet, budget, and what you can’t take. No generic recommendations.
+                      Answer 7 quick questions, Kailu builds a personalized supplement stack from a curated DB based on your goals, diet, budget, and what you can’t take. No generic recommendations.
                     </div>
                     <motion.button whileTap={{ scale:.97 }}
                       onClick={() => { setSuppUpsellShown(true); onSupplements && onSupplements(); }}
@@ -15104,7 +15104,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     background: closingIn ? "#30D15815" : `${T.glass}`,
                     border:`1px solid ${closingIn ? "#30D15840" : T.border}` }}>
                     <div style={{ fontSize:12, color: closingIn ? "#30D158" : T.muted, fontWeight:700 }}>
-                      {closingIn ? `🎯 ${distToGoal}${weightUnit} away from your goal — you're closing in!` : `${distToGoal}${weightUnit} from goal weight`}
+                      {closingIn ? `🎯 ${distToGoal}${weightUnit} away from your goal, you're closing in!` : `${distToGoal}${weightUnit} from goal weight`}
                     </div>
                     {closingIn && <div style={{ fontSize:11.5, color:T.muted, marginTop:3 }}>Stay consistent. You're trending in the right direction.</div>}
                   </div>
@@ -15112,7 +15112,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 {/* Water weight note */}
                 <div style={{ fontSize:11.5, color:T.faint, marginTop:10, padding:"8px 12px",
                   borderRadius:10, background:T.glass, lineHeight:1.5 }}>
-                  💧 Daily fluctuations of 1–4lbs are normal — mostly water, sodium, and digestion. Track weekly trends, not daily numbers.
+                  💧 Daily fluctuations of 1–4lbs are normal, mostly water, sodium, and digestion. Track weekly trends, not daily numbers.
                 </div>
                 <motion.button whileTap={{ scale:.97 }} onClick={() => onBodyWeight && onBodyWeight()}
                   style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
@@ -15171,9 +15171,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:12 }}>HEALTH DATA</div>
                     <div style={{ display:"flex", justifyContent:"space-around" }}>
                       {[
-                        { icon:"activity", label:"STEPS", val:hd2.steps?.toLocaleString()||"—", color:T.blue   },
-                        { icon:"moon",     label:"SLEEP", val:hd2.sleepHrs ? `${hd2.sleepHrs}h`:"—", color:T.purple },
-                        { icon:"heart",    label:"HRV",   val:hd2.hrv ? `${hd2.hrv}ms`:"—",    color:"#FF3B30" },
+                        { icon:"activity", label:"STEPS", val:hd2.steps?.toLocaleString()||"-", color:T.blue   },
+                        { icon:"moon",     label:"SLEEP", val:hd2.sleepHrs ? `${hd2.sleepHrs}h`:"-", color:T.purple },
+                        { icon:"heart",    label:"HRV",   val:hd2.hrv ? `${hd2.hrv}ms`:"-",    color:"#FF3B30" },
                       ].map(item => (
                         <div key={item.label} style={{ textAlign:"center" }}>
                           <div style={{ display:"flex", justifyContent:"center", marginBottom:6 }}>
@@ -15262,7 +15262,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 </div>
                 {macros.map((m, i) => {
                   const pct    = Math.min(1, m.current / m.goal);
-                  // Range underlay: shows uncertainty band — lighter, translucent bar
+                  // Range underlay: shows uncertainty band, lighter, translucent bar
                   // spanning from sum-of-mins to sum-of-maxes. Only render when the
                   // band is meaningfully wider than the solid bar (≥3% goal spread).
                   const minVal = (typeof m.min === "number" && m.min >= 0) ? m.min : m.current;
@@ -15283,7 +15283,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         </span>
                       </div>
                       <div style={{ position:"relative", height:8, borderRadius:4, background:T.glass, overflow:"hidden" }}>
-                        {/* Uncertainty range — translucent underlay from min to max */}
+                        {/* Uncertainty range, translucent underlay from min to max */}
                         {hasRange && (
                           <motion.div
                             initial={{ width:0, left:0 }}
@@ -15303,12 +15303,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     </div>
                   );
                 })}
-                {/* Range legend — only show when at least one macro actually has a range */}
+                {/* Range legend, only show when at least one macro actually has a range */}
                 {macros.some(m => (typeof m.max === "number" && typeof m.min === "number" && (m.max - m.min) / m.goal >= 0.03)) && (
                   <div style={{ fontSize:10, color:T.faint, marginTop:-4, marginBottom:10,
                     display:"flex", alignItems:"center", gap:8 }}>
                     <span style={{ display:"inline-block", width:10, height:6, borderRadius:2, background:arch.glow, opacity:0.22 }}/>
-                    Lighter band shows estimate range (wider = less certain — common for homemade meals)
+                    Lighter band shows estimate range (wider = less certain, common for homemade meals)
                   </div>
                 )}
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingMacros(e=>!e)}
@@ -15328,7 +15328,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   display:"flex", alignItems:"center", gap:14 }}>
                 <div style={{ fontSize:28 }}>🍽️</div>
                 <div style={{ textAlign:"left" }}>
-                  <div style={{ fontSize:14, fontWeight:900, color:T.text, marginBottom:2 }}>AI Meal Plan</div>
+                  <div style={{ fontSize:14, fontWeight:900, color:T.text, marginBottom:2 }}>Meal Plan</div>
                   <div style={{ fontSize:11, color:T.muted }}>Kailu builds today's meals around your targets</div>
                 </div>
                 <div style={{ marginLeft:"auto", fontSize:18, color:"#BF5AF2" }}>→</div>
@@ -15392,7 +15392,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   ))}
                 </div>
               )}
-            {/* Macro Goal Progress — editable */}
+            {/* Macro Goal Progress, editable */}
             {(() => {
               const mg = profile.macroGoals;
               const mt = profile.macroToday;
@@ -15416,7 +15416,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     </div>
                     {editingMacros ? (
                       <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-                        {/* Calories — read-only computed row */}
+                        {/* Calories, read-only computed row */}
                         <div>
                           <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:4 }}>CALORIES <span style={{ fontWeight:500 }}>(auto-calculated)</span></div>
                           <div style={{ display:"flex", gap:8 }}>
@@ -15504,9 +15504,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                             ))}
                           </div>
                           <div style={{ marginTop:8, fontSize:11.5, color:T.faint, fontStyle:"italic" }}>
-                            Or tell Kailu: <span style={{ color:arch.glow }}>"I just ate a coconut Built bar"</span> — macros auto-log.
+                            Or tell Kailu: <span style={{ color:arch.glow }}>"I just ate a coconut Built bar"</span>, macros auto-log.
                           </div>
-                          {/* Photo food logging — Premium */}
+                          {/* Photo food logging, Premium */}
                           <div style={{ marginTop:10 }}>
                             <label style={{
                               display:"flex", alignItems:"center", justifyContent:"center", gap:7,
@@ -15562,7 +15562,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                               {photoFoodLogging && <span style={{ fontSize:11.5, opacity:.7 }}>Analyzing…</span>}
                             </label>
                             <div style={{ fontSize:11, color:T.faint, textAlign:"center", marginTop:4 }}>
-                              ✦ Premium — AI reads your plate and logs macros automatically
+                              ✦ Premium, AI reads your plate and logs macros automatically
                             </div>
                           </div>
                         </div>
@@ -15670,7 +15670,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                             </div>
                           ) : (
                             <div style={{ fontSize:11.5, color:T.faint, fontStyle:"italic", textAlign:"center", padding:"8px 0" }}>
-                              No saved meals yet — create your first lean option above
+                              No saved meals yet, create your first lean option above
                             </div>
                           )}
                         </div>
@@ -15847,7 +15847,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     <div key={pr.lift} style={{ textAlign:"center", padding:"14px",
                       background:`${pr.color}12`, border:`1px solid ${pr.color}30`, borderRadius:16 }}>
                       <div style={{ fontSize:22, fontWeight:900, color:pr.color }}>
-                        {pr.val || "—"}{pr.val ? "lb" : ""}
+                        {pr.val || "-"}{pr.val ? "lb" : ""}
                       </div>
                       <div style={{ fontSize:11, color:T.faint, fontWeight:600, letterSpacing:".02em", marginTop:3 }}>
                         {pr.lift.toUpperCase()}
@@ -15925,7 +15925,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   </div>
                 )}
               </div>
-            {/* PR Tracker — editable */}
+            {/* PR Tracker, editable */}
             {(() => {
               const prKeys = [
                 { key:"bench",    label:"Bench Press" },
@@ -15991,7 +15991,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               );
             })()}
 
-            {/* ── Progress Photos — tap to open full-screen page ────────────── */}
+            {/* ── Progress Photos, tap to open full-screen page ────────────── */}
             {(() => {
               const photos = profile.progressPhotos || [];
               const lastPhoto = photos[photos.length - 1];
@@ -16002,7 +16002,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               const daysUntilUnlock = locked ? (7 - daysSinceLast) : 0;
               return (
                 <>
-                  {/* Entry card — just taps open the full page */}
+                  {/* Entry card, just taps open the full page */}
                   <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ delay:.4 }} style={{ marginBottom:18 }}>
                     <GlassCard theme={theme} style={{ padding:"14px", cursor:"pointer" }}
                       onClick={() => setProgressPhotoTab("open")}>
@@ -16039,7 +16039,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     </GlassCard>
                   </motion.div>
 
-                  {/* Full-screen overlay rendered at Screen top level — see above the sticky header */}
+                  {/* Full-screen overlay rendered at Screen top level, see above the sticky header */}
 
                 </>
               );
@@ -16048,7 +16048,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               {/* Female cycle sync card */}
               {biology?.gender === "female" && <CycleSyncCard theme={theme} />}
 
-              {/* EMG Pad — Coming Soon */}
+              {/* EMG Pad, Coming Soon */}
               <EMGWaitlistCard theme={theme} />
             </motion.div>
           );
@@ -16282,13 +16282,13 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       <div style={{ marginBottom:14, padding:"10px 12px", borderRadius:10,
                         background:"#FF453A18", border:"1px solid #FF453A44",
                         fontSize:11.5, color:"#FF6961", lineHeight:1.55, fontWeight:500 }}>
-                        🔒 Instagram blocked the link — they do this for all Reels fetched programmatically (even other apps that "just paste a link" actually run their own scraper services behind the scenes). Use one of the options below instead.
+                        🔒 Instagram blocked the link, they do this for all Reels fetched programmatically (even other apps that "just paste a link" actually run their own scraper services behind the scenes). Use one of the options below instead.
                       </div>
                     )}
 
                     {/* Video upload option */}
                     <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
-                      OPTION 1 — UPLOAD THE REEL
+                      OPTION 1, UPLOAD THE REEL
                     </div>
                     <label style={{
                       display:"flex", flexDirection:"column", alignItems:"center",
@@ -16363,7 +16363,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
                     {/* Caption paste option */}
                     <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:8 }}>
-                      OPTION 2 — PASTE CAPTION
+                      OPTION 2, PASTE CAPTION
                     </div>
                     <textarea
                       value={igCaption}
@@ -16707,7 +16707,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       }}>
                         <span style={{ color:T.text, fontWeight:600 }}>{ex.name}</span>
                         <span style={{ color:T.muted }}>
-                          {ex.sets}×{ex.reps} — {ex.load}
+                          {ex.sets}×{ex.reps}, {ex.load}
                         </span>
                       </div>
                     ))}
@@ -16729,7 +16729,7 @@ function MolecularScan({ type, color, size=90 }) {
   const isStore = type === "store";
   const id = `mscan_${type}_${size}`;
   if (isStore) {
-    // Perfect spherical lattice — glowing gold nodes, clean bonds
+    // Perfect spherical lattice, glowing gold nodes, clean bonds
     const nodes = [
       [45,18],[68,32],[72,58],[55,76],[30,74],[14,56],[18,30],
       [45,50],[62,40],[38,40],[45,65],[60,62],[30,62],
@@ -17212,7 +17212,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
   const scrollRef = useRef(null);
   const { checkout, loading: stripeLoading, error: stripeError } = useStripeCheckout();
 
-  // handleBuyProduct — triggers Stripe Checkout in Test Mode for a supplement/item
+  // handleBuyProduct, triggers Stripe Checkout in Test Mode for a supplement/item
   const handleBuyProduct = async (prod) => {
     if (!prod?.stripeProductId) {
       // No Stripe product configured: fall back to counter workflow
@@ -17236,7 +17236,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
     setBought(p => ({ ...p, [prod.id]: true }));
   };
 
-  // handleUnlockApex — triggers Stripe Checkout for the Apex subscription upgrade
+  // handleUnlockApex, triggers Stripe Checkout for the Apex subscription upgrade
   const handleUnlockApex = async () => {
     track("Unlock Apex Initiated", { archetype: archetypeId });
     await checkout({
@@ -17249,7 +17249,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
     });
   };
 
-  // handleGiftCard — triggers Stripe Checkout for a $25 / $50 / $100 gift card
+  // handleGiftCard, triggers Stripe Checkout for a $25 / $50 / $100 gift card
   const handleGiftCard = async (amount) => {
     const giftPrices = {
       25:  "price_gift_25_test",
@@ -17293,7 +17293,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
           style={{ display:"grid", gridTemplateColumns:"1fr 88px",
             gridTemplateRows:"auto", gap:8, marginBottom:8 }}>
 
-          {/* Bio-score + archetype — wide card */}
+          {/* Bio-score + archetype, wide card */}
           <motion.div
             initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
             transition={{ delay:.05, duration:.5, ease:[.22,1,.36,1] }}
@@ -17321,7 +17321,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
             </div>
           </motion.div>
 
-          {/* Avatar — tall module */}
+          {/* Avatar, tall module */}
           <motion.div
             initial={{ opacity:0, scale:.85 }} animate={{ opacity:1, scale:1 }}
             transition={{ delay:.12, duration:.55, ease:[.22,1,.36,1] }}
@@ -17361,7 +17361,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
           ))}
         </div>
 
-        {/* Row 3: Signature quote — full-width card with left-border accent */}
+        {/* Row 3: Signature quote, full-width card with left-border accent */}
         <motion.div
           initial={{ opacity:0, x:-16 }} animate={{ opacity:1, x:0 }}
           transition={{ delay:.3, duration:.5 }}
@@ -17379,7 +17379,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
           </div>
         </motion.div>
 
-        {/* Row 4: Lifestyle protocol — 2-col bento grid */}
+        {/* Row 4: Lifestyle protocol, 2-col bento grid */}
         <div style={{ fontSize:11, fontWeight:600, color:T.faint,
           letterSpacing:".04em", marginBottom:8 }}>LIFESTYLE PROTOCOL</div>
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:12 }}>
@@ -17408,7 +17408,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
           ))}
         </div>
 
-        {/* Truth Engine — full-width bento card with staggered entry */}
+        {/* Truth Engine, full-width bento card with staggered entry */}
         <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }}
           transition={{ delay:.15, duration:.5 }}>
           <TruthEngine comparisons={TRUTH_COMPARISONS} theme={theme}/>
@@ -17425,7 +17425,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
 
         {/* ── VALUE-FIRST LAYOUT ────────────────────────────────────────── */}
 
-        {/* 1. A/B TRANSFORMATION COMPARISON — RVN VISION vs Standard */}
+        {/* 1. A/B TRANSFORMATION COMPARISON, RVN VISION vs Standard */}
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
           transition={{ delay:.1 }} style={{ marginTop:8 }}>
           <GlassCard theme={theme} glow={arch.glow}
@@ -17435,7 +17435,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
           </GlassCard>
         </motion.div>
 
-        {/* 2. SOCIAL PROOF — real reviews + AI bio-match, before any price */}
+        {/* 2. SOCIAL PROOF, real reviews + AI bio-match, before any price */}
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
           transition={{ delay:.2 }} style={{ marginBottom:12 }}>
           <SocialProofEngine
@@ -17447,7 +17447,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
             pinnedStories={[]}/>
         </motion.div>
 
-        {/* 3. GATED SECTION — brand + MoA science + products (price last) */}
+        {/* 3. GATED SECTION, brand + MoA science + products (price last) */}
         <AnimatePresence>
           {logged && (
             <motion.div key="store_products"
@@ -17520,7 +17520,7 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                 })()}
               </div>
 
-              {/* 4. MoA Science — bento 2-col grid, tap to expand full cinematic detail */}
+              {/* 4. MoA Science, bento 2-col grid, tap to expand full cinematic detail */}
               <div style={{ marginBottom:12 }}>
                 <div style={{ fontSize:11, fontWeight:600, color:T.faint,
                   letterSpacing:".04em", marginBottom:10 }}>◉ MECHANISM OF ACTION · WHY IT WORKS</div>
@@ -17584,12 +17584,12 @@ function StoreProtocol({ user, archetypeId, bioData, inventory, onBack, theme })
                 </div>
               </div>
 
-              {/* 5. PRODUCTS — price & CTA (last, after full value case is made) */}
+              {/* 5. PRODUCTS, price & CTA (last, after full value case is made) */}
               <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:18, marginBottom:12 }}>
                 <div style={{ fontSize:11, fontWeight:600, color:T.faint,
                   letterSpacing:".04em", marginBottom:4 }}>◈ YOUR PERSONALISED PROTOCOL</div>
                 <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:14 }}>
-                  Exactly what your biology needs —{" "}
+                  Exactly what your biology needs -{" "}
                   <span style={{ color:arch.glow }}>secured at the counter</span>
                 </div>
               </div>
@@ -17696,7 +17696,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
 
         <BioClockWidget theme={theme}/>
 
-        {/* A/B Comparison — always visible above formula selection */}
+        {/* A/B Comparison, always visible above formula selection */}
         <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
           transition={{ delay:.2 }} style={{ margin:"16px 0" }}>
           <GlassCard theme={theme} glow={T.green}
@@ -17869,10 +17869,10 @@ function SmoothieProtocol({ user, onBack, theme }) {
 
 
 
-// ║  RVN OS  —  RVN VISION INTELLIGENCE ENGINE  (Phase 3)                      ║
+// ║  RVN OS ,  RVN VISION INTELLIGENCE ENGINE  (Phase 3)                      ║
 // ║                                                                          ║
 // ║  A specialized RAG layer. Open-world answers come from the Claude API   ║
-// ║  (when reachable). Niche answers — supplements, dosing, stack logic —   ║
+// ║  (when reachable). Niche answers, supplements, dosing, stack logic,   ║
 // ║  are grounded in the Bio-Logic Manifest below so the agent never        ║
 // ║  hallucinates product specifics.                                         ║
 // ║                                                                          ║
@@ -17884,7 +17884,7 @@ function SmoothieProtocol({ user, onBack, theme }) {
 // ║    goal     → goto("target") / recalibrate cue                          ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
-// ─── BIO-LOGIC MANIFEST — the source-of-truth vector store (flat, JS-native) ──
+// ─── BIO-LOGIC MANIFEST, the source-of-truth vector store (flat, JS-native) ──
 // Every entry has: id, aliases, category, brand, purity, mechanism, benefits,
 // typicalDose, notes, longTerm, vsGeneric. The composer uses this before any
 // external call is made.
@@ -17894,12 +17894,12 @@ const BIO_LOGIC_MANIFEST = {
     aliases: ["creatine", "creatine monohydrate", "mono"],
     category: "performance",
     brand: "Thorne Creatine",
-    purity: "Creapure® — 99.95% pure, Informed-Sport certified, zero heavy metals",
-    mechanism: "Regenerates ATP via the phosphocreatine shuttle — more usable energy per set.",
+    purity: "Creapure®, 99.95% pure, Informed-Sport certified, zero heavy metals",
+    mechanism: "Regenerates ATP via the phosphocreatine shuttle, more usable energy per set.",
     benefits: ["+8% 1-rep max over 12 weeks", "~2 kg lean mass in trained lifters", "measurable cognitive upside under sleep debt"],
     typicalDose: "5 g/day, no loading, with water, any time of day",
     notes: "Take daily. Saturates at ~28 days and stays saturated as long as you keep dosing.",
-    longTerm: "One of the most-studied molecules in human performance — 500+ trials, neutral safety profile out to decades.",
+    longTerm: "One of the most-studied molecules in human performance, 500+ trials, neutral safety profile out to decades.",
     vsGeneric: "Generic creatine is frequently cut with creatinine or heavy-metal residue from cheap Chinese synthesis. Creapure is the only German-manufactured, patented monohydrate with zero detectable impurities.",
   },
   omega3: {
@@ -17911,8 +17911,8 @@ const BIO_LOGIC_MANIFEST = {
     mechanism: "EPA resolves inflammation via resolvins; DHA stabilizes neuronal membranes.",
     benefits: ["lower systemic CRP", "faster DOMS clearance", "sharper executive function"],
     typicalDose: "2–3 g combined EPA+DHA / day with a fat-containing meal",
-    notes: "Quality matters — oxidized fish oil is net pro-inflammatory.",
-    longTerm: "Consistent dosing raises the Omega-3 Index above 8% — the threshold associated with a ~30% reduction in all-cause cardiac mortality.",
+    notes: "Quality matters, oxidized fish oil is net pro-inflammatory.",
+    longTerm: "Consistent dosing raises the Omega-3 Index above 8%, the threshold associated with a ~30% reduction in all-cause cardiac mortality.",
     vsGeneric: "Most generics are rancid on arrival. Break a capsule open: Thorne is odorless. Bargain brands smell like a dockside.",
   },
   magnesium: {
@@ -17924,16 +17924,16 @@ const BIO_LOGIC_MANIFEST = {
     mechanism: "GABA-A co-agonist, relaxes vascular & skeletal smooth muscle, supports 300+ enzymatic pathways.",
     benefits: ["deeper N3 sleep", "lower resting HR", "reduced nocturnal cramps"],
     typicalDose: "200–400 mg elemental magnesium, 60–90 min pre-bed",
-    notes: "Glycinate = sleep. Citrate = gut motility. Oxide is filler — avoid.",
+    notes: "Glycinate = sleep. Citrate = gut motility. Oxide is filler, avoid.",
     longTerm: "Chronic deficiency is linked to insulin resistance and blood-pressure drift. Repletion normalizes HRV within weeks.",
-    vsGeneric: "Generic is usually oxide — ~4% bioavailable vs 80%+ for bisglycinate. You pay less and absorb almost nothing.",
+    vsGeneric: "Generic is usually oxide, ~4% bioavailable vs 80%+ for bisglycinate. You pay less and absorb almost nothing.",
   },
   ashwagandha: {
     id: "ashwagandha",
     aliases: ["ashwagandha", "ashwa", "ksm-66", "adaptogen"],
     category: "stress",
     brand: "Thorne Ashwagandha (KSM-66)",
-    purity: "KSM-66® — 5% withanolides, root-only, full-spectrum extract",
+    purity: "KSM-66®, 5% withanolides, root-only, full-spectrum extract",
     mechanism: "Modulates HPA-axis; down-regulates evening cortisol, up-regulates DHEA.",
     benefits: ["lower perceived stress", "measurable T-bump in men", "calmer resting HR"],
     typicalDose: "600 mg/day (one capsule, AM or PM with food)",
@@ -17946,7 +17946,7 @@ const BIO_LOGIC_MANIFEST = {
     aliases: ["nmn", "nicotinamide mononucleotide", "longevity", "nad"],
     category: "longevity",
     brand: "Thorne NiaCel (NR)",
-    purity: "ChromaDex Niagen® — pharmaceutical-grade nicotinamide riboside",
+    purity: "ChromaDex Niagen®, pharmaceutical-grade nicotinamide riboside",
     mechanism: "Precursor to NAD+, fuels sirtuins and mitochondrial biogenesis.",
     benefits: ["restored NAD+ levels", "improved endothelial function", "better training recovery >35"],
     typicalDose: "300–600 mg/day, morning, empty stomach",
@@ -17960,7 +17960,7 @@ const BIO_LOGIC_MANIFEST = {
     category: "nutrition",
     brand: "Thorne VegaLite / Whey Isolate",
     purity: "Grass-fed, cold-processed, undenatured; no artificial sweeteners",
-    mechanism: "Rapid amino-acid pulse — high leucine triggers mTOR / MPS.",
+    mechanism: "Rapid amino-acid pulse, high leucine triggers mTOR / MPS.",
     benefits: ["MPS saturation at 0.4 g/kg/meal", "~9 g leucine per serving", "stable GI tolerance"],
     typicalDose: "25–40 g post-lift or between meals",
     notes: "Pair with a fast carb post-training for optimal insulin response.",
@@ -17973,7 +17973,7 @@ const BIO_LOGIC_MANIFEST = {
     category: "hydration",
     brand: "LMNT / Thorne Catalyte",
     purity: "No sugar, no maltodextrin, clinically-dosed sodium",
-    mechanism: "Restores plasma osmolality — water without sodium dilutes the blood.",
+    mechanism: "Restores plasma osmolality, water without sodium dilutes the blood.",
     benefits: ["sustained endurance output", "fewer cramps", "sharper cognition in heat"],
     typicalDose: "1 serving pre-training + 1 serving during sessions >60 min",
     notes: "Low-carb athletes can need 3–5 g sodium/day before cramping stops.",
@@ -18024,11 +18024,11 @@ function classifyIntent(text) {
   const matches = (k) => {
     const word = k.toLowerCase();
     if (word.includes(" ")) {
-      // Multi-word phrase — match as-is (word boundary at start/end of phrase)
+      // Multi-word phrase, match as-is (word boundary at start/end of phrase)
       const re = new RegExp("(^|\\W)" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(\\W|$)", "i");
       return re.test(lower);
     }
-    // Single word — must hit at word boundary on both sides
+    // Single word, must hit at word boundary on both sides
     const re = new RegExp("\\b" + word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b", "i");
     return re.test(lower);
   };
@@ -18062,7 +18062,7 @@ const FOOD_PRODUCT_DB = [
   { match:/muscle\s*milk/i,                                name:"Muscle Milk",            p:25,  c:9,   f:6,   cal:160 },
   { match:/pure\s*protein\s*shake/i,                       name:"Pure Protein Shake",     p:35,  c:5,   f:4,   cal:170 },
   { match:/orgain.*protein/i,                              name:"Orgain Protein Shake",   p:26,  c:15,  f:5,   cal:200 },
-  // ── Whole foods — single items ───────────────────────────────────────────────
+  // ── Whole foods, single items ───────────────────────────────────────────────
   { match:/chicken\s*breast/i,                             name:"Chicken Breast (6oz)",   p:42,  c:0,   f:4,   cal:200 },
   { match:/chicken\s*thigh/i,                              name:"Chicken Thigh (4oz)",    p:26,  c:0,   f:10,  cal:190 },
   { match:/\bsalmon\b/i,                                   name:"Salmon (6oz)",           p:34,  c:0,   f:12,  cal:240 },
@@ -18083,7 +18083,7 @@ const FOOD_PRODUCT_DB = [
   { match:/mcchicken|mc\s*chicken/i,                       name:"McChicken",              p:14,  c:40,  f:10,  cal:410 },
   { match:/big\s*mac/i,                                    name:"Big Mac",                p:25,  c:43,  f:30,  cal:540 },
   { match:/subway.*6.*inch|6.*inch.*subway/i,              name:"Subway 6\" (est)",       p:22,  c:46,  f:5,   cal:330 },
-  // ── Kombucha — per bottle (most brands ~16oz / 480ml) ───────────────────────
+  // ── Kombucha, per bottle (most brands ~16oz / 480ml) ───────────────────────
   // Important: kombucha calories come almost entirely from sugar (carbs), not protein/fat
   { match:/gt.?s.*synergy|synergy.*gt.?s/i,               name:"GT's Synergy Kombucha (16oz)",     p:0, c:16, f:0, cal:70  },
   { match:/gt.?s.*kombucha|gt.*living\s*foods/i,          name:"GT's Kombucha (16oz)",             p:0, c:12, f:0, cal:50  },
@@ -18129,7 +18129,7 @@ function normalizeFoodText(text) {
     .trim();
 }
 
-// Find a product in the DB — runs the user's phrase through normalization first,
+// Find a product in the DB, runs the user's phrase through normalization first,
 // so filler words ("protein", "the", "flavor", etc.) never block a match.
 function lookupFoodProduct(text) {
   const normalized = normalizeFoodText(text);
@@ -18140,7 +18140,7 @@ function lookupFoodProduct(text) {
 }
 
 // Ask Claude to parse a food description and return macro JSON with a
-// confidence range. The range fields drive the "uncertainty" bar in the UI —
+// confidence range. The range fields drive the "uncertainty" bar in the UI -
 // a tight range means the LLM is confident (named branded product); a wide
 // range means the LLM is guessing (homemade meal, vague description).
 // Returns { p, c, f, cal, p_min, p_max, c_min, c_max, f_min, f_max, cal_min, cal_max, name, source, confidence } or null.
@@ -18156,7 +18156,7 @@ CRITICAL RULES:
 - For RESTAURANT CHAIN ITEMS with published nutrition (Chick-fil-A, McDonald's, Chipotle, Subway), use official published macros. source="label", tight range.
 - For HOMEMADE / UNLABELED / UNSPECIFIED meals (e.g. "chicken curry and rice", "burrito bowl", "smoothie"), set source="estimate" and use realistic min/max ranges that bracket portion-size uncertainty (typically ±20-30%). confidence=0.4-0.7.
 - BEVERAGES: calories almost always come from sugar/carbs, not protein or fat. Never return 0 carbs for any sweetened drink. GT's Synergy kombucha = label-precise, c:16. Celsius = c:2. Gatorade 32oz = c:54.
-- NEVER overestimate. If unsure, lean LOW on protein and HIGH on fat — overestimating protein and underestimating fat is the most common LLM error and the user will lose trust. For protein bars specifically: most are 15-22g protein, 130-220 kcal. Never return 25g+ protein for a single bar unless the user explicitly says "big" or "double".
+- NEVER overestimate. If unsure, lean LOW on protein and HIGH on fat, overestimating protein and underestimating fat is the most common LLM error and the user will lose trust. For protein bars specifically: most are 15-22g protein, 130-220 kcal. Never return 25g+ protein for a single bar unless the user explicitly says "big" or "double".
 - Calories must reconcile: cal ≈ (p×4) + (c×4) + (f×9), within ±10%. The min/max range for cal should similarly reconcile with the macro min/max.
 - For a Built Bar (any flavor): protein=17g (range 16-18), cal=130 (range 125-140). DO NOT guess higher.
 
@@ -18173,7 +18173,7 @@ Return ONLY the JSON. No prose.`;
     if (!match) return null;
     const parsed = JSON.parse(match[0]);
     if (typeof parsed.p !== "number") return null;
-    // Sanity floor — if min/max missing, derive a default ±15% band so the
+    // Sanity floor, if min/max missing, derive a default ±15% band so the
     // range UI still has something to render.
     const band = (v, pct) => Math.max(0, Math.round(v * (1 - pct)));
     const bandHi = (v, pct) => Math.round(v * (1 + pct));
@@ -18193,11 +18193,11 @@ Return ONLY the JSON. No prose.`;
   } catch { return null; }
 }
 
-// Parse a food entry from free text — DB first, Claude fallback.
+// Parse a food entry from free text, DB first, Claude fallback.
 // Returns { protein, carbs, fats, calories, name, *_min, *_max, source } or null.
 // DB hits get a tight ±5% range (source="label"); raw-gram fallbacks get ±25% (source="estimate").
 function extractMacroLog(text) {
-  // Legacy sync path — kept for offline/fallback compatibility
+  // Legacy sync path, kept for offline/fallback compatibility
   const lower = (text || "").toLowerCase();
   const product = lookupFoodProduct(text);
   if (product) {
@@ -18237,7 +18237,7 @@ function extractMacroLog(text) {
   if (kind === "protein") macros.protein = amount;
   else if (kind === "carbs") macros.carbs = amount;
   else if (kind === "fat") macros.fats = amount;
-  // Raw-gram fallback is a guess — give it a wide ±25% range, mark as estimate
+  // Raw-gram fallback is a guess, give it a wide ±25% range, mark as estimate
   const calories = Math.round(macros.protein*4 + macros.carbs*4 + macros.fats*9);
   const band = (v, pct) => Math.max(0, Math.round(v * (1 - pct)));
   const bandHi = (v, pct) => Math.round(v * (1 + pct));
@@ -18252,27 +18252,27 @@ function extractMacroLog(text) {
   };
 }
 
-// ─── PERSONA PROMPTS — mode-aware system context ────────────────────────────
+// ─── PERSONA PROMPTS, mode-aware system context ────────────────────────────
 const RVN_VISION_PERSONAS = {
   personal: {
     title: "Kailu",
-    greeting: (s) => `Hey! I'm Kailu — your personal coach. Ask me anything, whether it's food, workouts, sleep, or just what to do today.`,
-    framing: "You are Kailu — a friendly, knowledgeable personal coach inside RVN OS. Be warm and conversational first, precise when needed. You're like that one friend who actually knows their stuff about fitness and nutrition. Keep responses short and natural — no bullet lists, no jargon unless asked.",
+    greeting: (s) => `Hey! I'm Kailu, your personal coach. Ask me anything, whether it's food, workouts, sleep, or just what to do today.`,
+    framing: "You are Kailu, a friendly, knowledgeable personal coach inside RVN OS. Be warm and conversational first, precise when needed. You're like that one friend who actually knows their stuff about fitness and nutrition. Keep responses short and natural, no bullet lists, no jargon unless asked.",
   },
   gym: {
     title: "Kailu",
     greeting: (s) => `Hey, you made it! What are we working on today?`,
-    framing: "You are Kailu — a friendly gym coach inside RVN OS. Be encouraging and real. Talk like a knowledgeable friend at the gym, not a textbook. Help with form, sets, rest, what to eat — keep it short and casual unless they want detail.",
+    framing: "You are Kailu, a friendly gym coach inside RVN OS. Be encouraging and real. Talk like a knowledgeable friend at the gym, not a textbook. Help with form, sets, rest, what to eat, keep it short and casual unless they want detail.",
   },
   store: {
     title: "Kailu",
     greeting: (s) => `Hey! Looking for something specific or want me to point you to what actually works?`,
-    framing: "You are Kailu — a friendly supplement guide inside RVN OS. Be helpful and honest, like a knowledgeable friend who works at the store. Explain what things do in plain language, not science-speak.",
+    framing: "You are Kailu, a friendly supplement guide inside RVN OS. Be helpful and honest, like a knowledgeable friend who works at the store. Explain what things do in plain language, not science-speak.",
   },
   smoothie: {
     title: "Kailu",
-    greeting: (s) => `Hey! What's the vibe today — pre-workout, post-workout, or just fueling up?`,
-    framing: "You are Kailu — a chill nutrition coach inside RVN OS. Keep it friendly and simple. Help them pick the right blend for their goal without overcomplicating it.",
+    greeting: (s) => `Hey! What's the vibe today, pre-workout, post-workout, or just fueling up?`,
+    framing: "You are Kailu, a chill nutrition coach inside RVN OS. Keep it friendly and simple. Help them pick the right blend for their goal without overcomplicating it.",
   },
 };
 
@@ -18303,10 +18303,10 @@ function generateGroceryList(macroGoals, customMeals = []) {
   const c = macroGoals.carbs   || 250;
   const f = macroGoals.fats    || 70;
 
-  // Protein sources — scaled by weekly protein target
+  // Protein sources, scaled by weekly protein target
   const proteins = [];
-  if (p >= 150) proteins.push("✦ Chicken breast (3 lbs)", "✦ 93% lean ground beef (2 lbs)", "✦ Greek yogurt — plain (2 tubs)", "✦ Eggs (18 pack)", "✦ Cottage cheese (16 oz)");
-  else           proteins.push("✦ Chicken breast (2 lbs)", "✦ Greek yogurt — plain (1 tub)",   "✦ Eggs (12 pack)", "✦ Tuna cans (4x)");
+  if (p >= 150) proteins.push("✦ Chicken breast (3 lbs)", "✦ 93% lean ground beef (2 lbs)", "✦ Greek yogurt, plain (2 tubs)", "✦ Eggs (18 pack)", "✦ Cottage cheese (16 oz)");
+  else           proteins.push("✦ Chicken breast (2 lbs)", "✦ Greek yogurt, plain (1 tub)",   "✦ Eggs (12 pack)", "✦ Tuna cans (4x)");
   if (p >= 200)  proteins.push("✦ Whey protein (if low)", "✦ Salmon fillets (1 lb)");
 
   // Carb sources
@@ -18345,20 +18345,20 @@ function generateDaySchedule(text, state) {
   const push = (time, title, category, note) =>
     items.push({ time, title, category, note });
 
-  // — Pre-dawn: hydration + cortisol priming —
+  //, Pre-dawn: hydration + cortisol priming -
   push("05:45", "Wake + 16oz water with electrolytes",
     "hydration",
     "Rehydrate before caffeine. Sodium restores plasma volume after the overnight fast.");
   push("06:00", "10-min mobility + sunlight exposure",
     "recovery",
-    "Morning light locks circadian rhythm — cortisol wave peaks cleanly instead of dragging all day.");
+    "Morning light locks circadian rhythm, cortisol wave peaks cleanly instead of dragging all day.");
 
-  // — Training window — early if 9-5, otherwise mid-morning —
+  //, Training window, early if 9-5, otherwise mid-morning -
   if (ctx.nineToFive || ctx.student) {
-    push("06:20", lowReadiness ? "Mobility + Zone-2 cardio (30 min)" : "Strength session — main lift day",
+    push("06:20", lowReadiness ? "Mobility + Zone-2 cardio (30 min)" : "Strength session, main lift day",
       "training",
       lowReadiness
-        ? "Readiness low — down-regulate. Preserve adaptation, skip the heavy triples."
+        ? "Readiness low, down-regulate. Preserve adaptation, skip the heavy triples."
         : (ctx.squat405 ? "Keep the 405 squat on a 3-week wave. Top sets AM when neural drive peaks." : "Compound first, accessories second. Rest 3:00 between heavy sets."));
     push("07:30", "Hot shower → cold finish",
       "recovery",
@@ -18371,14 +18371,14 @@ function generateDaySchedule(text, state) {
   } else {
     push("07:00", "Protein-led breakfast (40g+)", "nutrition",
       "Set the MPS clock early. Whey or eggs within 60 min of waking.");
-    push("09:30", "Strength session — main lift",
+    push("09:30", "Strength session, main lift",
       "training",
-      ctx.squat405 ? "405 squat on a 3-week wave — keep the bar speed." : "Compound focus, 3:00 rest on heavy sets.");
+      ctx.squat405 ? "405 squat on a 3-week wave, keep the bar speed." : "Compound focus, 3:00 rest on heavy sets.");
   }
 
-  // — 9-5 / study block —
+  //, 9-5 / study block -
   if (ctx.nineToFive || ctx.student) {
-    push("09:00", ctx.student ? "Deep focus block — hardest course first" : "Deep-work block #1 (90 min)",
+    push("09:00", ctx.student ? "Deep focus block, hardest course first" : "Deep-work block #1 (90 min)",
       "focus",
       "Phone in another room. No meetings. This is where 80% of your output is made.");
     push("10:30", "Stand + 8oz water + 5-min walk",
@@ -18386,36 +18386,36 @@ function generateDaySchedule(text, state) {
       "Every 90 min. Lymph flow, cortisol dip, eye-distance reset.");
     push("11:00", ctx.sales ? "Calls / prospecting block" : "Deep-work block #2",
       "focus",
-      ctx.sales ? "Stack the high-energy outreach here — voice is sharpest pre-lunch." : "Lighter cognitive tasks if the morning block was heavy.");
-    push("12:30", "Lunch — 40g protein + fiber + complex carbs",
+      ctx.sales ? "Stack the high-energy outreach here, voice is sharpest pre-lunch." : "Lighter cognitive tasks if the morning block was heavy.");
+    push("12:30", "Lunch, 40g protein + fiber + complex carbs",
       "nutrition",
       ctx.cutting
         ? "Big volume, low density. Chicken, greens, sweet potato. Stay full without the insulin crash."
         : "Balanced plate: 40g protein minimum, a cup of greens, one fist of slow carbs.");
   }
 
-  // — Afternoon cortisol dip + recovery —
+  //, Afternoon cortisol dip + recovery -
   push("14:00", "5-min box breathing (4-4-4-4)",
     "stress",
     "Vagal activation. Drops afternoon cortisol; re-centers the HPA axis. More leverage than any afternoon coffee.");
   if (ctx.nineToFive || ctx.student) {
-    push("14:15", ctx.student ? "Focus block — problem sets / memorization" : "Deep-work block #3",
+    push("14:15", ctx.student ? "Focus block, problem sets / memorization" : "Deep-work block #3",
       "focus",
       "Last sustained block of the day. After this, energy pivots.");
   }
-  push("15:30", "Snack — 25g protein + handful of berries",
+  push("15:30", "Snack, 25g protein + handful of berries",
     "nutrition",
     "Bridges the insulin dip. Protein pulse protects lean mass if you're in a deficit.");
 
-  // — Second session if no morning training —
+  //, Second session if no morning training -
   if (!ctx.nineToFive && !ctx.student) {
-    push("16:30", "Conditioning — Zone 2 or sprints",
+    push("16:30", "Conditioning, Zone 2 or sprints",
       "training",
       "Separate from the strength session. Builds the mitochondrial floor without cannibalizing recovery.");
   }
 
-  // — Evening wind-down —
-  push("18:30", "Dinner — largest protein dose (50g+)",
+  //, Evening wind-down -
+  push("18:30", "Dinner, largest protein dose (50g+)",
     "nutrition",
     "Whole-food protein + cruciferous veg + complex carb. Carbs here help sleep depth.");
   push("20:00", "Screen dim + blue-light off",
@@ -18424,14 +18424,14 @@ function generateDaySchedule(text, state) {
   push("21:15", "300mg magnesium bisglycinate + 10-min read",
     "sleep",
     "Glycinate crosses the blood-brain barrier and stacks with the evening GABA pulse. N3 sleep deepens inside a week.");
-  push("22:00", "Lights out — hard anchor",
+  push("22:00", "Lights out, hard anchor",
     "sleep",
     "7.5-8h is the non-negotiable. Your 405 squat lives or dies here.");
 
   return items;
 }
 
-// ─── GENERATIVE ADVICE ENGINE — no templates, context-weighted prose ────────
+// ─── GENERATIVE ADVICE ENGINE, no templates, context-weighted prose ────────
 // Pulls the strongest 2-3 signals from state + text and composes a coach
 // response that reads like a conversation, not a dropdown.
 function generateOpenAdvice(text, state) {
@@ -18440,26 +18440,26 @@ function generateOpenAdvice(text, state) {
   const mode = state.mode;
   const lines = [];
 
-  // Opener — readiness-informed
-  if (R < 55) lines.push("Let me be straight with you — readiness is in the red. Whatever we plan today has to protect the nervous system first.");
+  // Opener, readiness-informed
+  if (R < 55) lines.push("Let me be straight with you, readiness is in the red. Whatever we plan today has to protect the nervous system first.");
   else if (R < 70) lines.push("Readiness is middling. You'll get through the day, but we don't spend the tank on anything that isn't essential.");
   else lines.push("Your system looks primed.");
 
   // Biochem/student bias
   if (ctx.biochem || ctx.student) {
-    lines.push("You're sitting in biochem half the day, so cortisol management is the lever — not another stim. Anchor two deep blocks, kill notifications, and get sunlight in the morning.");
+    lines.push("You're sitting in biochem half the day, so cortisol management is the lever, not another stim. Anchor two deep blocks, kill notifications, and get sunlight in the morning.");
     if (ctx.squat405) lines.push("The 405 squat survives finals only if the protein stays above 1 g/lb and sleep stays at 8 hours. Non-negotiable.");
   } else if (ctx.nineToFive) {
-    lines.push("Desk work eats posture and testosterone — every 90 minutes stand, 2-minute walk, one set of 10 band pull-aparts. Compounds over a week.");
+    lines.push("Desk work eats posture and testosterone, every 90 minutes stand, 2-minute walk, one set of 10 band pull-aparts. Compounds over a week.");
   } else if (ctx.sales) {
-    lines.push("High-output voice work all day — hydrate hard, electrolytes twice, and keep caffeine under 300 mg or the afternoon tanks.");
+    lines.push("High-output voice work all day, hydrate hard, electrolytes twice, and keep caffeine under 300 mg or the afternoon tanks.");
   }
 
   // Goal-bias
   if (ctx.cutting) lines.push("Cutting: protein goes UP, not down. 1.1-1.2 g per pound of bodyweight. That's what preserves the strength base.");
   if (ctx.bulking) lines.push("Bulking: the ceiling is recovery, not calories. If soreness is dragging, you're adding mass you can't use.");
 
-  // Closer — real coach energy
+  // Closer, real coach energy
   const closers = [
     "Ask me for a schedule and I'll lock it to your Dashboard.",
     "Want me to build the day around this?",
@@ -18471,7 +18471,7 @@ function generateOpenAdvice(text, state) {
   return lines.join(" ");
 }
 
-// ─── RESPONSE COMPOSER — generative-first, grounded-when-needed ─────────────
+// ─── RESPONSE COMPOSER, generative-first, grounded-when-needed ─────────────
 
 // ─── GYM SUPPLEMENT CONFIG ────────────────────────────────────────────────────
 const GYM_SUPPLEMENT_CONFIG = (typeof window !== "undefined" && window.RVN_GYM_SUPPLEMENTS) || {
@@ -18487,7 +18487,7 @@ function getGymSupplementLine(category, state) {
   if (tier !== "gym_standard") return null;
   const cfg = GYM_SUPPLEMENT_CONFIG[category];
   if (!cfg?.brand) return null;
-  return `Our gym recommends ${cfg.brand}${cfg.url ? " — available at " + cfg.url : ""}.`;
+  return `Our gym recommends ${cfg.brand}${cfg.url ? ", available at " + cfg.url : ""}.`;
 }
 
 // ─── WORKOUT GENERATOR ────────────────────────────────────────────────────────
@@ -18520,11 +18520,11 @@ function generateWorkoutPlan(text, state) {
       { exercise:"Standing Calf Raise",   sets:4, reps:"15-20",   rest:"45 sec", notes:"Full range, slow eccentric" },
     ],
     cardio: [
-      { exercise:"Warm-up (Rowing)",      sets:1, reps:"5 min",         rest:"—",        notes:"Moderate pace, HR to 130" },
+      { exercise:"Warm-up (Rowing)",      sets:1, reps:"5 min",         rest:"-",        notes:"Moderate pace, HR to 130" },
       { exercise:"HIIT Sprints (Bike)",   sets:8, reps:"30s on/30s off", rest:"Embedded", notes:"All-out on intervals" },
-      { exercise:"Incline Treadmill Walk",sets:1, reps:"10 min",        rest:"—",        notes:"12% incline, 3.5 mph" },
+      { exercise:"Incline Treadmill Walk",sets:1, reps:"10 min",        rest:"-",        notes:"12% incline, 3.5 mph" },
       { exercise:"Jump Rope",             sets:3, reps:"2 min",         rest:"60 sec",   notes:"Double-unders if capable" },
-      { exercise:"Cool Down (Walk)",      sets:1, reps:"5 min",         rest:"—",        notes:"HR back under 120" },
+      { exercise:"Cool Down (Walk)",      sets:1, reps:"5 min",         rest:"-",        notes:"HR back under 120" },
     ],
     fullbody: [
       { exercise:"Deadlift",                  sets:4, reps:"4-6",   rest:"3 min",  notes:"Brace full before lift" },
@@ -18539,7 +18539,7 @@ function generateWorkoutPlan(text, state) {
   const exercises = TEMPLATES[focus].map(ex => ({
     ...ex,
     sets:  readiness < 50 ? Math.max(2, ex.sets - 1) : ex.sets,
-    notes: readiness < 50 ? ex.notes + " (deload — reduce weight 20%)" : ex.notes,
+    notes: readiness < 50 ? ex.notes + " (deload, reduce weight 20%)" : ex.notes,
   }));
 
   return {
@@ -18556,7 +18556,7 @@ async function composeBioPalResponse(text, state) {
   const manifest = matchManifest(text);
   const sv = state?.bioLogic || {};
 
-  // ── STEP 1: Detect side-effects (pre-processing only — not used for response text) ──
+  // ── STEP 1: Detect side-effects (pre-processing only, not used for response text) ──
   let appliedDelta = null;
   let workoutPlan  = null;
   let scheduleItems = null;
@@ -18602,7 +18602,7 @@ async function composeBioPalResponse(text, state) {
         }).catch(() => {});
       }
     } else {
-      // Unknown item — ask Claude for macros async, apply when ready
+      // Unknown item, ask Claude for macros async, apply when ready
       appliedDelta = { kind: "bioLogicLog", entry: { kind:"macros", protein:0, carbs:0, fats:0, name:text, estimated:true } };
       lookupFoodViaClaude(text).then(ai => {
         if (ai) window.__rvnAddMacros?.(macrosFromAI(ai, text.slice(0,40)));
@@ -18616,7 +18616,7 @@ async function composeBioPalResponse(text, state) {
     const sideMatch = text.match(/\b(left|right)\b/i);
     if (areaMatch) {
       const side = sideMatch ? `${sideMatch[1].toLowerCase()} ` : "";
-      logMemoryEvent(`Tweaked ${side}${areaMatch[1].toLowerCase()} — flagged for recovery.`, "injury");
+      logMemoryEvent(`Tweaked ${side}${areaMatch[1].toLowerCase()}, flagged for recovery.`, "injury");
     }
   } else if (intent === "goal") {
     appliedDelta = { kind: "navigate", screen: "target" };
@@ -18624,7 +18624,7 @@ async function composeBioPalResponse(text, state) {
     logMemoryEvent(`Stated goal: ${text.replace(/\s+/g, " ").trim().slice(0, 100)}`, "goal");
   } else if (intent === "schedule_mutate") {
     // Parse the user's request into a structured calendar mutation. One Haiku
-    // call, ~$0.0006. We DON'T mutate yet — UI shows a confirmation card with
+    // call, ~$0.0006. We DON'T mutate yet, UI shows a confirmation card with
     // Apply/Cancel so the user always controls what lands on their calendar.
     try {
       const existing = getCalendar();
@@ -18664,15 +18664,15 @@ async function composeBioPalResponse(text, state) {
     const parts = [];
     if (mg.protein)         parts.push(`Macro goals: ${mg.protein}g protein / ${mg.carbs}g carbs / ${mg.fats}g fat`);
     if (mt.protein != null) parts.push(`Today logged: ${mt.protein}g protein / ${mt.carbs}g carbs / ${mt.fats}g fat`);
-    if (pr.bench)           parts.push(`PRs — bench: ${pr.bench}lb, squat: ${pr.squat}lb, deadlift: ${pr.deadlift}lb, OHP: ${pr.ohp}lb`);
+    if (pr.bench)           parts.push(`PRs, bench: ${pr.bench}lb, squat: ${pr.squat}lb, deadlift: ${pr.deadlift}lb, OHP: ${pr.ohp}lb`);
     if (avgSleep)           parts.push(`Avg sleep: ${avgSleep}h`);
     if (p.sleepTarget)      parts.push(`Sleep target: ${p.sleepTarget}h`);
     if (p.calories)         parts.push(`TDEE: ~${p.calories} kcal`);
-    // Onboarding biology data — caffeine tolerance, bottleneck, training frequency, gender, goal
+    // Onboarding biology data, caffeine tolerance, bottleneck, training frequency, gender, goal
     const bio = p.biology || {};
     if (bio.gender)     parts.push(`User is ${bio.gender === "female" ? "a woman" : "a man"}`);
     if (bio.caffeine) {
-      const cafMap = { low:"low caffeine tolerance (sensitive — avoid high doses)", med:"normal caffeine tolerance", high:"high caffeine tolerance (caffeine-adapted)" };
+      const cafMap = { low:"low caffeine tolerance (sensitive, avoid high doses)", med:"normal caffeine tolerance", high:"high caffeine tolerance (caffeine-adapted)" };
       parts.push(`Caffeine sensitivity: ${cafMap[bio.caffeine] || bio.caffeine}`);
     }
     if (bio.bottleneck) {
@@ -18683,12 +18683,12 @@ async function composeBioPalResponse(text, state) {
     if (p.goalFocus)    parts.push(`Goal: ${p.goalFocus}`);
     if (p.age)          parts.push(`Age: ${p.age}`);
     if (p.activityLevel) parts.push(`Activity level: ${p.activityLevel}`);
-    // Health data from wearable sync — inject when available so Kailu is pre-loaded
+    // Health data from wearable sync, inject when available so Kailu is pre-loaded
     const hd = p.healthData || {};
     if (hd.lastSync) {
       if (hd.steps)    parts.push(`Today's steps: ${hd.steps.toLocaleString()}`);
       if (hd.sleepHrs) parts.push(`Last night's sleep: ${hd.sleepHrs}h`);
-      if (hd.hrv)      parts.push(`HRV: ${hd.hrv}ms (${hd.hrv >= 70 ? "good recovery" : hd.hrv >= 50 ? "moderate recovery" : "low — prioritize rest"})`);
+      if (hd.hrv)      parts.push(`HRV: ${hd.hrv}ms (${hd.hrv >= 70 ? "good recovery" : hd.hrv >= 50 ? "moderate recovery" : "low, prioritize rest"})`);
     }
     profileCtx = parts.join(". ");
   } catch (_) {}
@@ -18702,16 +18702,16 @@ async function composeBioPalResponse(text, state) {
   const hour = now.getHours();
   const dayName = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][now.getDay()];
   const timeOfDay = hour < 5 ? "late night" : hour < 12 ? "morning" : hour < 17 ? "afternoon" : hour < 21 ? "evening" : "night";
-  const timeCtx = `Current time: ${timeOfDay} (${String(hour).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}), ${dayName}. Macros reset at midnight each day — if the user says they ate something, log it to today's macros.`;
+  const timeCtx = `Current time: ${timeOfDay} (${String(hour).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}), ${dayName}. Macros reset at midnight each day, if the user says they ate something, log it to today's macros.`;
 
-  // Supplement grounding context — from the manifest DB, never hallucinate beyond this
+  // Supplement grounding context, from the manifest DB, never hallucinate beyond this
   const suppCtx = manifest
-    ? `Supplement info on file: ${manifest.brand} — ${manifest.mechanism}. Dose: ${manifest.typicalDose}. vs generic: ${manifest.vsGeneric}.${manifest.longTerm ? ` Long-term note: ${manifest.longTerm}` : ""} Only use these facts — do not add any that aren't listed here.`
+    ? `Supplement info on file: ${manifest.brand}, ${manifest.mechanism}. Dose: ${manifest.typicalDose}. vs generic: ${manifest.vsGeneric}.${manifest.longTerm ? ` Long-term note: ${manifest.longTerm}` : ""} Only use these facts, do not add any that aren't listed here.`
     : "";
 
   // Side-effect context hints so Claude knows what action just ran
   const actionCtx = [
-    workoutPlan   ? `You just generated a ${workoutPlan.focus} workout plan called "${workoutPlan.name}" (${workoutPlan.duration}). Write a short motivating intro — do NOT list the exercises.` : "",
+    workoutPlan   ? `You just generated a ${workoutPlan.focus} workout plan called "${workoutPlan.name}" (${workoutPlan.duration}). Write a short motivating intro, do NOT list the exercises.` : "",
     scheduleItems ? `You just generated a 24-hour schedule with ${scheduleItems.length} blocks. Briefly introduce it and let the user know they can lock it in.` : "",
     appliedDelta?.kind === "bioLogicLog" && appliedDelta?.macros
       ? `You just logged ${appliedDelta.macros.name || "this food"}: ~${appliedDelta.macros.protein}g protein, ${appliedDelta.macros.carbs}g carbs, ${appliedDelta.macros.fats}g fat (${appliedDelta.macros.calories} cal). Macros auto-added to today's tracker. Confirm briefly and give one timing/macro insight. Under 2 sentences.`
@@ -18723,31 +18723,32 @@ async function composeBioPalResponse(text, state) {
           const m = appliedDelta.mutation;
           const verb = m.action === "add" ? "adding" : m.action === "move" ? "moving" : "cancelling";
           const when = m.date ? `${m.date}${m.time ? " at " + m.time : ""}` : "(unspecified date)";
-          return `You parsed a calendar request. Proposing to ${verb} "${m.title || m.matchTitle || "the session"}" — ${when}. Confirm naturally in one sentence and tell the user a confirmation card is shown below for them to Apply or Cancel. Do NOT list separate options.`;
+          return `You parsed a calendar request. Proposing to ${verb} "${m.title || m.matchTitle || "the session"}", ${when}. Confirm naturally in one sentence and tell the user a confirmation card is shown below for them to Apply or Cancel. Do NOT list separate options.`;
         })()
       : "",
     appliedDelta?.kind === "calendarMutationFailed"
-      ? "You couldn't parse a clear calendar action from their request. CRITICAL: do NOT claim you added anything — nothing was added. Ask them for the missing piece (day, time, or which exercise/session). One sentence, helpful tone."
+      ? "You couldn't parse a clear calendar action from their request. CRITICAL: do NOT claim you added anything, nothing was added. Ask them for the missing piece (day, time, or which exercise/session). One sentence, helpful tone."
       : "",
     // Hard guard against hallucinated 'done' replies when no mutation actually fired.
     !appliedDelta && (intent === "schedule_mutate")
-      ? "The user wanted to add or modify the calendar but the system couldn't parse it. DO NOT say 'done' or 'added' — nothing was added. Ask one clarifying question: which day, what time, or which exercise specifically. Single sentence."
+      ? "The user wanted to add or modify the calendar but the system couldn't parse it. DO NOT say 'done' or 'added', nothing was added. Ask one clarifying question: which day, what time, or which exercise specifically. Single sentence."
       : "",
   ].filter(Boolean).join(" ");
 
   const systemPrompt = [
-    `You are Kailu — an elite performance AI built into RVN OS. Mode: ${state.mode}. ${persona.framing}`,
-    "Keep every response under 3 sentences. Be direct, precise, data-driven. No bullet lists. No filler phrases like 'great question', 'absolutely', or 'your system looks primed'. Sound like a coach who actually knows this person.",
-    "Always reference the user's real numbers when available. Never invent stats.",
-    "When referencing scientific claims, optionally cite the source in brackets e.g. [Schoenfeld 2010] or [NSCA guidelines]. Only cite real studies — never fabricate citations.",
+    `You are Kailu, an elite performance AI built into RVN OS. Mode: ${state.mode}. ${persona.framing}`,
+    "Keep every response under 3 sentences. Sound like a friend who happens to know their stuff about training and nutrition, not a robot. No filler phrases like 'great question' or 'absolutely'. No em dashes (use commas or periods).",
+    "Reference the user's real numbers when relevant. Never invent stats.",
+    "MEMORY RULE: never volunteer or bring up remembered facts unless the user's current message DIRECTLY relates to them. If they mention their knee, you can reference the knee context. If they ask about dinner, do NOT bring up a past injury or a wedding cut from months ago. Past events that have already happened are off the table unless they ask.",
+    "When referencing scientific claims, optionally cite the source in brackets e.g. [Schoenfeld 2010] or [NSCA guidelines]. Only cite real studies, never fabricate citations.",
     "For injury questions, apply PEACE & LOVE evidence-based protocol (Protection, Elevation, Avoid anti-inflammatories, Compression, Education / Load, Optimism, Vascularisation, Exercise).",
     timeCtx,
     svContext,
     profileCtx,
     suppCtx,
     actionCtx,
-    buildMemoryContext(),
-    // Trainer voice override — only present when a coach has configured their voice.
+    buildMemoryContext(text),
+    // Trainer voice override, only present when a coach has configured their voice.
     // Placed LAST so it can refine/override generic Kailu phrasing rules above.
     buildTrainerVoiceContext(),
   ].filter(Boolean).join(" ");
@@ -18758,29 +18759,29 @@ async function composeBioPalResponse(text, state) {
     .slice(-6)
     .map(m => ({ role: m.role === "pal" ? "assistant" : "user", content: m.text }));
 
-  // ── STEP 4: Always call Claude — model selected by intent for cost efficiency ─
+  // ── STEP 4: Always call Claude, model selected by intent for cost efficiency ─
   const chosenModel = classifyModel(intent, false);
   try {
     const reply = await callClaudeAPI({ system: systemPrompt, history, user: text, maxTokens: 280, model: chosenModel });
     if (reply) return { text: reply, intent, appliedDelta, workoutPlan, scheduleItems };
-  } catch (_) { /* offline — fall through to local fallback */ }
+  } catch (_) { /* offline, fall through to local fallback */ }
 
   // ── STEP 5: Offline / API unavailable fallback ────────────────────────────────
   if (intent === "workout_generate" && workoutPlan) {
     const intro = sv.readiness < 50
-      ? `Readiness at ${sv.readiness}% — volume scaled back. Here's your ${workoutPlan.focus} day:`
-      : `Readiness at ${sv.readiness || 75}% — go time. Here's your ${workoutPlan.focus} day:`;
+      ? `Readiness at ${sv.readiness}%, volume scaled back. Here's your ${workoutPlan.focus} day:`
+      : `Readiness at ${sv.readiness || 75}%, go time. Here's your ${workoutPlan.focus} day:`;
     return { text: intro, intent, appliedDelta, workoutPlan, scheduleItems };
   }
   if (intent === "injury") {
     const areaMatch = text.match(/(knee|shoulder|back|elbow|wrist|ankle|hip|neck)/i);
     const area = areaMatch ? areaMatch[1] : "affected area";
-    const peaceText = `PEACE protocol for ${area}: Protect from aggravation 1-3 days, Elevate above heart, Avoid anti-inflammatories (they slow healing), Compress with wrap, Educate yourself — pain ≠ damage. After 72hrs: Load progressively, Optimism, Cardiovascular exercise, Expert help if >2 weeks.`;
+    const peaceText = `PEACE protocol for ${area}: Protect from aggravation 1-3 days, Elevate above heart, Avoid anti-inflammatories (they slow healing), Compress with wrap, Educate yourself, pain ≠ damage. After 72hrs: Load progressively, Optimism, Cardiovascular exercise, Expert help if >2 weeks.`;
     return { text: peaceText, intent, appliedDelta, workoutPlan, scheduleItems };
   }
   if (manifest) {
     const gymLine = getGymSupplementLine(manifest.category, state);
-    const line = [`${manifest.brand} — ${manifest.mechanism}`, `Dose: ${manifest.typicalDose}.`, manifest.longTerm ? `Long-term: ${manifest.longTerm}` : "", gymLine || ""].filter(Boolean).join(" ");
+    const line = [`${manifest.brand}, ${manifest.mechanism}`, `Dose: ${manifest.typicalDose}.`, manifest.longTerm ? `Long-term: ${manifest.longTerm}` : "", gymLine || ""].filter(Boolean).join(" ");
     return { text: line, intent, appliedDelta, workoutPlan, scheduleItems };
   }
   if (intent === "food" && appliedDelta?.entry) {
@@ -18789,10 +18790,10 @@ async function composeBioPalResponse(text, state) {
   }
   if (intent === "injury") {
     const area = (text.match(/\b(knee|shoulder|back|hamstring|calf|wrist|elbow|hip|neck|chest|glute|quad|forearm)\b/i) || [])[1] || "soft tissue";
-    return { text: `${area} flagged — load reduced for 48 hours. Magnesium bisglycinate tonight, skip any sharp-pain movements entirely.`, intent, appliedDelta, workoutPlan, scheduleItems };
+    return { text: `${area} flagged, load reduced for 48 hours. Magnesium bisglycinate tonight, skip any sharp-pain movements entirely.`, intent, appliedDelta, workoutPlan, scheduleItems };
   }
   if (intent === "goal") {
-    return { text: "Goal registered. Opening Target Protocol — recalibrating your 12-week trajectory now.", intent, appliedDelta, workoutPlan, scheduleItems };
+    return { text: "Goal registered. Opening Target Protocol, recalibrating your 12-week trajectory now.", intent, appliedDelta, workoutPlan, scheduleItems };
   }
   if (intent === "schedule" && scheduleItems) {
     return { text: "Here's your 24-hour plan. Lock it in and I'll nudge you at each block.", intent, appliedDelta, workoutPlan, scheduleItems };
@@ -18800,12 +18801,12 @@ async function composeBioPalResponse(text, state) {
   return { text: generateOpenAdvice(text, state), intent, appliedDelta, workoutPlan, scheduleItems };
 }
 
-// ─── Claude API stub — pluggable. In a real deployment, wire this to a
+// ─── Claude API stub, pluggable. In a real deployment, wire this to a
 // kiosk-side proxy that holds the API key (do NOT ship a key in the bundle).
 // ─── Kailu Token System ────────────────────────────────────────────────────────
 const KAILU_MAX_TOKENS    = 15;
 const KAILU_REFILL_AMOUNT = 15;
-const KAILU_REFILL_MS     = 24 * 60 * 60 * 1000; // 24 hours — 15 messages per day
+const KAILU_REFILL_MS     = 24 * 60 * 60 * 1000; // 24 hours, 15 messages per day
 
 function getKailuTokenState(profile) {
   if (profile?.isPremium) return { tokens: 999, msUntilRefill: 0, canSend: true };
@@ -18842,7 +18843,7 @@ function formatRefillTime(ms) {
   return `${m}m`;
 }
 
-// Model classification — determines whether to use Haiku (cheap) or Sonnet (smart)
+// Model classification, determines whether to use Haiku (cheap) or Sonnet (smart)
 // Haiku: food logging, simple macro questions, greetings, quick lookups
 // Sonnet: workout generation, complex protocol, vision/image, schedule building
 function classifyModel(intent, hasImage) {
@@ -18886,40 +18887,40 @@ async function callClaudeAPI({ system, user, history, maxTokens, model, imageBas
 //   inStock, source ("store"|"generic"|"manager"), mechanism (short why)
 const SUPPLEMENT_DB = [
   // ── Foundation / general health ──
-  { id:"creatine_mono",       name:"Creatine Monohydrate",     brand:null,         dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:54.99, inStock:true, source:"store",   mechanism:"ATP resynthesis — 8–14% strength gain. Most validated supplement in sports science." },
+  { id:"creatine_mono",       name:"Creatine Monohydrate",     brand:null,         dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:54.99, inStock:true, source:"store",   mechanism:"ATP resynthesis, 8–14% strength gain. Most validated supplement in sports science." },
   { id:"creatine_mono_g",     name:"Creatine Monohydrate",     brand:null,dose:"5g daily",        timing:"Anytime, consistent",  category:"performance", goals:["muscle","strength","recovery","brain"],         diets:["all"],                       cautions:["kidney_disease"],            price:18.00, inStock:false,source:"generic", mechanism:"Same molecule, ~3x cheaper. Lab-tested micronized works identically to branded." },
   { id:"vit_d3_k2",           name:"Vitamin D3 + K2",          brand:null,         dose:"5000IU D3 + 90mcg K2", timing:"With breakfast (fatty meal)", category:"foundation", goals:["immunity","hormones","bones","general"],   diets:["all"],                       cautions:["blood_thinners"],            price:32.99, inStock:true, source:"store",   mechanism:"Most adults 30–50% deficient. K2 directs calcium to bone, not arteries. Compounding hormone benefit." },
   { id:"omega3_fish",         name:"Super EPA Fish Oil",       brand:null,         dose:"2g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["pescatarian","omnivore"],  cautions:["blood_thinners","fish_allergy"], price:42.99, inStock:true, source:"store",   mechanism:"EPA suppresses inflammation cascade. DHA is structural for brain + retina. The single highest-value foundation supplement." },
-  { id:"omega3_algae",        name:"Algae Omega-3",            brand:null,dose:"1g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["vegan","vegetarian","all"], cautions:["blood_thinners"],           price:39.99, inStock:false,source:"generic", mechanism:"Vegan EPA+DHA from algae — the original ocean source. Sustainable + plant-based." },
+  { id:"omega3_algae",        name:"Algae Omega-3",            brand:null,dose:"1g combined EPA+DHA", timing:"With meals",        category:"foundation", goals:["recovery","brain","heart","inflammation","general"], diets:["vegan","vegetarian","all"], cautions:["blood_thinners"],           price:39.99, inStock:false,source:"generic", mechanism:"Vegan EPA+DHA from algae, the original ocean source. Sustainable + plant-based." },
   { id:"multivitamin",        name:"Multi-Vitamin Elite",      brand:null,         dose:"6 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:49.99, inStock:true, source:"store",   mechanism:"NSF-certified, methylated B-vitamins. Covers micronutrient gaps from imperfect diet." },
   { id:"multi_budget",        name:"Multi-Vitamin",            brand:null,      dose:"3 caps daily",    timing:"With breakfast",       category:"foundation", goals:["general","insurance"],                          diets:["all"],                       cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Solid budget option. Methylated B12 + folate, decent mineral spectrum." },
 
   // ── Sleep / recovery / stress ──
-  { id:"mag_glycinate",       name:"Magnesium Glycinate 400",  brand:null,         dose:"400mg",           timing:"30–60 min before bed", category:"sleep",      goals:["sleep","recovery","stress","muscle_relaxation"], diets:["all"],                      cautions:["kidney_disease"],            price:36.99, inStock:true, source:"store",   mechanism:"Cofactor in 300+ enzymes. Glycine form crosses blood-brain barrier — drops latency to sleep by ~17 min." },
+  { id:"mag_glycinate",       name:"Magnesium Glycinate 400",  brand:null,         dose:"400mg",           timing:"30–60 min before bed", category:"sleep",      goals:["sleep","recovery","stress","muscle_relaxation"], diets:["all"],                      cautions:["kidney_disease"],            price:36.99, inStock:true, source:"store",   mechanism:"Cofactor in 300+ enzymes. Glycine form crosses blood-brain barrier, drops latency to sleep by ~17 min." },
   { id:"mag_threonate",       name:"Magnesium L-Threonate",    brand:null,    dose:"2g",              timing:"Before bed",           category:"sleep",      goals:["sleep","brain","stress","focus"],                diets:["all"],                      cautions:["kidney_disease"],            price:32.99, inStock:false,source:"generic", mechanism:"Penetrates brain better than glycinate. Use when sleep is fine but focus/anxiety dominates." },
-  { id:"zma",                 name:"Zinc Magnesium Aspartate", brand:null,         dose:"30mg Zn + 450mg Mg",timing:"Before bed (empty stomach)", category:"sleep", goals:["sleep","hormones","recovery","testosterone"], diets:["all"],                      cautions:["copper_deficiency_risk"],   price:38.99, inStock:true, source:"store",   mechanism:"Zinc restores test suppressed by high training volume. Magnesium drops cortisol — both peak overnight." },
+  { id:"zma",                 name:"Zinc Magnesium Aspartate", brand:null,         dose:"30mg Zn + 450mg Mg",timing:"Before bed (empty stomach)", category:"sleep", goals:["sleep","hormones","recovery","testosterone"], diets:["all"],                      cautions:["copper_deficiency_risk"],   price:38.99, inStock:true, source:"store",   mechanism:"Zinc restores test suppressed by high training volume. Magnesium drops cortisol, both peak overnight." },
   { id:"l_theanine",          name:"L-Theanine",                brand:null,      dose:"200mg",           timing:"With caffeine OR before bed", category:"calm",   goals:["focus","stress","sleep","caffeine_smoothing"], diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Smooths caffeine jitters, raises alpha brain waves. Calm focus without sedation." },
   { id:"ashwagandha",         name:"Ashwagandha KSM-66",       brand:null,      dose:"600mg",           timing:"AM or PM, with food",  category:"adaptogen",  goals:["stress","sleep","recovery","testosterone","hormones"], diets:["all"],                  cautions:["thyroid_meds","autoimmune","pregnancy"], price:19.99, inStock:false,source:"generic", mechanism:"Lowers cortisol 20–30%. Bumps testosterone 14% in stressed males. Take 8 weeks for full effect." },
-  { id:"glycine_pwd",         name:"Glycine Powder",            brand:null,dose:"3g",             timing:"Before bed",           category:"sleep",      goals:["sleep","temperature_regulation"],                diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Drops core body temp — the biological signal for sleep onset. Stacks well with magnesium." },
+  { id:"glycine_pwd",         name:"Glycine Powder",            brand:null,dose:"3g",             timing:"Before bed",           category:"sleep",      goals:["sleep","temperature_regulation"],                diets:["all"],                      cautions:[],                            price:14.99, inStock:false,source:"generic", mechanism:"Drops core body temp, the biological signal for sleep onset. Stacks well with magnesium." },
 
   // ── Strength / muscle / performance ──
-  { id:"whey_iso",            name:"Whey Elite Hydrolyzed",    brand:null,         dose:"30g",             timing:"Within 30 min post-training", category:"protein", goals:["muscle","strength","recovery"],               diets:["omnivore","vegetarian"],    cautions:["dairy_allergy","lactose_intol"], price:68.99, inStock:true, source:"store",   mechanism:"Pre-hydrolyzed for 15-min absorption. 2x leucine threshold per scoop — triggers MPS reliably." },
+  { id:"whey_iso",            name:"Whey Elite Hydrolyzed",    brand:null,         dose:"30g",             timing:"Within 30 min post-training", category:"protein", goals:["muscle","strength","recovery"],               diets:["omnivore","vegetarian"],    cautions:["dairy_allergy","lactose_intol"], price:68.99, inStock:true, source:"store",   mechanism:"Pre-hydrolyzed for 15-min absorption. 2x leucine threshold per scoop, triggers MPS reliably." },
   { id:"whey_iso_g",          name:"Whey Isolate",              brand:null,dose:"30g",         timing:"Post-training",        category:"protein",    goals:["muscle","strength","recovery"],                 diets:["omnivore","vegetarian"],    cautions:["dairy_allergy"],             price:42.99, inStock:false,source:"generic", mechanism:"Solid mainstream isolate. Lactose-stripped, ~25g protein per scoop." },
   { id:"pea_protein",         name:"Pea + Rice Protein",       brand:null,dose:"40g",             timing:"Post-training or AM",  category:"protein",    goals:["muscle","strength","recovery"],                 diets:["vegan","vegetarian"],       cautions:[],                            price:54.99, inStock:false,source:"generic", mechanism:"Pea + rice 70:30 = complete amino profile rivaling whey. 1g leucine per scoop." },
-  { id:"beta_alanine",        name:"Beta-Alanine SR",          brand:null,         dose:"3.2g daily",      timing:"30 min pre-training",  category:"performance",goals:["endurance","high_rep_strength"],                diets:["all"],                      cautions:[],                            price:36.99, inStock:true, source:"store",   mechanism:"Carnosine loader — buffers H+ in working muscle. Adds 1–2 reps on 8–15 rep sets within 4 weeks." },
+  { id:"beta_alanine",        name:"Beta-Alanine SR",          brand:null,         dose:"3.2g daily",      timing:"30 min pre-training",  category:"performance",goals:["endurance","high_rep_strength"],                diets:["all"],                      cautions:[],                            price:36.99, inStock:true, source:"store",   mechanism:"Carnosine loader, buffers H+ in working muscle. Adds 1–2 reps on 8–15 rep sets within 4 weeks." },
   { id:"eaa_powder",          name:"Essential Amino Complex",  brand:null,   dose:"10g",             timing:"Intra-workout",        category:"performance",goals:["muscle","preservation","endurance"],            diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Mid-session catabolism is real on long workouts or fasted training. EAAs prevent it cheaply." },
   { id:"hmb",                 name:"HMB Free Acid 3g",         brand:null,         dose:"3g daily",        timing:"With training or AM",  category:"performance",goals:["muscle_preservation","strength"],               diets:["all"],                      cautions:[],                            price:54.99, inStock:true, source:"store",   mechanism:"Inhibits muscle protein breakdown. Most useful when training fasted or in a deficit." },
   { id:"l_carnitine",         name:"L-Carnitine 2000",         brand:null,         dose:"2g daily",        timing:"With carb-containing meal", category:"performance", goals:["endurance","fat_loss","recovery"],         diets:["all"],                      cautions:[],                            price:44.99, inStock:true, source:"store",   mechanism:"Shuttles fatty acids into mitochondria. Improves recovery between sessions + endurance over time." },
 
   // ── Energy / focus / cognition ──
   { id:"caffeine_l_theanine", name:"Caffeine + L-Theanine",    brand:null,dose:"100mg + 200mg",  timing:"AM, NOT after 2pm",    category:"focus",      goals:["focus","energy","pre_workout"],                 diets:["all"],                      cautions:["anxiety","heart_arrhythmia","caffeine_sens"], price:24.99, inStock:false,source:"generic", mechanism:"The classic stack. 2:1 theanine:caffeine = focused energy without jitter or crash." },
-  { id:"rhodiola",            name:"Rhodiola Rosea",            brand:null,      dose:"300–600mg",       timing:"AM, empty stomach",    category:"adaptogen",  goals:["energy","stress","focus","mental_fatigue"],     diets:["all"],                      cautions:["bipolar"],                   price:18.99, inStock:false,source:"generic", mechanism:"Adaptogen — reduces mental fatigue specifically. Works fast (days), unlike ashwagandha." },
-  { id:"lions_mane",          name:"Lion's Mane",               brand:null, dose:"1g",              timing:"AM",                   category:"nootropic",  goals:["brain","focus","nerve_health"],                 diets:["all"],                      cautions:[],                            price:29.99, inStock:false,source:"generic", mechanism:"Stimulates Nerve Growth Factor (NGF). Slow burn (weeks) — best for long-term cognitive maintenance." },
-  { id:"electrolyte_complex", name:"Electrolyte Complex",       brand:null,         dose:"1 stick in 16oz", timing:"AM + during training", category:"hydration",  goals:["energy","training","recovery"],                 diets:["all"],                      cautions:["hypertension_low_sodium"],   price:38.99, inStock:true, source:"store",   mechanism:"Optimal Na/K/Mg ratio. Sodium restores plasma volume after overnight fast — kills morning fatigue." },
+  { id:"rhodiola",            name:"Rhodiola Rosea",            brand:null,      dose:"300–600mg",       timing:"AM, empty stomach",    category:"adaptogen",  goals:["energy","stress","focus","mental_fatigue"],     diets:["all"],                      cautions:["bipolar"],                   price:18.99, inStock:false,source:"generic", mechanism:"Adaptogen, reduces mental fatigue specifically. Works fast (days), unlike ashwagandha." },
+  { id:"lions_mane",          name:"Lion's Mane",               brand:null, dose:"1g",              timing:"AM",                   category:"nootropic",  goals:["brain","focus","nerve_health"],                 diets:["all"],                      cautions:[],                            price:29.99, inStock:false,source:"generic", mechanism:"Stimulates Nerve Growth Factor (NGF). Slow burn (weeks), best for long-term cognitive maintenance." },
+  { id:"electrolyte_complex", name:"Electrolyte Complex",       brand:null,         dose:"1 stick in 16oz", timing:"AM + during training", category:"hydration",  goals:["energy","training","recovery"],                 diets:["all"],                      cautions:["hypertension_low_sodium"],   price:38.99, inStock:true, source:"store",   mechanism:"Optimal Na/K/Mg ratio. Sodium restores plasma volume after overnight fast, kills morning fatigue." },
 
   // ── Fat loss / metabolic ──
   { id:"thermo_complex",      name:"Thermo Complex AM",        brand:null,   dose:"2 caps AM",       timing:"AM, NOT after 2pm",    category:"fat_loss",   goals:["fat_loss","energy","appetite"],                 diets:["all"],                      cautions:["anxiety","caffeine_sens","heart"], price:49.99, inStock:true, source:"store",   mechanism:"EGCG + synephrine + caffeine. Raises resting metabolic rate ~8% = 140 extra cal/day burned." },
-  { id:"berberine",           name:"Berberine HCl",            brand:null,         dose:"500mg 2–3x daily",timing:"With meals",           category:"metabolic",  goals:["fat_loss","glucose_control","cuts"],            diets:["all"],                      cautions:["diabetes_meds","pregnancy"], price:39.99, inStock:true, source:"store",   mechanism:"AMPK activator — improves insulin sensitivity. Use during cuts or with high-carb meals." },
+  { id:"berberine",           name:"Berberine HCl",            brand:null,         dose:"500mg 2–3x daily",timing:"With meals",           category:"metabolic",  goals:["fat_loss","glucose_control","cuts"],            diets:["all"],                      cautions:["diabetes_meds","pregnancy"], price:39.99, inStock:true, source:"store",   mechanism:"AMPK activator, improves insulin sensitivity. Use during cuts or with high-carb meals." },
   { id:"green_tea_ext",       name:"Green Tea Extract (EGCG)", brand:null,      dose:"500mg",           timing:"Pre-workout or AM",    category:"fat_loss",   goals:["fat_loss","antioxidant"],                       diets:["all"],                      cautions:["liver_disease"],             price:12.99, inStock:false,source:"generic", mechanism:"Cleaner version of thermogenic effect. Mild but stackable, low side-effect profile." },
 
   // ── Joints / connective tissue ──
@@ -18928,7 +18929,7 @@ const SUPPLEMENT_DB = [
   { id:"glucosamine",         name:"Glucosamine Sulfate",      brand:null,      dose:"1500mg",          timing:"With meals",           category:"joints",     goals:["joints","cartilage","aging"],                   diets:["pescatarian","omnivore"],   cautions:["shellfish_allergy"],         price:22.99, inStock:false,source:"generic", mechanism:"Cartilage building block. Most useful for >35yo lifters or anyone with existing joint complaints." },
 
   // ── Gut / digestion ──
-  { id:"probiotic",           name:"FloraSport Probiotic",     brand:null,         dose:"1 cap daily",     timing:"AM, empty stomach",    category:"gut",        goals:["gut","immunity","general"],                     diets:["all"],                      cautions:["severely_immunocompromised"], price:38.99, inStock:true, source:"store",   mechanism:"Strain-specific (L. plantarum, L. acidophilus). Restores microbiome diversity — base for all other supplement absorption." },
+  { id:"probiotic",           name:"FloraSport Probiotic",     brand:null,         dose:"1 cap daily",     timing:"AM, empty stomach",    category:"gut",        goals:["gut","immunity","general"],                     diets:["all"],                      cautions:["severely_immunocompromised"], price:38.99, inStock:true, source:"store",   mechanism:"Strain-specific (L. plantarum, L. acidophilus). Restores microbiome diversity, base for all other supplement absorption." },
   { id:"digestive_enzymes",   name:"Digestive Enzymes",        brand:null,      dose:"1–2 caps",        timing:"Just before large meals",category:"gut",      goals:["digestion","bloat","absorption"],               diets:["all"],                      cautions:[],                            price:18.99, inStock:false,source:"generic", mechanism:"Use when meals are large (>40g protein) or causing bloat. Improves nutrient extraction." },
 
   // ── Women-specific ──
@@ -18936,7 +18937,7 @@ const SUPPLEMENT_DB = [
   { id:"vitex",               name:"Vitex (Chasteberry)",      brand:null,     dose:"400mg",           timing:"AM",                   category:"hormonal",   goals:["hormones","menstrual_support","pms"],           diets:["all"],                      cautions:["birth_control","pregnancy"], price:22.99, inStock:false,source:"generic", mechanism:"Supports progesterone in the luteal phase. Most evidence-backed herb for PMS." },
 
   // ── Vegan-specific ──
-  { id:"b12_methyl",          name:"Methyl B12",                brand:null,dose:"1000mcg",     timing:"AM, under tongue",     category:"vitamins",   goals:["energy","brain","general"],                     diets:["vegan","vegetarian","all"], cautions:[],                            price:21.99, inStock:false,source:"generic", mechanism:"Vegans need supplementation — no plant B12 source. Sublingual avoids gut absorption variance." },
+  { id:"b12_methyl",          name:"Methyl B12",                brand:null,dose:"1000mcg",     timing:"AM, under tongue",     category:"vitamins",   goals:["energy","brain","general"],                     diets:["vegan","vegetarian","all"], cautions:[],                            price:21.99, inStock:false,source:"generic", mechanism:"Vegans need supplementation, no plant B12 source. Sublingual avoids gut absorption variance." },
   { id:"iron_plant",          name:"Plant-Based Iron",          brand:null,       dose:"22mg",            timing:"AM + vit C",           category:"minerals",   goals:["energy","general"],                             diets:["vegan","vegetarian"],       cautions:["hemochromatosis"],           price:24.99, inStock:false,source:"generic", mechanism:"Food-state iron, gentle on gut. Critical for vegan female athletes specifically." },
 ];
 
@@ -18948,7 +18949,7 @@ function getManagerSupplements() {
   } catch { return []; }
 }
 
-// Combined library — built-in DB + any supplements the gym manager added.
+// Combined library, built-in DB + any supplements the gym manager added.
 function getAllSupplements() {
   const managerItems = getManagerSupplements().map(s => ({ ...s, source: "manager" }));
   return [...SUPPLEMENT_DB, ...managerItems];
@@ -18974,7 +18975,7 @@ function scoreSupplementsForAnswers(answers) {
     .map(s => {
       let score = 0;
       const reasons = [];
-      // Goal match — strongest signal
+      // Goal match, strongest signal
       const matchedGoals = (s.goals || []).filter(g => goalSet.has(g));
       score += matchedGoals.length * 10;
       if (matchedGoals.length) reasons.push(`matches goal: ${matchedGoals.join(", ")}`);
@@ -19005,12 +19006,12 @@ function scoreSupplementsForAnswers(answers) {
 async function personalizeSupplementStack(stack, answers) {
   if (typeof window === "undefined" || !stack?.length) return stack;
   const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
-  if (!base) return stack; // offline — return as-is
+  if (!base) return stack; // offline, return as-is
   const profile = `Goals: ${(answers.goals || []).join(", ")}. Training: ${answers.training || "unspecified"}. Sleep: ${answers.sleep || "?"}/10. Caffeine sensitivity: ${answers.caffeineSens || "?"}. Diet: ${answers.diet || "?"}. Budget: ${answers.budget || "?"}. Current stack: ${(answers.currentStack || "").slice(0, 200) || "none"}.`;
   const stackList = stack.slice(0, 6).map((s, i) =>
-    `${i+1}. ${s.name} (${s.dose}, ${s.timing}) — generic mechanism: ${s.mechanism}`
+    `${i+1}. ${s.name} (${s.dose}, ${s.timing}), generic mechanism: ${s.mechanism}`
   ).join("\n");
-  const system = `You are Kailu, an evidence-based fitness coach. The user just completed a supplement questionnaire. For each supplement, write ONE personalized sentence (max 25 words) explaining why it fits THIS specific user — referencing their goals, training, sleep, or caffeine sensitivity. Return ONLY a JSON array: [{"i":1,"why":"..."},{"i":2,"why":"..."}]. No prose, no extra text.
+  const system = `You are Kailu, an evidence-based fitness coach. The user just completed a supplement questionnaire. For each supplement, write ONE personalized sentence (max 25 words) explaining why it fits THIS specific user, referencing their goals, training, sleep, or caffeine sensitivity. Return ONLY a JSON array: [{"i":1,"why":"..."},{"i":2,"why":"..."}]. No prose, no extra text.
 
 User profile: ${profile}
 
@@ -19022,7 +19023,7 @@ Rules:
 - Never invent facts not in the profile.
 - One sentence per item. Max 25 words.
 - No supplement-stacking advice ("combine with X"). Just why THIS one for THIS person.
-- CRITICAL: You are a coach, NOT a salesperson. Never recommend a supplement because it's in stock or available in the store. Only recommend based on the user's actual goals. If a recommendation happens to be in the RVN store, that's incidental — never the reason.
+- CRITICAL: You are a coach, NOT a salesperson. Never recommend a supplement because it's in stock or available in the store. Only recommend based on the user's actual goals. If a recommendation happens to be in the RVN store, that's incidental, never the reason.
 - Never use sales phrases like "we recommend", "our top pick", "best seller". Use coach phrases like "for your goals", "given your sleep", "based on your training".`;
   try {
     const res = await fetch(base, {
@@ -19046,7 +19047,7 @@ Rules:
 // User-facing calendar that Kailu can mutate via natural-language requests like
 // "add a leg day Tuesday at 7am", "move my squat session to Thursday",
 // "cancel tomorrow's workout". All mutations go through a confirmation card in
-// the chat — the AI never silently writes to the calendar.
+// the chat, the AI never silently writes to the calendar.
 // Storage shape:
 //   rvn_calendar = [{ id, date:"YYYY-MM-DD", time:"HH:MM"|null, title, type, notes, createdAt }]
 function getCalendar() {
@@ -19116,7 +19117,7 @@ function applyCalendarMutation(mut) {
 
 // Ask Claude to parse a free-text calendar request into a structured mutation.
 // Returns { action, date, time, title, type, matchTitle? } or null.
-// One Haiku call per request — same cost profile as a food lookup.
+// One Haiku call per request, same cost profile as a food lookup.
 async function parseCalendarMutation(text, existingEvents) {
   if (typeof window === "undefined") return null;
   const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
@@ -19295,7 +19296,7 @@ function getMostRecentCheckIn(clientEmail) {
     .filter(c => (c.clientEmail || "").toLowerCase() === e)
     .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())[0] || null;
 }
-// AI triage — Kailu summarizes the week's check-ins into a one-screen digest
+// AI triage, Kailu summarizes the week's check-ins into a one-screen digest
 async function summarizeCheckInsViaKailu(checkIns) {
   if (typeof window === "undefined" || !checkIns?.length) return null;
   const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
@@ -19341,7 +19342,7 @@ function getConsentSettings() {
       shareSleep: true,
       shareMood: true,
       shareWeight: true,
-      sharePhotos: false,        // photos default OFF — trainer must ask
+      sharePhotos: false,        // photos default OFF, trainer must ask
       shareWorkoutLogs: true,
       shareMacros: true,
       shareMarketingPhoto: false, // trainer can't use my photos in marketing
@@ -19371,13 +19372,13 @@ function saveTrainerVoice(v) {
   try { localStorage.setItem("rvn_trainer_voice", JSON.stringify(v || {})); } catch {}
 }
 // System-prompt fragment that teaches Kailu to talk like THIS trainer.
-// Returns "" when no trainer voice is configured — keeps generic Kailu behavior.
+// Returns "" when no trainer voice is configured, keeps generic Kailu behavior.
 function buildTrainerVoiceContext() {
   const v = getTrainerVoice();
   if (!v || !v.enabled) return "";
   const parts = [];
   if (v.trainerName) parts.push(`You are voicing this AI on behalf of Coach ${v.trainerName}.`);
-  parts.push("Match this coach's voice as closely as possible — same cadence, vocabulary, and energy. Don't sound like generic AI.");
+  parts.push("Match this coach's voice as closely as possible, same cadence, vocabulary, and energy. Don't sound like generic AI.");
   if (v.tone) {
     const toneMap = {
       warm:       "Warm, encouraging, like a supportive friend. Affirming but specific.",
@@ -19388,12 +19389,12 @@ function buildTrainerVoiceContext() {
     };
     parts.push("Tone: " + (toneMap[v.tone] || v.tone) + ".");
   }
-  parts.push(v.profanityOk ? "Profanity is allowed in their style — use sparingly when it fits." : "No profanity.");
+  parts.push(v.profanityOk ? "Profanity is allowed in their style, use sparingly when it fits." : "No profanity.");
   if (v.emojiUse === "none")   parts.push("Never use emojis.");
-  if (v.emojiUse === "light")  parts.push("Light emoji use only — one per message max, and only when it lands.");
-  if (v.emojiUse === "heavy")  parts.push("Emojis are part of this coach's style — use 1-3 per message.");
+  if (v.emojiUse === "light")  parts.push("Light emoji use only, one per message max, and only when it lands.");
+  if (v.emojiUse === "heavy")  parts.push("Emojis are part of this coach's style, use 1-3 per message.");
   if (Array.isArray(v.signaturePhrases) && v.signaturePhrases.filter(Boolean).length) {
-    parts.push(`Phrases this coach uses: "${v.signaturePhrases.filter(Boolean).slice(0, 6).join('", "')}". Drop one when it fits naturally — don't force it.`);
+    parts.push(`Phrases this coach uses: "${v.signaturePhrases.filter(Boolean).slice(0, 6).join('", "')}". Drop one when it fits naturally, don't force it.`);
   }
   const samples = (v.voiceSamples || []).filter(s => typeof s === "string" && s.trim().length > 10).slice(0, 5);
   if (samples.length) {
@@ -19488,28 +19489,28 @@ function resetAllDemos() {
   } catch {}
 }
 
-// Cards content — one entry per demo. Adding a new tab = add a new key here.
+// Cards content, one entry per demo. Adding a new tab = add a new key here.
 // Each card: { icon, title, body }. icon is an emoji or short symbol (kept simple
 // so it renders identically across iOS/Android/web). title is bold lead.
 const DEMO_CARDS = {
-  // Feature-focused welcome tour — spotlights the NON-OBVIOUS capabilities of
+  // Feature-focused welcome tour, spotlights the NON-OBVIOUS capabilities of
   // the app, not the tab labels. People can figure out what "Fuel" means;
   // they cannot figure out that Kailu mutates the calendar from natural
   // language or that the recipe scanner accepts Instagram links.
   welcome: [
-    { icon: "✨", title: "Quick tour — here is what RVN can do that other fitness apps can’t.",
+    { icon: "✨", title: "Quick tour, here is what RVN can do that other fitness apps can’t.",
       body: "8 things you would not find on your own. 45 seconds." },
     { icon: "🗓️", title: "Tell Kailu to schedule anything.",
-      body: 'Tap this anytime. Say "add leg day Tuesday at 7am" — Kailu confirms with a card, you tap Apply, it lands on your calendar. Same for moving or cancelling sessions.',
+      body: 'Tap this anytime. Say "add leg day Tuesday at 7am", Kailu confirms with a card, you tap Apply, it lands on your calendar. Same for moving or cancelling sessions.',
       target: '[data-tour-id="kailu-bubble"]' },
     { icon: "📲", title: "Paste an Instagram / TikTok workout.",
-      body: "Found a workout you like? Paste the Reel link or caption — Kailu pulls every exercise into your protocol so you can run it tomorrow.",
+      body: "Found a workout you like? Paste the Reel link or caption, Kailu pulls every exercise into your protocol so you can run it tomorrow.",
       target: '[data-tour-id="ig-import"]' },
-    { icon: "🍽️", title: "AI builds today’s meals from your macros.",
-      body: "Tap this in the Fuel tab — Kailu generates a full day of meals around your protein, carb, and fat targets. No more \"what should I eat?\"",
+    { icon: "🍽️", title: "Kailu builds today’s meals from your macros.",
+      body: "Tap this in the Fuel tab, Kailu generates a full day of meals around your protein, carb, and fat targets. No more \"what should I eat?\"",
       target: '[data-tour-id="ai-meal-plan"]' },
     { icon: "📷", title: "Recipe scanner.",
-      body: "Paste any recipe link — from a blog, an Instagram caption, anywhere. Kailu parses the ingredients and logs the macros for you. No manual entry.",
+      body: "Paste any recipe link, from a blog, an Instagram caption, anywhere. Kailu parses the ingredients and logs the macros for you. No manual entry.",
       target: '[data-tour-id="fuel-scanner"]' },
     { icon: "🍴", title: "Eating out? Kailu helps you order.",
       body: "Type the restaurant name. Kailu looks at what macros you still need today and recommends a specific order that fits your remaining protein and carbs.",
@@ -19518,15 +19519,15 @@ const DEMO_CARDS = {
       body: "Solid bar = best estimate. Lighter band = how confident the log is. Tight for branded products (Built Bar = 17g/130kcal exactly), wide for homemade meals.",
       target: '[data-tour-id="fuel-macros"]' },
     { icon: "◈", title: "Supplement protocol built for you.",
-      body: "Answer 7 questions about your goals, diet, budget, and allergies. Kailu cross-references a curated database and builds your stack — with dose, timing, and why each one for YOU.",
+      body: "Answer 7 questions about your goals, diet, budget, and allergies. Kailu cross-references a curated database and builds your stack, with dose, timing, and why each one for YOU.",
       target: '[data-tour-id="supp-entry"]' },
     { icon: "🤝", title: "Kailu picks up on what you mention.",
-      body: 'Tell Kailu about a knee tweak, a wedding cut, your usual training days — it folds those facts into every future reply. Coaching that actually knows you, no re-explaining yourself.',
+      body: 'Tell Kailu about a knee tweak, a wedding cut, your usual training days, it folds those facts into every future reply. Coaching that actually knows you, no re-explaining yourself.',
       target: '[data-tour-id="kailu-bubble"]' },
     { icon: "🎯", title: "That’s the highlight reel.",
-      body: "Tap around — you will keep finding things. Progress photos, weekly recap on Mondays, NFC tap-to-start workouts, GhostBar velocity tracking. Kailu is always one tap away." },
+      body: "Tap around, you will keep finding things. Progress photos, weekly recap on Mondays, NFC tap-to-start workouts, GhostBar velocity tracking. Kailu is always one tap away." },
   ],
-  // Per-tab demos disabled — the welcome tour now covers the capabilities.
+  // Per-tab demos disabled, the welcome tour now covers the capabilities.
   // Empty arrays make ContextualDemo render nothing (no boring intro cards).
   train: [],
   fuel: [],
@@ -19546,7 +19547,7 @@ function ContextualDemo({ id, theme, accent, onComplete }) {
   const cards = DEMO_CARDS[id];
   const [show, setShow] = React.useState(false);
   const [idx, setIdx] = React.useState(0);
-  // Spotlight target rect — set when current card has a target selector and
+  // Spotlight target rect, set when current card has a target selector and
   // a matching element exists in the DOM. null = fall back to centered sheet.
   const [rect, setRect] = React.useState(null);
   React.useEffect(() => {
@@ -19704,7 +19705,7 @@ function ContextualDemo({ id, theme, accent, onComplete }) {
 // supplements, trainer voice, pushed protocols, etc.). When we change any shape,
 // existing users have stale data that can silently corrupt the app. This module
 // tracks the schema version we last migrated to, and runs missing migrations
-// in order on app boot. Always idempotent — re-running a migration is a no-op.
+// in order on app boot. Always idempotent, re-running a migration is a no-op.
 //
 // To add a migration:
 //   1. Bump RVN_SCHEMA_VERSION below
@@ -19745,7 +19746,7 @@ const MIGRATIONS = {
       if (memRaw) {
         const m = JSON.parse(memRaw);
         if (Array.isArray(m)) {
-          // Legacy array format — wrap in object
+          // Legacy array format, wrap in object
           localStorage.setItem("rvn_coach_memory", JSON.stringify({ facts: m, lastExtracted: 0 }));
         } else if (m && !Array.isArray(m.facts)) {
           m.facts = [];
@@ -19777,7 +19778,7 @@ function runSchemaMigrations() {
   for (let v = current + 1; v <= RVN_SCHEMA_VERSION; v++) {
     const fn = MIGRATIONS[v];
     if (typeof fn !== "function") {
-      console.warn("[RVN] no migration function for v" + v + " — stopping");
+      console.warn("[RVN] no migration function for v" + v + ", stopping");
       break;
     }
     try {
@@ -19800,13 +19801,59 @@ function getCoachMemory() {
 function saveCoachMemory(m) {
   try { localStorage.setItem("rvn_coach_memory", JSON.stringify(m)); } catch {}
 }
-function buildMemoryContext() {
+// Smart memory context. Filters stale event-type facts so Kailu does not
+// keep bringing up week-old context. Tags the memory as PASSIVE — only
+// referenced if directly relevant to the current message, never volunteered.
+function buildMemoryContext(currentText) {
   const { facts } = getCoachMemory();
-  if (!facts.length) return "";
-  return "What you remember about this user: " + facts.map(f => f.value).join(". ") + ".";
+  if (!facts || !facts.length) return "";
+  const now = Date.now();
+  const DAY = 86400000;
+  const lowerNow = (currentText || "").toLowerCase();
+  // Filter rules per fact type
+  const filtered = facts.filter(f => {
+    if (!f || !f.value) return false;
+    const ageDays = f.date ? Math.max(0, (now - new Date(f.date).getTime()) / DAY) : 0;
+    const type = (f.type || "event").toLowerCase();
+    const valLower = String(f.value).toLowerCase();
+    // Always keep persistent traits (preferences, goals with no clear end)
+    if (type === "preference" || type === "trait") return true;
+    // Goals: keep for 90 days unless the value mentions a date in the past
+    if (type === "goal") return ageDays < 90;
+    // Calendar events: drop once the event date has passed
+    if (type === "calendar") {
+      // try to find a date in the value like "2026-05-13"
+      const m = valLower.match(/(\d{4}-\d{2}-\d{2})/);
+      if (m) {
+        const eventTime = new Date(m[1]).getTime();
+        if (Number.isFinite(eventTime) && eventTime + DAY < now) return false; // past event
+      }
+      return ageDays < 30;
+    }
+    // Injury: keep for 21 days. If user re-mentions the body part, the
+    // current message will surface it again via the prompt; we do not need
+    // to keep volunteering it.
+    if (type === "injury") {
+      if (ageDays > 21) {
+        // Only resurface if the current message mentions the same body part
+        const parts = ["knee","shoulder","back","hamstring","calf","wrist","elbow","hip","neck","quad","chest","glute","tricep","bicep","ankle","forearm","lat","trap","pec"];
+        const fHas = parts.find(p => valLower.includes(p));
+        return fHas && lowerNow.includes(fHas);
+      }
+      return true;
+    }
+    // Missed-training note: 7-day relevance
+    if (type === "missed_training") return ageDays < 7;
+    // Supplement preference: 60 days
+    if (type === "supplement") return ageDays < 60;
+    // Default: 30 days
+    return ageDays < 30;
+  });
+  if (!filtered.length) return "";
+  return "Background context about this user (DO NOT volunteer or repeat unless the current message directly relates to one of these facts): " + filtered.map(f => f.value).join(". ") + ".";
 }
 
-// Append a single fact to coach memory WITHOUT an API call — used for
+// Append a single fact to coach memory WITHOUT an API call, used for
 // deterministic events like injuries logged, goals set, missed workouts,
 // streak breaks, and accepted calendar events. Deduplicates against the
 // last 25 facts so the same event doesn't get logged repeatedly.
@@ -19838,7 +19885,7 @@ function logMemoryEvent(value, type = "event") {
 }
 
 // On app open: detect missed-training stretches and log them as memory.
-// Runs at most once per day. Helps Kailu say things like "welcome back —
+// Runs at most once per day. Helps Kailu say things like "welcome back -
 // we eased back in last time you came off a 4-day gap, doing same now."
 function checkMissedTrainingStretch() {
   try {
@@ -19855,12 +19902,12 @@ function checkMissedTrainingStretch() {
     const daysGap = Math.floor((Date.now() - latest) / 86400000);
     if (daysGap >= 3 && daysGap <= 30) {
       const lastDate = new Date(latest).toISOString().slice(0, 10);
-      logMemoryEvent(`Came off a ${daysGap}-day training gap (last session ${lastDate}) — start easy on return.`, "missed_training");
+      logMemoryEvent(`Came off a ${daysGap}-day training gap (last session ${lastDate}), start easy on return.`, "missed_training");
     }
     localStorage.setItem("rvn_missed_check", today);
   } catch {}
 }
-// Runs after a chat session closes — extracts new facts with one Haiku call.
+// Runs after a chat session closes, extracts new facts with one Haiku call.
 // Skips if conversation is too short or was extracted recently (2h cooldown).
 async function extractMemoryFromConversation(messages) {
   if (!messages || messages.length < 4) return;
@@ -19889,10 +19936,10 @@ async function extractMemoryFromConversation(messages) {
 
 // ─── PROACTIVE COACH ──────────────────────────────────────────────────────────
 // Generates AI messages at 2 key moments per day: morning check-in + post-workout.
-// Haiku model only, results cached in localStorage — no repeat API calls.
+// Haiku model only, results cached in localStorage, no repeat API calls.
 // ~$0.002/user/day total. Coach is quiet the rest of the time.
 async function generateCoachMoment(type, profile) {
-  const memCtx = buildMemoryContext();
+  const memCtx = buildMemoryContext("");
   const hour = new Date().getHours();
   const arch = profile?.archetypeId || "athlete";
   const sleep = (() => { const d = profile?.sleepDays; return d?.length ? d[d.length-1] : null; })();
@@ -19902,8 +19949,8 @@ async function generateCoachMoment(type, profile) {
   const todaySessions = sessions.filter(s => { try { return new Date(s.logged_at).toDateString() === new Date().toDateString(); } catch { return false; } });
 
   const prompts = {
-    morning: `It's ${hour}:00. User archetype: ${arch}. Sleep last night: ${sleep != null ? sleep+"h" : "unknown"}. Protein goal: ${proteinGoal}g. Write ONE proactive coaching message — 2 sentences max. First: specific observation about their data. Second: one concrete action for today. No greetings. No generic advice.`,
-    post_workout: `User just logged a workout (${todaySessions[0]?.exercises?.length || 0} exercises). Protein today: ${protein}g of ${proteinGoal}g goal. Write ONE post-workout coaching message — 2 sentences. Acknowledge what they did, then give the single most important recovery action right now.`,
+    morning: `It's ${hour}:00. User archetype: ${arch}. Sleep last night: ${sleep != null ? sleep+"h" : "unknown"}. Protein goal: ${proteinGoal}g. Write ONE proactive coaching message, 2 sentences max. First: specific observation about their data. Second: one concrete action for today. No greetings. No generic advice.`,
+    post_workout: `User just logged a workout (${todaySessions[0]?.exercises?.length || 0} exercises). Protein today: ${protein}g of ${proteinGoal}g goal. Write ONE post-workout coaching message, 2 sentences. Acknowledge what they did, then give the single most important recovery action right now.`,
   };
 
   return callClaudeAPI({
@@ -19998,7 +20045,7 @@ function RVNVisionOverlay() {
   const env = useEnv();
   const { state, biopalToggle, biopalSend, biopalProcessing, bioLogicLog, bioLogicUpdate, goto, scheduleSetPending, scheduleLock } = env;
   const { theme, mode, biopal, bioLogic, screen } = state;
-  // Only render on post-onboarding screens — not during splash/onboarding flow
+  // Only render on post-onboarding screens, not during splash/onboarding flow
   const _onboardScreens = ["splash","landing","biology","target","performance","personalize","account","narrative","manager"];
   if (_onboardScreens.includes(screen)) return null;
   const T = D[theme];
@@ -20011,7 +20058,7 @@ function RVNVisionOverlay() {
   const [draft, setDraft] = useState("");
   const scrollerRef = useRef(null);
 
-  // ── Token state — reads from shared localStorage profile ─────────────────────
+  // ── Token state, reads from shared localStorage profile ─────────────────────
   const getProfileRaw = () => { try { return JSON.parse(localStorage.getItem("rvn_profile") || "{}"); } catch { return {}; } };
   const [tokenState, setTokenState] = useState(() => getKailuTokenState(getProfileRaw()));
 
@@ -20045,7 +20092,7 @@ function RVNVisionOverlay() {
     }
   }, [biopal.open]); // eslint-disable-line
 
-  // ── Global bridge — allows GymProtocol to pre-fill and open Kailu ────────
+  // ── Global bridge, allows GymProtocol to pre-fill and open Kailu ────────
   useEffect(() => {
     window.__rvnOpenKailu = (prefill) => {
       biopalToggle(true);
@@ -20057,7 +20104,7 @@ function RVNVisionOverlay() {
       }
     };
     return () => { delete window.__rvnOpenKailu; };
-  }); // no dep array — re-register each render so closures are fresh
+  }); // no dep array, re-register each render so closures are fresh
 
   // Auto-scroll on new message
   useEffect(() => {
@@ -20071,7 +20118,7 @@ function RVNVisionOverlay() {
     scheduleLock && scheduleLock();
     biopalSend({
       role: "pal",
-      text: "Locked in. The full 24-hour plan is now on your Dashboard — I'll nudge you at each block.",
+      text: "Locked in. The full 24-hour plan is now on your Dashboard, I'll nudge you at each block.",
       intent: "schedule",
       appliedDelta: { kind: "scheduleLocked", count: items.length },
     });
@@ -20080,9 +20127,9 @@ function RVNVisionOverlay() {
   async function handleSend() {
     const text = draft.trim();
     if (!text || biopal.processing) return;
-    // Token gate — free users have limited messages per refill window
+    // Token gate, free users have limited messages per refill window
     if (!consumeToken()) {
-      biopalSend({ role:"pal", text:`You've used all your messages for now. ${formatRefillTime(tokenState.msUntilRefill)} until your next 5 tokens — or go Premium for unlimited Kailu.`, intent:"greet" });
+      biopalSend({ role:"pal", text:`You've used all your messages for now. ${formatRefillTime(tokenState.msUntilRefill)} until your next 5 tokens, or go Premium for unlimited Kailu.`, intent:"greet" });
       return;
     }
     setDraft("");
@@ -20128,7 +20175,7 @@ function RVNVisionOverlay() {
 
   return (
     <>
-      {/* FAB — always on top, every screen */}
+      {/* FAB, always on top, every screen */}
       <motion.button
         data-tour-id="kailu-bubble"
         onClick={() => biopalToggle()}
@@ -20150,7 +20197,7 @@ function RVNVisionOverlay() {
                           filter: `drop-shadow(0 0 8px ${ac}88)` }}/>}
       </motion.button>
 
-      {/* Kailu chat demo — first time the chat overlay is opened */}
+      {/* Kailu chat demo, first time the chat overlay is opened */}
       {biopal.open && <ContextualDemo id="kailu" theme={theme} accent={ac}/>}
       <AnimatePresence>
         {biopal.open && (
@@ -20241,7 +20288,7 @@ function RVNVisionOverlay() {
               )}
             </div>
 
-            {/* Quick action chips — agentic Kailu */}
+            {/* Quick action chips, agentic Kailu */}
             {biopal.messages.length === 0 && (
               <div style={{ display:"flex", gap:8, overflowX:"auto", padding:"0 16px 10px", WebkitOverflowScrolling:"touch" }}>
                 {[
@@ -20263,7 +20310,7 @@ function RVNVisionOverlay() {
               </div>
             )}
 
-            {/* Token counter — hidden for premium users */}
+            {/* Token counter, hidden for premium users */}
             {!getProfileRaw().isPremium && (
               <div style={{
                 display:"flex", alignItems:"center", justifyContent:"space-between",
@@ -20292,7 +20339,7 @@ function RVNVisionOverlay() {
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") handleSend(); }}
-                placeholder="Ask anything — food, injury, stack, goal…"
+                placeholder="Ask anything, food, injury, stack, goal…"
                 style={{
                   flex: 1, background: T.glass, border: `1px solid ${T.border}`,
                   borderRadius: 12, padding: "10px 12px",
@@ -20319,7 +20366,7 @@ function RVNVisionOverlay() {
 }
 
 const RVN_VISION_QUICK_CHIPS = {
-  personal: ["Build me a full body workout", "Plan my day — 9-5 + lift + study", "I just had 40g chicken", "What should I take at night?"],
+  personal: ["Build me a full body workout", "Plan my day, 9-5 + lift + study", "I just had 40g chicken", "What should I take at night?"],
   gym:      ["Build me a lower body workout", "Generate an upper body program", "I felt my hamstring tweak", "Pre-workout stack"],
   store:    ["Why Thorne creatine?", "Best magnesium for sleep?", "Explain NMN", "Recovery stack under $100"],
   smoothie: ["Pre-workout blend", "Post-lift recovery shake", "Low-sugar energy blend", "Something for focus"],
@@ -20466,13 +20513,13 @@ function deltaLabel(d) {
   if (d.kind === "bioLogicUpdate" && d.patch)  return `RECOVERY UI UPDATED`;
   if (d.kind === "navigate"       && d.screen) return `OPENING ${d.screen.toUpperCase()}`;
   if (d.kind === "scheduleLocked")               return `SCHEDULE LOCKED · ${d.count} BLOCKS`;
-  if (d.kind === "workoutGenerated")             return `WORKOUT READY — TAP + PROTOCOL TO SAVE`;
+  if (d.kind === "workoutGenerated")             return `WORKOUT READY, TAP + PROTOCOL TO SAVE`;
   if (d.kind === "calendarApplied")              return `CALENDAR · ${(d.action || "UPDATED").toUpperCase()}`;
   if (d.kind === "calendarMutationFailed")       return `NEED MORE INFO`;
   return "";
 }
 
-// Upcoming Sessions widget — renders in the Train tab. Shows the next N
+// Upcoming Sessions widget, renders in the Train tab. Shows the next N
 // events from rvn_calendar. Lets the user tap-to-cancel any item (with a
 // confirmation tap). Pure-localStorage, re-reads on focus + window event.
 function UpcomingSessionsCard({ ac, T, theme }) {
@@ -20558,7 +20605,7 @@ function UpcomingSessionsCard({ ac, T, theme }) {
   );
 }
 
-// Calendar confirmation card — renders inside a Kailu chat bubble.
+// Calendar confirmation card, renders inside a Kailu chat bubble.
 // Shows the parsed action ("Add Leg Day · Tue Nov 18 · 07:00") with Apply/Cancel.
 // Apply writes to localStorage via window.__rvnApplyCalendarMutation and the
 // card transitions to a confirmed state. Cancel just dismisses locally.
@@ -20606,7 +20653,7 @@ function CalendarMutationCard({ delta, ac, T }) {
   if (status === "cancelled") {
     return (
       <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:8, fontSize:11.5, color:T.faint }}>
-        Cancelled — no calendar change.
+        Cancelled, no calendar change.
       </div>
     );
   }
@@ -20656,7 +20703,7 @@ function CalendarMutationCard({ delta, ac, T }) {
 
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS — GHOST BAR · VBT TELEMETRY HUD                                  ║
+// ║  RVN OS, GHOST BAR · VBT TELEMETRY HUD                                  ║
 // ║  F1-inspired live physics readout for barbell lifts.                     ║
 // ║                                                                          ║
 // ║  No 3D body. True Black canvas, cobalt bar path, red-on-deviation.       ║
@@ -20668,7 +20715,7 @@ function CalendarMutationCard({ delta, ac, T }) {
 // ║    • Real-time power output (W) = force × velocity, F = m × (g + a)      ║
 // ║    • Bar path horizontal deviation from set start (forward drift)        ║
 // ║    • Knee-cave angle: hip→knee→ankle (valgus flag under ~165°)           ║
-// ║    • Rep counter — phase machine on smoothed Y-velocity                  ║
+// ║    • Rep counter, phase machine on smoothed Y-velocity                  ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 // Landmark indices (BlazePose 33-keypoint schema)
@@ -20687,11 +20734,11 @@ const MEDIAPIPE_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${MEDIAPIPE
 const G = 9.80665;
 
 // Rep-detection thresholds (world-space-ish fraction of shoulder→hip reference)
-const VELOCITY_THRESHOLD = 0.08; // m/s — above this, considered "moving"
-const DEVIATION_WARN     = 0.05; // m — bar drift forward from set start
-const DEVIATION_ALARM    = 0.12; // m — hard foul; bar path turns red
-const KNEE_ANGLE_WARN    = 172; // degrees — above this we're straight; below, bending
-const KNEE_CAVE_FLAG     = 158; // degrees — valgus collapse angle
+const VELOCITY_THRESHOLD = 0.08; // m/s, above this, considered "moving"
+const DEVIATION_WARN     = 0.05; // m, bar drift forward from set start
+const DEVIATION_ALARM    = 0.12; // m, hard foul; bar path turns red
+const KNEE_ANGLE_WARN    = 172; // degrees, above this we're straight; below, bending
+const KNEE_CAVE_FLAG     = 158; // degrees, valgus collapse angle
 
 // ─── Math helpers ────────────────────────────────────────────────────────────
 function angleBetween(a, b, c) {
@@ -20722,7 +20769,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
   const poseRef   = useRef(null);
   const streamRef = useRef(null);
 
-  // Rolling state for the physics engine — kept in a ref so we don't rerender per-frame.
+  // Rolling state for the physics engine, kept in a ref so we don't rerender per-frame.
   const engineRef = useRef({
     startedAt: null,
     lastSampleT: null,
@@ -20731,7 +20778,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
     startX: null,       // set-start x (mid-foot reference proxy)
     bodyScalePxPerM: null, // px→meters from shoulder→hip baseline
     phase: "idle",       // "idle" | "descent" | "bottom" | "ascent" | "lockout"
-    concentricSamples: [], // [{v, t}]  — accumulated over current concentric
+    concentricSamples: [], // [{v, t}] , accumulated over current concentric
     repPeakV: 0,
     trail: [],           // [{x, y, t, warn, alarm}] for the bar-path ribbon
     reps: [],            // completed reps { meanV, peakV, power, ts }
@@ -20814,7 +20861,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         // On mobile, camera must be triggered by a user gesture.
         // We set a flag so the UI shows a "Start Camera" button.
         setCameraBlocked(false);
-        // Try auto-start — works on desktop + Android Chrome.
+        // Try auto-start, works on desktop + Android Chrome.
         // iOS Safari requires the button tap path below.
         try {
           await startCamera(cancelled, loop);
@@ -20912,7 +20959,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
     if (!eng.bodyScalePxPerM) eng.bodyScalePxPerM = 1; // normalized units
     if (eng.startX === null) eng.startX = x;
     processSample({ x, y, kneeAngle, now, normalized: true });
-    drawOverlay(null); // no video — pure HUD
+    drawOverlay(null); // no video, pure HUD
   }
 
   // ── Pose results → physics engine ─────────────────────────────────────────
@@ -20971,7 +21018,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
       return;
     }
 
-    // Knee cave — right leg
+    // Knee cave, right leg
     const rH = landmarks[LM.R_HIP], rK = landmarks[LM.R_KNEE], rA = landmarks[LM.R_ANKLE];
     let kneeAngle = 180;
     if (rH && rK && rA) kneeAngle = angleBetween(rH, rK, rA);
@@ -20982,7 +21029,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
     drawOverlay(results);
   }
 
-  // ── Core engine step — called with normalized [0..1] coords ───────────────
+  // ── Core engine step, called with normalized [0..1] coords ───────────────
   function processSample({ x, y, kneeAngle, now, normalized }) {
     const eng = engineRef.current;
     const pxPerM = eng.bodyScalePxPerM || 1;
@@ -21164,7 +21211,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         ctx.lineTo(pb.x * W, pb.y * H);
         ctx.stroke();
       }
-      // Knee joints — tinted on cave
+      // Knee joints, tinted on cave
       const rK = lms[LM.R_KNEE];
       if (rK) {
         const cave = metrics.kneeCave;
@@ -21191,7 +21238,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
     v >= 0.75 ? "SPEED-STRENGTH" :
     v >= 0.5 ? "ACCELERATIVE" :
     v >= 0.3 ? "ABSOLUTE STR." :
-               v > 0 ? "MAX STRENGTH" : "—";
+               v > 0 ? "MAX STRENGTH" : "-";
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -21200,7 +21247,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
       display: "flex", flexDirection: "column", overflow: "hidden",
       fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', Inter, system-ui, sans-serif",
     }}>
-      {/* Top bar — compact, two rows so status never squishes EXIT */}
+      {/* Top bar, compact, two rows so status never squishes EXIT */}
       <div style={{
         position: "relative", zIndex: 10,
         background: T.card, borderBottom: `1px solid ${T.border}`,
@@ -21249,14 +21296,14 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         </div>
       </div>
 
-      {/* ── CAMERA — full width, main focus ── */}
+      {/* ── CAMERA, full width, main focus ── */}
       <div style={{ flex: 1, position: "relative", background: T.bg, overflow: "hidden", minHeight: 0 }}>
         <video ref={videoRef} playsInline muted autoPlay style={{ position:"absolute", opacity:0, pointerEvents:"none", width:1, height:1 }}/>
         <canvas ref={canvasRef} style={{
           position: "absolute", inset: 0, width: "100%", height: "100%",
         }}/>
 
-        {/* Tap-to-start camera overlay — shown on iOS before permission granted */}
+        {/* Tap-to-start camera overlay, shown on iOS before permission granted */}
         {cameraBlocked && (
           <div style={{
             position:"absolute", inset:0, zIndex:8,
@@ -21304,7 +21351,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           </div>
         )}
 
-        {/* Velocity class — top-left corner */}
+        {/* Velocity class, top-left corner */}
         <div style={{
           position: "absolute", top: 14, left: 16, zIndex: 4, pointerEvents: "none",
           fontSize: 11, letterSpacing: ".04em", fontWeight: 700,
@@ -21315,7 +21362,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           VEL CLASS · <span style={{ color: ac }}>{wClass}</span>
         </div>
 
-        {/* Record / Playback buttons — top right */}
+        {/* Record / Playback buttons, top right */}
         <div style={{ position:"absolute", top:14, right:16, zIndex:5, display:"flex", gap:8 }}>
           {playbackUrl && (
             <button onClick={() => setShowPlayback(true)} style={{
@@ -21384,7 +21431,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           </div>
         )}
 
-        {/* Knee cave warning — top-right */}
+        {/* Knee cave warning, top-right */}
         {metrics.kneeCave && (
           <motion.div
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
@@ -21399,13 +21446,13 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
           </motion.div>
         )}
 
-        {/* ── Floating metrics HUD — bottom of camera ── */}
+        {/* ── Floating metrics HUD, bottom of camera ── */}
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 4,
           background: "linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 70%, transparent 100%)",
           padding: "28px 16px 16px",
         }}>
-          {/* 4 big stats in a row — dark pill always so readable on any bg */}
+          {/* 4 big stats in a row, dark pill always so readable on any bg */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
             {[
               { label: "MEAN V", value: v.toFixed(2), unit: "m/s", color: ac },
@@ -21428,7 +21475,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
             ))}
           </div>
 
-          {/* Bar path drift — thin line */}
+          {/* Bar path drift, thin line */}
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{ fontSize: 11, letterSpacing: ".2em", color: "rgba(255,255,255,0.7)", fontWeight: 800, whiteSpace: "nowrap", textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>BAR DRIFT</div>
             <div style={{ flex: 1, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.1)", overflow: "hidden" }}>
@@ -21450,7 +21497,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
         </div>
       </div>
 
-      {/* ── Bottom panel — load input + form gauges ── */}
+      {/* ── Bottom panel, load input + form gauges ── */}
       <div style={{
         background: T.card, borderTop: `1px solid ${T.border}`,
         padding: "14px 16px 20px", display: "flex", flexDirection: "column", gap: 12,
@@ -21538,7 +21585,7 @@ function Gauge({ label, value, unit, min, max, warnAbove, alarmAbove, warnBelow,
 
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS — SIGN-IN / RETURNING USER VAULT                                 ║
+// ║  RVN OS, SIGN-IN / RETURNING USER VAULT                                 ║
 // ║  Returning athletes skip the questionnaire; their biology, archetype,    ║
 // ║  and perf data are restored from the local Bio-Vault.                    ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
@@ -21558,7 +21605,7 @@ function rvnReadVault() {
         return parsed;
       }
     }
-  } catch (_) { /* sandboxed — in-memory only */ }
+  } catch (_) { /* sandboxed, in-memory only */ }
   __rvn_mem_vault.data = { profiles: [] };
   return __rvn_mem_vault.data;
 }
@@ -21713,7 +21760,7 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS — TELEMETRY GRID · DYNAMIC HEAT MAP + ANALYTICS                  ║
+// ║  RVN OS, TELEMETRY GRID · DYNAMIC HEAT MAP + ANALYTICS                  ║
 // ║  Mode-aware manager dashboard:                                           ║
 // ║    • Gym  → NFC floor heat grid + top-3 high-traffic zones               ║
 // ║    • Store/Smoothie → Velocity List (horizontal glow bar chart)          ║
@@ -21724,7 +21771,7 @@ function SignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym
 const RVN_TELEMETRY_DEFAULTS = {
   gym: {
     daily: {
-      // 4x3 NFC station floor grid — labels + tap counts
+      // 4x3 NFC station floor grid, labels + tap counts
       stations: [
         { id:"s1",  label:"Squat Rack A", zone:"STRENGTH",  taps:184, x:0, y:0 },
         { id:"s2",  label:"Squat Rack B", zone:"STRENGTH",  taps:142, x:1, y:0 },
@@ -22209,7 +22256,7 @@ function TelemetryGrid({ mode = "gym", theme = "dark", analyticsData }) {
     kpis = [
       { label:"TOTAL NFC TAPS",  value: (current.totalTaps || 0).toLocaleString(), sub:"ALL STATIONS" },
       { label:"UNIQUE MEMBERS",  value: (current.uniqueMembers || 0).toLocaleString(), sub:"DISTINCT SIGNATURES" },
-      { label:"PEAK STATION",    value: topStation?.label || "—", sub:`${topStation?.taps?.toLocaleString() || 0} TAPS` },
+      { label:"PEAK STATION",    value: topStation?.label || "-", sub:`${topStation?.taps?.toLocaleString() || 0} TAPS` },
     ];
     bodyNode = <TGGymHeatMap data={current} theme={theme} accent={COBALT}/>;
   } else {
@@ -22220,7 +22267,7 @@ function TelemetryGrid({ mode = "gym", theme = "dark", analyticsData }) {
     kpis = [
       { label:"TOTAL REVENUE",  value:`$${(current.totalRevenue || 0).toLocaleString()}`, sub:"GROSS" },
       { label:`${unitLabel} MOVED`, value: totalUnits.toLocaleString(), sub:"ALL SKUS" },
-      { label:"TOP VELOCITY",   value: top?.name || "—", sub:`${top?.units?.toLocaleString() || 0} ${unitLabel}` },
+      { label:"TOP VELOCITY",   value: top?.name || "-", sub:`${top?.units?.toLocaleString() || 0} ${unitLabel}` },
     ];
     bodyNode = <TGVelocityList data={current} theme={theme} accent={COBALT} unitLabel={unitLabel}/>;
   }
@@ -22292,14 +22339,14 @@ function TelemetryGrid({ mode = "gym", theme = "dark", analyticsData }) {
       {/* Mode-specific body */}
       {bodyNode}
 
-      {/* Overall heat intensity — footer */}
+      {/* Overall heat intensity, footer */}
       <TGHeatBar value={heatRef.value} max={heatRef.max} theme={theme}/>
     </motion.div>
   );
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS — SURGICAL VISION + CALORIE MONITOR                              ║
+// ║  RVN OS, SURGICAL VISION + CALORIE MONITOR                              ║
 // ║                                                                          ║
 // ║  • useSurgicalAgent()  multi-modal image → macros, ingredients,          ║
 // ║                        BioScore cross-ref, NutritionState update,        ║
@@ -22384,7 +22431,7 @@ function useNutritionState(seed) {
   return { nutrition: state, addEntry, resetDay };
 }
 
-// ─── useSurgicalAgent — multi-modal image parser ────────────────────────────
+// ─── useSurgicalAgent, multi-modal image parser ────────────────────────────
 // This hook abstracts the vision call so it can be backed by:
 //   • window.RVN_VISION_API({ imageDataURL }) → Promise<{macros, items, ingredients, confidence}>
 //   • a built-in heuristic demo ripple when no API is connected (sales-demo ready)
@@ -22471,7 +22518,7 @@ function synthesizeRationale(parsed, ctx) {
   const k = macros.kcal      || 0;
   if (p >= 20)                    wins.push(`${p}g protein hit`);
   if (s >= 18)                    flags.push(`${s}g sugar spike`);
-  if (goals === "cut" && k > 300) flags.push(`${k} kcal — cut-phase heavy`);
+  if (goals === "cut" && k > 300) flags.push(`${k} kcal, cut-phase heavy`);
 
   // BioScore modifier
   let bioImpact = 0;
@@ -22487,7 +22534,7 @@ function synthesizeRationale(parsed, ctx) {
 
   const summary = (() => {
     if (bioImpact >= 4) return `${name || "Item"} is dialled-in. Macros hit the ${goals} lane cleanly.`;
-    if (bioImpact >= 0) return `${name || "Item"} is a lateral move — won't hurt, won't help.`;
+    if (bioImpact >= 0) return `${name || "Item"} is a lateral move, won't hurt, won't help.`;
     return `${name || "Item"} deviates from your ${goals} protocol. Consider a swap.`;
   })();
 
@@ -22507,7 +22554,7 @@ async function demoVisionInference(hint) {
   await new Promise(r => setTimeout(r, 1200));
   const archetypes = [
     {
-      name: "RXBAR — Chocolate Sea Salt",
+      name: "RXBAR, Chocolate Sea Salt",
       source: "protein_bar",
       confidence: 0.88,
       ingredients: ["egg whites","dates","almonds","cashews","cocoa","natural flavor","sea salt"],
@@ -22521,14 +22568,14 @@ async function demoVisionInference(hint) {
       macros: { kcal:520, protein_g:52, carbs_g:58, fat_g:10, fiber_g:6, sugar_g:3 },
     },
     {
-      name: "Quest Protein Bar — Cookies & Cream",
+      name: "Quest Protein Bar, Cookies & Cream",
       source: "protein_bar",
       confidence: 0.85,
       ingredients: ["milk protein isolate","whey protein isolate","soluble corn fiber","almonds","sucralose","cocoa"],
       macros: { kcal:190, protein_g:21, carbs_g:22, fat_g:8, fiber_g:11, sugar_g:1 },
     },
     {
-      name: "Creatine Monohydrate — 5g scoop",
+      name: "Creatine Monohydrate, 5g scoop",
       source: "supplement",
       confidence: 0.92,
       ingredients: ["creatine monohydrate"],
@@ -22547,9 +22594,9 @@ async function demoVisionInference(hint) {
 // ─── CalorieMonitor ─────────────────────────────────────────────────────────
 // Props:
 //   consumed: number (kcal)
-//   goal:     number (kcal)   — default 2400
+//   goal:     number (kcal)  , default 2400
 //   theme:    "dark" | "light"
-//   goalsKey: string          — affects halt messaging
+//   goalsKey: string         , affects halt messaging
 //   onHaltAck: () => void
 function CalorieMonitor({
   consumed = 0,
@@ -22575,10 +22622,10 @@ function CalorieMonitor({
   // Halt messaging per goal
   const haltCopy = (() => {
     if (goalsKey === "cut")
-      return `Stop eating. You're entering the ${Math.round(GHOST_FRACTION*100)}% entropy buffer — hidden logging error could push you over your cut deficit.`;
+      return `Stop eating. You're entering the ${Math.round(GHOST_FRACTION*100)}% entropy buffer, hidden logging error could push you over your cut deficit.`;
     if (goalsKey === "lean_gain" || goalsKey === "bulk")
-      return `Primary fuel window closed. Remaining kcal should be clean protein only — the buffer accounts for hidden fats & sugars.`;
-    return `You've hit the entropy buffer. Logging variance typically adds ~${Math.round(GHOST_FRACTION*100)}% hidden kcal — hold here to stay on target.`;
+      return `Primary fuel window closed. Remaining kcal should be clean protein only, the buffer accounts for hidden fats & sugars.`;
+    return `You've hit the entropy buffer. Logging variance typically adds ~${Math.round(GHOST_FRACTION*100)}% hidden kcal, hold here to stay on target.`;
   })();
 
   // Gradient bar shell
@@ -22629,7 +22676,7 @@ function CalorieMonitor({
         borderRadius: shellH / 2,
         overflow: "hidden",
       }}>
-        {/* Ghost segment (last 15%) — always rendered as a backdrop */}
+        {/* Ghost segment (last 15%), always rendered as a backdrop */}
         <div style={{
           position:"absolute", top:0, right:0, bottom:0,
           width: `${GHOST_FRACTION * 100}%`,
@@ -22655,7 +22702,7 @@ function CalorieMonitor({
             }}/>
         )}
 
-        {/* Primary cobalt bar — consumed */}
+        {/* Primary cobalt bar, consumed */}
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${consumedPct * 100}%` }}
@@ -22666,7 +22713,7 @@ function CalorieMonitor({
             boxShadow: `0 0 18px ${COBALT}aa, inset 0 0 10px ${COBALT}33`,
           }}/>
 
-        {/* Overflow (beyond goal) — red */}
+        {/* Overflow (beyond goal), red */}
         {overflowPct > 0 && (
           <motion.div
             initial={{ width:0 }} animate={{ width:`${overflowPct * 100}%` }}
@@ -22700,7 +22747,7 @@ function CalorieMonitor({
         <Readout label="GOAL" value={goal} accent={T.text} theme={theme} unit="kcal"/>
       </div>
 
-      {/* Halt prompt — AI message when hitting ghost segment */}
+      {/* Halt prompt, AI message when hitting ghost segment */}
       {inGhost && (
         <motion.div
           initial={{ opacity:0, y:8 }} animate={{ opacity:1, y:0 }}
@@ -22783,7 +22830,7 @@ function Readout({ label, value, unit, accent, theme, signed }) {
   );
 }
 
-// ─── SurgicalVisionScreen — full screen combining Agent + Monitor ───────────
+// ─── SurgicalVisionScreen, full screen combining Agent + Monitor ───────────
 function SurgicalVisionScreen({ onBack, theme = "dark", profile }) {
   const T = D[theme];
   const COBALT = T.blue || "#4D8CFF";
@@ -23208,7 +23255,7 @@ function MetaBlock({ label, value, unit, accent, theme }) {
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS — SUPABASE INTEGRATION                                           ║
+// ║  RVN OS, SUPABASE INTEGRATION                                           ║
 // ║                                                                          ║
 // ║  • Loads @supabase/supabase-js via CDN at runtime                        ║
 // ║  • Replaces localStorage vault with cloud DB (profiles table)            ║
@@ -23254,19 +23301,19 @@ function getSupaClient() {
   return _supaPromise;
 }
 
-// ─── useSupabase hook — gives any component the live client ─────────────────
+// ─── useSupabase hook, gives any component the live client ─────────────────
 function useSupabase() {
   const [client, setClient] = useState(null);
   const [supaReady, setSupaReady] = useState(false);
   useEffect(() => {
     getSupaClient()
       .then(c => { setClient(c); setSupaReady(true); })
-      .catch(() => { setSupaReady(true); /* offline — fallback to localStorage */ });
+      .catch(() => { setSupaReady(true); /* offline, fallback to localStorage */ });
   }, []);
   return { client, supaReady };
 }
 
-// ─── useRVNAuth — session, magic-link sign-in, sign-out ─────────────────────
+// ─── useRVNAuth, session, magic-link sign-in, sign-out ─────────────────────
 // Works even if app is served from file:// (falls back to email-only lookup).
 function useRVNAuth() {
   const { client, supaReady } = useSupabase();
@@ -23366,7 +23413,7 @@ async function rvnSaveProfile(profile) {
       goals_key:    profile.goalsKey || null,
       updated_at:   new Date().toISOString(),
     }, { onConflict: "email" });
-  } catch (_) { /* network unavailable — localStorage is source of truth */ }
+  } catch (_) { /* network unavailable, localStorage is source of truth */ }
 }
 
 async function rvnFindProfile(emailOrName) {
@@ -23447,7 +23494,7 @@ async function rvnSaveNutritionEntry(email, entry) {
       entry,
       logged_at: new Date().toISOString(),
     });
-  } catch (_) { /* offline — local state still tracks it */ }
+  } catch (_) { /* offline, local state still tracks it */ }
 }
 
 async function rvnLoadTodayNutrition(email) {
@@ -23493,7 +23540,7 @@ async function saveWorkoutSession({
   email, userId, archetypeId, mode = "gym",
   bioScore, exercises, setsDone, velocityData, notes,
 }) {
-  // Server-side validation — never trust raw client values
+  // Server-side validation, never trust raw client values
   const safeEmail    = sanitize(email || "").toLowerCase();
   const safeArchId   = sanitize(archetypeId || "");
   const safeBioScore = validateBioScore(bioScore);
@@ -23507,7 +23554,7 @@ async function saveWorkoutSession({
     rest:    validateNum(ex.rest, 0, 600, 0),
   }));
 
-  // Validate setsDone — keys are "exIdx_setIdx", values are booleans
+  // Validate setsDone, keys are "exIdx_setIdx", values are booleans
   const safeSets = {};
   for (const [k, v] of Object.entries(setsDone || {})) {
     if (/^\d+_\d+$/.test(k)) safeSets[k] = Boolean(v);
@@ -23531,7 +23578,7 @@ async function saveWorkoutSession({
     logged_at:     new Date().toISOString(),
   };
 
-  // Offline cache — store up to 30 sessions in localStorage
+  // Offline cache, store up to 30 sessions in localStorage
   try {
     if (typeof window !== "undefined") {
       const raw   = JSON.parse(window.localStorage.getItem("rvn_workouts") || "[]");
@@ -23549,7 +23596,7 @@ async function saveWorkoutSession({
   } catch (e) { console.warn("[RVN] Workout save offline:", e.message); }
 }
 
-// fetchWorkoutHistory — returns last N sessions for a user (cloud → local fallback)
+// fetchWorkoutHistory, returns last N sessions for a user (cloud → local fallback)
 async function fetchWorkoutHistory(email, limit = 10) {
   const safeEmail = sanitize(email || "").toLowerCase();
   if (!safeEmail) return [];
@@ -23574,7 +23621,7 @@ async function fetchWorkoutHistory(email, limit = 10) {
   } catch (_) { return []; }
 }
 
-// useHistory — React hook for session history (used in NarrativeScreen + HistoryFeed)
+// useHistory, React hook for session history (used in NarrativeScreen + HistoryFeed)
 function useHistory(email) {
   const [sessions, setSessions] = useState([]);
   const [loading,  setLoading]  = useState(false);
@@ -23662,7 +23709,7 @@ async function submitBugReport({ email, screen, stateSnapshot, message }) {
   track("Bug Report Submitted", { screen: record.screen });
 }
 
-// ─── SupaStatusBadge — shows DB connection status in manager hub ─────────────
+// ─── SupaStatusBadge, shows DB connection status in manager hub ─────────────
 function SupaStatusBadge({ theme }) {
   const T = D[theme];
   const [status, setStatus] = useState("connecting"); // connecting | online | offline
@@ -23697,7 +23744,7 @@ function SupaStatusBadge({ theme }) {
   );
 }
 
-// ─── CloudSignInScreen — Supabase email + password auth ─────────────────────
+// ─── CloudSignInScreen, Supabase email + password auth ─────────────────────
 function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode = "gym" }) {
   const T = D[theme];
   const M = OS_MODES[mode] || OS_MODES.gym;
@@ -23732,7 +23779,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
     else { setMsg("No vault found for that email. Create one below."); setBusy(false); }
   };
 
-  // Tap saved card — pre-fill email, jump to password phase
+  // Tap saved card, pre-fill email, jump to password phase
   const pickProfile = (prof) => {
     const e = (prof.user?.email || "").trim();
     if (e) { setEmail(e); setMsg(""); setPhase("password"); }
@@ -23749,7 +23796,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
         password: password.trim(),
       });
       if (error) throw error;
-      // Keep me signed in — save email so we pre-fill next time
+      // Keep me signed in, save email so we pre-fill next time
       if (keepSignedIn) {
         try { localStorage.setItem("rvn_saved_email", email.trim()); } catch {}
       } else {
@@ -23762,7 +23809,7 @@ function CloudSignInScreen({ onSignIn, onNewUser, onBack, theme = "dark", mode =
       setBusy(false);
       const raw = e.message || "";
       if (raw.includes("Invalid login credentials")) {
-        setMsg("Password incorrect — or email not confirmed yet. Check your inbox for a confirmation link from Supabase, then try again.");
+        setMsg("Password incorrect, or email not confirmed yet. Check your inbox for a confirmation link from Supabase, then try again.");
       } else if (raw.includes("Email not confirmed")) {
         setMsg("Please confirm your email first. Check your inbox for a link from Supabase.");
       } else {
@@ -24025,11 +24072,11 @@ CREATE POLICY "open_access" ON rvn_nutrition_log FOR ALL USING (true) WITH CHECK
 */
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  STRIPE PAYMENTS  v5.0                                       ║
+// ║  RVN OS ,  STRIPE PAYMENTS  v5.0                                       ║
 // ║  Subscriptions · Checkout · Subscription Gate · Success Banner           ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
-// ── Config — swap these once you create products in Stripe Dashboard ─────────
+// ── Config, swap these once you create products in Stripe Dashboard ─────────
 // Set window.RVN_STRIPE_PK before loading the app (in your HTML <script>)
 // e.g.  window.RVN_STRIPE_PK = "pk_live_..."
 // ── Stripe config ─────────────────────────────────────────────────────────────
@@ -24044,11 +24091,11 @@ const RVN_STRIPE_PK = (typeof window !== "undefined" && window.RVN_STRIPE_PK)
 // Price IDs from Stripe Dashboard → Products → (each product) → Prices
 // Copy the price_... ID for each plan and paste it below.
 const RVN_STRIPE_PRICES = (typeof window !== "undefined" && window.RVN_STRIPE_PRICES) || {
-  individual:   "price_1TUbPURfDUuv88ENwALxwHZ9",  // $19/month  — RVN OS Individual
-  gym_starter:  "price_1TUbQERfDUuv88ENDksSLb5C",  // $199/month — Starter (1 location, 200 members)
-  gym_pro:      "price_1TUbdwRfDUuv88ENPPtA0zKG",  // $399/month — Pro (unlimited members)
-  gym_multi:    "price_1TUbf1RfDUuv88ENyFI2Ty9P",  // $599/month — Multi-Location (5 locations)
-  gym_ent:      "price_1TUbfbRfDUuv88ENVDhlN9pw",  // $1499/month — Enterprise / White-Label
+  individual:   "price_1TUbPURfDUuv88ENwALxwHZ9",  // $19/month , RVN OS Individual
+  gym_starter:  "price_1TUbQERfDUuv88ENDksSLb5C",  // $199/month, Starter (1 location, 200 members)
+  gym_pro:      "price_1TUbdwRfDUuv88ENPPtA0zKG",  // $399/month, Pro (unlimited members)
+  gym_multi:    "price_1TUbf1RfDUuv88ENyFI2Ty9P",  // $599/month, Multi-Location (5 locations)
+  gym_ent:      "price_1TUbfbRfDUuv88ENVDhlN9pw",  // $1499/month, Enterprise / White-Label
 };
 
 // ── Stripe.js Lazy Loader ─────────────────────────────────────────────────────
@@ -24074,7 +24121,7 @@ async function getStripe() {
 async function createCheckoutSession({ priceId, userId, email, gymId, isGym, successUrl, cancelUrl }) {
   // RVN_SUPA_URL and RVN_SUPA_ANON are defined at the top of this file.
   // The Edge Function accepts requests authenticated with the anon key.
-  if (!RVN_SUPA_URL) throw new Error("RVN_SUPA_URL not set — cannot create checkout session");
+  if (!RVN_SUPA_URL) throw new Error("RVN_SUPA_URL not set, cannot create checkout session");
 
   const resp = await fetch(`${RVN_SUPA_URL}/functions/v1/create-checkout-session`, {
     method: "POST",
@@ -24173,7 +24220,7 @@ function SubscriptionScreen({ userId, email, onBack, theme }) {
       period:    "/ month",
       badge:     "14-DAY FREE TRIAL",
       badgeClr:  "#22c55e",
-      desc:      "Full RVN OS access — Surgical Vision, calorie tracking, lift analytics, Kailu AI.",
+      desc:      "Full RVN OS access, Surgical Vision, calorie tracking, lift analytics, Kailu AI.",
       priceId:   RVN_STRIPE_PRICES.individual,
       isGym:     false,
       highlight: false,
@@ -24493,7 +24540,7 @@ function CheckoutCancelBanner({ onDismiss }) {
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  COMMUNITY ENGINE  v5.0                                      ║
+// ║  RVN OS ,  COMMUNITY ENGINE  v5.0                                      ║
 // ║  Wordle · Leaderboards · Chat · Location-Based Communities              ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -25098,7 +25145,7 @@ function CommunityHub({ profile, communities, onSelectCommunity, onBack, theme }
 // Export
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  CONTENT ENGINE  v5.0                                        ║
+// ║  RVN OS ,  CONTENT ENGINE  v5.0                                        ║
 // ║  On-Demand Video · AI Recommendations · Gym Uploads · RVN Originals     ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -25116,7 +25163,7 @@ const CONTENT_CATEGORIES = [
 const RVN_SEED_CONTENT = [
   {
     id: "c1",
-    title: "Surgical Warmup — Pre-Game EMG Protocol",
+    title: "Surgical Warmup, Pre-Game EMG Protocol",
     creator: "RVN",
     category: "pregame",
     duration: "12 min",
@@ -25140,7 +25187,7 @@ const RVN_SEED_CONTENT = [
   },
   {
     id: "c3",
-    title: "Full Body Strength — 45 Min",
+    title: "Full Body Strength, 45 Min",
     creator: "RVN",
     category: "workout",
     duration: "45 min",
@@ -25152,7 +25199,7 @@ const RVN_SEED_CONTENT = [
   },
   {
     id: "c4",
-    title: "Active Recovery — Post-Lift Cooldown",
+    title: "Active Recovery, Post-Lift Cooldown",
     creator: "RVN",
     category: "recovery",
     duration: "15 min",
@@ -25164,7 +25211,7 @@ const RVN_SEED_CONTENT = [
   },
   {
     id: "c5",
-    title: "The Athlete Mindset — Mental Edge Training",
+    title: "The Athlete Mindset, Mental Edge Training",
     creator: "RVN",
     category: "mindset",
     duration: "10 min",
@@ -25176,7 +25223,7 @@ const RVN_SEED_CONTENT = [
   },
   {
     id: "c6",
-    title: "Upper Body Hypertrophy — Push Pull",
+    title: "Upper Body Hypertrophy, Push Pull",
     creator: "RVN",
     category: "workout",
     duration: "55 min",
@@ -25188,7 +25235,7 @@ const RVN_SEED_CONTENT = [
   },
 ];
 
-// ── useSurgicalVisionRecs — recommend content based on user data ──────────────
+// ── useSurgicalVisionRecs, recommend content based on user data ──────────────
 function useSurgicalVisionRecs(bioLogic) {
   const readiness  = bioLogic?.readiness  || 75;
   const soreness   = bioLogic?.soreness   || 0;
@@ -25522,7 +25569,7 @@ function ContentScreen({ profile, gymContent, onBack, theme }) {
   );
 }
 
-// ── GymContentManager — Manager Hub tab for uploading content ─────────────────
+// ── GymContentManager, Manager Hub tab for uploading content ─────────────────
 function GymContentManager({ gymContent, onAddContent, onRemoveContent, theme }) {
   const T = D[theme];
   const [title, setTitle]         = useState("");
@@ -25684,7 +25731,7 @@ function GymContentManager({ gymContent, onAddContent, onRemoveContent, theme })
 }
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  WEARABLE SYNC + CALORIE TRACKING ENGINE  v1.0               ║
+// ║  RVN OS ,  WEARABLE SYNC + CALORIE TRACKING ENGINE  v1.0               ║
 // ║  Whoop OAuth · Apple Health Bridge · Calorie Entropy Visualization     ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -25713,7 +25760,7 @@ function calcEntropyMetrics(food = {}) {
     whoopStrain = 0,   // if elevated strain, absorption efficiency drops
   } = food;
 
-  // Thermic Effect of Food — metabolic cost of digestion per macro
+  // Thermic Effect of Food, metabolic cost of digestion per macro
   // Protein ~25%, Carbs ~8%, Fats ~3%
   const tef = Math.round(
     (protein * 4 * 0.25) +
@@ -25721,17 +25768,17 @@ function calcEntropyMetrics(food = {}) {
     (fats    * 9 * 0.03)
   );
 
-  // Inflammation Load — ultra-processed foods + high sugar spike inflammation
+  // Inflammation Load, ultra-processed foods + high sugar spike inflammation
   // which steals energy from actual muscle fueling
   const sugarPenalty    = sugar  > 25 ? Math.round(sugar  * 0.8) : Math.round(sugar  * 0.3);
   const sodiumPenalty   = sodium > 600 ? Math.round((sodium - 600) * 0.015) : 0;
   const processedPenalty = processed ? Math.round(calories * 0.07) : 0;
   const inflammationLoad = sugarPenalty + sodiumPenalty + processedPenalty;
 
-  // Micronutrient Debt — low fiber means gut absorption is inefficient
+  // Micronutrient Debt, low fiber means gut absorption is inefficient
   const microDebt = fiber < 2 ? Math.round(calories * 0.04) : fiber < 4 ? Math.round(calories * 0.02) : 0;
 
-  // Wearable context — high strain (Whoop >14) means gut diverts blood from digestion
+  // Wearable context, high strain (Whoop >14) means gut diverts blood from digestion
   const strainPenalty = whoopStrain > 14 ? Math.round(calories * 0.03) : 0;
 
   const hiddenCalories  = tef + inflammationLoad + microDebt + strainPenalty;
@@ -25867,8 +25914,8 @@ function CalorieEntropyBar({ food, theme, whoopStrain }) {
                 borderTop:`1px solid ${T.border}`,
                 fontSize:11.5, color:T.muted, lineHeight:1.55, fontStyle:"italic",
               }}>
-                ◈ Surgical Vision calculates your true metabolic cost — not just what the label says.
-                {metrics.strainPenalty > 0 && " Your WHOOP strain is elevated — digestion efficiency is reduced post-workout."}
+                ◈ Surgical Vision calculates your true metabolic cost, not just what the label says.
+                {metrics.strainPenalty > 0 && " Your WHOOP strain is elevated, digestion efficiency is reduced post-workout."}
               </div>
             </div>
           </motion.div>
@@ -25903,7 +25950,7 @@ function useWearableData() {
   const connectWhoop = () => {
     // If no real clientId configured, stub as coming soon
     if (!WHOOP_CONFIG.clientId || WHOOP_CONFIG.clientId === "YOUR_WHOOP_CLIENT_ID") {
-      setError("Whoop integration is coming soon — check back in the next update.");
+      setError("Whoop integration is coming soon, check back in the next update.");
       return;
     }
     setConnecting("whoop");
@@ -25925,7 +25972,7 @@ function useWearableData() {
       "width=520,height=680,left=200,top=80"
     );
 
-    // Poll for popup close — also add a 15s timeout so we never hang on CONNECTING
+    // Poll for popup close, also add a 15s timeout so we never hang on CONNECTING
     const poll = setInterval(() => {
       if (popup?.closed) {
         clearInterval(poll);
@@ -25936,7 +25983,7 @@ function useWearableData() {
       clearInterval(poll);
       if (popup && !popup.closed) popup.close();
       setConnecting(null);
-      setError("Couldn't connect to Whoop — please try again.");
+      setError("Couldn't connect to Whoop, please try again.");
     }, 15000);
   };
 
@@ -25984,7 +26031,7 @@ function useWearableData() {
           setConnecting(null);
         };
       } else {
-        // Web fallback — simulate
+        // Web fallback, simulate
         await new Promise(r => setTimeout(r, 1800));
         const mockApple = {
           steps:          8432,
@@ -26104,7 +26151,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
             padding:"12px 14px", background:T.glass,
             borderRadius:12, border:`1px solid ${T.border}`,
           }}>
-            Surgical Vision uses your wearable data to personalize every recommendation —
+            Surgical Vision uses your wearable data to personalize every recommendation -
             meals, workouts, and recovery. The more signals you connect, the sharper your coaching gets.
           </div>
         </motion.div>
@@ -26219,7 +26266,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
             <GlassCard theme={theme} glow={ac} style={{ padding:"16px" }}>
               <Pill label="CALORIE TRACKING · ACTIVE" color={ac} theme={theme}/>
               <div style={{ fontSize:12, color:T.muted, lineHeight:1.65, margin:"8px 0 14px" }}>
-                Surgical Vision is now reading your metabolic state. Here's a live entropy example — log any meal to see your true calorie cost.
+                Surgical Vision is now reading your metabolic state. Here's a live entropy example, log any meal to see your true calorie cost.
               </div>
               <CalorieEntropyBar
                 theme={theme}
@@ -26246,8 +26293,8 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
             HOW CALORIE TRACKING WORKS
           </div>
           {[
-            { icon:"circle",  color:"#5AC8FA", label:"Label Calories",          desc:"What the nutrition label shows — the starting point." },
-            { icon:"zap",     color:"#FF9F0A", label:"Hidden Calories",          desc:"Digestion cost, inflammation load, nutrient absorption loss — things labels never show." },
+            { icon:"circle",  color:"#5AC8FA", label:"Label Calories",          desc:"What the nutrition label shows, the starting point." },
+            { icon:"zap",     color:"#FF9F0A", label:"Hidden Calories",          desc:"Digestion cost, inflammation load, nutrient absorption loss, things labels never show." },
             { icon:"target",  color:"#30D158", label:"Effective Calorie Intake", desc:"Your true metabolic cost. Surgical Vision calculates this using your macros, ingredients & wearable strain data." },
           ].map(item => (
             <div key={item.label} style={{
@@ -26269,7 +26316,7 @@ function WearableConnect({ theme, onBack, onDataUpdate }) {
 
 
 // ╔══════════════════════════════════════════════════════════════════════════╗
-// ║  RVN OS  —  STATION CONTEXT ENGINE  v5.0                                ║
+// ║  RVN OS ,  STATION CONTEXT ENGINE  v5.0                                ║
 // ║  NFC Station Handshake · VBT Module · F1 Camera HUD                     ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -26433,7 +26480,7 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
   if (cameraMode === "narrative") return null; // clean for social
 
   if (cameraMode === "form") {
-    const skeletonColor = "#00E5FF";  // bright cyan — pops on any background
+    const skeletonColor = "#00E5FF";  // bright cyan, pops on any background
     const jointColor   = "#FFFFFF";
     const glowFilter   = "drop-shadow(0 0 4px #00E5FF) drop-shadow(0 0 8px #00E5FF88)";
     const segments = [
@@ -26480,7 +26527,7 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
           ))}
         </svg>
 
-        {/* Angle readouts — pill badges with dark backing */}
+        {/* Angle readouts, pill badges with dark backing */}
         <div style={{ position:"absolute", top:44, left:10, display:"flex", flexDirection:"column", gap:5 }}>
           {[["ELBOW L","142°"],["ELBOW R","139°"],["SPINE","8°"],["HIP","92°"]].map(([label, val]) => (
             <div key={label} style={{ display:"flex", alignItems:"center", gap:6,
@@ -26522,14 +26569,14 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
         {tel.phase}
       </motion.div>
 
-      {/* Left HUD panel — velocity + zone */}
+      {/* Left HUD panel, velocity + zone */}
       <div style={{ position:"absolute", top:44, left:12, display:"flex", flexDirection:"column", gap:2 }}>
         <div style={{ fontSize:11, letterSpacing:".03em", color:cobalt, fontWeight:700 }}>MEAN VEL</div>
         <motion.div
           key={tel.velocity}
           initial={{ opacity:0.4 }} animate={{ opacity:1 }}
           style={{ fontSize:32, fontWeight:900, color:cobalt, fontFamily:"SF Mono, monospace", lineHeight:1 }}>
-          {isRecording ? tel.velocity : "—"}
+          {isRecording ? tel.velocity : "-"}
         </motion.div>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.4)", letterSpacing:".01em" }}>m/s</div>
         <div style={{
@@ -26540,14 +26587,14 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
         </div>
       </div>
 
-      {/* Right HUD panel — power + deviancy */}
+      {/* Right HUD panel, power + deviancy */}
       <div style={{ position:"absolute", top:44, right:12, display:"flex", flexDirection:"column", gap:2, alignItems:"flex-end" }}>
         <div style={{ fontSize:11, letterSpacing:".03em", color:cobalt, fontWeight:700 }}>PEAK PWR</div>
         <motion.div
           key={tel.power}
           initial={{ opacity:0.4 }} animate={{ opacity:1 }}
           style={{ fontSize:32, fontWeight:900, color:cobalt, fontFamily:"SF Mono, monospace", lineHeight:1 }}>
-          {isRecording ? tel.power : "—"}
+          {isRecording ? tel.power : "-"}
         </motion.div>
         <div style={{ fontSize:11, color:"rgba(255,255,255,0.4)", letterSpacing:".01em" }}>watts</div>
 
@@ -26555,12 +26602,12 @@ function VBTHud({ stationCfg, exerciseIdx, cameraMode, isRecording }) {
           <div style={{ fontSize:11, letterSpacing:".03em", color:cobalt, fontWeight:700, textAlign:"right" }}>FORM DEV</div>
           <div style={{ fontSize:20, fontWeight:900, color: parseInt(tel.deviancy) > 12 ? "#FF453A" : cobalt,
             fontFamily:"SF Mono, monospace", textAlign:"right" }}>
-            {isRecording ? `${tel.deviancy}%` : "—"}
+            {isRecording ? `${tel.deviancy}%` : "-"}
           </div>
         </div>
       </div>
 
-      {/* Bottom crosshair — landmark lock */}
+      {/* Bottom crosshair, landmark lock */}
       <div style={{ position:"absolute", bottom:48, left:"50%", transform:"translateX(-50%)",
         width:32, height:32 }}>
         <div style={{ position:"absolute", top:0, left:"50%", width:1, height:10, background:cobalt, transform:"translateX(-50%)" }}/>
@@ -26663,7 +26710,7 @@ function VBTCameraModule({ stationCfg, exerciseIdx, onClose, theme }) {
           </motion.button>
         </div>
 
-        {/* Mode selector — bottom overlay */}
+        {/* Mode selector, bottom overlay */}
         <div style={{ position:"absolute", bottom:8, left:12, right:12 }}>
           <CameraModeSel mode={camMode} onChange={setCamMode} ac={ac}/>
         </div>
@@ -26813,7 +26860,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
   const [showCamera, setShowCamera] = useState(false);
   const [tab, setTab] = useState("workout"); // "workout" | "leaderboard"
 
-  // NFC identity — last session at this exact station
+  // NFC identity, last session at this exact station
   const [lastSession] = useState(() => {
     try {
       const stored = localStorage.getItem(`rvn_station_${stationId}`);
@@ -26879,7 +26926,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
             </div>
           </div>
 
-          {/* Exercise selector — horizontal scroll */}
+          {/* Exercise selector, horizontal scroll */}
           <div style={{ display:"flex", gap:8, overflowX:"auto", marginTop:14, paddingBottom:2,
             scrollbarWidth:"none" }}>
             {cfg.exercises.map((ex, i) => (
@@ -26915,7 +26962,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
 
           {tab === "workout" && (
             <>
-              {/* NFC Identity — Last Session Card */}
+              {/* NFC Identity, Last Session Card */}
               {lastSession && (
                 <motion.div initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
                   style={{ padding:"13px 16px", borderRadius:14,
@@ -27234,7 +27281,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
     const encoded = btoa(JSON.stringify(gymData));
     const url     = `${window.location.origin}?rvn_gym=${encoded}`;
 
-    // Draw QR via canvas (simple pixel matrix — no lib needed for demo)
+    // Draw QR via canvas (simple pixel matrix, no lib needed for demo)
     // We'll use the URL as a data matrix visually, or just show the link
     setQrGenerated(true);
     setQrDataUrl(url);
@@ -27616,7 +27663,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         🎁 {ch.reward}
                       </div>
                     )}
-                    {/* Leaderboard — populated by NFC tap check-ins only */}
+                    {/* Leaderboard, populated by NFC tap check-ins only */}
                     <div style={{ marginTop:10 }}>
                       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:6 }}>
                         <div style={{ fontSize:11, fontWeight:700, color:T.faint, letterSpacing:".03em" }}>LEADERBOARD</div>
@@ -27634,7 +27681,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                         ))
                       ) : (
                         <div style={{ textAlign:"center", padding:"12px 0", fontSize:11.5, color:T.faint, fontStyle:"italic" }}>
-                          No check-ins yet — members tap NFC to register
+                          No check-ins yet, members tap NFC to register
                         </div>
                       )}
                     </div>
@@ -27653,7 +27700,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 MEMBER QR ONBOARDING
               </div>
               <div style={{ fontSize:12, color:T.muted, marginBottom:16, lineHeight:1.6 }}>
-                Generate a QR code your members scan to instantly join your gym on RVN OS — pre-loaded with your branding, accent color, and welcome message.
+                Generate a QR code your members scan to instantly join your gym on RVN OS, pre-loaded with your branding, accent color, and welcome message.
               </div>
 
               {/* Gym info preview */}
@@ -27682,7 +27729,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
               {qrGenerated && qrDataUrl && (
                 <motion.div initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
                   style={{ textAlign:"center" }}>
-                  {/* Visual QR code placeholder — in production swap for a real QR lib */}
+                  {/* Visual QR code placeholder, in production swap for a real QR lib */}
                   <div style={{
                     width:200, height:200, margin:"0 auto 12px",
                     background:"#fff", borderRadius:16,
@@ -27912,7 +27959,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 ))}
               </GlassCard>
             )}
-            {/* Coach Voice — teach Kailu to talk like you to your clients */}
+            {/* Coach Voice, teach Kailu to talk like you to your clients */}
             <CoachVoicePanel theme={theme} T={T}/>
           </motion.div>
         )}
@@ -28152,7 +28199,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 {/* Preview */}
                 {(venueBrand.gymName || venueBrand.logoDataUrl) && (
                   <div style={{ padding:"12px 14px", borderRadius:12, background:`${venueBrand.accentColor}15`, border:`1px solid ${venueBrand.accentColor}44` }}>
-                    <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", marginBottom:6 }}>PREVIEW — MEMBER VIEW</div>
+                    <div style={{ fontSize:11, color:T.faint, letterSpacing:".02em", marginBottom:6 }}>PREVIEW, MEMBER VIEW</div>
                     <div style={{ display:"flex", alignItems:"center", gap:10 }}>
                       {venueBrand.logoDataUrl && <img src={venueBrand.logoDataUrl} alt="logo" style={{ height:28, objectFit:"contain" }}/>}
                       <div>
@@ -28225,7 +28272,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 DEMO MODE
               </div>
               <div style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.5 }}>
-                Loads a fully seeded investor demo profile — bypasses login and fills all screens with realistic data. Use this to walk investors or reviewers through the app.
+                Loads a fully seeded investor demo profile, bypasses login and fills all screens with realistic data. Use this to walk investors or reviewers through the app.
               </div>
               <motion.button whileTap={{ scale:.97 }}
                 onClick={() => {
@@ -28388,7 +28435,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 <motion.div initial={{ opacity:0,y:6 }} animate={{ opacity:1,y:0 }}
                   style={{ textAlign:"center", color:"#30D158", fontSize:11,
                     fontWeight:700, marginTop:10 }}>
-                  ✓ Story pinned — now featured in the review section!
+                  ✓ Story pinned, now featured in the review section!
                 </motion.div>
               )}
             </GlassCard>
@@ -28773,11 +28820,11 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     <React.Fragment key={i}>
                       <div style={{ fontSize:11.5, color:T.muted, padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none" }}>{p.label}</div>
                       <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
-                        fontSize:12, color:p.owner?T.green:T.faint }}>{ p.owner ? "✓" : "—" }</div>
+                        fontSize:12, color:p.owner?T.green:T.faint }}>{ p.owner ? "✓" : "-" }</div>
                       <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
-                        fontSize:12, color:p.coach?T.green:T.faint }}>{ p.coach ? "✓" : "—" }</div>
+                        fontSize:12, color:p.coach?T.green:T.faint }}>{ p.coach ? "✓" : "-" }</div>
                       <div style={{ textAlign:"center", padding:"6px 0", borderTop:i>0?`1px solid ${T.border}44`:"none",
-                        fontSize:12, color:p.staff?T.green:T.faint }}>{ p.staff ? "✓" : "—" }</div>
+                        fontSize:12, color:p.staff?T.green:T.faint }}>{ p.staff ? "✓" : "-" }</div>
                     </React.Fragment>
                   ))}
                 </div>
@@ -28874,7 +28921,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
 
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// FEATURE LAYER — WORKOUT HISTORY · BODY WEIGHT · MEAL PLAN · BUDDY · GROUP
+// FEATURE LAYER, WORKOUT HISTORY · BODY WEIGHT · MEAL PLAN · BUDDY · GROUP
 // ═══════════════════════════════════════════════════════════════════════════════
 
 // ─── BODY WEIGHT UTILITIES ────────────────────────────────────────────────────
@@ -28964,7 +29011,7 @@ function PRSparkline({ sessions, lift, color, theme }) {
 // Modal that opens when a future calendar cell is tapped. Lists the user's saved
 // workout templates with "Assign to {date}" buttons. Also has a "+ Save current
 // workout" path that captures the user's current GymProtocol template. All in
-// localStorage — zero API cost.
+// localStorage, zero API cost.
 function AssignWorkoutPicker({ dateStr, theme, accentColor, onClose }) {
   const T = D[theme] || D.dark;
   const ac = accentColor;
@@ -29049,7 +29096,7 @@ function AssignWorkoutPicker({ dateStr, theme, accentColor, onClose }) {
                 background:T.glass, border:`1px dashed ${T.border}`,
                 fontSize:12.5, color:T.muted, lineHeight:1.55, marginBottom:12,
               }}>
-                No saved workouts yet. Create your first template below — it'll auto-assign to this date.
+                No saved workouts yet. Create your first template below, it'll auto-assign to this date.
               </div>
             ) : (
               <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:12 }}>
@@ -29143,7 +29190,7 @@ function AssignWorkoutPicker({ dateStr, theme, accentColor, onClose }) {
 function StreakHeatmap({ theme, accentColor }) {
   const T = D[theme];
   const ac = accentColor;
-  // Local state for the tap-to-assign modal — only opens on FUTURE day taps.
+  // Local state for the tap-to-assign modal, only opens on FUTURE day taps.
   const [assignFor, setAssignFor] = React.useState(null); // dateStr | null
   const [bumpKey, setBumpKey]     = React.useState(0);    // force re-read on assign
   // Tick once a minute so a calendar viewer rolling over midnight gets fresh data
@@ -29162,7 +29209,7 @@ function StreakHeatmap({ theme, accentColor }) {
 
   // ── FORWARD-LOOKING 28-DAY CALENDAR ────────────────────────────────────────
   // Anchored to the START of THIS week (Sunday) so the grid aligns naturally
-  // with the Sun-Sat column headers — today lands in its real day-of-week column,
+  // with the Sun-Sat column headers, today lands in its real day-of-week column,
   // not wherever a linear slice happens to put it. Shows current week + 3
   // upcoming weeks, so the calendar is FUTURE-focused (planning + scheduled
   // sessions visible) instead of being a backward-looking streak archive.
@@ -29196,7 +29243,7 @@ function StreakHeatmap({ theme, accentColor }) {
              dayOfWeek: d.getDay(), dateNum: d.getDate(), month: d.getMonth() };
   });
 
-  // Streak count — walk BACKWARDS from today through history, not just this window
+  // Streak count, walk BACKWARDS from today through history, not just this window
   let streak = 0;
   const streakCursor = new Date(today);
   for (let i = 0; i < 90; i++) {
@@ -29214,7 +29261,7 @@ function StreakHeatmap({ theme, accentColor }) {
   const totalWorkouts = days.filter(d => d.hasWorkout).length;
   const weekLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Month range for header — handles month rollover gracefully (e.g. "May – Jun")
+  // Month range for header, handles month rollover gracefully (e.g. "May – Jun")
   const firstDay = days[0];
   const lastDay = days[27];
   const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -29270,7 +29317,7 @@ function StreakHeatmap({ theme, accentColor }) {
         </div>
       </div>
 
-      {/* Day-of-week column headers — highlight today's column (not days[27]) */}
+      {/* Day-of-week column headers, highlight today's column (not days[27]) */}
       <div style={{ display:"grid", gridTemplateColumns:"repeat(7, 1fr)", gap:4, marginBottom:6 }}>
         {weekLabels.map((l, i) => (
           <div key={i} style={{
@@ -29339,7 +29386,7 @@ function StreakHeatmap({ theme, accentColor }) {
           </div>
         ))}
       </div>
-      {/* Assign-saved-workout picker — opens when a tappable cell is clicked */}
+      {/* Assign-saved-workout picker, opens when a tappable cell is clicked */}
       {assignFor && (
         <AssignWorkoutPicker
           dateStr={assignFor}
@@ -29404,7 +29451,7 @@ function WorkoutHistoryScreen({ theme, onBack, user }) {
     try {
       const d = new Date(iso);
       return d.toLocaleDateString("en-US", { month:"short", day:"numeric" });
-    } catch { return "—"; }
+    } catch { return "-"; }
   };
 
   return (
@@ -29670,7 +29717,7 @@ function MealPlanScreen({ theme, onBack, user }) {
   });
   const [recipeLoading, setRecipeLoading] = useState(false);
   const [recipeError, setRecipeError] = useState(null);
-  // Saved recipes — persisted in localStorage
+  // Saved recipes, persisted in localStorage
   const [savedRecipes, setSavedRecipes] = useState(() => {
     try { return JSON.parse(localStorage.getItem("rvn_saved_recipes") || "[]"); } catch { return []; }
   });
@@ -29789,7 +29836,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
         <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:8 }}>
           <BackBtn onBack={onBack} theme={theme}/>
           <div style={{ flex:1 }}>
-            <div style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>AI Meal Plan</div>
+            <div style={{ fontSize:20, fontWeight:900, color:T.text, letterSpacing:"-.02em" }}>Meal Plan</div>
             <div style={{ fontSize:11, color:T.muted }}>Generated for today · cached until midnight</div>
           </div>
           <motion.button whileTap={{ scale:.96 }} onClick={() => generatePlan(true)}
@@ -30856,7 +30903,7 @@ function EMGWaitlistCard({ theme }) {
     try { return !!localStorage.getItem("rvn_emg_waitlist"); } catch { return false; }
   });
   const [busy, setBusy] = useState(false);
-  const ac = "#7C3AED"; // purple — hardware accent
+  const ac = "#7C3AED"; // purple, hardware accent
 
   async function joinWaitlist() {
     if (!email.includes("@")) return;
@@ -30903,7 +30950,7 @@ function EMGWaitlistCard({ theme }) {
               RVN EMG Pad
             </div>
             <div style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>
-              Real-time electromyography sensors that detect muscle activation patterns during your lifts — Kailu reads the data and auto-corrects your form.
+              Real-time electromyography sensors that detect muscle activation patterns during your lifts, Kailu reads the data and auto-corrects your form.
             </div>
           </div>
         </div>
@@ -31069,9 +31116,9 @@ function WhatsNewScreen({ theme, onBack }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ROOT APP — RVN OS
+// ROOT APP, RVN OS
 // ═══════════════════════════════════════════════════════════════════════════════
-// ── Root wrapper — mounts the Environmental State provider once ─────────────
+// ── Root wrapper, mounts the Environmental State provider once ─────────────
 // Phase 1 pre-seeds mode="gym" so splash → landing → biology behaves identically
 // to the pre-refactor app. Phase 2 will drop this override so the default
 // INITIAL_ENV_STATE.mode="personal" activates the Personal surface.
@@ -31085,7 +31132,7 @@ export default function RVNVision() {
   return (
     <RVNErrorBoundary>
       <EnvProvider initialOverrides={{
-        mode:         "gym",   // Gym IS the personal experience — NFC tap overlays venue context
+        mode:         "gym",   // Gym IS the personal experience, NFC tap overlays venue context
         modeLockedBy: "default",
         inventory:    INVENTORY,
       }}>
@@ -31119,7 +31166,7 @@ function RVNRoot() {
     try { runSchemaMigrations(); } catch (e) { console.warn("[RVN] migration runner threw:", e); }
   }, []);
 
-  // ── Global Kailu bridges — work from ANY screen, not just /protocol ───────────
+  // ── Global Kailu bridges, work from ANY screen, not just /protocol ───────────
   // Previously these lived inside GymProtocol so they only existed when the user
   // was viewing the dashboard. Kailu chatting from Settings, Supplements, or any
   // other screen would silently no-op. Now they live at the root and read/write
@@ -31196,7 +31243,7 @@ function RVNRoot() {
     // gracefully degrades if it's not present (optional chaining).
   }, []);
 
-  // ── Theme preference — dark / light / auto (time-of-day) ─────────────────────
+  // ── Theme preference, dark / light / auto (time-of-day) ─────────────────────
   const [themePref, _setThemePref] = useState(() => {
     try { return localStorage.getItem("rvn_theme_pref") || "dark"; } catch { return "dark"; }
   });
@@ -31204,7 +31251,7 @@ function RVNRoot() {
     try { localStorage.setItem("rvn_theme_pref", pref); } catch {}
     if (pref === "dark")  { setTheme("dark");  return; }
     if (pref === "light") { setTheme("light"); return; }
-    // "auto" — dark 8pm–7am, light otherwise
+    // "auto", dark 8pm–7am, light otherwise
     const h = new Date().getHours();
     setTheme(h >= 20 || h < 7 ? "dark" : "light");
   }, [setTheme]);
@@ -31229,7 +31276,7 @@ function RVNRoot() {
 
   // ── PWA: register service worker ─────────────────────────────────────────
   // Manifest is served as /manifest.json (public/manifest.json) and linked in
-  // index.html — blob URL approach doesn't work on iOS Safari or in production.
+  // index.html, blob URL approach doesn't work on iOS Safari or in production.
   useEffect(() => {
     // Set meta theme-color if missing (belt-and-suspenders)
     try {
@@ -31267,7 +31314,7 @@ function RVNRoot() {
   const [authTimedOut,  setAuthTimedOut]  = useState(false);  // true if getSession() hung
 
   useEffect(() => {
-    // Timeout guard — if Supabase hangs, unblock the UI after 4s. SECURITY:
+    // Timeout guard, if Supabase hangs, unblock the UI after 4s. SECURITY:
     // we mark `authTimedOut` so downstream gates can treat the user as
     // unauthenticated (not "assume signed in"). Previously the timeout
     // silently set authChecked=true which let unauthenticated users through
@@ -31288,7 +31335,7 @@ function RVNRoot() {
         const completed = localStorage.getItem("rvn_onboarding_complete") === "yes";
         const hasProfile = !!localStorage.getItem("rvn_profile");
         if (completed && hasProfile && screen === "splash") {
-          // Jump to protocol — user already onboarded, no reason to make them redo it
+          // Jump to protocol, user already onboarded, no reason to make them redo it
           setTimeout(() => go("protocol"), 100);
         }
       } catch (_) {}
@@ -31302,14 +31349,14 @@ function RVNRoot() {
         loadRemoteProfile(session.user.id).then(remote => {
           if (remote && Object.keys(remote).length > 0) {
             try { localStorage.setItem("rvn_profile", JSON.stringify(remote)); } catch {}
-            // Cloud profile present means this user has used the app before — mark complete
+            // Cloud profile present means this user has used the app before, mark complete
             try { localStorage.setItem("rvn_onboarding_complete", "yes"); } catch {}
           }
           tryAutoResume();
         });
       } else {
         // No session, but a localStorage profile + onboarding flag still means
-        // a returning user who's signed out — they can navigate from the landing screen.
+        // a returning user who's signed out, they can navigate from the landing screen.
         tryAutoResume();
       }
     }).catch(() => { clearTimeout(timeoutId); setAuthChecked(true); tryAutoResume(); });
@@ -31386,7 +31433,7 @@ function RVNRoot() {
       const isDemoManager = demoParam === "manager";
       const isDevBypass = localStorage.getItem("rvn_dev_bypass") === "true";
 
-      // ── ?rvn_gym=<base64> — QR code member onboarding deep-link ──────────
+      // ── ?rvn_gym=<base64>, QR code member onboarding deep-link ──────────
       if (gymParam && screen === "splash") {
         try {
           const gymData = JSON.parse(atob(gymParam));
@@ -31400,13 +31447,13 @@ function RVNRoot() {
             }));
           }
           window.history.replaceState({}, "", window.location.pathname);
-          // Route to onboarding normally — venue branding will show on landing
+          // Route to onboarding normally, venue branding will show on landing
           setTimeout(() => go("landing"), 800);
           return;
         } catch (_) {}
       }
 
-      // ── ?demo=manager — seeds a gym owner demo and routes to ManagerHub ──
+      // ── ?demo=manager, seeds a gym owner demo and routes to ManagerHub ──
       if (isDemoManager && screen === "splash") {
         const managerProfile = {
           name: "Jordan Mills", email: "demo-manager@rvnos.com",
@@ -31423,7 +31470,7 @@ function RVNRoot() {
         // Seed venue branding
         const venueBrand = {
           gymName: "Iron Forge Athletics", tagline: "Forge Your Edge",
-          accentColor: "#e85d04", welcomeMsg: "Welcome to Iron Forge — Forge Your Edge.",
+          accentColor: "#e85d04", welcomeMsg: "Welcome to Iron Forge, Forge Your Edge.",
           address: "247 Industrial Blvd, Austin TX 78701",
           phone: "(512) 555-0192", website: "ironforge.fit",
           logoDataUrl: null,
@@ -31483,7 +31530,7 @@ function RVNRoot() {
       }
 
       if ((isDemoURL || isDevBypass) && screen === "splash") {
-        // Seed a rich demo profile — looks like a real power user
+        // Seed a rich demo profile, looks like a real power user
         const demoProfile = {
           name: "Alex", email: "demo@rvnos.com",
           age: 24, gender: "male", activityLevel: "active",
@@ -31559,7 +31606,7 @@ function RVNRoot() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen]);
 
-  // ── Auth check — if user already has a session, skip straight to protocol ────
+  // ── Auth check, if user already has a session, skip straight to protocol ────
   useEffect(() => {
     if (screen !== "splash") return;
     const savedProfile = (() => {
@@ -31933,7 +31980,7 @@ function RVNRoot() {
 
       </AnimatePresence>
 
-      {/* Bio-Pal overlay — always mounted, context-aware */}
+      {/* Bio-Pal overlay, always mounted, context-aware */}
       <RVNVisionOverlay/>
 
       {/* PWA Install Banner */}

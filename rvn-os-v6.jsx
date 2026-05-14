@@ -13936,6 +13936,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
           style={{ marginBottom:16 }}>
           <motion.button whileTap={{ scale:.97 }}
             onClick={() => onSupplements && onSupplements()}
+            data-tour-id="supp-entry"
             style={{ width:"100%", padding:"18px 16px",
               background:`linear-gradient(135deg, ${arch.glow}18 0%, ${T.glass} 100%)`,
               border:`1.5px solid ${arch.glow}55`, borderRadius:16,
@@ -14622,7 +14623,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </div>
 
               {/* Restaurant Mode */}
-              <FuelRestaurantMode theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI} profile={profile}/>
+              <div data-tour-id="restaurant-mode">
+                <FuelRestaurantMode theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI} profile={profile}/>
+              </div>
 
               {/* Custom meals quick-log */}
               <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
@@ -18626,7 +18629,7 @@ const DEMO_CARDS = {
   // language or that the recipe scanner accepts Instagram links.
   welcome: [
     { icon: "✨", title: "Quick tour — here is what RVN can do that other fitness apps can’t.",
-      body: "5 things you would not find on your own. 30 seconds." },
+      body: "8 things you would not find on your own. 45 seconds." },
     { icon: "🗓️", title: "Tell Kailu to schedule anything.",
       body: 'Tap this anytime. Say "add leg day Tuesday at 7am" — Kailu confirms with a card, you tap Apply, it lands on your calendar. Same for moving or cancelling sessions.',
       target: '[data-tour-id="kailu-bubble"]' },
@@ -18636,14 +18639,23 @@ const DEMO_CARDS = {
     { icon: "🍽️", title: "AI builds today’s meals from your macros.",
       body: "Tap this in the Fuel tab — Kailu generates a full day of meals around your protein, carb, and fat targets. No more \"what should I eat?\"",
       target: '[data-tour-id="ai-meal-plan"]' },
+    { icon: "📷", title: "Recipe scanner.",
+      body: "Paste any recipe link — from a blog, an Instagram caption, anywhere. Kailu parses the ingredients and logs the macros for you. No manual entry.",
+      target: '[data-tour-id="fuel-scanner"]' },
+    { icon: "🍴", title: "Eating out? Kailu helps you order.",
+      body: "Type the restaurant name. Kailu looks at what macros you still need today and recommends a specific order that fits your remaining protein and carbs.",
+      target: '[data-tour-id="restaurant-mode"]' },
     { icon: "◐", title: "Honest macro tracking with uncertainty bands.",
       body: "Solid bar = best estimate. Lighter band = how confident the log is. Tight for branded products (Built Bar = 17g/130kcal exactly), wide for homemade meals.",
       target: '[data-tour-id="fuel-macros"]' },
-    { icon: "🧠", title: "Kailu remembers everything.",
-      body: 'Tell Kailu once about your knee injury, your wedding cut, your kid’s schedule — it pulls those facts into every reply. Mention something in March, Kailu asks about it in June.',
+    { icon: "◈", title: "Supplement protocol built for you.",
+      body: "Answer 7 questions about your goals, diet, budget, and allergies. Kailu cross-references a curated database and builds your stack — with dose, timing, and why each one for YOU.",
+      target: '[data-tour-id="supp-entry"]' },
+    { icon: "🤝", title: "Kailu picks up on what you mention.",
+      body: 'Tell Kailu about a knee tweak, a wedding cut, your usual training days — it folds those facts into every future reply. Coaching that actually knows you, no re-explaining yourself.',
       target: '[data-tour-id="kailu-bubble"]' },
-    { icon: "🎯", title: "That’s the tour.",
-      body: "Tap around — you will discover more. Recipe scanner, progress photos, weekly recap, supplement protocol, NFC tap. Kailu is always one tap away." },
+    { icon: "🎯", title: "That’s the highlight reel.",
+      body: "Tap around — you will keep finding things. Progress photos, weekly recap on Mondays, NFC tap-to-start workouts, GhostBar velocity tracking. Kailu is always one tap away." },
   ],
   // Per-tab demos disabled — the welcome tour now covers the capabilities.
   // Empty arrays make ContextualDemo render nothing (no boring intro cards).

@@ -328,18 +328,9 @@ const IOS_SPRING_SLOW   = { type:"spring", stiffness:320, damping:30, mass:1.0  
 const IOS_EXIT          = { duration:0.16, ease:[0.4,0,1,1] };
 // On mobile: all entry animations are instant (no opacity:0 flash on re-render)
 const FX = isMobile ? {
-  // Mobile: lightweight fade animations. The "flash before animation" bug
-  // earlier was caused by elements painting at default visibility before
-  // framer-motion's initial prop kicked in. Fix: paired with `_INIT_STYLE`
-  // below that pre-applies opacity:0 at the CSS level via inline style on
-  // motion containers, so the element never paints visible before framer
-  // takes over.
-  page:    { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.28 } } },
-  up:      { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0, transition: { duration: 0.32 } } },
-  stagger: (i = 0, base = 0) => ({
-    initial: { opacity: 0, y: 4 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.3, delay: base + i * 0.05 } },
-  }),
+  page:    {},
+  up:      {},
+  stagger: () => ({}),
 } : {
   page: {
     initial: { opacity:0, y:8 },
@@ -2205,24 +2196,12 @@ function GlobalStyles({ theme }) {
         -webkit-user-select: none;
         outline: none;
       }
-      /* iOS-grade tap feel: instant CSS :active scale (snappier than framer-motion whileTap)
-         + minimal transitions on paint props. Targets 60fps perceived response. */
+      /* Scoped transitions: Framer Motion owns opacity/transform, so we only transition paint props on interactive elements */
       button, a, [role="button"] {
-        transition: background-color 0.12s cubic-bezier(0.22,1,0.36,1),
-                    border-color    0.12s cubic-bezier(0.22,1,0.36,1),
-                    color           0.12s cubic-bezier(0.22,1,0.36,1),
-                    box-shadow      0.12s cubic-bezier(0.22,1,0.36,1),
-                    transform       0.08s cubic-bezier(0.22,1,0.36,1);
-        will-change: transform;
-      }
-      /* Native tap feedback — fires instantly on touchstart, no framer-motion overhead.
-         Compounds gracefully with whileTap={{ scale:.96 }} when present. */
-      button:active, a:active, [role="button"]:active {
-        transform: scale(0.97);
-      }
-      /* Prevent text selection on rapid tap (iOS often triple-selects on press) */
-      button, [role="button"] {
-        -webkit-touch-callout: none;
+        transition: background-color 0.18s cubic-bezier(0.22,1,0.36,1),
+                    border-color    0.18s cubic-bezier(0.22,1,0.36,1),
+                    color           0.18s cubic-bezier(0.22,1,0.36,1),
+                    box-shadow      0.18s cubic-bezier(0.22,1,0.36,1);
       }
       input, textarea, select {
         color:${T.text} !important; -webkit-text-fill-color:${T.text} !important;
@@ -2241,12 +2220,7 @@ function GlobalStyles({ theme }) {
       ::-webkit-scrollbar-track { background:transparent; }
       ::-webkit-scrollbar-thumb { background:${T.border}; border-radius:3px; }
       ::selection { background:${T.blue}44; color:${T.text}; }
-      /* MOBILE PRE-PAINT FIX: when a motion container has this class, it's
-         hidden at the CSS level so framer-motion never has to fight the
-         browser's default paint of opacity:1. The framer animation then
-         smoothly fades the element in. Eliminates the "flash before animation"
-         that we saw on mobile when adding fade-ins. */
-      .rvn-fade-in-init { opacity: 0; }
+
 
       @keyframes os_scandown { 0%{top:-4%;} 100%{top:104%;} }
       @keyframes os_iris_cw  { to{transform:rotate(360deg);} }
@@ -3175,7 +3149,6 @@ function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient
           ref={refProp}
           onScroll={onScroll}
           data-scroll
-          className={isMobile ? "rvn-fade-in-init" : undefined}
           style={{
             position:"absolute", inset:0, background:"transparent",
             display:"flex", flexDirection:"column",

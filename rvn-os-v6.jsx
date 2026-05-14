@@ -2257,6 +2257,13 @@ function GlobalStyles({ theme }) {
       @keyframes splash_logo  { 0%{opacity:0;transform:scale(0.92);} 100%{opacity:1;transform:scale(1);} }
       @keyframes splash_ecg   { 0%{stroke-dashoffset:1000;} 100%{stroke-dashoffset:0;} }
       @keyframes splash_pulse { 0%,100%{opacity:0;} 30%,70%{opacity:0.25;} }
+      /* Each smoke particle starts scattered at (--sx, --sy) and converges to center.
+         Pure CSS so mobile Safari can't block the animation on first paint. */
+      @keyframes splash_smoke_in {
+        0%   { opacity: 0;          transform: translate(var(--sx), var(--sy)) scale(2); }
+        20%  { opacity: var(--so);  transform: translate(var(--sx), var(--sy)) scale(1); }
+        100% { opacity: 0;          transform: translate(0, 0) scale(0.3); }
+      }
       @keyframes os_nad_dot  { 0%,100%{r:3;opacity:.5;} 50%{r:5.5;opacity:1;} }
       @keyframes os_nad_mol  { 0%{opacity:0;transform:translateY(0);} 25%{opacity:1;} 75%{opacity:1;} 100%{opacity:0;transform:translateY(-30px);} }
       @keyframes os_ticker   { 0%{transform:translateX(0);} 100%{transform:translateX(-50%);} }
@@ -8871,6 +8878,42 @@ function AuthScreen({ theme, onAuth }) {
 }
 
 // ─── SPLASH SCREEN ────────────────────────────────────────────────────────────
+// CSS-driven smoke particles. Each particle is a div with inline CSS vars that
+// drive a keyframe. No framer-motion = no mobile Safari first-paint issues.
+function SmokeParticlesCSS({ count = 55 }) {
+  const particles = React.useMemo(() => Array.from({ length: count }, (_, i) => ({
+    id: i,
+    sx: ((Math.random() - 0.5) * 900).toFixed(0) + "px",
+    sy: ((Math.random() - 0.5) * 600).toFixed(0) + "px",
+    size: (Math.random() * 3.5 + 1).toFixed(2),
+    delay: (Math.random() * 0.5).toFixed(2) + "s",
+    dur: (1.2 + Math.random() * 0.6).toFixed(2) + "s",
+    op: (0.25 + Math.random() * 0.55).toFixed(2),
+  })), [count]);
+  return (
+    <>
+      {particles.map(p => (
+        <div key={p.id} style={{
+          position: "absolute",
+          top: "50%", left: "50%",
+          width: p.size + "px", height: p.size + "px",
+          marginTop: -(parseFloat(p.size) / 2) + "px",
+          marginLeft: -(parseFloat(p.size) / 2) + "px",
+          borderRadius: "50%",
+          background: "#fff",
+          boxShadow: `0 0 ${parseFloat(p.size) * 3}px #fff`,
+          pointerEvents: "none",
+          opacity: 0,
+          "--sx": p.sx,
+          "--sy": p.sy,
+          "--so": p.op,
+          animation: `splash_smoke_in ${p.dur} ${p.delay} cubic-bezier(0.22,1,0.36,1) forwards`,
+        }}/>
+      ))}
+    </>
+  );
+}
+
 function SplashScreen({ onDone, theme }) {
   const T = D[theme] || D["dark"];
   const onDoneRef = useRef(onDone);
@@ -8895,6 +8938,8 @@ function SplashScreen({ onDone, theme }) {
         overflow:"hidden",
         animation: "splash_pulse 3.2s ease-in-out forwards",
       }}>
+      {/* Smoke particles — pure CSS so mobile Safari can never block them */}
+      <SmokeParticlesCSS count={isMobile ? 22 : 55}/>
       {/* Radial halo — pure CSS */}
       <div style={{
         position:"absolute", width:500, height:300, borderRadius:"50%",

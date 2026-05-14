@@ -13716,6 +13716,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
   // Body weight strip state
   const [bwLog,    setBwLog]    = useState(() => loadBodyWeightLog());
+  const [bwEditing, setBwEditing] = useState(false);
   const [bwInput,  setBwInput]  = useState("");
   const [bwSaved,  setBwSaved]  = useState(false);
   const todayBW = bwLog.find(e => e.date === new Date().toISOString().split("T")[0]);
@@ -14333,40 +14334,71 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               <div style={{ fontSize:11, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:4 }}>
                 BODY WEIGHT
               </div>
-              {todayBW ? (
-                <div style={{ display:"flex", alignItems:"baseline", gap:4 }}>
+              {todayBW && !bwEditing ? (
+                <div onClick={() => { setBwInput(String(todayBW.weight)); setBwEditing(true); }}
+                  style={{ display:"flex", alignItems:"baseline", gap:4, cursor:"pointer" }}
+                  title="Tap to edit">
                   <span style={{ fontSize:22, fontWeight:900, color:"#30D158" }}>{todayBW.weight}</span>
                   <span style={{ fontSize:11, color:T.muted, fontWeight:700 }}>
                     {localStorage.getItem("rvn_bw_unit") || "lbs"}
                   </span>
+                  <span style={{ fontSize:10, color:"#30D158", marginLeft:6, opacity:0.7 }}>(tap to edit)</span>
                 </div>
-              ) : (
+              ) : !todayBW ? (
                 <div style={{ fontSize:13, color:T.muted, fontWeight:600 }}>Not logged today</div>
-              )}
+              ) : null}
               {bwLog.length >= 3 && (
                 <Sparkline
                   data={bwLog.slice(0,7).reverse().map(e=>e.weight)}
                   color="#30D158" width={80} height={20}/>
               )}
             </div>
-            {!todayBW ? (
+            {(!todayBW || bwEditing) ? (
               <div style={{ display:"flex", gap:6, alignItems:"center" }}>
-                <input type="number" value={bwInput} onChange={e => setBwInput(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleBWLog()}
+                <input type="number" inputMode="decimal" value={bwInput}
+                  autoFocus={bwEditing}
+                  onChange={e => setBwInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === "Enter") {
+                      const w = parseFloat(bwInput);
+                      if (Number.isFinite(w) && w >= 30 && w <= 700) {
+                        setBwLog(saveBodyWeightEntry(w));
+                        setBwEditing(false); setBwInput("");
+                        setBwSaved(true); setTimeout(() => setBwSaved(false), 1500);
+                      }
+                    }
+                    if (e.key === "Escape") { setBwEditing(false); setBwInput(""); }
+                  }}
                   placeholder="lbs"
                   style={{
-                    width:64, padding:"9px 8px", borderRadius:10,
+                    width:74, padding:"9px 8px", borderRadius:10,
                     background:T.glass, border:`1px solid ${T.border}`,
                     color:T.text, fontSize:13, fontWeight:700, outline:"none",
                     textAlign:"center",
                   }}/>
-                <motion.button whileTap={{ scale:.96 }} onClick={handleBWLog}
+                <motion.button whileTap={{ scale:.96 }}
+                  onClick={() => {
+                    const w = parseFloat(bwInput);
+                    if (Number.isFinite(w) && w >= 30 && w <= 700) {
+                      setBwLog(saveBodyWeightEntry(w));
+                      setBwEditing(false); setBwInput("");
+                      setBwSaved(true); setTimeout(() => setBwSaved(false), 1500);
+                    }
+                  }}
                   style={{
                     padding:"9px 14px", borderRadius:10, background:"#30D158",
                     border:"none", color:"#fff", fontSize:11, fontWeight:800, cursor:"pointer",
                   }}>
-                  {bwSaved ? "✓" : "Log"}
+                  {bwSaved ? "✓" : (bwEditing ? "Save" : "Log")}
                 </motion.button>
+                {bwEditing && (
+                  <button onClick={() => { setBwEditing(false); setBwInput(""); }}
+                    style={{ padding:"8px 10px", borderRadius:10,
+                      background:"transparent", border:`1px solid ${T.border}`,
+                      color:T.muted, fontSize:11, fontWeight:700, cursor:"pointer" }}>
+                    Cancel
+                  </button>
+                )}
               </div>
             ) : (
               <motion.button whileTap={{ scale:.96 }} onClick={() => onBodyWeight && onBodyWeight()}
@@ -28945,13 +28977,26 @@ function loadBodyWeightLog() {
   try { return JSON.parse(localStorage.getItem(BW_KEY) || "[]"); } catch { return []; }
 }
 function saveBodyWeightEntry(weight) {
+  const w = parseFloat(weight);
+  // Sanity check: refuse out-of-range (catches typos like 1588 lbs).
+  if (!Number.isFinite(w) || w < 30 || w > 700) {
+    console.warn("[BW] refused out-of-range weight:", weight);
+    return loadBodyWeightLog();
+  }
   const log = loadBodyWeightLog();
   const today = new Date().toISOString().split("T")[0];
   const filtered = log.filter(e => e.date !== today);
-  filtered.unshift({ date: today, weight: parseFloat(weight) });
-  const trimmed = filtered.slice(0, 90); // keep 90 days
+  filtered.unshift({ date: today, weight: w });
+  const trimmed = filtered.slice(0, 90);
   try { localStorage.setItem(BW_KEY, JSON.stringify(trimmed)); } catch {}
   return trimmed;
+}
+function deleteTodayBodyWeight() {
+  const log = loadBodyWeightLog();
+  const today = new Date().toISOString().split("T")[0];
+  const filtered = log.filter(e => e.date !== today);
+  try { localStorage.setItem(BW_KEY, JSON.stringify(filtered)); } catch {}
+  return filtered;
 }
 
 // ─── MEAL PLAN CACHE ──────────────────────────────────────────────────────────

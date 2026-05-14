@@ -8888,12 +8888,15 @@ function AuthScreen({ theme, onAuth }) {
 function SmokeParticlesCSS({ count = 55 }) {
   const particles = React.useMemo(() => Array.from({ length: count }, (_, i) => ({
     id: i,
-    sx: ((Math.random() - 0.5) * 900).toFixed(0) + "px",
-    sy: ((Math.random() - 0.5) * 600).toFixed(0) + "px",
-    size: (Math.random() * 3.5 + 1).toFixed(2),
-    delay: (Math.random() * 0.5).toFixed(2) + "s",
-    dur: (1.2 + Math.random() * 0.6).toFixed(2) + "s",
-    op: (0.25 + Math.random() * 0.55).toFixed(2),
+    // Narrower spread (700×400 vs 900×600) keeps particles closer to center,
+    // which makes 12 particles look denser. And smaller particle sizes (2-4px
+    // vs 1-4.5px) keep the compositor work light.
+    sx: ((Math.random() - 0.5) * 700).toFixed(0) + "px",
+    sy: ((Math.random() - 0.5) * 400).toFixed(0) + "px",
+    size: (Math.random() * 2 + 2).toFixed(2),
+    delay: (Math.random() * 0.4).toFixed(2) + "s",
+    dur: (1.4 + Math.random() * 0.5).toFixed(2) + "s",
+    op: (0.4 + Math.random() * 0.4).toFixed(2),
   })), [count]);
   return (
     <>
@@ -8906,9 +8909,11 @@ function SmokeParticlesCSS({ count = 55 }) {
           marginLeft: -(parseFloat(p.size) / 2) + "px",
           borderRadius: "50%",
           background: "#fff",
-          boxShadow: `0 0 ${parseFloat(p.size) * 3}px #fff`,
+          // No box-shadow on mobile: with 12+ particles each glowing, the
+          // compositor choked and the animation froze mid-flight. Plain dots.
           pointerEvents: "none",
           opacity: 0,
+          willChange: "transform, opacity",
           "--sx": p.sx,
           "--sy": p.sy,
           "--so": p.op,
@@ -8954,11 +8959,13 @@ function SplashScreen({ onDone, theme }) {
           filter:"blur(40px)", pointerEvents:"none",
         }}
       />
-      <SmokeParticles visible={smokeVisible} count={isMobile ? 18 : 55}/>
-      {/* Backup CSS particles for mobile Safari, which sometimes blocks the framer-motion ones.
-          Both fire — whichever renders first carries the visual. Zero visible duplication
-          because both converge to the same center fade-out. */}
-      {isMobile && <SmokeParticlesCSS count={22}/>}
+      {/* Pick ONE particle renderer based on device — running both at once on
+          mobile Safari overloaded the compositor and froze the splash mid-animation.
+          CSS particles for mobile (lightweight, native compositor), framer-motion
+          particles for desktop (richer transitions, no perf concern). */}
+      {isMobile
+        ? <SmokeParticlesCSS count={12}/>
+        : <SmokeParticles visible={smokeVisible} count={55}/>}
       <motion.div
         initial={{ opacity:0, scale:0.92 }}
         animate={{ opacity:1, scale:1 }}

@@ -7101,6 +7101,7 @@ function TrainerHub({ theme, onBack }) {
         <div style={{ display:"flex", gap:6, overflowX:"auto", paddingBottom:2 }}>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id)}
+              data-tour-id={t.id === "voice" ? "coach-voice-tab" : undefined}
               style={{
                 padding:"7px 12px", borderRadius:16,
                 background: tab === t.id ? ac : T.glass,
@@ -13543,6 +13544,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
 
         {/* Bio summary bar */}
         <motion.div {...FX.up} style={{ marginBottom:14 }}>
+          <div data-tour-id="train-protocol">
           <GlassCard theme={theme} glow={arch.glow} style={{ padding:"12px 14px" }}>
             <div style={{ display:"flex", alignItems:"center", gap:12 }}>
               <BioRing score={calcBioScore(archetypeId, bioData, biology)} color={arch.glow} size={60} theme={theme}/>
@@ -13553,6 +13555,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </div>
             </div>
           </GlassCard>
+          </div>
         </motion.div>
 
         {/* Circadian insight */}
@@ -14532,7 +14535,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 </motion.div>
               )}
               {/* Macro rings */}
-              <div style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
+              <div data-tour-id="fuel-macros" style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
                 border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
                 <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:14 }}>
                   TODAY'S MACROS
@@ -14611,7 +14614,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               </motion.button>
 
               {/* Recipe Scanner */}
-              <FuelRecipeScanner theme={theme} T={T} arch={arch}/>
+              <div data-tour-id="fuel-scanner">
+                <FuelRecipeScanner theme={theme} T={T} arch={arch}/>
+              </div>
 
               {/* Restaurant Mode */}
               <FuelRestaurantMode theme={theme} T={T} arch={arch} callClaudeAPI={callClaudeAPI} profile={profile}/>

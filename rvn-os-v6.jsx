@@ -7245,6 +7245,397 @@ function SupplementsScreen({ archetypeId, theme, color, onBack }) {
   );
 }
 
+
+// ─── DIRECT MESSAGE THREAD ─────────────────────────────────────────────────────
+// Two-way human-only DM channel. Used both client-side (Coach Mike thread)
+// and trainer-side (client conversations). No AI ever writes here.
+function DirectMessageThread({ theme, myEmail, myName, otherEmail, otherName, onBack }) {
+  const T = D[theme] || D.dark;
+  const ac = T.blue;
+  const [messages, setMessages] = React.useState(() => getDirectThread(myEmail, otherEmail));
+  const [draft, setDraft] = React.useState("");
+  const refresh = React.useCallback(() => {
+    setMessages(getDirectThread(myEmail, otherEmail));
+    markThreadRead(myEmail, otherEmail);
+  }, [myEmail, otherEmail]);
+  React.useEffect(() => {
+    refresh();
+    // Light polling so new messages from the other side show up
+    const iv = setInterval(refresh, 6000);
+    return () => clearInterval(iv);
+  }, [refresh]);
+  const send = () => {
+    if (!draft.trim()) return;
+    sendDirectMessage({ fromEmail: myEmail, fromName: myName, toEmail: otherEmail, toName: otherName, body: draft });
+    setDraft("");
+    refresh();
+  };
+  return (
+    <div style={{ display:"flex", flexDirection:"column", height:"100%", background:T.bg }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10,
+        padding:"14px 18px", borderBottom:`1px solid ${T.border}`, background:T.card }}>
+        {onBack && (
+          <button onClick={onBack} style={{
+            background:"none", border:`1px solid ${T.border}`, borderRadius:8,
+            padding:"5px 10px", color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer",
+          }}>‹‹</button>
+        )}
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontSize:10.5, color:T.faint, letterSpacing:".04em" }}>DIRECT — HUMAN ONLY</div>
+          <div style={{ fontSize:15, fontWeight:900, color:T.text, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+            {otherName || otherEmail}
+          </div>
+        </div>
+      </div>
+      <div style={{ flex:1, overflowY:"auto", padding:"14px 16px", display:"flex", flexDirection:"column", gap:8 }}>
+        {messages.length === 0 ? (
+          <div style={{ textAlign:"center", color:T.muted, fontSize:12.5, padding:"30px 20px", lineHeight:1.55 }}>
+            No messages yet. This thread is a verified human-only channel — Kailu (your AI coach) lives in a separate chat.
+          </div>
+        ) : messages.map(m => {
+          const mine = (m.fromEmail || "").toLowerCase() === (myEmail || "").toLowerCase();
+          return (
+            <div key={m.id} style={{
+              display:"flex", flexDirection:"column",
+              alignItems: mine ? "flex-end" : "flex-start",
+            }}>
+              <div style={{
+                maxWidth:"82%",
+                padding:"9px 13px", borderRadius: mine ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                background: mine ? ac : T.card,
+                color: mine ? "#fff" : T.text,
+                fontSize:13, lineHeight:1.45, wordBreak:"break-word",
+                border: mine ? "none" : `1px solid ${T.border}`,
+              }}>{m.body}</div>
+              <div style={{ fontSize:9.5, color:T.faint, marginTop:3,
+                paddingLeft: mine ? 0 : 8, paddingRight: mine ? 8 : 0 }}>
+                {new Date(m.sentAt).toLocaleString("en-US", { month:"short", day:"numeric", hour:"numeric", minute:"2-digit" })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <div style={{ padding:"12px 14px", borderTop:`1px solid ${T.border}`, background:T.card,
+        display:"flex", gap:8, alignItems:"center" }}>
+        <input value={draft} onChange={e => setDraft(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+          placeholder="Type a message..."
+          style={{ flex:1, padding:"10px 14px", borderRadius:18, background:T.glass,
+            border:`1px solid ${T.border}`, color:T.text, fontSize:13, outline:"none" }}/>
+        <motion.button whileTap={{ scale:.95 }} onClick={send} disabled={!draft.trim()}
+          style={{ padding:"10px 16px", borderRadius:18,
+            background: draft.trim() ? ac : T.glass,
+            color: draft.trim() ? "#fff" : T.faint,
+            border:"none", fontSize:11, fontWeight:900, letterSpacing:".04em",
+            cursor: draft.trim() ? "pointer" : "not-allowed" }}>
+          SEND
+        </motion.button>
+      </div>
+    </div>
+  );
+}
+
+// ─── WEEKLY CHECK-IN FORM (client-side) ────────────────────────────────────────
+function WeeklyCheckInForm({ theme, clientEmail, clientName, onSubmit }) {
+  const T = D[theme] || D.dark;
+  const ac = T.blue;
+  const [sleep, setSleep] = React.useState(7);
+  const [soreness, setSoreness] = React.useState(3);
+  const [mood, setMood] = React.useState(7);
+  const [weight, setWeight] = React.useState("");
+  const [notes, setNotes] = React.useState("");
+  const [sent, setSent] = React.useState(false);
+  const submit = () => {
+    const w = parseFloat(weight);
+    submitCheckIn({
+      clientEmail, clientName,
+      sleep, soreness, mood,
+      weight: Number.isFinite(w) ? w : null,
+      notes,
+      weekOf: new Date().toISOString().slice(0, 10),
+    });
+    setSent(true);
+    if (onSubmit) setTimeout(onSubmit, 1200);
+  };
+  if (sent) {
+    return (
+      <div style={{ padding:"40px 20px", textAlign:"center" }}>
+        <div style={{ fontSize:36, marginBottom:10 }}>✓</div>
+        <div style={{ fontSize:15, fontWeight:800, color:"#30D158" }}>Check-in submitted.</div>
+        <div style={{ fontSize:11.5, color:T.muted, marginTop:5 }}>Your coach will see this in their Monday digest.</div>
+      </div>
+    );
+  }
+  const Slider = ({ label, value, setValue, low, high }) => (
+    <div style={{ marginBottom:18 }}>
+      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+        <span style={{ fontSize:11.5, fontWeight:700, color:T.muted, letterSpacing:".03em" }}>{label}</span>
+        <span style={{ fontSize:13, fontWeight:900, color:ac }}>{value}/10</span>
+      </div>
+      <input type="range" min="1" max="10" value={value}
+        onChange={e => setValue(Number(e.target.value))}
+        style={{ width:"100%", accentColor: ac }}/>
+      <div style={{ display:"flex", justifyContent:"space-between", fontSize:9.5, color:T.faint, marginTop:2 }}>
+        <span>{low}</span><span>{high}</span>
+      </div>
+    </div>
+  );
+  return (
+    <div style={{ padding:"18px" }}>
+      <div style={{ fontSize:11, fontWeight:700, color:ac, letterSpacing:".06em", marginBottom:6 }}>WEEKLY CHECK-IN</div>
+      <div style={{ fontSize:18, fontWeight:900, color:T.text, marginBottom:14, lineHeight:1.2 }}>
+        How was your week?
+      </div>
+      <div style={{ fontSize:12, color:T.muted, marginBottom:18, lineHeight:1.5 }}>
+        60 seconds. Your coach sees these every Monday — wins, struggles, what to adjust.
+      </div>
+      <Slider label="SLEEP QUALITY" value={sleep} setValue={setSleep} low="Wrecked" high="Dialed"/>
+      <Slider label="SORENESS / FATIGUE" value={soreness} setValue={setSoreness} low="None" high="Crushed"/>
+      <Slider label="MOOD / ENERGY" value={mood} setValue={setMood} low="Low" high="On fire"/>
+      <div style={{ marginBottom:14 }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:T.muted, letterSpacing:".03em", marginBottom:6 }}>BODYWEIGHT <span style={{ color:T.faint, fontWeight:500 }}>(optional)</span></div>
+        <input value={weight} onChange={e => setWeight(e.target.value)} placeholder="lb"
+          type="number" inputMode="decimal"
+          style={{ width:"100%", padding:"10px 14px", borderRadius:10, background:T.glass,
+            border:`1px solid ${T.border}`, color:T.text, fontSize:13, outline:"none", boxSizing:"border-box" }}/>
+      </div>
+      <div style={{ marginBottom:16 }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:T.muted, letterSpacing:".03em", marginBottom:6 }}>NOTES FOR YOUR COACH <span style={{ color:T.faint, fontWeight:500 }}>(optional)</span></div>
+        <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3}
+          placeholder="Anything they should know? Wins, struggles, schedule changes..."
+          style={{ width:"100%", padding:"10px 14px", borderRadius:10, background:T.glass,
+            border:`1px solid ${T.border}`, color:T.text, fontSize:12.5, outline:"none",
+            fontFamily:"inherit", resize:"vertical", boxSizing:"border-box", lineHeight:1.5 }}/>
+      </div>
+      <motion.button whileTap={{ scale:.97 }} onClick={submit}
+        style={{ width:"100%", padding:"13px", borderRadius:12, background:ac,
+          color: theme==="dark"?"#000":"#fff", border:"none",
+          fontSize:13, fontWeight:900, letterSpacing:".04em",
+          textTransform:"uppercase", cursor:"pointer" }}>
+        Submit check-in
+      </motion.button>
+    </div>
+  );
+}
+
+// ─── TRAINER CHECK-IN DASHBOARD (Monday digest with AI triage) ────────────────
+function TrainerCheckInDashboard({ theme }) {
+  const T = D[theme] || D.dark;
+  const ac = T.blue;
+  const [checkIns, setCheckIns] = React.useState(() => {
+    // Show only check-ins from the past 8 days
+    const cutoff = Date.now() - 8 * 86400000;
+    return getCheckIns().filter(c => new Date(c.submittedAt).getTime() > cutoff);
+  });
+  const [digest, setDigest] = React.useState(null);
+  const [busy, setBusy] = React.useState(false);
+  const runTriage = async () => {
+    if (!checkIns.length) return;
+    setBusy(true);
+    try {
+      const out = await summarizeCheckInsViaKailu(checkIns);
+      if (out) setDigest(out);
+    } catch {}
+    setBusy(false);
+  };
+  return (
+    <div>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+        <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em" }}>
+          THIS WEEK&apos;S CHECK-INS · {checkIns.length}
+        </div>
+        <motion.button whileTap={{ scale:.97 }} onClick={runTriage} disabled={busy || !checkIns.length}
+          style={{ padding:"6px 12px", borderRadius:10,
+            background: checkIns.length ? ac : T.glass,
+            color: checkIns.length ? (theme==="dark"?"#000":"#fff") : T.faint,
+            border:"none", fontSize:10.5, fontWeight:900, letterSpacing:".04em",
+            textTransform:"uppercase", cursor: checkIns.length ? "pointer" : "not-allowed" }}>
+          {busy ? "Triaging…" : "✦ AI Triage"}
+        </motion.button>
+      </div>
+      {digest && (
+        <div style={{ background:T.card, border:`1px solid ${ac}55`, borderRadius:14,
+          padding:"14px 16px", marginBottom:12 }}>
+          <div style={{ fontSize:10.5, fontWeight:800, color:ac, letterSpacing:".05em", marginBottom:10 }}>MONDAY DIGEST</div>
+          {digest.atRisk?.length > 0 && (
+            <div style={{ marginBottom:10 }}>
+              <div style={{ fontSize:10.5, fontWeight:700, color:"#FF3B30", letterSpacing:".04em", marginBottom:5 }}>⚠ AT RISK</div>
+              {digest.atRisk.map((r, i) => (
+                <div key={i} style={{ fontSize:12, color:T.text, marginBottom:5, lineHeight:1.45 }}>
+                  <span style={{ fontWeight:800 }}>{r.name}</span> — {r.reason}. <span style={{ color:T.muted, fontStyle:"italic" }}>{r.action}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {digest.wins?.length > 0 && (
+            <div style={{ marginBottom:10 }}>
+              <div style={{ fontSize:10.5, fontWeight:700, color:"#30D158", letterSpacing:".04em", marginBottom:5 }}>✓ WINS</div>
+              {digest.wins.map((w, i) => (
+                <div key={i} style={{ fontSize:12, color:T.text, marginBottom:5, lineHeight:1.45 }}>
+                  <span style={{ fontWeight:800 }}>{w.name}</span> — {w.note}
+                </div>
+              ))}
+            </div>
+          )}
+          {digest.adjustments?.length > 0 && (
+            <div>
+              <div style={{ fontSize:10.5, fontWeight:700, color:"#FF9F0A", letterSpacing:".04em", marginBottom:5 }}>↻ ADJUST</div>
+              {digest.adjustments.map((a, i) => (
+                <div key={i} style={{ fontSize:12, color:T.text, marginBottom:5, lineHeight:1.45 }}>
+                  <span style={{ fontWeight:800 }}>{a.name}</span> — {a.suggestion}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {checkIns.length === 0 ? (
+        <div style={{ background:T.card, border:`1px dashed ${T.border}`, borderRadius:14,
+          padding:"22px 16px", textAlign:"center" }}>
+          <div style={{ fontSize:13.5, fontWeight:700, color:T.text, marginBottom:6 }}>No check-ins yet this week.</div>
+          <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.55 }}>
+            Your clients submit check-ins every Monday from their app. Once they start submitting, Kailu will triage them here.
+          </div>
+        </div>
+      ) : (
+        <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+          {checkIns.map(c => (
+            <div key={c.id} style={{
+              background:T.card, border:`1px solid ${T.border}`, borderRadius:12, padding:"12px 14px",
+            }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:6 }}>
+                <div style={{ fontSize:13, fontWeight:800, color:T.text }}>{c.clientName || c.clientEmail}</div>
+                <div style={{ fontSize:10.5, color:T.faint }}>{new Date(c.submittedAt).toLocaleDateString()}</div>
+              </div>
+              <div style={{ display:"flex", flexWrap:"wrap", gap:8, fontSize:11, color:T.muted }}>
+                {c.sleep != null && <span>😴 Sleep {c.sleep}/10</span>}
+                {c.soreness != null && <span>💪 Sore {c.soreness}/10</span>}
+                {c.mood != null && <span>⚡ Mood {c.mood}/10</span>}
+                {c.weight != null && <span>⚖ {c.weight}lb</span>}
+              </div>
+              {c.notes && (
+                <div style={{ fontSize:11.5, color:T.text, marginTop:6, paddingTop:6,
+                  borderTop:`1px solid ${T.border}`, fontStyle:"italic", lineHeight:1.45 }}>
+                  &ldquo;{c.notes}&rdquo;
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── TRAINER ADHERENCE STRIP (last 14 days per client) ────────────────────────
+function TrainerAdherenceView({ theme }) {
+  const T = D[theme] || D.dark;
+  const ac = T.blue;
+  // Pull unique client emails from pushed protocols + check-ins
+  const clients = (() => {
+    const map = new Map();
+    getPushedProtocols().forEach(p => {
+      if (p.toClientEmail) map.set(p.toClientEmail, { email: p.toClientEmail, name: p.toClientName || p.toClientEmail });
+    });
+    getCheckIns().forEach(c => {
+      if (c.clientEmail && !map.has(c.clientEmail)) map.set(c.clientEmail, { email: c.clientEmail, name: c.clientName || c.clientEmail });
+    });
+    return Array.from(map.values());
+  })();
+  // For now, "adherence" reads from the client's own workout log if visible.
+  // True multi-tenant remote-fetch comes when we wire trainer-scoped backend.
+  const renderStrip = (clientEmail) => {
+    // 14-day strip — placeholder logic until we have per-client remote logs
+    const days = Array.from({ length: 14 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (13 - i));
+      d.setHours(0, 0, 0, 0);
+      return { date: d, logged: null }; // unknown
+    });
+    return (
+      <div style={{ display:"flex", gap:3 }}>
+        {days.map((d, i) => (
+          <div key={i} title={d.date.toLocaleDateString()} style={{
+            width:14, height:14, borderRadius:3,
+            background: d.logged === true ? "#30D158"
+              : d.logged === false ? "#FF3B30aa"
+              : T.glass,
+            border: `1px solid ${T.border}`,
+          }}/>
+        ))}
+      </div>
+    );
+  };
+  if (clients.length === 0) {
+    return (
+      <div style={{ background:T.card, border:`1px dashed ${T.border}`, borderRadius:14,
+        padding:"22px 16px", textAlign:"center" }}>
+        <div style={{ fontSize:13.5, fontWeight:700, color:T.text, marginBottom:6 }}>No clients yet.</div>
+        <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.55 }}>
+          Clients appear here once you push your first protocol or they submit a check-in.
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
+      {clients.map(c => (
+        <div key={c.email} style={{
+          background:T.card, border:`1px solid ${T.border}`, borderRadius:12, padding:"12px 14px",
+          display:"flex", justifyContent:"space-between", alignItems:"center", gap:10,
+        }}>
+          <div style={{ minWidth:0, flex:1 }}>
+            <div style={{ fontSize:13, fontWeight:800, color:T.text, overflow:"hidden",
+              textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{c.name}</div>
+            <div style={{ fontSize:10.5, color:T.faint, marginTop:1 }}>{c.email}</div>
+          </div>
+          {renderStrip(c.email)}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── "WHAT MY COACH SEES" — client-side consent panel ─────────────────────────
+function WhatMyCoachSeesPanel({ theme }) {
+  const T = D[theme] || D.dark;
+  const ac = T.blue;
+  const [s, setS] = React.useState(() => getConsentSettings());
+  const toggle = (key) => {
+    const next = { ...s, [key]: !s[key] };
+    setS(next);
+    saveConsentSettings(next);
+  };
+  const Row = ({ label, sub, k }) => (
+    <label style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"12px 0",
+      borderBottom:`1px solid ${T.border}`, cursor:"pointer" }}>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontSize:13, fontWeight:700, color:T.text }}>{label}</div>
+        {sub && <div style={{ fontSize:11, color:T.muted, marginTop:2, lineHeight:1.45 }}>{sub}</div>}
+      </div>
+      <input type="checkbox" checked={!!s[k]} onChange={() => toggle(k)}
+        style={{ width:18, height:18, cursor:"pointer", accentColor:ac, flexShrink:0, marginTop:2 }}/>
+    </label>
+  );
+  return (
+    <div style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:14, padding:"14px 16px" }}>
+      <div style={{ fontSize:11.5, fontWeight:700, color:ac, letterSpacing:".05em", marginBottom:8 }}>
+        WHAT MY COACH SEES
+      </div>
+      <div style={{ fontSize:11.5, color:T.muted, marginBottom:14, lineHeight:1.55 }}>
+        You control exactly what your coach (if you have one) can read about you. Toggle off anything you&apos;d rather keep private. Kailu (your AI) reads everything regardless — it&apos;s only your coach&apos;s visibility we&apos;re controlling here.
+      </div>
+      <Row label="Sleep data" sub="Hours, quality, HRV from wearable sync" k="shareSleep"/>
+      <Row label="Mood / stress entries" sub="Your weekly check-in mood scores + notes" k="shareMood"/>
+      <Row label="Bodyweight" sub="Daily/weekly weigh-ins" k="shareWeight"/>
+      <Row label="Progress photos" sub="Off by default. Turn on only if your coach asked." k="sharePhotos"/>
+      <Row label="Workout logs" sub="Sets, reps, weights, dates" k="shareWorkoutLogs"/>
+      <Row label="Macros / food log" sub="Daily protein, carbs, fats, calories" k="shareMacros"/>
+      <Row label="Photos in coach&apos;s marketing" sub="Allow your coach to feature your transformation publicly. Off by default." k="shareMarketingPhoto"/>
+    </div>
+  );
+}
+
 // ─── TRAINER HUB — dedicated B2B surface for personal trainers ────────────────
 // Distinct from ManagerHub (gym owners). Focus: voice cloning, client roster,
 // pushed protocols. Entered from the "For Trainers" CTA on the landing page.
@@ -7262,7 +7653,9 @@ function TrainerHub({ theme, onBack }) {
     catch { return []; }
   })();
   const tabs = [
-    { id:"clients",   label:"MY CLIENTS"   },
+    { id:"clients",   label:"CLIENTS"      },
+    { id:"checkins",  label:"CHECK-INS"    },
+    { id:"messages",  label:"MESSAGES"     },
     { id:"voice",     label:"COACH VOICE"  },
     { id:"protocols", label:"PROTOCOLS"    },
     { id:"settings",  label:"SETTINGS"     },
@@ -7315,24 +7708,30 @@ function TrainerHub({ theme, onBack }) {
         {tab === "clients" && (
           <div>
             <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
-              YOUR CLIENT ROSTER
+              CLIENT ROSTER · ADHERENCE (LAST 14 DAYS)
             </div>
-            <div style={{ background:T.card, border:`1px dashed ${T.border}`,
-              borderRadius:14, padding:"18px 16px", textAlign:"center" }}>
+            <TrainerAdherenceView theme={theme}/>
+          </div>
+        )}
+        {tab === "checkins" && (
+          <div>
+            <TrainerCheckInDashboard theme={theme}/>
+          </div>
+        )}
+        {tab === "messages" && (
+          <div>
+            <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
+              DIRECT MESSAGES
+            </div>
+            <div style={{ background:T.card, border:`1px dashed ${T.border}`, borderRadius:14,
+              padding:"18px 16px", textAlign:"center" }}>
               <div style={{ fontSize:13.5, fontWeight:700, color:T.text, marginBottom:6 }}>
-                No clients yet.
+                Human-only thread with each of your clients.
               </div>
-              <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.55, marginBottom:14 }}>
-                When a client signs up using your invite link or scans your gym's QR code, they'll appear here. You'll see their adherence, last session, and current macros at a glance.
+              <div style={{ fontSize:11.5, color:T.muted, lineHeight:1.55 }}>
+                Once a client has your invite link, you can DM them here. Kailu (AI) never writes in these threads — your client knows every message in this thread came from you personally.
               </div>
-              <button onClick={() => setTab("voice")} style={{
-                padding:"9px 14px", borderRadius:10, background:ac,
-                color: theme==="dark"?"#000":"#fff", border:"none",
-                fontSize:11.5, fontWeight:900, letterSpacing:".04em",
-                textTransform:"uppercase", cursor:"pointer",
-              }}>Set up coach voice first →</button>
             </div>
-            {/* Future: render real client list when multi-user data lands */}
           </div>
         )}
 
@@ -18780,25 +19179,177 @@ function getPushedProtocolsForClient(clientEmail) {
   const e = clientEmail.toLowerCase();
   return all.filter(p => (p.toClientEmail || "").toLowerCase() === e);
 }
-function pushProtocolToClient({ toClientName, toClientEmail, note, items }) {
+function pushProtocolToClient({ toClientName, toClientEmail, note, items, kind = "supplement", workoutTitle }) {
   const v = getTrainerVoice();
   const fromTrainerName = v?.trainerName || "Your Coach";
   const entry = {
     id: "push_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7),
     fromTrainerName,
+    kind, // "supplement" | "workout"
+    workoutTitle: (workoutTitle || "").trim(),
     toClientName: (toClientName || "").trim(),
     toClientEmail: (toClientEmail || "").trim().toLowerCase(),
     note: (note || "").trim().slice(0, 240),
-    items: (items || []).slice(0, 10).map(s => ({
+    items: (items || []).slice(0, 12).map(s => ({
       id: s.id, name: s.name, brand: s.brand, dose: s.dose, timing: s.timing,
+      sets: s.sets, reps: s.reps, weight: s.weight, // workout fields
       price: s.price, inStock: s.inStock, source: s.source, mechanism: s.mechanism,
-      personalWhy: s.personalWhy,
+      personalWhy: s.personalWhy, notes: s.notes,
     })),
     pushedAt: new Date().toISOString(),
   };
   const arr = getPushedProtocols();
   savePushedProtocols([...arr, entry]);
   return entry;
+}
+
+
+// ─── DIRECT MESSAGES (trainer ↔ client, HUMAN-ONLY thread) ────────────────────
+// Separate from Kailu chat. Verifiable human-to-human. No AI ever writes here.
+// Storage: rvn_direct_messages = [{ id, fromEmail, fromName, toEmail, toName, body, sentAt, read }]
+function getDirectMessages() {
+  try {
+    const arr = JSON.parse(localStorage.getItem("rvn_direct_messages") || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function saveDirectMessages(arr) {
+  try { localStorage.setItem("rvn_direct_messages", JSON.stringify(arr || [])); } catch {}
+}
+function getDirectThread(myEmail, otherEmail) {
+  if (!myEmail || !otherEmail) return [];
+  const me = myEmail.toLowerCase(), them = otherEmail.toLowerCase();
+  return getDirectMessages()
+    .filter(m => {
+      const f = (m.fromEmail || "").toLowerCase(), t = (m.toEmail || "").toLowerCase();
+      return (f === me && t === them) || (f === them && t === me);
+    })
+    .sort((a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime());
+}
+function sendDirectMessage({ fromEmail, fromName, toEmail, toName, body }) {
+  if (!fromEmail || !toEmail || !body || !body.trim()) return null;
+  const entry = {
+    id: "msg_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7),
+    fromEmail: fromEmail.toLowerCase(),
+    fromName: (fromName || "").trim(),
+    toEmail: toEmail.toLowerCase(),
+    toName: (toName || "").trim(),
+    body: body.trim().slice(0, 1200),
+    sentAt: new Date().toISOString(),
+    read: false,
+  };
+  saveDirectMessages([...getDirectMessages(), entry]);
+  return entry;
+}
+function markThreadRead(myEmail, otherEmail) {
+  if (!myEmail || !otherEmail) return;
+  const me = myEmail.toLowerCase(), them = otherEmail.toLowerCase();
+  const arr = getDirectMessages().map(m => {
+    const t = (m.toEmail || "").toLowerCase(), f = (m.fromEmail || "").toLowerCase();
+    if (t === me && f === them && !m.read) return { ...m, read: true };
+    return m;
+  });
+  saveDirectMessages(arr);
+}
+function unreadCountFor(myEmail) {
+  if (!myEmail) return 0;
+  const me = myEmail.toLowerCase();
+  return getDirectMessages().filter(m => (m.toEmail || "").toLowerCase() === me && !m.read).length;
+}
+
+// ─── WEEKLY CHECK-INS ──────────────────────────────────────────────────────────
+// Client submits a quick survey each Monday. Trainer sees a roster-wide
+// dashboard with Kailu's AI triage flagging who's at risk.
+// Storage: rvn_check_ins = [{ id, clientEmail, clientName, weekOf, sleep, soreness, mood, weight, photoDataUrl, notes, submittedAt }]
+function getCheckIns() {
+  try {
+    const arr = JSON.parse(localStorage.getItem("rvn_check_ins") || "[]");
+    return Array.isArray(arr) ? arr : [];
+  } catch { return []; }
+}
+function saveCheckIns(arr) {
+  try { localStorage.setItem("rvn_check_ins", JSON.stringify(arr || [])); } catch {}
+}
+function submitCheckIn(entry) {
+  if (!entry || !entry.clientEmail) return null;
+  const e = {
+    id: "ci_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7),
+    clientEmail: (entry.clientEmail || "").toLowerCase(),
+    clientName: entry.clientName || "",
+    weekOf: entry.weekOf || new Date().toISOString().slice(0, 10),
+    sleep: typeof entry.sleep === "number" ? entry.sleep : null,
+    soreness: typeof entry.soreness === "number" ? entry.soreness : null,
+    mood: typeof entry.mood === "number" ? entry.mood : null,
+    weight: typeof entry.weight === "number" ? entry.weight : null,
+    photoDataUrl: entry.photoDataUrl || null,
+    notes: (entry.notes || "").trim().slice(0, 600),
+    submittedAt: new Date().toISOString(),
+  };
+  saveCheckIns([...getCheckIns(), e]);
+  return e;
+}
+function getMostRecentCheckIn(clientEmail) {
+  if (!clientEmail) return null;
+  const e = clientEmail.toLowerCase();
+  return getCheckIns()
+    .filter(c => (c.clientEmail || "").toLowerCase() === e)
+    .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime())[0] || null;
+}
+// AI triage — Kailu summarizes the week's check-ins into a one-screen digest
+async function summarizeCheckInsViaKailu(checkIns) {
+  if (typeof window === "undefined" || !checkIns?.length) return null;
+  const base = window.__RVN_BIOPAL_ENDPOINT__ || (window.location.hostname !== "localhost" ? "/api/kailu" : null);
+  if (!base) return null;
+  const list = checkIns.slice(0, 30).map(c => {
+    const parts = [];
+    if (c.clientName) parts.push(c.clientName);
+    if (c.sleep != null) parts.push(`sleep ${c.sleep}/10`);
+    if (c.soreness != null) parts.push(`soreness ${c.soreness}/10`);
+    if (c.mood != null) parts.push(`mood ${c.mood}/10`);
+    if (c.weight != null) parts.push(`${c.weight}lb`);
+    if (c.notes) parts.push(`notes: ${c.notes.slice(0, 80)}`);
+    return "- " + parts.join(", ");
+  }).join("\n");
+  const system = `You are Kailu, an elite fitness coach reviewing your trainer's weekly client check-ins. Read every check-in and produce a Monday digest in this exact JSON shape:
+{"atRisk":[{"name":"...","reason":"...","action":"reach out / push deload / ..."}],"wins":[{"name":"...","note":"..."}],"adjustments":[{"name":"...","suggestion":"..."}]}
+Rules:
+- atRisk = clients showing two or more of: low sleep (<5/10), high soreness (>7/10), low mood (<5/10), weight stalled/dropped during gain phase, missed messages, notes flagging stress/pain.
+- wins = clear positive signals (PRs implied, weight moving the right direction, mood spike, return after a gap).
+- adjustments = specific programming or supplement tweaks the trainer should consider for ONE specific client.
+- Be specific. Use real names from the input. Never invent data.`;
+  try {
+    const res = await fetch(base, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ system, user: "Triage these check-ins:\n" + list, history: [], max_tokens: 600 }),
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const raw = json?.text || json?.content?.[0]?.text || "";
+    const match = raw.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    return JSON.parse(match[0]);
+  } catch { return null; }
+}
+
+// ─── CONSENT / "What my coach sees" SETTINGS ──────────────────────────────────
+// Client controls which data is visible to their trainer. Lives in
+// rvn_consent_settings per the current user's email.
+function getConsentSettings() {
+  try {
+    const s = JSON.parse(localStorage.getItem("rvn_consent_settings") || "null");
+    return s || {
+      shareSleep: true,
+      shareMood: true,
+      shareWeight: true,
+      sharePhotos: false,        // photos default OFF — trainer must ask
+      shareWorkoutLogs: true,
+      shareMacros: true,
+      shareMarketingPhoto: false, // trainer can't use my photos in marketing
+    };
+  } catch { return {}; }
+}
+function saveConsentSettings(s) {
+  try { localStorage.setItem("rvn_consent_settings", JSON.stringify(s || {})); } catch {}
 }
 
 // ─── TRAINER VOICE ────────────────────────────────────────────────────────────

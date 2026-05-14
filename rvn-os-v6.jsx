@@ -12330,10 +12330,17 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
 
   const handleCreateAccount = async () => {
     setPwErr("");
-    if (!name.trim())        { setPwErr("Enter your name."); return; }
-    if (!email.trim())       { setPwErr("Enter your email."); return; }
-    if (password.length < 8) { setPwErr("Password must be at least 8 characters."); return; }
-    if (gymCode.trim() && !gymInfo) { setPwErr("Enter a valid gym code or leave it blank."); return; }
+    // Stronger validation: catch trivial typos that lead to bad downstream data
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    if (trimmedName.length < 2)              { setPwErr("Enter your name (at least 2 letters)."); return; }
+    if (!isValidEmail(trimmedEmail))         { setPwErr("Enter a valid email address."); return; }
+    if (password.length < 8)                 { setPwErr("Password must be at least 8 characters."); return; }
+    if (password === trimmedEmail || password === trimmedName) {
+      setPwErr("Pick a stronger password (not your name or email).");
+      return;
+    }
+    if (gymCode.trim() && !gymInfo)          { setPwErr("Enter a valid gym code or leave it blank."); return; }
     setSigningUp(true);
     try {
       const client = await getSupaClient();
@@ -12346,8 +12353,8 @@ function AccountScreen({ onComplete, onBack, theme, mode }) {
     }
     setSigningUp(false);
     onComplete({
-      name: email.trim(),
-      email: email.trim(),
+      name: trimmedName,
+      email: trimmedEmail,
       gymId: gymInfo?.id || null,
       gymName: gymInfo?.name || null,
       gymTier: gymInfo?.tier || null,

@@ -13487,6 +13487,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             const isActive = activeGymTab === t.id;
             return (
               <motion.button key={t.id} whileTap={{ scale:.97 }}
+                data-tour-id={"tab-" + t.id}
                 onClick={() => setActiveGymTab(t.id)}
                 style={{
                   flex:1, padding:"10px 2px 11px", border:"none", cursor:"pointer",
@@ -18618,8 +18619,25 @@ function resetAllDemos() {
 // so it renders identically across iOS/Android/web). title is bold lead.
 const DEMO_CARDS = {
   welcome: [
-    { icon: "✨", title: "Welcome to RVN.",
-      body: "Each tab below opens a different part of your training. Kailu — your AI coach — is in the bottom-right whenever you need her. Tap around. The first time you visit each section, I will show you what is in it." },
+    { icon: "✨", title: "Welcome to RVN. Let me show you around.",
+      body: "30-second tour. Tap Next to see what each part of the app does." },
+    { icon: "◉", title: "TRAIN — your daily protocol.",
+      body: "Every workout adapts to your readiness, sleep, and recent training. Tap exercises to log sets as you go.",
+      target: '[data-tour-id="tab-train"]' },
+    { icon: "📈", title: "STATS — readiness + recovery.",
+      body: "Your Bio-Score, sleep, HRV, and soreness live here. Kailu uses these to scale your workouts automatically.",
+      target: '[data-tour-id="tab-stats"]' },
+    { icon: "◐", title: "FUEL — macros without lying to yourself.",
+      body: "Honest macro tracking with uncertainty ranges. Recipe scanner, AI meal plan, and your personalized supplement stack.",
+      target: '[data-tour-id="tab-fuel"]' },
+    { icon: "↑", title: "PROGRESS — streaks, PRs, photos.",
+      body: "Your training streak, personal records auto-detected, progress photos, and weekly recaps on Mondays.",
+      target: '[data-tour-id="tab-progress"]' },
+    { icon: "✨", title: "Kailu — your AI coach.",
+      body: "Tap this anytime to chat. Kailu remembers your injuries, goals, training history — replies like a real coach who knows you. Try: \"I just ate two eggs.\"",
+      target: '[data-tour-id="kailu-bubble"]' },
+    { icon: "🎯", title: "You\u2019re ready.",
+      body: "Tap any tab to start. The first time you visit each section, I will show you what is inside. Let us go." },
   ],
   train: [
     { icon: "◉", title: "Your protocol, adapted daily.",

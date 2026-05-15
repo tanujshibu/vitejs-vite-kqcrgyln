@@ -15791,7 +15791,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               );
             })()}
 
-            {/* ── Top 2 Supplement Cards ──────────────────────────────────── */}
+            {/* ── In-gym retail: supplement promos + products ───────────────
+                 Only render when the user is actually at a partnered venue.
+                 Otherwise we'd be showing a stranger fake "Thorne NMN $68" cards. */}
+            {profile?.venueBrand && (
+              <>
             <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".04em", marginBottom:10 }}>
               RECOMMENDED SUPPLEMENTS
             </div>
@@ -15926,6 +15930,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 </motion.div>
               )}
             </div>
+              </>
+            )}
 
             </motion.div>
           );
@@ -19687,7 +19693,17 @@ function ContextualDemo({ id, theme, accent, onComplete, activeTab, setActiveTab
           const r = el.getBoundingClientRect();
           // Skip if element is collapsed (width or height zero) — still rendering
           if (r.width > 0 && r.height > 0) {
-            setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+            // Clamp halo height so it doesn't wrap half the screen when the
+            // tour target is on a tall container. Center the clamped halo on
+            // the element's vertical midpoint.
+            const MAX_H = 220;
+            let top = r.top, height = r.height;
+            if (height > MAX_H) {
+              const mid = r.top + r.height / 2;
+              top = mid - MAX_H / 2;
+              height = MAX_H;
+            }
+            setRect({ top, left: r.left, width: r.width, height });
             try { el.scrollIntoView({ behavior: "smooth", block: "center" }); } catch {}
             return;
           }

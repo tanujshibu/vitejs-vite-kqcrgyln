@@ -691,7 +691,7 @@ const OS_MODES = {
     tagline:      "Elite Signature Coach",
     icon:         "⬡",
     accentKey:    "gold",
-    heroWords:    ["ENGINEER", "YOUR", "PHYSIQUE"],
+    heroWords:    ["BUILT FOR", "WHO YOU'RE", "BECOMING"],
     heroBio:      "Systems ready. Protocol generating from your biological blueprint.",
     ctaLabel:     "Begin Neural Scan",
     bgGradient:   (T) => `radial-gradient(ellipse 80% 55% at 50% 0%, ${T.gold}1A 0%, transparent 65%)`,
@@ -9519,7 +9519,7 @@ function LandingScreen({ storeName, mode, theme, onBegin, onManager, onTrainers,
             transition={{ delay:.82, duration:.4 }}
             style={{ textAlign:"center", marginBottom:24 }}>
             <div style={{ fontSize:14, color:T.muted, lineHeight:1.5, fontWeight:400 }}>
-              Built for who you're becoming.
+              A coach in your pocket. The 23 hours your gym app forgets.
             </div>
           </motion.div>
 

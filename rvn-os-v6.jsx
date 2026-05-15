@@ -53,6 +53,17 @@ function LI({ n, size = 15, color = "currentColor", style = {} }) {
 // backdrop-filter blur + many simultaneous animations overwhelm mobile GPUs.
 // On mobile: disable blurs, stop infinite loops → no more flickering.
 const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+// ─── iOS-feel tap helpers ─────────────────────────────────────────────────────
+// Haptic pulse on tap. Works on Android Chrome (Vibration API); iOS Safari/PWA
+// silently ignores it because Apple does not expose the Taptic Engine to the web.
+// When we ship the native iOS shell, swap this for Capacitor Haptics.
+function tapPing(ms = 8) {
+  try { if (typeof navigator !== "undefined") navigator.vibrate?.(ms); } catch {}
+}
+// iOS-like spring for the release of a press. Snappier than framer-motion default.
+const IOS_TAP_TRANSITION = { type: "spring", stiffness: 520, damping: 28, mass: 0.6 };
+
 const BF = isMobile ? "none" : null; // blur shorthand, null means use full value
 
 // ─── SUPABASE CLIENT ──────────────────────────────────────────────────────────
@@ -11580,13 +11591,15 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
                 initial={{ opacity:0, x:28 }}
                 animate={{ opacity:1, x:0 }}
                 transition={{ delay:.08 + i*.07, duration:.32, ease:[.22,1,.36,1] }}
-                whileTap={{ scale:.98 }}
+                whileTap={{ scale: 0.96 }}
+                transition={IOS_TAP_TRANSITION}
                 onHoverStart={() => setHovered(arch.id)}
                 onHoverEnd={() => setHovered(null)}
                 onClick={() => {
+                  tapPing();
                   setPicked(arch.id);
                   const fact = ONBOARDING_FACTS.archetype[arch.id] || ONBOARDING_FACTS.archetype.default;
-                  setTimeout(() => flash(fact, () => onSelect(arch.id)), 260);
+                  setTimeout(() => flash(fact, () => onSelect(arch.id)), 180);
                 }}
                 style={{
                   width:"100%",
@@ -11990,12 +12003,14 @@ function PersonalizeTapCards({ options, selected, onPick, autoAdvance = true, th
           <motion.button key={opt.value}
             initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
             transition={{ delay:.12 + i*.07, duration:.32, ease:[.22,1,.36,1] }}
-            whileTap={{ scale:.97 }}
+            whileTap={{ scale: 0.96 }}
+            transition={IOS_TAP_TRANSITION}
             onClick={() => {
+              tapPing();
               opt.onSelect?.();
               if (autoAdvance) {
-                // Small delay so selection is visible before advancing
-                setTimeout(() => onPick(opt.value), 180);
+                // Brief delay so selection is visible before advancing (iOS-like)
+                setTimeout(() => onPick(opt.value), 80);
               } else {
                 onPick(opt.value);
               }

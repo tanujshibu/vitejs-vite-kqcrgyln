@@ -19840,31 +19840,32 @@ function ContextualDemo({ id, theme, accent, onComplete, activeTab, setActiveTab
     const t = setTimeout(() => setShow(true), 400);
     return () => clearTimeout(t);
   }, [id]);
-  // Switch to the right tab (if the card specifies one) before searching for
-  // the target, then retry the lookup since DOM may not be ready after a tab
-  // transition. Falls back to centered card if target is never found.
+  // Resolve target + halo for the current card. If the card lives on a
+  // different tab, switch tab first then wait longer for the new tab DOM to
+  // mount before searching. SINGLE-PASS — we do not re-run on activeTab
+  // changes, because that caused the second run to skip the required DOM-ready
+  // delay (visible bug: tour disappeared on first tab switch).
   React.useEffect(() => {
     if (!show || !cards) return;
     const card = cards[idx];
-    if (!card?.target) { setRect(null); return; }
-    // If the card lives on a different tab, switch to it before finding the target.
-    if (card.tab && setActiveTab && activeTab !== card.tab) {
-      setActiveTab(card.tab);
+    if (!card) { setRect(null); return; }
+    if (!card.target) { setRect(null); return; }
+
+    const needsTabSwitch = !!(card.tab && setActiveTab && activeTab !== card.tab);
+    if (needsTabSwitch) {
+      try { setActiveTab(card.tab); } catch {}
     }
+
     let attempts = 0;
     let timer;
-    // First attempt is delayed if we just switched tabs (DOM needs to render).
-    const startDelay = (card.tab && activeTab !== card.tab) ? 350 : 0;
     const tryFind = () => {
       try {
         const el = document.querySelector(card.target);
         if (el) {
           const r = el.getBoundingClientRect();
-          // Skip if element is collapsed (width or height zero) — still rendering
+          // Accept ANY rendered size > 0 (older code rejected sub-pixel sizes during
+          // tab entry animations, causing the tour to never settle on its target).
           if (r.width > 0 && r.height > 0) {
-            // Clamp halo height so it doesn't wrap half the screen when the
-            // tour target is on a tall container. Center the clamped halo on
-            // the element's vertical midpoint.
             const MAX_H = 220;
             let top = r.top, height = r.height;
             if (height > MAX_H) {
@@ -19879,15 +19880,21 @@ function ContextualDemo({ id, theme, accent, onComplete, activeTab, setActiveTab
         }
       } catch {}
       attempts++;
-      if (attempts < 16) timer = setTimeout(tryFind, 140);
-      else setRect(null);
+      // Generous retry budget — 24 attempts × 150ms = up to 3.6s before giving up.
+      // Tab-entry animations + framer-motion stagger can easily push past 1s.
+      if (attempts < 24) timer = setTimeout(tryFind, 150);
+      else setRect(null);  // Falls through to centered-card render.
     };
+    // Tab switch needs ~500ms for the new subtree to mount + initial animations
+    // to settle into measurable dimensions. Same-tab targets check immediately.
+    const startDelay = needsTabSwitch ? 500 : 0;
     timer = setTimeout(tryFind, startDelay);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show, idx, cards, activeTab]);
+  }, [show, idx, cards]);
   if (!cards || cards.length === 0 || !show) return null;
-  const card = cards[idx];
+  // Defensive: out-of-bounds idx (shouldn't happen post-fix but guard anyway).
+  const card = cards[idx] || cards[cards.length - 1];
   const isLast = idx === cards.length - 1;
   const finish = () => {
     markDemoCompleted(id);
@@ -19895,8 +19902,10 @@ function ContextualDemo({ id, theme, accent, onComplete, activeTab, setActiveTab
     onComplete && onComplete();
   };
   const advance = () => {
-    if (isLast) finish();
-    else { setIdx(idx + 1); setRect(null); }
+    // Defensive: if isLast got out of sync with idx, just finish.
+    if (isLast || idx + 1 >= cards.length) { finish(); return; }
+    setIdx(idx + 1);
+    setRect(null);
   };
   const vh = typeof window !== "undefined" ? window.innerHeight : 800;
   const placeBelow = rect ? (rect.top + rect.height / 2) < (vh / 2) : false;
@@ -19916,12 +19925,12 @@ function ContextualDemo({ id, theme, accent, onComplete, activeTab, setActiveTab
       <motion.div key={idx}
         initial={{ opacity:0, x:8 }} animate={{ opacity:1, x:0 }}
         transition={{ duration:0.2 }}>
-        <div style={{ fontSize:24, marginBottom:6 }}>{card.icon}</div>
+        <div style={{ fontSize:24, marginBottom:6 }}>{card?.icon || "✨"}</div>
         <div style={{ fontSize:16, fontWeight:900, color:T.text, marginBottom:6, lineHeight:1.25 }}>
-          {card.title}
+          {card?.title || ""}
         </div>
         <div style={{ fontSize:12.5, color:T.muted, lineHeight:1.55, whiteSpace:"pre-line", marginBottom:12 }}>
-          {card.body}
+          {card?.body || ""}
         </div>
       </motion.div>
       <div style={{ display:"flex", gap:5, justifyContent:"center", marginBottom:10 }}>

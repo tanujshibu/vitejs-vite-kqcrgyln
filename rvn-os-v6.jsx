@@ -11104,16 +11104,6 @@ function BiologyQWrap({ step, total = 7, storyHook, headline, children, onBackFn
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
           zIndex:0 }}/>
-      <motion.div
-        animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
-        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
-        style={{
-          position:"absolute", top:"-10px", right:"-8px",
-          fontSize:180, fontWeight:900, color:T.text,
-          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-          userSelect:"none", zIndex:0, transformOrigin:"top right",
-          opacity: 0.035,
-        }}>{String(step).padStart(2,"0")}</motion.div>
       <div style={{ position:"relative", zIndex:1,
         padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <BackBtn onBack={onBackFn} theme={theme}/>
@@ -11369,12 +11359,6 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
         transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
         style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0,
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, #2E5BFF1E, transparent 60%)` }}/>
-      {/* Giant step number */}
-      <motion.div animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
-        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
-        style={{ position:"absolute", top:"-10px", right:"-8px", fontSize:180, fontWeight:900,
-          color:T.text, letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-          userSelect:"none", zIndex:0, transformOrigin:"top right" }}>01</motion.div>
 
       {/* Back + dots */}
       <div style={{ position:"relative", zIndex:1, padding:"18px 22px 0",
@@ -11753,14 +11737,6 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
           transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
           style={{ position:"absolute", inset:0, pointerEvents:"none",
             background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
-        {/* Giant faded step number, pulses */}
-        <motion.div
-          animate={{ scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
-          transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
-          style={{ position:"absolute", top:"-10px", right:"-8px",
-            fontSize:180, fontWeight:900, color:T.text,
-            letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-            userSelect:"none", zIndex:0, transformOrigin:"top right" }}>03</motion.div>
 
         <motion.div {...FX.up} style={{ position:"relative", zIndex:1, marginBottom:8 }}>
           <div style={{ fontSize:12, color:T.muted, fontStyle:"italic", lineHeight:1.6, marginBottom:14, maxWidth:310,
@@ -11939,17 +11915,6 @@ function PersonalizeQScreen({ step, total, headline, storyHook, children, onBack
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
           zIndex:0 }}/>
-      {/* Giant faded step number, static on mobile, subtle pulse on desktop */}
-      <motion.div
-        animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
-        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
-        style={{
-          position:"absolute", top:"-10px", right:"-8px",
-          fontSize:180, fontWeight:900, color:T.text,
-          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-          userSelect:"none", zIndex:0, transformOrigin:"top right",
-          opacity: 0.035,
-        }}>{String(step).padStart(2,"0")}</motion.div>
 
       <div style={{ position:"relative", zIndex:1,
         padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>

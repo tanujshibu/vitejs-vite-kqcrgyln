@@ -11087,6 +11087,93 @@ function OBCard({ option, selected, onPick, index = 0, theme, fill = false }) {
 }
 
 // ─── BIOLOGY STEP ─────────────────────────────────────────────────────────────
+// Top-level wrapper for biology onboarding questions. Extracted from inside
+// BiologyStep so the component reference is stable across parent re-renders.
+// (Before this extraction, every option-tap caused BiologyStep to re-render,
+// which created a new QWrap function and re-mounted the whole subtree — that
+// re-mount restarted every entry animation, producing the "replay" glitch.)
+function BiologyQWrap({ step, total = 7, storyHook, headline, children, onBackFn, theme }) {
+  const T = D[theme];
+  const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
+  const stepColor = glows[(step - 1) % glows.length];
+  return (
+    <Screen theme={theme} style={{ overflow:"hidden" }}>
+      <motion.div
+        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
+        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        style={{ position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
+          zIndex:0 }}/>
+      <motion.div
+        animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+        style={{
+          position:"absolute", top:"-10px", right:"-8px",
+          fontSize:180, fontWeight:900, color:T.text,
+          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+          userSelect:"none", zIndex:0, transformOrigin:"top right",
+          opacity: 0.035,
+        }}>{String(step).padStart(2,"0")}</motion.div>
+      <div style={{ position:"relative", zIndex:1,
+        padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <BackBtn onBack={onBackFn} theme={theme}/>
+        <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+          {Array.from({ length:total }, (_, i) => (
+            <div key={i} style={{
+              width: i + 1 === step ? 18 : 5,
+              height:5, borderRadius:3,
+              background: i + 1 <= step ? stepColor : T.border,
+              transition:"all .3s ease",
+              boxShadow: i + 1 === step ? `0 0 6px ${stepColor}` : "none",
+            }}/>
+          ))}
+        </div>
+      </div>
+      <motion.div key={`bio-q${step}`}
+        initial={isMobile ? false : { opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
+        transition={{ duration:.38, ease:[.22,1,.36,1] }}
+        style={{ position:"relative", zIndex:1, flex:1, display:"flex",
+          flexDirection:"column", padding:"24px 24px 48px" }}>
+        {storyHook && (
+          <motion.div
+            initial={isMobile ? false : { opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+            transition={{ delay:.1, duration:.35 }}
+            style={{
+              fontSize:12, color: T.muted, fontStyle:"italic",
+              lineHeight:1.6, marginBottom:16, maxWidth:310,
+              borderLeft:`2px solid ${stepColor}88`,
+              paddingLeft:10,
+            }}>
+            {storyHook}
+          </motion.div>
+        )}
+        <motion.div initial={isMobile ? false : { opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.18 }}
+          style={{ marginBottom:28 }}>
+          <div style={{
+            fontSize:32, fontWeight:900, letterSpacing:"-.03em",
+            color:T.text, lineHeight:1.12,
+            textShadow: theme==="dark" ? `0 0 60px ${stepColor}44` : "none",
+          }}>{headline}</div>
+          <motion.div
+            initial={isMobile ? false : { scaleX:0 }} animate={{ scaleX:1 }}
+            transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
+            style={{ height:2, width:40, background:stepColor,
+              borderRadius:2, marginTop:10, transformOrigin:"left",
+              boxShadow:`0 0 8px ${stepColor}99` }}/>
+        </motion.div>
+        <div style={{ flex:1, display:"flex", flexDirection:"column", gap:10 }}>
+          {React.Children.map(children, (child, idx) => (
+            <div key={idx} style={{ flex:1, display:"flex", flexDirection:"column" }}>
+              {child && React.cloneElement(child, { fill:true })}
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </Screen>
+  );
+}
+
 function BiologyStep({ mode, onSelect, onBack, theme }) {
   const T = D[theme] || D.dark;
   const M = OS_MODES[mode];
@@ -11130,101 +11217,13 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   if (factData) return <FactFlash data={factData} onContinue={() => setFactData(null)} theme={theme}/>;
 
-  // Shared question wrapper, cinematic story-mode layout
-  function QWrap({ step, total=7, storyHook, headline, children, onBackFn }) {
-    const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
-    const stepColor = glows[(step - 1) % glows.length];
-    return (
-      <Screen theme={theme} style={{ overflow:"hidden" }}>
-        {/* Ambient colored glow, breathes */}
-        <motion.div
-          animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
-          transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
-          style={{ position:"absolute", inset:0, pointerEvents:"none",
-            background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
-            zIndex:0 }}/>
-
-        {/* Giant faded step number, static on mobile, subtle pulse on desktop */}
-        <motion.div
-          animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
-          transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
-          style={{
-            position:"absolute", top:"-10px", right:"-8px",
-            fontSize:180, fontWeight:900, color:T.text,
-            letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-            userSelect:"none", zIndex:0, transformOrigin:"top right",
-            opacity: 0.035,
-          }}>{String(step).padStart(2,"0")}</motion.div>
-
-        {/* Back button + step dots */}
-        <div style={{ position:"relative", zIndex:1,
-          padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <BackBtn onBack={onBackFn} theme={theme}/>
-          {/* Step dots */}
-          <div style={{ display:"flex", gap:5, alignItems:"center" }}>
-            {Array.from({ length:total }, (_, i) => (
-              <div key={i} style={{
-                width: i + 1 === step ? 18 : 5,
-                height:5, borderRadius:3,
-                background: i + 1 <= step ? stepColor : T.border,
-                transition:"all .3s ease",
-                boxShadow: i + 1 === step ? `0 0 6px ${stepColor}` : "none",
-              }}/>
-            ))}
-          </div>
-        </div>
-
-        <motion.div key={`bio-q${step}`}
-          initial={isMobile ? false : { opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
-          transition={{ duration:.38, ease:[.22,1,.36,1] }}
-          style={{ position:"relative", zIndex:1, flex:1, display:"flex",
-            flexDirection:"column", padding:"24px 24px 48px" }}>
-
-          {/* Story hook, accent left border, subtle drift */}
-          {storyHook && (
-            <motion.div
-              initial={isMobile ? false : { opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
-              transition={{ delay:.1, duration:.35 }}
-              style={{
-                fontSize:12, color: T.muted, fontStyle:"italic",
-                lineHeight:1.6, marginBottom:16, maxWidth:310,
-                borderLeft:`2px solid ${stepColor}88`,
-                paddingLeft:10,
-              }}>
-              {storyHook}
-            </motion.div>
-          )}
-
-          {/* Big question */}
-          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-            transition={{ delay:.18 }}
-            style={{ marginBottom:28 }}>
-            <div style={{
-              fontSize:32, fontWeight:900, letterSpacing:"-.03em",
-              color:T.text, lineHeight:1.12,
-              textShadow: theme==="dark" ? `0 0 60px ${stepColor}44` : "none",
-            }}>{headline}</div>
-            {/* Color accent underline */}
-            <motion.div
-              initial={{ scaleX:0 }} animate={{ scaleX:1 }}
-              transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
-              style={{ height:2, width:40, background:stepColor,
-                borderRadius:2, marginTop:10, transformOrigin:"left",
-                boxShadow:`0 0 8px ${stepColor}99` }}/>
-          </motion.div>
-
-          {/* Fill remaining space, cards stretch to fill */}
-          <div style={{ flex:1, display:"flex", flexDirection:"column", gap:10 }}>
-            {React.Children.map(children, (child, idx) => (
-              <div key={idx} style={{ flex:1, display:"flex", flexDirection:"column" }}>
-                {child && React.cloneElement(child, { fill:true })}
-              </div>
-            ))}
-          </div>
-        </motion.div>
-      </Screen>
-    );
-  }
+  // QWrap is extracted as a top-level component (see BiologyQWrap below) so
+  // React keeps a stable reference across re-renders. Defining a component
+  // inside another component creates a NEW component type on every render,
+  // which causes React to unmount and remount the subtree on every state
+  // change — that's what was causing the "screen replay" glitch when tapping
+  // options. By referencing the stable top-level component, no remount happens.
+  const QWrap = BiologyQWrap;
 
   // Helper: pick with brief visual flash before FactFlash
   function pick(setValue, value, fact, nextPhase) {
@@ -11458,7 +11457,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase 1: Training frequency ────────────────────────────────────────────
   if (phase === 1) return (
-    <QWrap step={2} total={7}
+    <QWrap theme={theme} step={2} total={7}
       headline="How often do you train?"
       storyHook="Most people think more sessions = more results. It's almost never true."
       onBackFn={() => setPhase(0)}>
@@ -11475,7 +11474,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase 2: Caffeine ──────────────────────────────────────────────────────
   if (phase === 2) return (
-    <QWrap step={3} total={7}
+    <QWrap theme={theme} step={3} total={7}
       headline="How sensitive are you to caffeine?"
       storyHook="Most people drink coffee wrong for the gym. Not too much, just at the wrong time."
       onBackFn={() => setPhase(1)}>
@@ -11493,7 +11492,7 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
 
   // ── Phase 3: Recovery bottleneck ──────────────────────────────────────────
   if (phase === 3) return (
-    <QWrap step={4} total={7}
+    <QWrap theme={theme} step={4} total={7}
       headline="What's holding you back?"
       storyHook="Everyone says they just need to work harder. That's almost never the real issue."
       onBackFn={() => setPhase(2)}>
@@ -11922,6 +11921,167 @@ function generateAIGoals({ age, heightIn, bw, activityLevel, trainingDays, goalF
 }
 
 // ─── PERSONALIZE STEP, Cal AI-style one-question-per-screen ─────────────────
+// Top-level wrapper for PersonalizeStep question screens. Extracted from
+// inside PersonalizeStep so the component reference is stable across parent
+// re-renders (previously every state update remounted the subtree, causing
+// the screen-replay glitch).
+function PersonalizeQScreen({ step, total, headline, storyHook, children, onBackFn, showContinue, onContinue, theme, onBack }) {
+  const T  = D[theme] || D.dark;
+  const ac = T.blue;
+  const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
+  const stepColor = glows[(step - 1) % glows.length];
+  return (
+    <Screen theme={theme} style={{ overflow:"hidden" }}>
+      {/* Ambient glow, breathes */}
+      <motion.div
+        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
+        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        style={{ position:"absolute", inset:0, pointerEvents:"none",
+          background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
+          zIndex:0 }}/>
+      {/* Giant faded step number, static on mobile, subtle pulse on desktop */}
+      <motion.div
+        animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
+        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+        style={{
+          position:"absolute", top:"-10px", right:"-8px",
+          fontSize:180, fontWeight:900, color:T.text,
+          letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
+          userSelect:"none", zIndex:0, transformOrigin:"top right",
+          opacity: 0.035,
+        }}>{String(step).padStart(2,"0")}</motion.div>
+
+      <div style={{ position:"relative", zIndex:1,
+        padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <BackBtn onBack={onBackFn || onBack} theme={theme}/>
+        <div style={{ display:"flex", gap:5, alignItems:"center" }}>
+          {Array.from({ length:total }, (_, i) => (
+            <div key={i} style={{
+              width: i + 1 === step ? 18 : 5,
+              height:5, borderRadius:3,
+              background: i + 1 <= step ? stepColor : T.border,
+              transition:"all .3s ease",
+              boxShadow: i + 1 === step ? `0 0 6px ${stepColor}` : "none",
+            }}/>
+          ))}
+        </div>
+      </div>
+
+      <motion.div
+        key={`ps-q${step}`}
+        initial={{ opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
+        exit={{ opacity:0, x:-40 }}
+        transition={{ duration:.38, ease:[.22,1,.36,1] }}
+        style={{ position:"relative", zIndex:1, flex:1, display:"flex",
+          flexDirection:"column", padding:"24px 24px 40px" }}>
+        {storyHook && (
+          <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
+            transition={{ delay:.1, duration:.35 }}
+            style={{
+              fontSize:12, color:T.muted, fontStyle:"italic",
+              lineHeight:1.6, marginBottom:16, maxWidth:310,
+              borderLeft:`2px solid ${stepColor}88`,
+              paddingLeft:10,
+            }}>
+            {storyHook}
+          </motion.div>
+        )}
+        <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
+          transition={{ delay:.18 }}
+          style={{ marginBottom:28 }}>
+          <div style={{
+            fontSize:32, fontWeight:900, letterSpacing:"-.03em",
+            color:T.text, lineHeight:1.12,
+            textShadow: theme==="dark" ? `0 0 60px ${stepColor}44` : "none",
+          }}>{headline}</div>
+          <motion.div
+            initial={{ scaleX:0 }} animate={{ scaleX:1 }}
+            transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
+            style={{ height:2, width:40, background:stepColor,
+              borderRadius:2, marginTop:10, transformOrigin:"left",
+              boxShadow:`0 0 8px ${stepColor}99` }}/>
+        </motion.div>
+        <div style={{ flex:1 }}>{children}</div>
+        {showContinue && (
+          <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.3 }}
+            style={{ marginTop:20 }}>
+            <ShimmerCTA label="Continue  →" onClick={onContinue} theme={theme} color={ac}/>
+          </motion.div>
+        )}
+      </motion.div>
+    </Screen>
+  );
+}
+
+// Top-level tap-cards used by PersonalizeStep. Stable reference across renders.
+function PersonalizeTapCards({ options, selected, onPick, autoAdvance = true, theme }) {
+  const T  = D[theme] || D.dark;
+  const ac = T.blue;
+  return (
+    <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
+      {options.map((opt, i) => {
+        const isSelected = selected === opt.value;
+        return (
+          <motion.button key={opt.value}
+            initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
+            transition={{ delay:.12 + i*.07, duration:.32, ease:[.22,1,.36,1] }}
+            whileTap={{ scale:.97 }}
+            onClick={() => {
+              opt.onSelect?.();
+              if (autoAdvance) {
+                // Small delay so selection is visible before advancing
+                setTimeout(() => onPick(opt.value), 180);
+              } else {
+                onPick(opt.value);
+              }
+            }}
+            style={{
+              width:"100%", padding:"20px 22px",
+              background: isSelected
+                ? (theme==="dark" ? "#ffffff" : "#000000")
+                : T.glass,
+              backdropFilter:isMobile?"none":"blur(16px)",
+              border:`1.5px solid ${isSelected ? (theme==="dark" ? "#ffffff" : "#000000") : T.border}`,
+              borderRadius:18, cursor:"pointer",
+              display:"flex", alignItems:"center", gap:16,
+              textAlign:"left", transition:"all .15s",
+            }}>
+            <div style={{
+              width:44, height:44, borderRadius:14, flexShrink:0,
+              background: isSelected
+                ? (theme==="dark" ? "#00000018" : "#ffffff18")
+                : `${opt.color || ac}18`,
+              display:"flex", alignItems:"center", justifyContent:"center",
+            }}>
+              <LI n={opt.icon} size={22}
+                color={isSelected ? (theme==="dark" ? "#000" : "#fff") : (opt.color || ac)} />
+            </div>
+            <div style={{ flex:1 }}>
+              <div style={{
+                fontSize:17, fontWeight:600,
+                color: isSelected ? (theme==="dark" ? "#000" : "#fff") : T.text,
+                letterSpacing:"-.01em",
+              }}>{opt.label}</div>
+              {opt.sub && <div style={{
+                fontSize:12, marginTop:2, lineHeight:1.4,
+                color: isSelected ? (theme==="dark" ? "#00000088" : "#ffffff88") : T.faint,
+              }}>{opt.sub}</div>}
+            </div>
+            {isSelected && (
+              <div style={{
+                width:22, height:22, borderRadius:"50%", flexShrink:0,
+                background: theme==="dark" ? "#000" : "#fff",
+                display:"flex", alignItems:"center", justifyContent:"center",
+                fontSize:12, color: theme==="dark" ? "#fff" : "#000",
+              }}>✓</div>
+            )}
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+}
+
 function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, theme }) {
   const T  = D[theme] || D.dark;
   const ac = T.blue;
@@ -11967,166 +12127,18 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
     onSubmit(profile);
   }
 
-  // Shared question screen, same cinematic layout as BiologyStep
-  function QScreen({ step, total, headline, storyHook, children, onBackFn, showContinue, onContinue }) {
-    const glows = ["#0A84FF","#BF5AF2","#C9A84C","#FF453A","#30D158","#5AC8FA","#FF9F0A"];
-    const stepColor = glows[(step - 1) % glows.length];
-    return (
-      <Screen theme={theme} style={{ overflow:"hidden" }}>
-        {/* Ambient glow, breathes */}
-        <motion.div
-          animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
-          transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
-          style={{ position:"absolute", inset:0, pointerEvents:"none",
-            background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
-            zIndex:0 }}/>
-        {/* Giant faded step number, static on mobile, subtle pulse on desktop */}
-        <motion.div
-          animate={isMobile ? {} : { scale:[1,1.018,1], opacity:[0.03,0.048,0.03] }}
-          transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
-          style={{
-            position:"absolute", top:"-10px", right:"-8px",
-            fontSize:180, fontWeight:900, color:T.text,
-            letterSpacing:"-.06em", lineHeight:1, pointerEvents:"none",
-            userSelect:"none", zIndex:0, transformOrigin:"top right",
-            opacity: 0.035,
-          }}>{String(step).padStart(2,"0")}</motion.div>
+  // QScreen extracted to top-level PersonalizeQScreen (stable reference).
+  const QScreen = PersonalizeQScreen;
 
-        <div style={{ position:"relative", zIndex:1,
-          padding:"18px 22px 0", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <BackBtn onBack={onBackFn || onBack} theme={theme}/>
-          <div style={{ display:"flex", gap:5, alignItems:"center" }}>
-            {Array.from({ length:total }, (_, i) => (
-              <div key={i} style={{
-                width: i + 1 === step ? 18 : 5,
-                height:5, borderRadius:3,
-                background: i + 1 <= step ? stepColor : T.border,
-                transition:"all .3s ease",
-                boxShadow: i + 1 === step ? `0 0 6px ${stepColor}` : "none",
-              }}/>
-            ))}
-          </div>
-        </div>
-
-        <motion.div
-          key={`ps-q${step}`}
-          initial={{ opacity:0, x:48 }} animate={{ opacity:1, x:0 }}
-          exit={{ opacity:0, x:-40 }}
-          transition={{ duration:.38, ease:[.22,1,.36,1] }}
-          style={{ position:"relative", zIndex:1, flex:1, display:"flex",
-            flexDirection:"column", padding:"24px 24px 40px" }}>
-          {storyHook && (
-            <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }}
-              transition={{ delay:.1, duration:.35 }}
-              style={{
-                fontSize:12, color:T.muted, fontStyle:"italic",
-                lineHeight:1.6, marginBottom:16, maxWidth:310,
-                borderLeft:`2px solid ${stepColor}88`,
-                paddingLeft:10,
-              }}>
-              {storyHook}
-            </motion.div>
-          )}
-          <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
-            transition={{ delay:.18 }}
-            style={{ marginBottom:28 }}>
-            <div style={{
-              fontSize:32, fontWeight:900, letterSpacing:"-.03em",
-              color:T.text, lineHeight:1.12,
-              textShadow: theme==="dark" ? `0 0 60px ${stepColor}44` : "none",
-            }}>{headline}</div>
-            <motion.div
-              initial={{ scaleX:0 }} animate={{ scaleX:1 }}
-              transition={{ delay:.3, duration:.45, ease:[.22,1,.36,1] }}
-              style={{ height:2, width:40, background:stepColor,
-                borderRadius:2, marginTop:10, transformOrigin:"left",
-                boxShadow:`0 0 8px ${stepColor}99` }}/>
-          </motion.div>
-          <div style={{ flex:1 }}>{children}</div>
-          {showContinue && (
-            <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:.3 }}
-              style={{ marginTop:20 }}>
-              <ShimmerCTA label="Continue  →" onClick={onContinue} theme={theme} color={ac}/>
-            </motion.div>
-          )}
-        </motion.div>
-      </Screen>
-    );
-  }
-
-  // Large tap card used for all multiple-choice phases
-  function TapCards({ options, selected, onPick, autoAdvance = true }) {
-    return (
-      <div style={{ display:"flex", flexDirection:"column", gap:12 }}>
-        {options.map((opt, i) => {
-          const isSelected = selected === opt.value;
-          return (
-            <motion.button key={opt.value}
-              initial={{ opacity:0, x:24 }} animate={{ opacity:1, x:0 }}
-              transition={{ delay:.12 + i*.07, duration:.32, ease:[.22,1,.36,1] }}
-              whileTap={{ scale:.97 }}
-              onClick={() => {
-                opt.onSelect?.();
-                if (autoAdvance) {
-                  // Small delay so selection is visible before advancing
-                  setTimeout(() => onPick(opt.value), 180);
-                } else {
-                  onPick(opt.value);
-                }
-              }}
-              style={{
-                width:"100%", padding:"20px 22px",
-                background: isSelected
-                  ? (theme==="dark" ? "#ffffff" : "#000000")
-                  : T.glass,
-                backdropFilter:isMobile?"none":"blur(16px)",
-                border:`1.5px solid ${isSelected ? (theme==="dark" ? "#ffffff" : "#000000") : T.border}`,
-                borderRadius:18, cursor:"pointer",
-                display:"flex", alignItems:"center", gap:16,
-                textAlign:"left", transition:"all .15s",
-              }}>
-              <div style={{
-                width:44, height:44, borderRadius:14, flexShrink:0,
-                background: isSelected
-                  ? (theme==="dark" ? "#00000018" : "#ffffff18")
-                  : `${opt.color || ac}18`,
-                display:"flex", alignItems:"center", justifyContent:"center",
-              }}>
-                <LI n={opt.icon} size={22}
-                  color={isSelected ? (theme==="dark" ? "#000" : "#fff") : (opt.color || ac)} />
-              </div>
-              <div style={{ flex:1 }}>
-                <div style={{
-                  fontSize:17, fontWeight:600,
-                  color: isSelected ? (theme==="dark" ? "#000" : "#fff") : T.text,
-                  letterSpacing:"-.01em",
-                }}>{opt.label}</div>
-                {opt.sub && <div style={{
-                  fontSize:12, marginTop:2, lineHeight:1.4,
-                  color: isSelected ? (theme==="dark" ? "#00000088" : "#ffffff88") : T.faint,
-                }}>{opt.sub}</div>}
-              </div>
-              {isSelected && (
-                <div style={{
-                  width:22, height:22, borderRadius:"50%", flexShrink:0,
-                  background: theme==="dark" ? "#000" : "#fff",
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:12, color: theme==="dark" ? "#fff" : "#000",
-                }}>✓</div>
-              )}
-            </motion.button>
-          );
-        })}
-      </div>
-    );
-  }
+  // TapCards extracted to top-level PersonalizeTapCards (stable reference).
+  const TapCards = PersonalizeTapCards;
 
   // ── Phase 0: Primary Goal ──────────────────────────────────────────────────
   if (phase === 0) return (
-    <QScreen step={4} total={6} headline="What's your primary goal?"
+    <QScreen theme={theme} step={4} total={6} headline="What's your primary goal?"
       storyHook="Be honest here. The protocol can only take you where you actually want to go."
       onBackFn={onBack}>
-      <TapCards selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
+      <TapCards theme={theme} selected={goalFocus} onPick={v => { setGoalFocus(v); advance(1); }} options={[
         { value:"muscle", icon:"dumbbell", label:"Build Muscle", sub:"Add size, strength, and dense mass",      color:"#0A84FF" },
         { value:"fat",    icon:"flame",    label:"Lose Fat",     sub:"Burn fat while preserving lean muscle",   color:"#FF453A" },
         { value:"recomp", icon:"scale",    label:"Body Recomp",  sub:"Simultaneously build muscle and lose fat", color:"#C8A94A" },
@@ -12136,10 +12148,10 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 
   // ── Phase 1: Activity Level ────────────────────────────────────────────────
   if (phase === 1) return (
-    <QScreen step={5} total={6} headline="How active are you outside the gym?"
+    <QScreen theme={theme} step={5} total={6} headline="How active are you outside the gym?"
       storyHook="The gym is only part of the picture. What you do outside it matters just as much."
       onBackFn={() => advance(0)}>
-      <TapCards selected={activityLevel} onPick={v => { setActivityLevel(v); advance(3); }} options={[
+      <TapCards theme={theme} selected={activityLevel} onPick={v => { setActivityLevel(v); advance(3); }} options={[
         { value:"sedentary", icon:"monitor",  label:"Mostly Sitting",    sub:"Desk job, minimal walking",           color:"#5AC8FA" },
         { value:"light",     icon:"activity", label:"Lightly Active",     sub:"Some walking, on your feet part-time", color:"#30D158" },
         { value:"moderate",  icon:"bike",     label:"Moderately Active",  sub:"Physical job or daily movement",       color:"#C8A94A" },
@@ -12150,10 +12162,10 @@ function PersonalizeStep({ perfData, biology, archetypeId, onSubmit, onBack, the
 
   // ── Phase 3: Diet Style ────────────────────────────────────────────────────
   if (phase === 3) return (
-    <QScreen step={6} total={6} headline="Last one. What's your diet style?"
+    <QScreen theme={theme} step={6} total={6} headline="Last one. What's your diet style?"
       storyHook="The best diet is the one you'll actually stick to. Pick the one that's actually you."
       onBackFn={() => advance(1)}>
-      <TapCards selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
+      <TapCards theme={theme} selected={dietType} onPick={v => { setDietType(v); setTimeout(() => finish(), 250); }} options={[
         { value:"standard",  icon:"utensils", label:"Standard",        sub:"Balanced macros, the default protocol",      color:"#C8A94A" },
         { value:"highcarb",  icon:"wheat",    label:"High Carb",       sub:"Performance-focused, carb-forward fueling",   color:"#FF9F0A" },
         { value:"plant",     icon:"leaf",     label:"Plant-Based",     sub:"Vegan/vegetarian, protein sources optimized", color:"#30D158" },

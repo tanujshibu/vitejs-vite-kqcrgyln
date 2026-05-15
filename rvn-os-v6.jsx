@@ -14254,7 +14254,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
         {/* ══ TAB CONTENT ══════════════════════════════════════════════════ */}
 
         {/* Welcome tour, fires once on first dashboard land */}
-        <ContextualDemo id="welcome" theme={theme} accent={arch.glow}/>
+        <ContextualDemo id="welcome" theme={theme} accent={arch.glow} activeTab={activeGymTab} setActiveTab={setActiveGymTab}/>
 
         {/* ── TRAIN TAB ─────────────────────────────────────────────────────── */}
         {activeGymTab === "train" && (() => {
@@ -19605,28 +19605,28 @@ const DEMO_CARDS = {
   // language or that the recipe scanner accepts Instagram links.
   welcome: [
     { icon: "✨", title: "Quick tour, here is what RVN can do that other fitness apps can’t.",
-      body: "8 things you would not find on your own. 45 seconds." },
+      body: "9 things you would not find on your own. 45 seconds." },
     { icon: "🗓️", title: "Tell Kailu to schedule anything.",
       body: 'Tap this anytime. Say "add leg day Tuesday at 7am", Kailu confirms with a card, you tap Apply, it lands on your calendar. Same for moving or cancelling sessions.',
       target: '[data-tour-id="kailu-bubble"]' },
     { icon: "📲", title: "Paste an Instagram / TikTok workout.",
       body: "Found a workout you like? Paste the Reel link or caption, Kailu pulls every exercise into your protocol so you can run it tomorrow.",
-      target: '[data-tour-id="ig-import"]' },
+      target: '[data-tour-id="ig-import"]', tab: 'train' },
     { icon: "🍽️", title: "Kailu builds today’s meals from your macros.",
       body: "Tap this in the Fuel tab, Kailu generates a full day of meals around your protein, carb, and fat targets. No more \"what should I eat?\"",
-      target: '[data-tour-id="ai-meal-plan"]' },
+      target: '[data-tour-id="ai-meal-plan"]', tab: 'fuel' },
     { icon: "📷", title: "Recipe scanner.",
       body: "Paste any recipe link, from a blog, an Instagram caption, anywhere. Kailu parses the ingredients and logs the macros for you. No manual entry.",
-      target: '[data-tour-id="fuel-scanner"]' },
+      target: '[data-tour-id="fuel-scanner"]', tab: 'fuel' },
     { icon: "🍴", title: "Eating out? Kailu helps you order.",
       body: "Type the restaurant name. Kailu looks at what macros you still need today and recommends a specific order that fits your remaining protein and carbs.",
-      target: '[data-tour-id="restaurant-mode"]' },
+      target: '[data-tour-id="restaurant-mode"]', tab: 'fuel' },
     { icon: "◐", title: "Honest macro tracking with uncertainty bands.",
       body: "Solid bar = best estimate. Lighter band = how confident the log is. Tight for branded products (Built Bar = 17g/130kcal exactly), wide for homemade meals.",
-      target: '[data-tour-id="fuel-macros"]' },
+      target: '[data-tour-id="fuel-macros"]', tab: 'fuel' },
     { icon: "◈", title: "Supplement protocol built for you.",
       body: "Answer 7 questions about your goals, diet, budget, and allergies. Kailu cross-references a curated database and builds your stack, with dose, timing, and why each one for YOU.",
-      target: '[data-tour-id="supp-entry"]' },
+      target: '[data-tour-id="supp-entry"]', tab: 'train' },
     { icon: "🤝", title: "Kailu picks up on what you mention.",
       body: 'Tell Kailu about a knee tweak, a wedding cut, your usual training days, it folds those facts into every future reply. Coaching that actually knows you, no re-explaining yourself.',
       target: '[data-tour-id="kailu-bubble"]' },
@@ -19650,7 +19650,7 @@ const DEMO_CARDS = {
 // The bottom-sheet demo modal. Renders nothing if the demo has already been
 // dismissed for this user. Self-contained: trigger via <ContextualDemo id="train"
 // theme={theme} accent={ac}/> from anywhere.
-function ContextualDemo({ id, theme, accent, onComplete }) {
+function ContextualDemo({ id, theme, accent, onComplete, activeTab, setActiveTab }) {
   const T = D[theme] || D.dark;
   const ac = accent || T?.blue || "#0A84FF";
   const cards = DEMO_CARDS[id];
@@ -19665,30 +19665,42 @@ function ContextualDemo({ id, theme, accent, onComplete }) {
     const t = setTimeout(() => setShow(true), 400);
     return () => clearTimeout(t);
   }, [id]);
-  // Find target element with retries (DOM may not be ready after tab transition)
+  // Switch to the right tab (if the card specifies one) before searching for
+  // the target, then retry the lookup since DOM may not be ready after a tab
+  // transition. Falls back to centered card if target is never found.
   React.useEffect(() => {
     if (!show || !cards) return;
     const card = cards[idx];
     if (!card?.target) { setRect(null); return; }
+    // If the card lives on a different tab, switch to it before finding the target.
+    if (card.tab && setActiveTab && activeTab !== card.tab) {
+      setActiveTab(card.tab);
+    }
     let attempts = 0;
     let timer;
+    // First attempt is delayed if we just switched tabs (DOM needs to render).
+    const startDelay = (card.tab && activeTab !== card.tab) ? 350 : 0;
     const tryFind = () => {
       try {
         const el = document.querySelector(card.target);
         if (el) {
           const r = el.getBoundingClientRect();
-          setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
-          try { el.scrollIntoView({ behavior: "smooth", block: "center" }); } catch {}
-          return;
+          // Skip if element is collapsed (width or height zero) — still rendering
+          if (r.width > 0 && r.height > 0) {
+            setRect({ top: r.top, left: r.left, width: r.width, height: r.height });
+            try { el.scrollIntoView({ behavior: "smooth", block: "center" }); } catch {}
+            return;
+          }
         }
       } catch {}
       attempts++;
-      if (attempts < 12) timer = setTimeout(tryFind, 120);
+      if (attempts < 16) timer = setTimeout(tryFind, 140);
       else setRect(null);
     };
-    tryFind();
+    timer = setTimeout(tryFind, startDelay);
     return () => clearTimeout(timer);
-  }, [show, idx, cards]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [show, idx, cards, activeTab]);
   if (!cards || cards.length === 0 || !show) return null;
   const card = cards[idx];
   const isLast = idx === cards.length - 1;

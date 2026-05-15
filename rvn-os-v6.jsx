@@ -99,6 +99,160 @@ async function loadRemoteProfile(userId) {
   }
 }
 
+// ─── CLOUD SYNC ───────────────────────────────────────────────────────────────
+// Source of truth: localStorage on each device. Background sync to Supabase
+// makes it survive logout + device switch.
+// Strategy: single JSON blob in rvn_profiles.extras (JSONB column). Push is
+// debounced 8s after the last write. Pull runs on Supabase auth resolve and
+// overwrites localStorage. Last-write-wins between devices (good enough for
+// single-device-per-user friends test; promote to per-feature tables later).
+//
+// REQUIRED SQL (run once in your Supabase project):
+//   ALTER TABLE rvn_profiles ADD COLUMN IF NOT EXISTS extras JSONB DEFAULT '{}'::jsonb;
+
+// Keys we want to roam with the user (consumer data only — manager/gym side
+// data stays per-device for now).
+const SYNC_KEYS = [
+  "rvn_profile", "rvn_bodyweight", "rvn_bw_unit",
+  "rvn_calendar", "rvn_challenges",
+  "rvn_check_ins", "rvn_checkin",
+  "rvn_coach_assignments", "rvn_coach_memory", "rvn_coach_morning", "rvn_coach_postworkout",
+  "rvn_custom_meals", "rvn_cycle_sync_enabled",
+  "rvn_direct_messages",
+  "rvn_macro_log", "rvn_missed_check",
+  "rvn_pushed_protocols",
+  "rvn_saved_recipes", "rvn_saved_workouts",
+  "rvn_streaks", "rvn_supplement_protocol", "rvn_trainer_voice",
+  "rvn_workouts",
+  "rvn_learning_week", "rvn_learning_cache",
+  "rvn_accent_color", "rvn_consent_settings", "rvn_theme_pref",
+];
+// Date-suffixed keys: collect all localStorage entries whose key starts with these
+const SYNC_PREFIXES = ["rvn_biometrics_", "rvn_recipes_", "rvn_rscan_"];
+// Never sync — device-local or sensitive
+const SYNC_DENYLIST = new Set([
+  "rvn_dev_bypass", "rvn_demo_completed_welcome", "rvn_pwa_dismissed",
+  "rvn_saved_email", "rvn_schema_version", "rvn_session_count",
+  "rvn_nfc_start", "rvn_venue_active", "rvn_venue_brand", "rvn_mode",
+  "rvn_onboarding_complete",
+]);
+
+function collectExtras() {
+  if (typeof localStorage === "undefined") return {};
+  const extras = {};
+  for (const k of SYNC_KEYS) {
+    const v = localStorage.getItem(k);
+    if (v !== null) extras[k] = v;
+  }
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k) continue;
+    if (SYNC_DENYLIST.has(k)) continue;
+    if (SYNC_PREFIXES.some(pfx => k.startsWith(pfx))) extras[k] = localStorage.getItem(k);
+  }
+  return extras;
+}
+
+async function pushUserExtras(email) {
+  if (!email) return;
+  try {
+    const client = await getSupaClient();
+    const extras = collectExtras();
+    await client.from("rvn_profiles").upsert(
+      { email: email.trim().toLowerCase(), extras, updated_at: new Date().toISOString() },
+      { onConflict: "email" }
+    );
+  } catch (e) {
+    if (typeof window !== "undefined") console.warn("[RVN] pushUserExtras failed:", e?.message);
+  }
+}
+
+async function pullUserExtras(email) {
+  if (!email || typeof localStorage === "undefined") return { ok: false, hydrated: 0 };
+  try {
+    const client = await getSupaClient();
+    const { data, error } = await client
+      .from("rvn_profiles")
+      .select("extras")
+      .eq("email", email.trim().toLowerCase())
+      .single();
+    if (error || !data?.extras) return { ok: true, hydrated: 0 };
+    let hydrated = 0;
+    for (const [k, v] of Object.entries(data.extras)) {
+      try { localStorage.setItem(k, v); hydrated++; } catch {}
+    }
+    return { ok: true, hydrated };
+  } catch (e) {
+    if (typeof window !== "undefined") console.warn("[RVN] pullUserExtras failed:", e?.message);
+    return { ok: false, hydrated: 0 };
+  }
+}
+
+// Monkey-patch localStorage.setItem so any sync-worthy write schedules a debounced push.
+// Idempotent — guarded by a flag so HMR / re-import doesn't double-wrap.
+function installCloudSyncHook() {
+  if (typeof window === "undefined" || typeof localStorage === "undefined") return;
+  if (window.__rvnCloudSyncInstalled) return;
+  window.__rvnCloudSyncInstalled = true;
+  const orig = localStorage.setItem.bind(localStorage);
+  let pushTimer = null;
+  const schedulePush = () => {
+    if (pushTimer) clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => {
+      const email = window.__rvnUserEmail;
+      if (email) pushUserExtras(email);
+    }, 8000);
+  };
+  localStorage.setItem = function (k, v) {
+    orig(k, v);
+    if (typeof k !== "string") return;
+    if (SYNC_DENYLIST.has(k)) return;
+    if (SYNC_KEYS.includes(k) || SYNC_PREFIXES.some(pfx => k.startsWith(pfx))) {
+      schedulePush();
+    }
+  };
+  // Mark dirty once on boot so pre-sync localStorage data uploads on first run
+  // after this code ships (or when user logs in on a new device with no cloud data yet).
+  schedulePush();
+  // Final flush on tab close — best-effort, uses sendBeacon path indirectly via the
+  // Supabase client's internal fetch; not guaranteed to land if the browser closes
+  // mid-request, but worth attempting.
+  window.addEventListener("pagehide", () => {
+    const email = window.__rvnUserEmail;
+    if (email) { try { pushUserExtras(email); } catch {} }
+  });
+}
+if (typeof window !== "undefined") installCloudSyncHook();
+
+// Register the logged-in user so the debounced push knows who owns the data.
+// Call this from auth flows (signup, signin, session restore).
+function setCloudSyncUser(email) {
+  if (typeof window === "undefined") return;
+  window.__rvnUserEmail = (email || "").trim().toLowerCase() || null;
+}
+
+// Clear localStorage of all sync-worthy keys (called on sign-out so the next
+// user on this device doesn't inherit the previous user's data). Does a final
+// push first so nothing in-flight is lost.
+async function cloudSyncSignOut() {
+  if (typeof window === "undefined") return;
+  const email = window.__rvnUserEmail;
+  if (email) { try { await pushUserExtras(email); } catch {} }
+  window.__rvnUserEmail = null;
+  try {
+    const drop = new Set(SYNC_KEYS);
+    const all = [];
+    for (let i = 0; i < localStorage.length; i++) all.push(localStorage.key(i));
+    for (const k of all) {
+      if (!k) continue;
+      if (SYNC_DENYLIST.has(k)) continue;
+      if (drop.has(k) || SYNC_PREFIXES.some(pfx => k.startsWith(pfx))) {
+        try { localStorage.removeItem(k); } catch {}
+      }
+    }
+  } catch {}
+}
+
 async function saveRemoteProfile(userId, profile) {
   if (!userId) return;
   try {
@@ -13581,8 +13735,10 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
   const [confirmReset,   setConfirmReset]   = useState(false);
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
-    try { localStorage.removeItem("rvn_profile"); } catch {}
+    // Push any pending changes + clear synced localStorage so the next user
+    // on this device doesn't inherit this user's data.
+    try { await cloudSyncSignOut(); } catch {}
+    try { await supabase.auth.signOut(); } catch {}
     window.location.reload();
   }
 
@@ -15103,12 +15259,22 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 <div style={{ display:"flex", gap:6 }}>
                   <button onClick={async () => {
                     try {
+                      // Don't push pending changes — user wants this data gone.
+                      if (typeof window !== "undefined") window.__rvnUserEmail = null;
+                      // Best-effort clear of the cloud extras blob for this email
+                      try {
+                        const email = (JSON.parse(localStorage.getItem("rvn_profile") || "{}")).email;
+                        if (email) {
+                          const client = await getSupaClient();
+                          await client.from("rvn_profiles").update({ extras: {} })
+                            .eq("email", email.trim().toLowerCase());
+                        }
+                      } catch {}
                       // Wipe ALL rvn_* localStorage keys
                       Object.keys(localStorage).filter(k => k.startsWith("rvn_")).forEach(k => {
                         try { localStorage.removeItem(k); } catch {}
                       });
-                      // Best-effort cloud delete — Supabase doesn't expose self-delete from client,
-                      // so we just sign out. Real deletion handled via a server function later.
+                      // Real account deletion (auth.users row) still needs a server function.
                       try { await supabase.auth.signOut(); } catch {}
                     } catch (e) { console.warn("[delete account] partial:", e); }
                     try { window.location.href = "/"; } catch {}
@@ -23508,6 +23674,8 @@ function useRVNAuth() {
 
   const signOut = async () => {
     if (!client) return;
+    // Final push of any pending changes + clear localStorage of synced keys
+    try { await cloudSyncSignOut(); } catch {}
     await client.auth.signOut();
     setSession(null);
     setAuthUser(null);
@@ -23522,6 +23690,131 @@ function useRVNAuth() {
 // ─── Profile CRUD (replaces in-memory rvnVault functions) ───────────────────
 // These shadow/replace the originals declared in v5_login.jsx.
 // They write to Supabase first, mirror to localStorage as offline cache.
+
+// ─── CLOUD STATE SYNC ─────────────────────────────────────────────────────────
+// Keys that represent user data and should survive logout + restore across
+// devices. Anything per-device or transient (theme, NFC session, demo
+// dismissals, dev flags) is intentionally excluded.
+const CLOUD_SYNCED_KEYS = [
+  "rvn_profile",
+  "rvn_calendar",
+  "rvn_custom_meals",
+  "rvn_supplement_protocol",
+  "rvn_coach_memory",
+  "rvn_workouts",
+  "rvn_streaks",
+  "rvn_bodyweight",
+  "rvn_macro_log",
+  "rvn_saved_recipes",
+  "rvn_saved_workouts",
+  "rvn_pushed_protocols",
+  "rvn_direct_messages",
+  "rvn_check_ins",
+  "rvn_trainer_voice",
+  "rvn_coach_assignments",
+  "rvn_cycle_sync_enabled",
+];
+
+// Read every synced key from localStorage and return a single blob.
+// Empty/missing keys are omitted so we don't overwrite remote with `null`.
+function buildLocalCloudState() {
+  if (typeof window === "undefined") return {};
+  const blob = {};
+  for (const k of CLOUD_SYNCED_KEYS) {
+    try {
+      const v = window.localStorage.getItem(k);
+      if (v != null) blob[k] = v;
+    } catch {}
+  }
+  return blob;
+}
+
+// Apply a cloud blob to localStorage. Skips empty/missing values so we
+// never wipe local state if the remote blob is partial.
+function applyCloudStateToLocal(blob) {
+  if (!blob || typeof window === "undefined") return 0;
+  let n = 0;
+  for (const k of CLOUD_SYNCED_KEYS) {
+    const v = blob[k];
+    if (typeof v === "string" && v.length > 0) {
+      try { window.localStorage.setItem(k, v); n++; } catch {}
+    }
+  }
+  return n;
+}
+
+// Save the current local state blob to Supabase under this user's email.
+// Idempotent and best-effort: never throws, just warns. Debounced via
+// scheduleCloudSave below — call that, not this, from app code.
+async function saveCloudStateNow(email) {
+  const key = (email || "").trim().toLowerCase();
+  if (!key) return false;
+  try {
+    const client = await getSupaClient();
+    const blob = buildLocalCloudState();
+    const { error } = await client.from("rvn_profiles").upsert({
+      email: key,
+      cloud_state: blob,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "email" });
+    if (error) {
+      // Most common cause is the cloud_state column doesn't exist yet — run
+      // the migration in supabase/migrations/cloud_state_column.sql.
+      if (String(error.message || "").toLowerCase().includes("cloud_state")) {
+        if (!window.__rvnCloudStateWarned) {
+          window.__rvnCloudStateWarned = true;
+          console.warn("[RVN] cloud_state column missing on rvn_profiles. Run the migration to enable cross-device sync.");
+        }
+      } else {
+        console.warn("[RVN] saveCloudStateNow failed:", error.message);
+      }
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.warn("[RVN] saveCloudStateNow exception:", e?.message);
+    return false;
+  }
+}
+
+// Read the cloud blob from Supabase and apply it to localStorage.
+// Returns the count of keys restored, or 0 on failure / empty remote.
+async function loadCloudStateAndApply(email) {
+  const key = (email || "").trim().toLowerCase();
+  if (!key) return 0;
+  try {
+    const client = await getSupaClient();
+    const { data, error } = await client
+      .from("rvn_profiles")
+      .select("cloud_state")
+      .eq("email", key)
+      .single();
+    if (error || !data || !data.cloud_state) return 0;
+    return applyCloudStateToLocal(data.cloud_state);
+  } catch (e) {
+    console.warn("[RVN] loadCloudStateAndApply exception:", e?.message);
+    return 0;
+  }
+}
+
+// Debounced save — call this from anywhere on the hot path. Saves at most
+// once per 6 seconds; tab-hidden + page-unload always force an immediate
+// flush via the parallel scheduleCloudSaveFlushOnUnload listener.
+let _cloudSaveTimer = null;
+function scheduleCloudSave(email, delay = 6000) {
+  if (typeof window === "undefined") return;
+  if (_cloudSaveTimer) clearTimeout(_cloudSaveTimer);
+  _cloudSaveTimer = setTimeout(() => {
+    _cloudSaveTimer = null;
+    saveCloudStateNow(email);
+  }, delay);
+}
+
+// Force-flush the pending save (for visibility-hidden / before-unload).
+function flushCloudSaveNow(email) {
+  if (_cloudSaveTimer) { clearTimeout(_cloudSaveTimer); _cloudSaveTimer = null; }
+  return saveCloudStateNow(email);
+}
 
 async function rvnSaveProfile(profile) {
   // Always update localStorage cache
@@ -31318,6 +31611,33 @@ function RVNRoot() {
   // a normalized shape. Pure-localStorage operation, idempotent, no API cost.
   useEffect(() => {
     try { runSchemaMigrations(); } catch (e) { console.warn("[RVN] migration runner threw:", e); }
+  }, []);
+
+  // Cloud sync bootstrap: resolve Supabase auth, register user, hydrate localStorage
+  // from the user's extras blob. Also subscribes to auth changes so sign-in / sign-out
+  // on a different tab keeps this tab in sync.
+  useEffect(() => {
+    if (!supabase) return;
+    let mounted = true;
+    const apply = async (email) => {
+      if (!mounted) return;
+      setCloudSyncUser(email);
+      if (email) {
+        const { hydrated } = await pullUserExtras(email);
+        if (hydrated > 0 && typeof window !== "undefined") {
+          // Cloud had data, localStorage just got overwritten. Tell any screens
+          // that derive state from localStorage to re-read.
+          window.dispatchEvent(new CustomEvent("rvn:cloud-hydrated", { detail: { count: hydrated } }));
+        } else {
+          // Cloud was empty for this user (first login after sync shipped, or
+          // newly-created account). Upload localStorage so future devices see it.
+          pushUserExtras(email);
+        }
+      }
+    };
+    supabase.auth?.getUser?.().then?.(({ data }) => apply(data?.user?.email || null));
+    const sub = supabase.auth?.onAuthStateChange?.((_event, session) => apply(session?.user?.email || null));
+    return () => { mounted = false; try { sub?.data?.subscription?.unsubscribe?.(); } catch {} };
   }, []);
 
   // ── Global Kailu bridges, work from ANY screen, not just /protocol ───────────

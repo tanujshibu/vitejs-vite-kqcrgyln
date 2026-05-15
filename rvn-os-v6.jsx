@@ -9992,7 +9992,7 @@ function FactVisual({ type, color: C }) {
     );
   }
 
-  // Dumbbell for "zero women got bulky"
+  // Dumbbell for the female "pound for pound, women build strength faster" stat
   if (type === "dumbbell") return (
     <svg viewBox="0 0 180 60" width="180" height="60" style={{ overflow:"visible" }}>
       {[{x:4},{x:140}].map((p,i) => (
@@ -10847,9 +10847,9 @@ const ONBOARDING_FACTS = {
       body: "10 gym hours is 6% of your week. Sleep, food, and recovery own the other 94%. Your protocol addresses all of it.",
     },
     female: {
-      stat: "Zero", color: "#BF5AF2", visual: "dumbbell",
-      headline: "Women who got bulky from lifting",
-      body: "15–20× less testosterone means lifting makes you leaner, not bigger.",
+      stat: "2–3×", color: "#BF5AF2", visual: "dumbbell",
+      headline: "Pound for pound, women build strength faster",
+      body: "Female lifters often out-pull and out-press their bodyweight ratios. Your protocol is built around relative strength, not absolute numbers.",
     },
   },
   frequency: {

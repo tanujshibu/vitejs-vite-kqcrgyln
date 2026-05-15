@@ -2,13 +2,41 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#0D0F1A" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#07081a" />
+    <meta name="description" content="RVN Vision — the smart-gym OS. AI coach, macros, sleep, and recovery in one stack." />
+
+    <!-- PWA / iOS standalone app behavior -->
     <link rel="manifest" href="/manifest.json" />
-    <title>RVN OS</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="RVN" />
+    <meta name="application-name" content="RVN Vision" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Favicons & launcher icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- Share previews (iMessage, Twitter, Discord, Slack, WhatsApp) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="RVN Vision" />
+    <meta property="og:title" content="RVN Vision — Engineer your physique." />
+    <meta property="og:description" content="The smart-gym OS. AI coach, macros, sleep, and recovery in one stack." />
+    <meta property="og:url" content="https://rvnvision.com" />
+    <meta property="og:image" content="https://rvnvision.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="RVN Vision — Engineer your physique." />
+    <meta name="twitter:description" content="The smart-gym OS. AI coach, macros, sleep, and recovery in one stack." />
+    <meta name="twitter:image" content="https://rvnvision.com/og-image.png" />
+
+    <title>RVN Vision</title>
   </head>
   <body>
     <div id="root"></div>

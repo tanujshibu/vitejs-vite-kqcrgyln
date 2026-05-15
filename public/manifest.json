@@ -1,17 +1,42 @@
 {
-  "name": "RVN OS",
-  "short_name": "RVN OS",
-  "description": "Bio-Intelligence Performance OS",
+  "name": "RVN Vision",
+  "short_name": "RVN",
+  "description": "The smart-gym OS. AI coach, macros, sleep, and recovery in one stack.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#07081a",
   "theme_color": "#07081a",
   "icons": [
-    { "src": "/favicon.ico",  "sizes": "64x64",   "type": "image/x-icon" },
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable any" }
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ],
-  "categories": ["fitness", "health", "lifestyle"],
+  "categories": [
+    "fitness",
+    "health",
+    "lifestyle"
+  ],
   "scope": "/"
 }

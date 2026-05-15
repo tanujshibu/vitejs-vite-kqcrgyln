@@ -1,4 +1,6 @@
-const CACHE = "rvn-v1";
+// Bump this whenever index.html, manifest.json, or any cached asset changes
+// so returning visitors don't get stale shell/icons.
+const CACHE = "rvn-v2";
 const SHELL = ["/", "/index.html"];
 
 self.addEventListener("install", e => {
@@ -35,10 +37,10 @@ self.addEventListener("fetch", e => {
 self.addEventListener("push", e => {
   const data = e.data?.json() || {};
   e.waitUntil(
-    self.registration.showNotification(data.title || "RVN OS", {
+    self.registration.showNotification(data.title || "RVN Vision", {
       body: data.body || "",
-      icon: "/favicon.ico",
-      badge: "/favicon.ico",
+      icon: "/icon-192.png",
+      badge: "/icon-192.png",
       tag: data.tag || "rvn",
       data: { url: data.url || "/" },
     })

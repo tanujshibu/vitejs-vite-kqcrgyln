@@ -3197,6 +3197,9 @@ function Screen({ children, theme, style={}, onScroll, ref: refProp, topGradient
 // ─── BACK BUTTON ──────────────────────────────────────────────────────────────
 function BackBtn({ onBack, theme }) {
   const T = D[theme];
+  // No-onBack means this screen is a one-way gate (e.g. the home dashboard).
+  // Render nothing rather than a dead button.
+  if (!onBack) return null;
   return (
     <motion.button whileHover={{ x:-3 }} whileTap={{ scale:.96 }}
       onClick={onBack}
@@ -31910,7 +31913,7 @@ function RVNRoot() {
           <GymProtocol key="protocol_gym" theme={theme}
             user={user} bioData={perfData} archetypeId={archetypeId} biology={biology} inventory={inventory}
             themePref={themePref} onThemePrefChange={setThemePref}
-            onBack={() => go("narrative")}
+            /* No onBack: dashboard is the home, not reachable from onboarding via back-tap */
             onChangelog={() => go("changelog")}
             onSupplements={() => go("supplements")}
             onMorningBrief={() => go("morning-brief")}
@@ -31937,7 +31940,7 @@ function RVNRoot() {
         {screen==="protocol" && mode==="store" && (
           <StoreProtocol key="protocol_store" theme={theme}
             user={user} bioData={perfData} archetypeId={archetypeId} inventory={inventory}
-            onBack={() => go("narrative")}/>
+            /* No onBack: dashboard is a one-way gate */ />
         )}
 
         {screen==="protocol" && mode==="smoothie" && (

@@ -11102,7 +11102,7 @@ function FactFlash({ data, onContinue, theme }) {
   const fc = data.color || T.blue || "#0A84FF";
 
   useEffect(() => {
-    const t = setTimeout(onContinue, 2500);
+    const t = setTimeout(onContinue, 4500);
     return () => clearTimeout(t);
   }, []);
   return (
@@ -11163,10 +11163,10 @@ function FactFlash({ data, onContinue, theme }) {
         {data.headline}
       </div>
 
-      {/* Progress bar, 2.5s sweep (matches timeout) */}
+      {/* Progress bar, 4.5s sweep (matches timeout) */}
       <motion.div
         initial={{ scaleX:0 }} animate={{ scaleX:1 }}
-        transition={{ duration:2.5, ease:"linear" }}
+        transition={{ duration:4.5, ease:"linear" }}
         style={{ position:"absolute", bottom:0, left:0, right:0, height:3,
           background:fc, transformOrigin:"left",
           boxShadow:`0 0 12px ${fc}` }}/>

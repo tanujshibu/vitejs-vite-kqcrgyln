@@ -12017,13 +12017,21 @@ function generateAIGoals({ age, heightIn, bw, activityLevel, trainingDays, goalF
     ? (10 * bwKg) + (6.25 * heightCm) - (5 * a) + 5
     : (10 * bwKg) + (6.25 * heightCm) - (5 * a) - 161;
 
-  // TDEE = BMR × activity multiplier
+  // TDEE = BMR × activity multiplier. Activity level already accounts for typical
+  // training frequency — DON'T also multiply by trainingDays, that double-counts and
+  // inflates calories for very-active lifters into bad-bulk territory (140lb getting
+  // 3300+ cal was the bug).
   const actMult = { sedentary:1.2, light:1.375, moderate:1.55, active:1.725 }[activityLevel] || 1.375;
-  const tdee    = Math.round(bmr * actMult * (trainingDays >= 5 ? 1.08 : trainingDays >= 4 ? 1.04 : 1));
+  const tdee    = Math.round(bmr * actMult);
 
-  // Calorie target by goal
-  const cAdj     = { muscle:+300, fat:-400, recomp:0 }[goalFocus] ?? 0;
-  const calories = Math.round(tdee + cAdj);
+  // Percentage-based calorie adjustment scales correctly across bodyweights.
+  // Fixed +300 surplus made 140lb users over-eat and 220lb users under-eat.
+  //   muscle  → +10% over TDEE (clean lean bulk, ~0.5lb/wk gain)
+  //   fat     → -20% under TDEE (sustainable cut, preserves muscle)
+  //   recomp  → maintenance
+  const cMult    = { muscle: 1.10, fat: 0.80, recomp: 1.00 }[goalFocus] ?? 1.00;
+  const calories = Math.round(tdee * cMult);
+  const cAdj     = calories - tdee;  // For backwards compat with reasoning text below
 
   // Protein, ISSN: 1.6-2.2g/kg for muscle, 1.8-2.4g/kg for fat loss
   const protG    = { muscle:2.0, fat:2.2, recomp:1.8 }[goalFocus] ?? 2.0;
@@ -13486,7 +13494,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
     lastResetDate: "",
     lastSleepLog:  null,  // { hours, bedtime, wakeTime, date }
     // Kailu token system, free: 15 tokens, refill 5 every 3 hrs; premium: unlimited
-    kailuTokens:     15,
+    kailuTokens:     8,
     kailuLastRefill: Date.now(),
     isPremium:       false,
     // Health data (manually synced or via future wearable integration)
@@ -15175,6 +15183,81 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   );
                 })}
               </div>
+            </div>
+
+            {/* YOUR PLAN, lets the user recalibrate their goal + activity + training freq
+                 without rerunning the whole onboarding. Regenerates calorie/macro targets
+                 from generateAIGoals on save. */}
+            <div style={{ padding:"12px 14px", borderRadius:12, background:T.glass,
+              border:`1px solid ${T.border}`, marginBottom:12 }}>
+              <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em", fontWeight:600, marginBottom:10 }}>YOUR PLAN</div>
+              {(() => {
+                const p = profile || {};
+                const optStyle = {
+                  width:"100%", padding:"9px 11px", borderRadius:9,
+                  background:T.glassMid, border:`1px solid ${T.border}`,
+                  color:T.text, fontSize:13, fontWeight:600,
+                  outline:"none", cursor:"pointer", marginBottom:8,
+                  appearance:"none", WebkitAppearance:"none",
+                };
+                const labelStyle = { fontSize:10.5, color:T.faint, fontWeight:600, letterSpacing:".02em", marginBottom:4 };
+                const recalc = (next) => {
+                  const merged = { ...p, ...next };
+                  try {
+                    const fresh = generateAIGoals({
+                      age: merged.age || 25,
+                      heightIn: merged.heightIn || 69,
+                      bw: merged.bw || 175,
+                      activityLevel: merged.activityLevel || "moderate",
+                      trainingDays: merged.trainingDays || 4,
+                      goalFocus: merged.goalFocus || "muscle",
+                      dietType: merged.dietType || "standard",
+                      biology: merged.biology || {},
+                    });
+                    saveProfile({
+                      ...next,
+                      calories: fresh.calories,
+                      tdee: fresh.tdee,
+                      macroGoals: fresh.macroGoals,
+                      reasoning: fresh.reasoning,
+                    });
+                  } catch (e) { saveProfile(next); }
+                };
+                return (
+                  <>
+                    <div style={labelStyle}>GOAL</div>
+                    <select value={p.goalFocus || "muscle"}
+                      onChange={e => recalc({ goalFocus: e.target.value })}
+                      style={optStyle}>
+                      <option value="muscle">Build Muscle</option>
+                      <option value="fat">Lose Fat</option>
+                      <option value="recomp">Body Recomp</option>
+                    </select>
+                    <div style={labelStyle}>ACTIVITY LEVEL</div>
+                    <select value={p.activityLevel || "moderate"}
+                      onChange={e => recalc({ activityLevel: e.target.value })}
+                      style={optStyle}>
+                      <option value="sedentary">Mostly Sitting (desk job)</option>
+                      <option value="light">Lightly Active (some walking)</option>
+                      <option value="moderate">Moderately Active</option>
+                      <option value="active">Very Active (labor / all day on feet)</option>
+                    </select>
+                    <div style={labelStyle}>TRAINING DAYS / WEEK</div>
+                    <select value={p.trainingDays || 4}
+                      onChange={e => recalc({ trainingDays: parseInt(e.target.value, 10) })}
+                      style={{ ...optStyle, marginBottom: 4 }}>
+                      <option value={2}>2 days</option>
+                      <option value={3}>3 days</option>
+                      <option value={4}>4 days</option>
+                      <option value={5}>5 days</option>
+                      <option value={6}>6 days</option>
+                    </select>
+                    <div style={{ fontSize:10.5, color:T.faint, marginTop:6, lineHeight:1.4 }}>
+                      Calorie + macro targets recalculate automatically when you change any of these.
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Account info */}
@@ -19085,9 +19168,12 @@ async function composeBioPalResponse(text, state) {
 // ─── Claude API stub, pluggable. In a real deployment, wire this to a
 // kiosk-side proxy that holds the API key (do NOT ship a key in the bundle).
 // ─── Kailu Token System ────────────────────────────────────────────────────────
-const KAILU_MAX_TOKENS    = 15;
-const KAILU_REFILL_AMOUNT = 15;
-const KAILU_REFILL_MS     = 24 * 60 * 60 * 1000; // 24 hours, 15 messages per day
+// 8 messages per 5-hour rolling window. Mirrors Claude.ai's free-tier UX.
+// At ~$0.008 per Kailu reply (Sonnet), a max-abuse free user costs ~$9/month.
+// Acceptable when prompt-caching cuts that ~50%. Premium users bypass this gate.
+const KAILU_MAX_TOKENS    = 8;
+const KAILU_REFILL_AMOUNT = 8;
+const KAILU_REFILL_MS     = 5 * 60 * 60 * 1000; // 5 hours
 
 function getKailuTokenState(profile) {
   if (profile?.isPremium) return { tokens: 999, msUntilRefill: 0, canSend: true };
@@ -32043,7 +32129,7 @@ function RVNRoot() {
           prs: { bench:245, squat:335, deadlift:415, ohp:155 },
           bioScore: 84, readiness: 84,
           streaks: { session:12, nutrition:8 },
-          kailuTokens: 15, kailuLastRefill: Date.now(), isPremium: false,
+          kailuTokens: 8, kailuLastRefill: Date.now(), isPremium: false,
           healthData: { steps:9200, sleepHrs:7.8, hrv:68, lastSync: Date.now() },
           biology: { gender:"male", caffeine:"med", bottleneck:"soreness", frequency:4 },
           progressPhotos: [], prHistory: [

@@ -94,6 +94,28 @@ function RvnIcon({ name, size = 18, color, style }) {
     dumbbell: <><path d="M14.4 14.4 9.6 9.6"/><path d="M18.66 17.66 21 15.34a2 2 0 0 0 0-2.83l-.51-.51a2 2 0 0 0-2.83 0l-.83.82"/><path d="M5.34 6.34 3 8.66a2 2 0 0 0 0 2.83l.51.51a2 2 0 0 0 2.83 0l.82-.83"/><path d="m21 21-1.5-1.5"/><path d="m3 3 1.5 1.5"/></>,
     moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>,
     bolt: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>,
+    calendar: <><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></>,
+    link: <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
+    utensils: <><path d="M3 2v7c0 1.1.9 2 2 2a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"/></>,
+    camera: <><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></>,
+    gauge: <><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></>,
+    pill: <><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/></>,
+    users: <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>,
+    palette: <><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></>,
+    chart: <><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></>,
+    heart: <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>,
+    refresh: <><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></>,
+    store: <><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"/><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"/><path d="M2 7h20"/><path d="M22 7v3a2 2 0 0 1-3.59 1.37.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2 2 0 0 1 2 10V7"/></>,
+    key: <><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></>,
+    nfc: <><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"/><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"/><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"/><path d="M16.37 2a20.16 20.16 0 0 1 0 20"/></>,
+    cloud: <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>,
+    smartphone: <><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></>,
+    lock: <><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,
+    unlock: <><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></>,
+    mail: <><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></>,
+    share: <><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" x2="15.42" y1="13.51" y2="17.49"/><line x1="15.41" x2="8.59" y1="6.51" y2="10.49"/></>,
+    trendingup: <><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></>,
+    alert: <><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></>,
   };
   return <svg {...common}>{P[name] || P.sparkles}</svg>;
 }
@@ -8986,7 +9008,7 @@ function AuthScreen({ theme, onAuth }) {
         {status === "sent" ? (
           <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
             style={{ textAlign:"center" }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>📬</div>
+            <div style={{ fontSize: 48, marginBottom: 16 }}><RvnIcon name="mail" size={48}/></div>
             <div style={{ fontSize: 20, fontWeight: 800, color: T.text, marginBottom: 8 }}>
               Check your inbox
             </div>
@@ -9234,7 +9256,7 @@ function LandingPhoneMockup({ ac, theme }) {
 
     fuel: (
       <div style={{ padding:"12px 12px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:10 }}>
-        <div style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em" }}>🍽️ FUEL</div>
+        <div style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em", display:"flex", alignItems:"center", gap:5 }}><LI n="utensils" size={13} color={gold}/>FUEL</div>
         {/* calorie ring */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12 }}>
           <svg width="64" height="64" viewBox="0 0 64 64">
@@ -9275,7 +9297,7 @@ function LandingPhoneMockup({ ac, theme }) {
 
     sleep: (
       <div style={{ padding:"12px 12px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:10 }}>
-        <div style={{ fontSize:11.5, fontWeight:900, color:"#BF5AF2", letterSpacing:".03em" }}>◑ SLEEP</div>
+        <div style={{ fontSize:11.5, fontWeight:900, color:"#BF5AF2", letterSpacing:".03em", display:"flex", alignItems:"center", gap:5 }}><LI n="moon" size={13} color="#BF5AF2"/>SLEEP</div>
         {/* big score */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
           <svg width="88" height="88" viewBox="0 0 88 88">
@@ -9315,7 +9337,7 @@ function LandingPhoneMockup({ ac, theme }) {
 
     progress: (
       <div style={{ padding:"12px 12px 0", height:"100%", background:"#0A0A0A", display:"flex", flexDirection:"column", gap:9 }}>
-        <div style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em" }}>📈 PROGRESS</div>
+        <div style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em", display:"flex", alignItems:"center", gap:5 }}><LI n="trendingUp" size={13} color={gold}/>PROGRESS</div>
         {/* weight stat */}
         <div style={{ display:"flex", justifyContent:"space-between", padding:"9px 10px", background:"#111", borderRadius:10 }}>
           <div>
@@ -12969,7 +12991,7 @@ function NarrativeScreen({ user, archetypeId, mode, bioData, biology, onContinue
                   background:`${ac}18`, border:`1px solid ${ac}44`,
                   borderRadius:100, padding:"5px 12px",
                 }}>
-                  <span style={{ fontSize:11.5 }}>🔓</span>
+                  <span style={{ fontSize:11.5 }}><RvnIcon name="unlock" size={12}/></span>
                   <span style={{ fontSize:11.5, fontWeight:600, color:ac, letterSpacing:".03em" }}>
                     ATHLETE PROFILE UNLOCKED
                   </span>
@@ -14183,7 +14205,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   padding:"20px", borderRadius:16, textAlign:"center",
                   background:T.glass, border:`1px solid ${T.border}`,
                 }}>
-                  <div style={{ fontSize:32, marginBottom:10 }}>🔒</div>
+                  <div style={{ fontSize:32, marginBottom:10 }}><RvnIcon name="lock" size={32}/></div>
                   <div style={{ fontSize:15, fontWeight:900, color:T.text, marginBottom:6 }}>
                     Locked for {ppDaysUntilUnlock} more day{ppDaysUntilUnlock !== 1 ? "s" : ""}
                   </div>
@@ -14203,7 +14225,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     background:"#BF5AF210", border:"2px dashed #BF5AF255",
                     fontSize:13, fontWeight:800, color:"#BF5AF2",
                   }}>
-                    <span style={{ fontSize:36 }}>📷</span>
+                    <span style={{ fontSize:36 }}><RvnIcon name="camera" size={36}/></span>
                     {ppDaysSinceLast >= 999 ? "TAKE YOUR FIRST PHOTO" : `WEEK ${ppPhotos.length + 1} CHECK-IN`}
                     <span style={{ fontSize:11.5, fontWeight:400, color:T.muted }}>Same pose, same lighting as last time</span>
                     <input type="file" accept="image/*" capture="environment" style={{ display:"none" }}
@@ -14362,7 +14384,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
             background:`${arch.glow}12`, border:`1px solid ${arch.glow}30`,
             borderRadius:16, padding:"5px 12px",
           }}>
-            <span style={{ fontSize:14 }}>🔥</span>
+            <span style={{ fontSize:14 }}><RvnIcon name="flame" size={14}/></span>
             <span style={{ fontSize:12, fontWeight:900, color:arch.glow }}>{streaks.session}</span>
             <span style={{ fontSize:11, fontWeight:700, color:arch.glow, opacity:0.7, letterSpacing:".02em" }}>DAY STREAK</span>
           </div>
@@ -14501,7 +14523,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 border:`1px solid ${arch.glow}40`, borderRadius:18,
                 padding:"16px", display:"flex", alignItems:"flex-start", gap:12,
               }}>
-                <div style={{ fontSize:28 }}>📈</div>
+                <div style={{ fontSize:28 }}><RvnIcon name="trendingup" size={28}/></div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:11.5, fontWeight:600, color:arch.glow, letterSpacing:".03em", marginBottom:4 }}>
                     WEEKLY RECAP
@@ -15144,9 +15166,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               <div style={{ fontSize:11, color:T.faint, letterSpacing:".03em", fontWeight:600, marginBottom:10 }}>APPEARANCE</div>
               <div style={{ display:"flex", gap:6 }}>
                 {[
-                  { id:"dark",  label:"Dark",  icon:"🌙" },
-                  { id:"light", label:"Light", icon:"☀️" },
-                  { id:"auto",  label:"Auto",  icon:"⏰" },
+                  { id:"dark",  label:"Dark",  icon:"moon" },
+                  { id:"light", label:"Light", icon:"sun" },
+                  { id:"auto",  label:"Auto",  icon:"clock" },
                 ].map(opt => {
                   const isActive = (themePref || "dark") === opt.id;
                   return (
@@ -15160,7 +15182,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         display:"flex", flexDirection:"column", alignItems:"center", gap:3,
                         transition:"all .15s",
                       }}>
-                      <span style={{ fontSize:15 }}>{opt.icon}</span>
+                      <LI n={opt.icon} size={15} color={isActive ? "#fff" : T.muted}/>
                       {opt.label}
                     </button>
                   );
@@ -15742,7 +15764,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   background:`linear-gradient(135deg, #BF5AF218, #BF5AF208)`,
                   border:`1px solid #BF5AF240`, cursor:"pointer",
                   display:"flex", alignItems:"center", gap:14 }}>
-                <div style={{ fontSize:28 }}>🍽️</div>
+                <div style={{ fontSize:28 }}><RvnIcon name="utensils" size={28}/></div>
                 <div style={{ textAlign:"left" }}>
                   <div style={{ fontSize:14, fontWeight:900, color:T.text, marginBottom:2 }}>Meal Plan</div>
                   <div style={{ fontSize:11, color:T.muted }}>Kailu builds today's meals around your targets</div>
@@ -16315,7 +16337,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 </div>
                 {ppPhotos2.length === 0 ? (
                   <div style={{ textAlign:"center", padding:"24px 0" }}>
-                    <div style={{ fontSize:32, marginBottom:8 }}>📸</div>
+                    <div style={{ fontSize:32, marginBottom:8 }}><RvnIcon name="camera" size={32}/></div>
                     <div style={{ fontSize:13, color:T.muted }}>No progress photos yet.</div>
                     <motion.button whileTap={{ scale:.97 }} onClick={() => setProgressPhotoTab("open")}
                       style={{ marginTop:12, padding:"10px 20px", borderRadius:12,
@@ -16766,7 +16788,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                           }
                         }}
                       />
-                      <span style={{ fontSize:22 }}>📲</span>
+                      <span style={{ fontSize:22 }}><RvnIcon name="share" size={22}/></span>
                       <span style={{ fontSize:12, fontWeight:800, color:arch.glow, letterSpacing:".02em" }}>
                         Choose video file
                       </span>
@@ -17602,7 +17624,7 @@ function TruthEngine({ comparisons, theme }) {
                     boxShadow:`0 0 12px ${T.red}22`,
                   }}>
                     <div style={{ display:"flex", alignItems:"center", gap:6, marginBottom:6 }}>
-                      <span style={{ fontSize:15 }}>⚠️</span>
+                      <span style={{ fontSize:15 }}><RvnIcon name="alert" size={15}/></span>
                       <span style={{ fontSize:11.5, fontWeight:900, color:T.red,
                         letterSpacing:".03em" }}>VERDICT</span>
                     </div>
@@ -19923,36 +19945,36 @@ const DEMO_CARDS = {
   // they cannot figure out that Kailu mutates the calendar from natural
   // language or that the recipe scanner accepts Instagram links.
   welcome: [
-    { icon: "✨", title: "Quick tour, here is what RVN can do that other fitness apps can’t.",
+    { icon: "sparkles", title: "Quick tour, here is what RVN can do that other fitness apps can’t.",
       body: "9 things you would not find on your own. 45 seconds." },
-    { icon: "🗓️", title: "Tell Kailu to schedule anything.",
+    { icon: "calendar", title: "Tell Kailu to schedule anything.",
       body: 'Tap this anytime. Say "add leg day Tuesday at 7am", Kailu confirms with a card, you tap Apply, it lands on your calendar. Same for moving or cancelling sessions.',
       target: '[data-tour-id="kailu-bubble"]' },
-    { icon: "📲", title: "Paste an Instagram / TikTok workout.",
+    { icon: "link", title: "Paste an Instagram / TikTok workout.",
       body: "Found a workout you like? Paste the Reel link or caption, Kailu pulls every exercise into your protocol so you can run it tomorrow.",
       target: '[data-tour-id="ig-import"]', tab: 'train' },
-    { icon: "🍽️", title: "Kailu builds today’s meals from your macros.",
+    { icon: "utensils", title: "Kailu builds today’s meals from your macros.",
       body: "Tap this in the Fuel tab, Kailu generates a full day of meals around your protein, carb, and fat targets. No more \"what should I eat?\"",
       target: '[data-tour-id="ai-meal-plan"]', tab: 'fuel' },
-    { icon: "📷", title: "Recipe scanner.",
+    { icon: "camera", title: "Recipe scanner.",
       body: "Paste any recipe link, from a blog, an Instagram caption, anywhere. Kailu parses the ingredients and logs the macros for you. No manual entry.",
       target: '[data-tour-id="fuel-scanner"]', tab: 'fuel' },
-    { icon: "🍴", title: "Eating out? Kailu helps you order.",
+    { icon: "utensils", title: "Eating out? Kailu helps you order.",
       body: "Type the restaurant name. Kailu looks at what macros you still need today and recommends a specific order that fits your remaining protein and carbs.",
       target: '[data-tour-id="restaurant-mode"]', tab: 'fuel' },
-    { icon: "◐", title: "Honest macro tracking with uncertainty bands.",
+    { icon: "gauge", title: "Honest macro tracking with uncertainty bands.",
       body: "Solid bar = best estimate. Lighter band = how confident the log is. Tight for branded products (Built Bar = 17g/130kcal exactly), wide for homemade meals.",
       target: '[data-tour-id="fuel-macros"]', tab: 'fuel' },
-    { icon: "◈", title: "Supplement protocol built for you.",
+    { icon: "pill", title: "Supplement protocol built for you.",
       body: "Answer 7 questions about your goals, diet, budget, and allergies. Kailu cross-references a curated database and builds your stack, with dose, timing, and why each one for YOU.",
       target: '[data-tour-id="supp-entry"]', tab: 'train' },
-    { icon: "🤝", title: "Kailu picks up on what you mention.",
+    { icon: "users", title: "Kailu picks up on what you mention.",
       body: 'Tell Kailu about a knee tweak, a wedding cut, your usual training days, it folds those facts into every future reply. Coaching that actually knows you, no re-explaining yourself.',
       target: '[data-tour-id="kailu-bubble"]' },
-    { icon: "🎨", title: "Make it yours.",
+    { icon: "palette", title: "Make it yours.",
       body: "Open Settings to change your accent color, switch between dark and light mode, and tweak how Kailu sounds. The app should feel like you.",
       target: '[data-tour-id="settings-gear"]' },
-    { icon: "🎯", title: "That’s the highlight reel.",
+    { icon: "target", title: "That’s the highlight reel.",
       body: "Tap around, you will keep finding things. Progress photos, weekly recap on Mondays, NFC tap-to-start workouts, GhostBar velocity tracking. Kailu is always one tap away." },
   ],
   // Per-tab demos disabled, the welcome tour now covers the capabilities.
@@ -20069,7 +20091,7 @@ function ContextualDemo({ id, theme, accent, onComplete, activeTab, setActiveTab
       <motion.div key={idx}
         initial={{ opacity:0, x:8 }} animate={{ opacity:1, x:0 }}
         transition={{ duration:0.2 }}>
-        <div style={{ fontSize:24, marginBottom:6 }}>{card?.icon || "✨"}</div>
+        <div style={{ marginBottom:8, color:ac, display:"flex" }}><RvnIcon name={card?.icon || "sparkles"} size={28}/></div>
         <div style={{ fontSize:16, fontWeight:900, color:T.text, marginBottom:6, lineHeight:1.25 }}>
           {card?.title || ""}
         </div>
@@ -21862,7 +21884,7 @@ function GhostBarHUD({ onBack, theme = "dark" }) {
             display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
             background:"rgba(0,0,0,0.82)", backdropFilter:isMobile?"none":"blur(12px)",
           }}>
-            <div style={{ fontSize:48, marginBottom:16 }}>📷</div>
+            <div style={{ fontSize:48, marginBottom:16 }}><RvnIcon name="camera" size={48}/></div>
             <div style={{ fontSize:16, fontWeight:900, color:"#fff", marginBottom:8, letterSpacing:".04em" }}>
               Camera Access Required
             </div>
@@ -25830,12 +25852,12 @@ function CommunityHub({ profile, communities, onSelectCommunity, onBack, theme }
 
 // ── Content Categories ────────────────────────────────────────────────────────
 const CONTENT_CATEGORIES = [
-  { id: "all",       label: "ALL",        icon: "⚡" },
-  { id: "workout",   label: "WORKOUTS",   icon: "🏋️" },
-  { id: "nutrition", label: "NUTRITION",  icon: "🥗" },
-  { id: "recovery",  label: "RECOVERY",   icon: "🔄" },
-  { id: "pregame",   label: "PRE-GAME",   icon: "🔥" },
-  { id: "mindset",   label: "MINDSET",    icon: "🧠" },
+  { id: "all",       label: "ALL",        icon: "zap" },
+  { id: "workout",   label: "WORKOUTS",   icon: "dumbbell" },
+  { id: "nutrition", label: "NUTRITION",  icon: "leaf" },
+  { id: "recovery",  label: "RECOVERY",   icon: "refresh" },
+  { id: "pregame",   label: "PRE-GAME",   icon: "flame" },
+  { id: "mindset",   label: "MINDSET",    icon: "brain" },
 ];
 
 // ── Seed Content (RVN Originals + placeholder gym content) ───────────────────
@@ -26066,8 +26088,8 @@ function ContentCard({ video, onPlay, theme, highlighted }) {
         {video.thumbnail ? (
           <img src={video.thumbnail} alt={video.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
         ) : (
-          <div style={{ fontSize: 32 }}>
-            {CONTENT_CATEGORIES.find(c => c.id === video.category)?.icon || "▶"}
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <LI n={CONTENT_CATEGORIES.find(c => c.id === video.category)?.icon || "circle"} size={32} color={color}/>
           </div>
         )}
         {/* Duration badge */}
@@ -26198,7 +26220,7 @@ function ContentScreen({ profile, gymContent, onBack, theme }) {
                 cursor: "pointer",
               }}
             >
-              {cat.icon} {cat.label}
+              <span style={{ display:"inline-flex", alignItems:"center", gap:5 }}><LI n={cat.icon} size={12} style={{ display:"inline-block" }}/>{cat.label}</span>
             </motion.button>
           ))}
         </div>
@@ -27337,7 +27359,7 @@ function VBTCameraModule({ stationCfg, exerciseIdx, onClose, theme }) {
         ) : (
           <div style={{ width:"100%", height:"100%", background:"#0a0a0a",
             display:"flex", alignItems:"center", justifyContent:"center", flexDirection:"column", gap:8 }}>
-            <div style={{ fontSize:36, opacity:0.2 }}>📷</div>
+            <div style={{ fontSize:36, opacity:0.2 }}><RvnIcon name="camera" size={36}/></div>
             <div style={{ fontSize:11.5, color:"#444", letterSpacing:".03em" }}>CAMERA UNAVAILABLE</div>
             <div style={{ fontSize:11, color:"#333", letterSpacing:".02em" }}>SIMULATING TELEMETRY</div>
           </div>
@@ -27689,7 +27711,7 @@ function StationLanding({ stationId, theme, onBack, user }) {
                 <motion.button whileTap={{ scale:.95 }} onClick={() => setShowCamera(true)}
                   style={{ background:ac, border:"none", borderRadius:12, padding:"10px 14px",
                     cursor:"pointer", display:"flex", flexDirection:"column", alignItems:"center", gap:3 }}>
-                  <span style={{ fontSize:18 }}>📷</span>
+                  <span style={{ fontSize:18 }}><RvnIcon name="camera" size={18}/></span>
                   <span style={{ fontSize:11, fontWeight:600, color:"#000", letterSpacing:".02em" }}>VBT</span>
                 </motion.button>
               </motion.div>
@@ -28621,7 +28643,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                       background:`${T.green}18`, border:`1px solid ${T.green}33`,
                       display:"flex", alignItems:"center", justifyContent:"center",
                       fontSize:14, flexShrink:0,
-                    }}>🎯</div>
+                    }}><RvnIcon name="target" size={16} color={T.green}/></div>
                     <div style={{ flex:1 }}>
                       <div style={{ fontSize:12, fontWeight:800, color:T.text }}>{a.memberName}</div>
                       <div style={{ fontSize:11.5, color:T.muted }}>
@@ -29993,7 +30015,7 @@ function StreakHeatmap({ theme, accentColor }) {
               background:`${ac}20`, border:`1px solid ${ac}40`,
               borderRadius:16, padding:"4px 10px",
             }}>
-              <span style={{ fontSize:12 }}>🔥</span>
+              <span style={{ fontSize:12 }}><RvnIcon name="flame" size={12}/></span>
               <span style={{ fontSize:11, fontWeight:900, color:ac }}>{streak}</span>
               <span style={{ fontSize:11, color:ac, opacity:.8 }}>streak</span>
             </div>
@@ -30182,7 +30204,7 @@ function WorkoutHistoryScreen({ theme, onBack, user }) {
           <div>
             {sessions.length === 0 ? (
               <div style={{ textAlign:"center", padding:"60px 20px", color:T.muted }}>
-                <div style={{ fontSize:32, marginBottom:12 }}>🏋️</div>
+                <div style={{ fontSize:32, marginBottom:12 }}><RvnIcon name="dumbbell" size={32}/></div>
                 <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No sessions yet</div>
                 <div style={{ fontSize:13 }}>Log your first workout to start tracking progress.</div>
               </div>
@@ -30634,7 +30656,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
 
         {!plan && !loading && !error && (
           <div style={{ textAlign:"center", padding:"60px 20px" }}>
-            <div style={{ fontSize:32, marginBottom:12 }}>🍽️</div>
+            <div style={{ fontSize:32, marginBottom:12 }}><RvnIcon name="utensils" size={32}/></div>
             <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No plan yet</div>
             <motion.button whileTap={{ scale:.97 }} onClick={() => generatePlan()}
               style={{
@@ -31176,7 +31198,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
           <div>
             {pending.length === 0 ? (
               <div style={{ textAlign:"center", padding:"60px 20px", color:T.muted }}>
-                <div style={{ fontSize:32, marginBottom:12 }}>📬</div>
+                <div style={{ fontSize:32, marginBottom:12 }}><RvnIcon name="mail" size={32}/></div>
                 <div style={{ fontSize:14, fontWeight:700, color:T.text, marginBottom:8 }}>No pending requests</div>
                 <div style={{ fontSize:12 }}>When someone sends you a buddy request, it'll show here.</div>
               </div>
@@ -31532,7 +31554,7 @@ function GroupWorkoutScreen({ theme, onBack, user, archetypeId }) {
           <div style={{ textAlign:"center", padding:"40px", color:T.muted }}>Finding rooms…</div>
         ) : rooms.length === 0 ? (
           <div style={{ textAlign:"center", padding:"60px 20px" }}>
-            <div style={{ fontSize:36, marginBottom:12 }}>🏋️</div>
+            <div style={{ fontSize:36, marginBottom:12 }}><RvnIcon name="dumbbell" size={36}/></div>
             <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No active rooms</div>
             <div style={{ fontSize:13, color:T.muted, marginBottom:20 }}>
               Be the first to start a group workout session.
@@ -31703,14 +31725,14 @@ const RVN_CHANGELOG = [
   {
     version: "6.1",
     date: "May 2026",
-    badge: "🔥 LATEST",
+    badge: "LATEST",
     badgeColor: "#e85d04",
     items: [
-      { icon: "🧠", title: "Kailu AI Coach", desc: "Fully agentic AI that swaps exercises, rebalances macros, and adapts your split in real time." },
-      { icon: "📊", title: "Personalization Engine", desc: "Weekly AI learning summaries that adapt to your biometrics, sleep, and performance trends." },
-      { icon: "🍽️", title: "Nutrition Intelligence", desc: "Recipe scanner, restaurant mode, and smart meal planning with macro auto-fill." },
-      { icon: "💓", title: "Biometric Intelligence", desc: "HRV + sleep tracking with automatic deload recommendations." },
-      { icon: "🔄", title: "Cycle Sync", desc: "Phase-aware training intensity adapted to your biology cycle." },
+      { icon: "brain", title: "Kailu AI Coach", desc: "Fully agentic AI that swaps exercises, rebalances macros, and adapts your split in real time." },
+      { icon: "chart", title: "Personalization Engine", desc: "Weekly AI learning summaries that adapt to your biometrics, sleep, and performance trends." },
+      { icon: "utensils", title: "Nutrition Intelligence", desc: "Recipe scanner, restaurant mode, and smart meal planning with macro auto-fill." },
+      { icon: "heart", title: "Biometric Intelligence", desc: "HRV + sleep tracking with automatic deload recommendations." },
+      { icon: "refresh", title: "Cycle Sync", desc: "Phase-aware training intensity adapted to your biology cycle." },
     ],
   },
   {
@@ -31719,10 +31741,10 @@ const RVN_CHANGELOG = [
     badge: "LAUNCH",
     badgeColor: "#0A84FF",
     items: [
-      { icon: "🏪", title: "ManagerHub B2B", desc: "Full command center for gym owners: roster management, NFC tags, revenue analytics, and branded experiences." },
-      { icon: "🔑", title: "Roles & Permissions", desc: "Owner / Coach / Staff role matrix with PIN-gated access." },
-      { icon: "⬡", title: "NFC Smart Tags", desc: "Tap-to-unlock equipment tracking, auto-log, and venue check-ins." },
-      { icon: "🏆", title: "Challenges", desc: "Create gym-wide challenges with leaderboards and custom rewards." },
+      { icon: "store", title: "ManagerHub B2B", desc: "Full command center for gym owners: roster management, NFC tags, revenue analytics, and branded experiences." },
+      { icon: "key", title: "Roles & Permissions", desc: "Owner / Coach / Staff role matrix with PIN-gated access." },
+      { icon: "nfc", title: "NFC Smart Tags", desc: "Tap-to-unlock equipment tracking, auto-log, and venue check-ins." },
+      { icon: "trophy", title: "Challenges", desc: "Create gym-wide challenges with leaderboards and custom rewards." },
     ],
   },
   {
@@ -31731,10 +31753,10 @@ const RVN_CHANGELOG = [
     badge: "MAJOR",
     badgeColor: "#22c55e",
     items: [
-      { icon: "☁️", title: "Cloud Sync", desc: "Supabase-backed profile sync across all your devices, fully encrypted." },
-      { icon: "🎯", title: "Bio-Score", desc: "Composite performance score combining sleep, macros, training adherence, and biometrics." },
-      { icon: "📱", title: "Multi-Mode", desc: "Gym · Store · Smoothie Bar operating modes with tailored experiences." },
-      { icon: "🤝", title: "Community", desc: "Gym-gated workout groups, leaderboards, and daily fitness Wordle." },
+      { icon: "cloud", title: "Cloud Sync", desc: "Supabase-backed profile sync across all your devices, fully encrypted." },
+      { icon: "target", title: "Bio-Score", desc: "Composite performance score combining sleep, macros, training adherence, and biometrics." },
+      { icon: "smartphone", title: "Multi-Mode", desc: "Gym · Store · Smoothie Bar operating modes with tailored experiences." },
+      { icon: "users", title: "Community", desc: "Gym-gated workout groups, leaderboards, and daily fitness Wordle." },
     ],
   },
 ];
@@ -31787,7 +31809,7 @@ function WhatsNewScreen({ theme, onBack }) {
                     borderLeft: `3px solid ${release.badgeColor}`,
                     display: "flex", gap: 12, alignItems: "flex-start",
                   }}>
-                  <div style={{ fontSize: 20, flexShrink: 0, marginTop: 1 }}>{item.icon}</div>
+                  <div style={{ flexShrink: 0, marginTop: 1, color: release.badgeColor, display: "flex" }}><RvnIcon name={item.icon} size={20}/></div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: T.text, marginBottom: 3 }}>{item.title}</div>
                     <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.5 }}>{item.desc}</div>
@@ -32769,7 +32791,7 @@ function RVNRoot() {
               display: "flex", alignItems: "center", gap: 12,
               boxShadow: `0 8px 40px ${D[theme]?.blue}22`,
             }}>
-            <div style={{ fontSize: 24 }}>📲</div>
+            <div style={{ fontSize: 24 }}><RvnIcon name="share" size={24}/></div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 800, color: D[theme]?.text, marginBottom: 2 }}>
                 Install RVN OS

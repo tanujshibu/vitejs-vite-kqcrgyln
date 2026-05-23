@@ -72,6 +72,32 @@ const SUPABASE_URL  = "https://pstqlqiitylggqchkzyh.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzdHFscWlpdHlsZ2dxY2hrenloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzk1MjQsImV4cCI6MjA5MTc1NTUyNH0.7Y-ZgSjLvc6yekWOFBjQnNKVRqpK8q3Iqm4UXLI6tqA";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ── RvnIcon ─────────────────────────────────────────────────────────────────
+// Clean thin-stroke line icons (SF Symbols / Apple Health style). Inherit the
+// surrounding text color via currentColor so they drop into existing UI with no
+// color plumbing. Replaces decorative emoji across the app.
+function RvnIcon({ name, size = 18, color, style }) {
+  const c = color || "currentColor";
+  const common = {
+    width: size, height: size, viewBox: "0 0 24 24", fill: "none",
+    stroke: c, strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round",
+    style: { display: "inline-block", flexShrink: 0, ...(style || {}) },
+    "aria-hidden": true,
+  };
+  const P = {
+    flame: <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>,
+    rocket: <><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></>,
+    target: <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+    trophy: <><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></>,
+    sparkles: <path d="M9.94 14.06A2 2 0 0 0 8.5 12.62l-5.4-1.4 5.4-1.4A2 2 0 0 0 9.94 8.4L11.34 3l1.4 5.4A2 2 0 0 0 14.18 9.84l5.4 1.4-5.4 1.4a2 2 0 0 0-1.44 1.44L12.74 19z"/>,
+    brain: <path d="M12 5a3 3 0 0 0-5.99.14 3 3 0 0 0-1.6 5.3A3 3 0 0 0 6 16.5a3 3 0 0 0 6 .5 3 3 0 0 0 6-.5 3 3 0 0 0 1.6-6.06A3 3 0 0 0 18 5.14 3 3 0 0 0 12 5Z"/>,
+    dumbbell: <><path d="M14.4 14.4 9.6 9.6"/><path d="M18.66 17.66 21 15.34a2 2 0 0 0 0-2.83l-.51-.51a2 2 0 0 0-2.83 0l-.83.82"/><path d="M5.34 6.34 3 8.66a2 2 0 0 0 0 2.83l.51.51a2 2 0 0 0 2.83 0l.82-.83"/><path d="m21 21-1.5-1.5"/><path d="m3 3 1.5 1.5"/></>,
+    moon: <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>,
+    bolt: <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>,
+  };
+  return <svg {...common}>{P[name] || P.sparkles}</svg>;
+}
+
 // ─── SUPABASE PROFILE HELPERS ─────────────────────────────────────────────────
 async function loadRemoteProfile(userId) {
   try {
@@ -6746,7 +6772,7 @@ function ABBioComparison({ archetypeId, theme, color }) {
                       animate={{ rotate:[0,10,-10,10,-10,0], scale:[1,1.2,1] }}
                       transition={{ duration:.8 }}
                       style={{ fontSize:52, marginBottom:8 }}
-                    >🏆</motion.div>
+                    ><RvnIcon name="trophy" size={26}/></motion.div>
                     <div style={{ fontSize:22, fontWeight:900, color:"#FF9F0A", marginBottom:6, letterSpacing:".04em" }}>
                       NEW PR{prCelebration.exercises.length > 1 ? "s" : ""}!
                     </div>
@@ -9157,7 +9183,7 @@ function LandingPhoneMockup({ ac, theme }) {
         {/* header */}
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
           <span style={{ fontSize:11.5, fontWeight:900, color:gold, letterSpacing:".03em" }}>⚡ TRAIN</span>
-          <span style={{ fontSize:11.5, color:"#ff6b35", fontWeight:700 }}>🔥 7 STREAK</span>
+          <span style={{ fontSize:11.5, color:"#ff6b35", fontWeight:700, display:"inline-flex", alignItems:"center", gap:3 }}><RvnIcon name="flame" size={12}/>7 STREAK</span>
         </div>
         {/* progress bar */}
         <div style={{ height:2.5, background:"#222", borderRadius:1.5 }}>
@@ -9723,7 +9749,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
         </div>
         <div style={{ flex:1, padding:"14px 14px", borderRadius:16, background:`${ac}10`, border:`1px solid ${ac}25` }}>
           <div style={{ fontSize:11.5, fontWeight:600, letterSpacing:".04em", color:ac, marginBottom:6, opacity:0.85 }}>STREAK</div>
-          <div style={{ fontSize:42, fontWeight:900, color:ac, lineHeight:1 }}>{streak}<span style={{ fontSize:18, marginLeft:4 }}>🔥</span></div>
+          <div style={{ fontSize:42, fontWeight:900, color:ac, lineHeight:1 }}>{streak}<span style={{ marginLeft:4, display:"inline-flex", verticalAlign:"middle" }}><RvnIcon name="flame" size={22}/></span></div>
         </div>
       </div>
     </>
@@ -9760,7 +9786,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
         <div style={{ fontSize:11, fontWeight:600, letterSpacing:".04em", color:ac, opacity:0.7 }}>STREAK</div>
       </div>
       <div style={{ textAlign:"center", padding:"6px 0 18px" }}>
-        <div style={{ fontSize:78, lineHeight:1, marginBottom:8 }}>🔥</div>
+        <div style={{ lineHeight:1, marginBottom:8, display:"flex", justifyContent:"center" }}><RvnIcon name="flame" size={72}/></div>
         <div style={{ fontSize:108, fontWeight:900, color:ac, lineHeight:0.95, letterSpacing:"-.05em" }}>{streak}</div>
         <div style={{ fontSize:13, fontWeight:800, color:T.text, letterSpacing:".08em", marginTop:4 }}>
           DAY STREAK
@@ -15303,7 +15329,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
                 border:`1px solid ${T.border}`, color:T.text, fontSize:13, fontWeight:700,
                 cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-              🚀 What's New &nbsp;<span style={{ fontSize:11, background:"#e85d04", color:"#fff", borderRadius:16, padding:"1px 7px", fontWeight:800 }}>v6.1</span>
+              <RvnIcon name="rocket" size={14} style={{ verticalAlign:"-2px", marginRight:5 }}/>What's New &nbsp;<span style={{ fontSize:11, background:"#e85d04", color:"#fff", borderRadius:16, padding:"1px 7px", fontWeight:800 }}>v6.1</span>
             </button>
 
             {/* Privacy & coach access — only visible when there's a trainer voice or pushed protocols */}
@@ -15313,6 +15339,25 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
               🔒 What my coach sees
             </button>
+
+            {/* Legal links (App Store: privacy, terms, support must be reachable in-app) */}
+            <div style={{ display:"flex", justifyContent:"center", alignItems:"center", gap:14,
+              flexWrap:"wrap", margin:"4px 0 14px" }}>
+              <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                style={{ color:T.faint, fontSize:11.5, fontWeight:600, textDecoration:"none", letterSpacing:".02em" }}>
+                Privacy Policy
+              </a>
+              <span style={{ color:T.faint, fontSize:11 }}>·</span>
+              <a href="/terms" target="_blank" rel="noopener noreferrer"
+                style={{ color:T.faint, fontSize:11.5, fontWeight:600, textDecoration:"none", letterSpacing:".02em" }}>
+                Terms of Service
+              </a>
+              <span style={{ color:T.faint, fontSize:11 }}>·</span>
+              <a href="/support" target="_blank" rel="noopener noreferrer"
+                style={{ color:T.faint, fontSize:11.5, fontWeight:600, textDecoration:"none", letterSpacing:".02em" }}>
+                Support
+              </a>
+            </div>
 
             {/* Sign out */}
             <button onClick={handleSignOut}
@@ -15337,14 +15382,27 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 padding:"12px", marginBottom:10 }}>
                 <div style={{ fontSize:12, fontWeight:700, color:T.red, marginBottom:6 }}>Delete your account?</div>
                 <div style={{ fontSize:11, color:T.muted, lineHeight:1.55, marginBottom:10 }}>
-                  This wipes your local profile, calendar, workout history, supplement protocol, and check-ins, then signs you out. Your cloud profile in Supabase is also queued for removal. This cannot be undone.
+                  This permanently deletes your account and all associated data: your login, cloud profile, calendar, workout history, supplement protocol, and check-ins. This cannot be undone.
                 </div>
                 <div style={{ display:"flex", gap:6 }}>
                   <button onClick={async () => {
                     try {
+                      // 1. Server-side full deletion of the auth user (Apple 5.1.1(v)).
+                      //    Sends the user's own access token; the endpoint verifies it
+                      //    and deletes only that user's auth row + profile.
+                      try {
+                        const { data: sess } = await supabase.auth.getSession();
+                        const token = sess?.session?.access_token;
+                        if (token) {
+                          await fetch("/api/delete-account", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                          });
+                        }
+                      } catch {}
                       // Don't push pending changes — user wants this data gone.
                       if (typeof window !== "undefined") window.__rvnUserEmail = null;
-                      // Best-effort clear of the cloud extras blob for this email
+                      // 2. Best-effort clear of the cloud extras blob for this email
                       try {
                         const email = (JSON.parse(localStorage.getItem("rvn_profile") || "{}")).email;
                         if (email) {
@@ -15353,11 +15411,11 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                             .eq("email", email.trim().toLowerCase());
                         }
                       } catch {}
-                      // Wipe ALL rvn_* localStorage keys
+                      // 3. Wipe ALL rvn_* localStorage keys
                       Object.keys(localStorage).filter(k => k.startsWith("rvn_")).forEach(k => {
                         try { localStorage.removeItem(k); } catch {}
                       });
-                      // Real account deletion (auth.users row) still needs a server function.
+                      // 4. Sign out locally
                       try { await supabase.auth.signOut(); } catch {}
                     } catch (e) { console.warn("[delete account] partial:", e); }
                     try { window.location.href = "/"; } catch {}
@@ -20459,6 +20517,36 @@ function RVNVisionOverlay() {
   const [draft, setDraft] = useState("");
   const scrollerRef = useRef(null);
 
+  // ── AI data-sharing consent (Apple Guideline 5.1.2(i)) ──────────────────────
+  // Kailu sends the user's messages to Anthropic to generate responses. Apple
+  // requires explicit, named consent BEFORE the first transmission to a
+  // third-party AI provider. We persist the choice in localStorage and gate the
+  // first send on it.
+  const AI_CONSENT_KEY = "rvn_ai_consent_v1";
+  const [aiConsent, setAiConsent] = useState(() => {
+    try { return localStorage.getItem(AI_CONSENT_KEY) === "yes"; } catch { return false; }
+  });
+  const [showAiConsent, setShowAiConsent] = useState(false);
+  const [pendingSendAfterConsent, setPendingSendAfterConsent] = useState(false);
+  const grantAiConsent = () => {
+    try { localStorage.setItem(AI_CONSENT_KEY, "yes"); } catch {}
+    setAiConsent(true);
+    setShowAiConsent(false);
+  };
+  const declineAiConsent = () => {
+    try { localStorage.setItem(AI_CONSENT_KEY, "no"); } catch {}
+    setShowAiConsent(false);
+    setPendingSendAfterConsent(false);
+  };
+  // After consent is granted, auto-fire the message the user was trying to send.
+  // handleSend is hoisted (function declaration), so it is in scope here.
+  useEffect(() => {
+    if (aiConsent && pendingSendAfterConsent) {
+      setPendingSendAfterConsent(false);
+      try { handleSend(); } catch {}
+    }
+  }, [aiConsent, pendingSendAfterConsent]); // eslint-disable-line
+
   // ── Token state, reads from shared localStorage profile ─────────────────────
   const getProfileRaw = () => { try { return JSON.parse(localStorage.getItem("rvn_profile") || "{}"); } catch { return {}; } };
   const [tokenState, setTokenState] = useState(() => getKailuTokenState(getProfileRaw()));
@@ -20528,6 +20616,14 @@ function RVNVisionOverlay() {
   async function handleSend() {
     const text = draft.trim();
     if (!text || biopal.processing) return;
+    // AI consent gate (Apple 5.1.2(i)): block the first transmission to Anthropic
+    // until the user has explicitly consented. We keep the draft so the message
+    // sends automatically right after consent is granted.
+    if (!aiConsent) {
+      setPendingSendAfterConsent(true);
+      setShowAiConsent(true);
+      return;
+    }
     // Token gate, free users have limited messages per refill window
     if (!consumeToken()) {
       biopalSend({ role:"pal", text:`You've used all your messages for now. ${formatRefillTime(tokenState.msUntilRefill)} until your next 5 tokens, or go Premium for unlimited Kailu.`, intent:"greet" });
@@ -20576,6 +20672,60 @@ function RVNVisionOverlay() {
 
   return (
     <>
+      {/* AI data-sharing consent gate (Apple Guideline 5.1.2(i)) */}
+      {showAiConsent && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="AI coach data sharing consent"
+          style={{
+            position: "fixed", inset: 0, zIndex: 3000,
+            background: "rgba(4,5,16,0.72)", backdropFilter: "blur(6px)",
+            display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+          }}
+        >
+          <div style={{
+            width: "100%", maxWidth: 380, background: T.card || "#0e1030",
+            border: `1px solid ${T.line || "#23264d"}`, borderRadius: 18,
+            padding: "22px 20px", color: T.ink || "#e8eaf6",
+            boxShadow: "0 24px 60px rgba(0,0,0,0.5)",
+          }}>
+            <div style={{ fontWeight: 800, fontSize: 18, marginBottom: 8 }}>
+              Kailu uses AI
+            </div>
+            <div style={{ fontSize: 14.5, lineHeight: 1.55, color: T.sub || "#9aa0c4" }}>
+              To answer you, Kailu sends the messages you type to <strong style={{ color: T.ink || "#e8eaf6" }}>Anthropic</strong>, a
+              third-party AI provider, which processes them to generate a response.
+              Don't share sensitive personal or medical information in chat. You can
+              review the details in our{" "}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer"
+                 style={{ color: ac, textDecoration: "underline" }}>Privacy Policy</a>.
+            </div>
+            <div style={{ display: "flex", gap: 10, marginTop: 18 }}>
+              <button
+                onClick={declineAiConsent}
+                style={{
+                  flex: 1, padding: "11px 0", borderRadius: 12, fontSize: 14.5, fontWeight: 600,
+                  background: "transparent", color: T.sub || "#9aa0c4",
+                  border: `1px solid ${T.line || "#23264d"}`, cursor: "pointer",
+                }}
+              >
+                Not now
+              </button>
+              <button
+                onClick={grantAiConsent}
+                style={{
+                  flex: 1, padding: "11px 0", borderRadius: 12, fontSize: 14.5, fontWeight: 700,
+                  background: ac, color: "#04050f", border: "none", cursor: "pointer",
+                }}
+              >
+                Agree &amp; continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* FAB, always on top, every screen */}
       <motion.button
         data-tour-id="kailu-bubble"
@@ -28171,7 +28321,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                 <motion.div key={ch.id} initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }} transition={{ delay:i*.07 }} style={{ marginBottom:10 }}>
                   <GlassCard theme={theme} glow="#FF9F0A" style={{ padding:"14px 16px" }}>
                     <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:8 }}>
-                      <div style={{ fontSize:13, fontWeight:800, color:T.text }}>🏆 {ch.name}</div>
+                      <div style={{ fontSize:13, fontWeight:800, color:T.text, display:"flex", alignItems:"center", gap:5 }}><RvnIcon name="trophy" size={14}/>{ch.name}</div>
                       <button onClick={() => saveChallenges(challenges.filter(c => c.id !== ch.id))}
                         style={{ background:"transparent", border:"none", color:T.faint, fontSize:14, cursor:"pointer" }}>✕</button>
                     </div>

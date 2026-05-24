@@ -11325,8 +11325,8 @@ function BiologyQWrap({ step, total = 7, storyHook, headline, children, onBackFn
   return (
     <Screen theme={theme} style={{ overflow:"hidden" }}>
       <motion.div
-        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
-        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        animate={{ opacity:0.8, scale:1 }}
+        transition={{ duration:0.4 }}
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
           zIndex:0 }}/>
@@ -11453,8 +11453,8 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
     <Screen theme={theme} style={{ overflow:"hidden" }}>
       {/* bg glow, breathing */}
       <motion.div
-        animate={{ opacity:[0.7,1,0.7], scale:[1,1.06,1] }}
-        transition={{ duration:4, repeat:Infinity, ease:"easeInOut" }}
+        animate={{ opacity:0.8, scale:1 }}
+        transition={{ duration:0.4 }}
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 100% 55% at 50% 35%, ${ac}28, transparent 70%)` }}/>
 
@@ -11581,8 +11581,8 @@ function BiologyStep({ mode, onSelect, onBack, theme }) {
     <Screen theme={theme} style={{ overflow:"hidden" }}>
       {/* Breathing glow */}
       <motion.div
-        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
-        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        animate={{ opacity:0.8, scale:1 }}
+        transition={{ duration:0.4 }}
         style={{ position:"absolute", inset:0, pointerEvents:"none", zIndex:0,
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, #2E5BFF1E, transparent 60%)` }}/>
 
@@ -11755,8 +11755,8 @@ function TargetStep({ mode, biology, onSelect, onBack, theme }) {
     <Screen theme={theme} style={{ overflowY:"auto", overflowX:"hidden" }}>
       {/* Ambient glow, breathes */}
       <motion.div
-        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
-        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        animate={{ opacity:0.8, scale:1 }}
+        transition={{ duration:0.4 }}
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
       {/* Removed giant pulsing "02" background ornament. Read as a misleading
@@ -11961,8 +11961,8 @@ function PerformanceStep({ archetypeId, mode, onSubmit, onBack, theme }) {
       <div style={{ flex:1, display:"flex", flexDirection:"column", padding:"0 24px 36px" }}>
         {/* Ambient glow, breathes */}
         <motion.div
-          animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
-          transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+          animate={{ opacity:0.8, scale:1 }}
+          transition={{ duration:0.4 }}
           style={{ position:"absolute", inset:0, pointerEvents:"none",
             background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${ac}1E, transparent 60%)`, zIndex:0 }}/>
 
@@ -12146,8 +12146,8 @@ function PersonalizeQScreen({ step, total, headline, storyHook, children, onBack
     <Screen theme={theme} style={{ overflow:"hidden" }}>
       {/* Ambient glow, breathes */}
       <motion.div
-        animate={{ opacity:[0.6,1,0.6], scale:[1,1.08,1] }}
-        transition={{ duration:3.5, repeat:Infinity, ease:"easeInOut" }}
+        animate={{ opacity:0.8, scale:1 }}
+        transition={{ duration:0.4 }}
         style={{ position:"absolute", inset:0, pointerEvents:"none",
           background:`radial-gradient(ellipse 90% 40% at 50% 0%, ${stepColor}1E, transparent 60%)`,
           zIndex:0 }}/>

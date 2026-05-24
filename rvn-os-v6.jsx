@@ -4,6 +4,10 @@ import { createClient } from "@supabase/supabase-js";
 // ─── ICON SYSTEM (inline SVG, no external dependency) ───────────────────────
 const SVG_PATHS = {
   dumbbell:   "M6 8h2m8 0h2M7 12h10M6 8v4m10-4v4M2 10h4m12 0h4M2 10v.5m0-.5v.5M18 10v.5",
+  camera:     "M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+  cart:       "M2 3h2.5l2.4 12.3a2 2 0 0 0 2 1.7h8.7a2 2 0 0 0 2-1.6L22 7H6.2M9.5 21a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5zM18 21a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5z",
+  gift:       "M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z",
+  save:       "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8",
   barChart:   "M18 20V10M12 20V4M6 20v-6",
   utensils:   "M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h1v5a1 1 0 0 0 2 0v-5h1a2 2 0 0 0 2-2",
   trendingUp: "M22 7 13.5 15.5 8.5 10.5 2 17M22 7h-5m5 0v5",
@@ -2898,7 +2902,7 @@ function FuelRecipeScanner({ theme, T, arch }) {
           {macros.notes && (
             <div style={{ fontSize:11.5, color:T.muted, marginBottom:12, lineHeight:1.5,
               padding:"8px 10px", borderRadius:9, background:T.glass }}>
-              💬 {macros.notes}
+              <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="message" size={13}/>{macros.notes}</span>
             </div>
           )}
           <div style={{ display:"flex", gap:8 }}>
@@ -7752,9 +7756,9 @@ function TrainerCheckInDashboard({ theme }) {
                 <div style={{ fontSize:10.5, color:T.faint }}>{new Date(c.submittedAt).toLocaleDateString()}</div>
               </div>
               <div style={{ display:"flex", flexWrap:"wrap", gap:8, fontSize:11, color:T.muted }}>
-                {c.sleep != null && <span>😴 Sleep {c.sleep}/10</span>}
-                {c.soreness != null && <span>💪 Sore {c.soreness}/10</span>}
-                {c.mood != null && <span>⚡ Mood {c.mood}/10</span>}
+                {c.sleep != null && <span style={{ display:"inline-flex", alignItems:"center", gap:4 }}><LI n="moon" size={11}/>Sleep {c.sleep}/10</span>}
+                {c.soreness != null && <span style={{ display:"inline-flex", alignItems:"center", gap:4 }}><LI n="dumbbell" size={11}/>Sore {c.soreness}/10</span>}
+                {c.mood != null && <span style={{ display:"inline-flex", alignItems:"center", gap:4 }}><LI n="zap" size={11}/>Mood {c.mood}/10</span>}
                 {c.weight != null && <span>⚖ {c.weight}lb</span>}
               </div>
               {c.notes && (
@@ -15323,7 +15327,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
                   border:`1px solid ${T.border}`, color:T.muted, fontSize:13, fontWeight:700,
                   cursor:"pointer", marginBottom:10 }}>
-                🔄 Reset Profile &amp; Redo Onboarding
+                <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="refresh" size={13}/>Reset Profile &amp; Redo Onboarding</span>
               </button>
             ) : (
               <div style={{ marginBottom:10 }}>
@@ -15359,7 +15363,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               style={{ width:"100%", padding:"13px", borderRadius:12, background:"transparent",
                 border:`1px solid ${T.border}`, color:T.text, fontSize:13, fontWeight:700,
                 cursor:"pointer", marginBottom:10, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
-              🔒 What my coach sees
+              <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="lock" size={13}/>What my coach sees</span>
             </button>
 
             {/* Legal links (App Store: privacy, terms, support must be reachable in-app) */}
@@ -15594,7 +15598,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       style={{ width:"100%", marginTop:12, padding:"10px", borderRadius:12,
                         background:T.glass, border:`1px solid ${T.border}`,
                         color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
-                      📝 Log Tonight's Sleep
+                      <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="file" size={13}/>Log Tonight's Sleep</span>
                     </motion.button>
                   </div>
                 );
@@ -15952,7 +15956,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                               background: arch.glow+"15", border:`1px dashed ${arch.glow}66`,
                               fontSize:11, fontWeight:700, color:arch.glow, letterSpacing:".04em",
                             }}>
-                              📸 SNAP & LOG MEAL
+                              <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="camera" size={13}/>SNAP & LOG MEAL</span>
                               <input type="file" accept="image/*" capture="environment"
                                 style={{ display:"none" }}
                                 onChange={async (e) => {
@@ -16467,7 +16471,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                           <div style={{ flex:1, height:60, borderRadius:10, background:"#BF5AF210", border:"1px dashed #BF5AF244",
                             display:"flex", alignItems:"center", justifyContent:"center",
                             fontSize:11.5, color:"#BF5AF2", fontWeight:700 }}>
-                            📷 Start your timeline
+                            <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="camera" size={13}/>Start your timeline</span>
                           </div>
                         ) : (
                           photos.slice(-3).map((p, i) => (
@@ -16934,7 +16938,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         </div>
                         {ex.notes && (
                           <div style={{ fontSize:10.5, color:T.muted, marginTop:3, paddingLeft:4 }}>
-                            💬 {ex.notes}
+                            <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="message" size={13}/>{ex.notes}</span>
                           </div>
                         )}
                       </div>
@@ -21015,7 +21019,7 @@ function RVNVisionBubble({ m, ac, T, theme, onLock }) {
         {/* Grocery list card */}
         {m.appliedDelta?.kind === "groceryList" && m.appliedDelta.items?.length > 0 && (
           <div style={{ marginTop:10, borderTop:`1px solid ${T.border}`, paddingTop:8 }}>
-            <div style={{ fontSize:11.5, fontWeight:600, color:ac, letterSpacing:".03em", marginBottom:8 }}>🛒 WEEKLY GROCERY LIST</div>
+            <div style={{ fontSize:11.5, fontWeight:600, color:ac, letterSpacing:".03em", marginBottom:8, display:"inline-flex", alignItems:"center", gap:6 }}><LI n="cart" size={12} color={ac}/>WEEKLY GROCERY LIST</div>
             {m.appliedDelta.items.map((item, i) => (
               item === "" ? <div key={i} style={{ height:6 }}/> :
               item === item.toUpperCase() && !item.startsWith("✦") && !item.startsWith("◉") && !item.startsWith("◈") && !item.startsWith("●") && !item.startsWith("→")
@@ -28361,7 +28365,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                     </div>
                     {ch.reward && (
                       <div style={{ fontSize:11.5, color:"#FF9F0A", fontWeight:700, padding:"6px 10px", background:"#FF9F0A15", borderRadius:8 }}>
-                        🎁 {ch.reward}
+                        <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="gift" size={13}/>{ch.reward}</span>
                       </div>
                     )}
                     {/* Leaderboard, populated by NFC tap check-ins only */}
@@ -28889,7 +28893,7 @@ function ManagerHub({ storeName, mode, theme, inventory, onToggle, onStoreName, 
                   <label style={{ display:"flex", alignItems:"center", gap:8, padding:"9px 12px", borderRadius:10, border:`1px dashed ${T.border}`, cursor:"pointer", background:T.glass }}>
                     {venueBrand.logoDataUrl
                       ? <img src={venueBrand.logoDataUrl} alt="logo" style={{ height:32, objectFit:"contain", borderRadius:4 }}/>
-                      : <span style={{ fontSize:11, color:T.faint }}>📁 Upload logo (PNG / SVG)</span>}
+                      : <span style={{ fontSize:11, color:T.faint, display:"inline-flex", alignItems:"center", gap:6 }}><LI n="file" size={12} color={T.faint}/>Upload logo (PNG / SVG)</span>}
                     <input type="file" accept="image/*" style={{ display:"none" }}
                       onChange={e => {
                         const f = e.target.files?.[0]; if (!f) return;
@@ -30541,7 +30545,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                 boxShadow:"0 4px 20px #30D15840",
                 pointerEvents:"none", whiteSpace:"nowrap",
               }}>
-              💾 Saved: {savedNotif}
+              <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n="save" size={13}/>Saved: {savedNotif}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -30841,7 +30845,7 @@ Make the recipes practical, delicious, and easy to prepare. Each recipe should u
                     width:28, height:28, borderRadius:8,
                     background:"#FF9F0A20", border:"1px solid #FF9F0A40",
                     display:"flex", alignItems:"center", justifyContent:"center", fontSize:14,
-                  }}>📚</div>
+                  }}><LI n="book" size={16} color="#FF9F0A"/></div>
                   <div>
                     <div style={{ fontSize:13, fontWeight:800, color:T.text }}>MY RECIPES</div>
                     <div style={{ fontSize:11.5, color:T.muted }}>{savedRecipes.length} saved</div>
@@ -31068,7 +31072,7 @@ function BuddySystemScreen({ theme, onBack, user }) {
               <div style={{ textAlign:"center", padding:"40px", color:T.muted }}>Loading…</div>
             ) : myBuddyList.length === 0 ? (
               <div style={{ textAlign:"center", padding:"60px 20px" }}>
-                <div style={{ fontSize:36, marginBottom:12 }}>👥</div>
+                <div style={{ fontSize:36, marginBottom:12 }}><LI n="users" size={36}/></div>
                 <div style={{ fontSize:16, fontWeight:700, color:T.text, marginBottom:8 }}>No buddies yet</div>
                 <div style={{ fontSize:13, color:T.muted, marginBottom:20 }}>
                   Add a training partner to stay accountable and compete.

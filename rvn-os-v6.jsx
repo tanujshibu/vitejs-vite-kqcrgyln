@@ -8,6 +8,12 @@ const SVG_PATHS = {
   cart:       "M2 3h2.5l2.4 12.3a2 2 0 0 0 2 1.7h8.7a2 2 0 0 0 2-1.6L22 7H6.2M9.5 21a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5zM18 21a1.25 1.25 0 1 0 0-2.5 1.25 1.25 0 0 0 0 2.5z",
   gift:       "M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z",
   save:       "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8",
+  drumstick:  "M15.5 15.5c2.5-2.5 2.5-6.5 0-9s-6.5-2.5-9 0c-1.4 1.4-1.9 3.4-1.4 5.2.3 1.1 0 2.3-.8 3.1l-1 1a2 2 0 1 0 2.8 2.8l1-1c.8-.8 2-1.1 3.1-.8 1.8.5 3.8 0 5.2-1.4zM6.3 17.7 3 21",
+  egg:        "M12 3c-3.6 0-6.2 5.1-6.2 9.1A6.2 6.2 0 0 0 12 18.3a6.2 6.2 0 0 0 6.2-6.2C18.2 8.1 15.6 3 12 3z",
+  glass:      "M6.2 3h11.6l-1.4 17.1a1 1 0 0 1-1 .9H8.6a1 1 0 0 1-1-.9L6.2 3zM5.6 3h12.8M7.3 9h9.4",
+  bowl:       "M3 12a9 9 0 0 0 18 0H3zM2 12h20M8 8.5C8 7 9.8 6 12 6s4 1 4 2.5",
+  avocado:    "M12 2a6.5 6.5 0 0 0-6.5 6.5C5.5 13 9 22 12 22s6.5-9 6.5-13.5A6.5 6.5 0 0 0 12 2zM12 13.2a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z",
+  fish:       "M16 12c0 3-3.4 5.2-7 5.2-3.9 0-7-2.3-7-5.2s3.1-5.2 7-5.2c3.6 0 7 2.2 7 5.2zM16 12l5.5-3.2v6.4L16 12zM6 10.8h.01",
   barChart:   "M18 20V10M12 20V4M6 20v-6",
   utensils:   "M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2M7 2v20M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h1v5a1 1 0 0 0 2 0v-5h1a2 2 0 0 0 2-2",
   trendingUp: "M22 7 13.5 15.5 8.5 10.5 2 17M22 7h-5m5 0v5",
@@ -15919,14 +15925,14 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                           <div style={{ fontSize:11.5, fontWeight:700, color:T.faint, letterSpacing:".01em", marginBottom:8 }}>QUICK LOG</div>
                           <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
                             {[
-                              { label:"🍗 Chicken",  p:30, c:0,  f:3,  cal:185 },
-                              { label:"🥚 2 Eggs",   p:12, c:0,  f:10, cal:140 },
-                              { label:"🥛 Shake",    p:25, c:5,  f:3,  cal:147 },
-                              { label:"🍚 Rice cup", p:4,  c:45, f:0,  cal:196 },
-                              { label:"🥑 Avocado",  p:2,  c:9,  f:15, cal:173 },
-                              { label:"🐟 Salmon",   p:34, c:0,  f:12, cal:236 },
+                              { icon:"drumstick", name:"Chicken",  tint:"#FF453A", p:30, c:0,  f:3,  cal:185 },
+                              { icon:"egg",       name:"2 Eggs",   tint:"#FF453A", p:12, c:0,  f:10, cal:140 },
+                              { icon:"glass",     name:"Shake",    tint:"#FF453A", p:25, c:5,  f:3,  cal:147 },
+                              { icon:"bowl",      name:"Rice cup", tint:"#F5A623", p:4,  c:45, f:0,  cal:196 },
+                              { icon:"avocado",   name:"Avocado",  tint:"#0A84FF", p:2,  c:9,  f:15, cal:173 },
+                              { icon:"fish",      name:"Salmon",   tint:"#FF453A", p:34, c:0,  f:12, cal:236 },
                             ].map(food => (
-                              <button key={food.label}
+                              <button key={food.name}
                                 onClick={() => {
                                   const mt = profile.macroToday || { protein:0, carbs:0, fats:0 };
                                   saveProfile({ macroToday: {
@@ -15941,7 +15947,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                                   color:T.text, fontSize:11, cursor:"pointer",
                                   whiteSpace:"nowrap",
                                 }}>
-                                {food.label}
+                                <span style={{ display:"inline-flex", alignItems:"center", gap:6 }}><LI n={food.icon} size={14} color={food.tint}/>{food.name}</span>
                               </button>
                             ))}
                           </div>

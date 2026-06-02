@@ -15702,82 +15702,93 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   </motion.button>
                 </motion.div>
               )}
-              {/* Macro rings */}
-              <div data-tour-id="fuel-macros" style={{ background:T.card, borderRadius:20, padding:"24px", marginBottom:22,
-                border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
-                <div style={{ fontSize:12.5, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:18 }}>
-                  TODAY'S MACROS
-                </div>
-                {macros.map((m, i) => {
-                  const pct    = Math.min(1, m.current / m.goal);
-                  // Range underlay: shows uncertainty band, lighter, translucent bar
-                  // spanning from sum-of-mins to sum-of-maxes. Only render when the
-                  // band is meaningfully wider than the solid bar (≥3% goal spread).
-                  const minVal = (typeof m.min === "number" && m.min >= 0) ? m.min : m.current;
-                  const maxVal = (typeof m.max === "number" && m.max >= m.current) ? m.max : m.current;
-                  const minPct = Math.min(1, Math.max(0, minVal / m.goal));
-                  const maxPct = Math.min(1, Math.max(0, maxVal / m.goal));
-                  const hasRange = (maxVal - minVal) / m.goal >= 0.03;
+              {/* Macros: hero (Calories left) + 3-up mini cards */}
+              <div data-tour-id="fuel-macros">
+                {(() => {
+                  const calConsumed = (typeof mt.calories === "number")
+                    ? mt.calories
+                    : Math.round((mt.protein||0)*4 + (mt.carbs||0)*4 + (mt.fats||0)*9);
+                  const calLeft = Math.max(0, calGoal - calConsumed);
+                  const calPct  = Math.min(1, calConsumed / Math.max(1, calGoal));
                   return (
-                    <div key={m.label} style={{ marginBottom:18 }}>
-                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
-                        <span style={{ fontSize:12, fontWeight:600, color:T.muted, letterSpacing:".04em" }}>{m.label}</span>
-                        <span style={{ fontSize:14, fontWeight:900, color:m.color }}>
-                          {m.current}{m.unit}
-                          {hasRange && (
-                            <span style={{ color:T.faint, fontWeight:500, fontSize:11 }}> ({minVal}–{maxVal})</span>
-                          )}
-                          <span style={{ color:T.faint, fontWeight:600 }}> / {m.goal}{m.unit}</span>
-                        </span>
+                    <div style={{
+                      background:T.card, borderRadius:20, padding:"22px 22px 20px",
+                      marginBottom:12, border:`1px solid ${T.border}`, boxShadow:T.shadow,
+                      display:"flex", alignItems:"center", justifyContent:"space-between", gap:16,
+                    }}>
+                      <div style={{ flex:1, minWidth:0 }}>
+                        <div style={{ fontSize:42, fontWeight:800, color:T.text, letterSpacing:"-.03em", lineHeight:1 }}>
+                          {calLeft}
+                        </div>
+                        <div style={{ fontSize:13, color:T.muted, marginTop:8 }}>Calories left</div>
                       </div>
-                      <div style={{ position:"relative", height:10, borderRadius:5, background:T.glass, overflow:"hidden" }}>
-                        {/* Uncertainty range, translucent underlay from min to max */}
-                        {hasRange && (
-                          <motion.div
-                            initial={{ width:0, left:0 }}
-                            animate={{ width:`${(maxPct - minPct)*100}%`, left:`${minPct*100}%` }}
-                            transition={{ duration:.8, ease:[.22,1,.36,1] }}
-                            style={{ position:"absolute", top:0, height:"100%", borderRadius:4,
-                              background:m.color, opacity:0.22 }}/>
-                        )}
-                        {/* Best-estimate solid bar */}
-                        <motion.div
-                          initial={{ width:0 }}
-                          animate={{ width:`${pct*100}%` }}
-                          transition={{ duration:.8, ease:[.22,1,.36,1] }}
-                          style={{ position:"absolute", top:0, left:0, height:"100%", borderRadius:4, background:m.color,
-                            boxShadow: pct >= 0.95 ? `0 0 8px ${m.color}88` : "none" }}/>
+                      <div style={{ position:"relative", width:84, height:84, flexShrink:0 }}>
+                        <svg width="84" height="84" viewBox="0 0 100 100">
+                          <circle cx="50" cy="50" r="44" fill="none" stroke={T.glass} strokeWidth="7"/>
+                          <circle cx="50" cy="50" r="44" fill="none" stroke="#e85d04" strokeWidth="7" strokeLinecap="round"
+                            strokeDasharray={`${calPct*276.46} 276.46`} transform="rotate(-90 50 50)"/>
+                        </svg>
+                        <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <LI n="flame" size={28} color="#e85d04"/>
+                        </div>
                       </div>
                     </div>
                   );
-                })}
-                {/* Range legend, only show when at least one macro actually has a range */}
-                {macros.some(m => (typeof m.max === "number" && typeof m.min === "number" && (m.max - m.min) / m.goal >= 0.03)) && (
-                  <div style={{ fontSize:10, color:T.faint, marginTop:-4, marginBottom:10,
-                    display:"flex", alignItems:"center", gap:8 }}>
-                    <span style={{ display:"inline-block", width:10, height:6, borderRadius:2, background:arch.glow, opacity:0.22 }}/>
-                    Lighter band shows estimate range (wider = less certain, common for homemade meals)
-                  </div>
-                )}
+                })()}
+
+                <div style={{ display:"flex", gap:10, marginBottom:10 }}>
+                  {macros.map(m => {
+                    const left = Math.max(0, m.goal - m.current);
+                    const pct  = Math.min(1, m.current / Math.max(1, m.goal));
+                    const iconName = m.label === "PROTEIN" ? "drumstick"
+                                   : m.label === "CARBS"   ? "bowl"
+                                   : "avocado";
+                    const niceLabel = m.label === "PROTEIN" ? "Protein left"
+                                    : m.label === "CARBS"   ? "Carbs left"
+                                    : "Fat left";
+                    return (
+                      <div key={m.label} style={{
+                        flex:1, background:T.card, borderRadius:16, padding:"14px 12px",
+                        border:`1px solid ${T.border}`, boxShadow:T.shadowSm || T.shadow,
+                      }}>
+                        <div style={{ fontSize:20, fontWeight:800, color:T.text, letterSpacing:"-.02em", lineHeight:1 }}>
+                          {left}{m.unit}
+                        </div>
+                        <div style={{ fontSize:11.5, color:T.muted, marginTop:4, marginBottom:14 }}>{niceLabel}</div>
+                        <div style={{ position:"relative", width:52, height:52, margin:"0 auto" }}>
+                          <svg width="52" height="52" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="44" fill="none" stroke={T.glass} strokeWidth="8"/>
+                            <circle cx="50" cy="50" r="44" fill="none" stroke={m.color} strokeWidth="8" strokeLinecap="round"
+                              strokeDasharray={`${pct*276.46} 276.46`} transform="rotate(-90 50 50)"/>
+                          </svg>
+                          <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                            <LI n={iconName} size={18} color={m.color}/>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingMacros(e=>!e)}
-                  style={{ width:"100%", marginTop:12, padding:"14px", borderRadius:14,
-                    background:T.glass, border:`1px solid ${T.border}`,
-                    color:T.muted, fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
-                  Edit Goals & Today's Log
+                  style={{ width:"100%", marginBottom:14, padding:"10px",
+                    background:"transparent", border:"none",
+                    color:T.faint, fontSize:12, fontWeight:600, cursor:"pointer", letterSpacing:".02em" }}>
+                  Edit Goals &amp; Today's Log
                 </motion.button>
               </div>
 
               {/* Meal plan link */}
               <motion.button whileTap={{ scale:.97 }} onClick={() => onMealPlan && onMealPlan()}
                 data-tour-id="ai-meal-plan"
-                style={{ width:"100%", marginBottom:22, padding:"22px 22px", borderRadius:20,
+                style={{ width:"100%", marginBottom:14, padding:"16px 18px", borderRadius:16,
                   background:`linear-gradient(135deg, #BF5AF218, #BF5AF208)`,
                   border:`1px solid #BF5AF240`, cursor:"pointer",
-                  display:"flex", alignItems:"center", gap:16 }}>
+                  display:"flex", alignItems:"center", gap:14 }}>
                 <div style={{ fontSize:28 }}><RvnIcon name="utensils" size={28}/></div>
                 <div style={{ textAlign:"left" }}>
-                  <div style={{ fontSize:16, fontWeight:900, color:T.text, marginBottom:4 }}>Meal Plan</div>
-                  <div style={{ fontSize:12.5, color:T.muted }}>Kailu builds today's meals around your targets</div>
+                  <div style={{ fontSize:14, fontWeight:900, color:T.text, marginBottom:2 }}>Meal Plan</div>
+                  <div style={{ fontSize:11, color:T.muted }}>Kailu builds today's meals around your targets</div>
                 </div>
                 <div style={{ marginLeft:"auto", fontSize:18, color:"#BF5AF2" }}>→</div>
               </motion.button>

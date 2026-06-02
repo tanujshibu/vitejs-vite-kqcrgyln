@@ -15703,9 +15703,9 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 </motion.div>
               )}
               {/* Macro rings */}
-              <div data-tour-id="fuel-macros" style={{ background:T.card, borderRadius:16, padding:"18px", marginBottom:14,
+              <div data-tour-id="fuel-macros" style={{ background:T.card, borderRadius:20, padding:"24px", marginBottom:22,
                 border:`1px solid ${T.border}`, boxShadow:T.shadow }}>
-                <div style={{ fontSize:11.5, fontWeight:600, color:T.faint, letterSpacing:".03em", marginBottom:14 }}>
+                <div style={{ fontSize:12.5, fontWeight:700, color:T.faint, letterSpacing:".06em", marginBottom:18 }}>
                   TODAY'S MACROS
                 </div>
                 {macros.map((m, i) => {
@@ -15719,18 +15719,18 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   const maxPct = Math.min(1, Math.max(0, maxVal / m.goal));
                   const hasRange = (maxVal - minVal) / m.goal >= 0.03;
                   return (
-                    <div key={m.label} style={{ marginBottom:14 }}>
-                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                        <span style={{ fontSize:11, fontWeight:600, color:T.muted, letterSpacing:".02em" }}>{m.label}</span>
-                        <span style={{ fontSize:12, fontWeight:900, color:m.color }}>
+                    <div key={m.label} style={{ marginBottom:18 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
+                        <span style={{ fontSize:12, fontWeight:600, color:T.muted, letterSpacing:".04em" }}>{m.label}</span>
+                        <span style={{ fontSize:14, fontWeight:900, color:m.color }}>
                           {m.current}{m.unit}
                           {hasRange && (
-                            <span style={{ color:T.faint, fontWeight:500, fontSize:10.5 }}> ({minVal}–{maxVal})</span>
+                            <span style={{ color:T.faint, fontWeight:500, fontSize:11 }}> ({minVal}–{maxVal})</span>
                           )}
                           <span style={{ color:T.faint, fontWeight:600 }}> / {m.goal}{m.unit}</span>
                         </span>
                       </div>
-                      <div style={{ position:"relative", height:8, borderRadius:4, background:T.glass, overflow:"hidden" }}>
+                      <div style={{ position:"relative", height:10, borderRadius:5, background:T.glass, overflow:"hidden" }}>
                         {/* Uncertainty range, translucent underlay from min to max */}
                         {hasRange && (
                           <motion.div
@@ -15760,24 +15760,24 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                   </div>
                 )}
                 <motion.button whileTap={{ scale:.97 }} onClick={() => setEditingMacros(e=>!e)}
-                  style={{ width:"100%", marginTop:4, padding:"10px", borderRadius:12,
+                  style={{ width:"100%", marginTop:12, padding:"14px", borderRadius:14,
                     background:T.glass, border:`1px solid ${T.border}`,
-                    color:T.muted, fontSize:11, fontWeight:600, cursor:"pointer" }}>
-                  ✏️ Edit Goals & Today's Log
+                    color:T.muted, fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
+                  Edit Goals & Today's Log
                 </motion.button>
               </div>
 
               {/* Meal plan link */}
               <motion.button whileTap={{ scale:.97 }} onClick={() => onMealPlan && onMealPlan()}
                 data-tour-id="ai-meal-plan"
-                style={{ width:"100%", marginBottom:14, padding:"16px 18px", borderRadius:16,
+                style={{ width:"100%", marginBottom:22, padding:"22px 22px", borderRadius:20,
                   background:`linear-gradient(135deg, #BF5AF218, #BF5AF208)`,
                   border:`1px solid #BF5AF240`, cursor:"pointer",
-                  display:"flex", alignItems:"center", gap:14 }}>
+                  display:"flex", alignItems:"center", gap:16 }}>
                 <div style={{ fontSize:28 }}><RvnIcon name="utensils" size={28}/></div>
                 <div style={{ textAlign:"left" }}>
-                  <div style={{ fontSize:14, fontWeight:900, color:T.text, marginBottom:2 }}>Meal Plan</div>
-                  <div style={{ fontSize:11, color:T.muted }}>Kailu builds today's meals around your targets</div>
+                  <div style={{ fontSize:16, fontWeight:900, color:T.text, marginBottom:4 }}>Meal Plan</div>
+                  <div style={{ fontSize:12.5, color:T.muted }}>Kailu builds today's meals around your targets</div>
                 </div>
                 <div style={{ marginLeft:"auto", fontSize:18, color:"#BF5AF2" }}>→</div>
               </motion.button>

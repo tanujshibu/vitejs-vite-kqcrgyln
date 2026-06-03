@@ -71,8 +71,9 @@ function FoodIcon({ kind, color = "currentColor", size = 24, style = {} }) {
   if (kind === "drumstick") return (
     <svg {...common}>
       <g fill={color}>
-        <circle cx="14.5" cy="8.5" r="5.5"/>
-        <path d="M10.4 12.6 5.6 17.4a2 2 0 1 0 1 1l4.8-4.8z"/>
+        <ellipse cx="15" cy="8.5" rx="6.5" ry="6"/>
+        <rect x="2.5" y="14" width="11" height="3.5" rx="1.75" transform="rotate(-45 8 15.75)"/>
+        <circle cx="5" cy="18.5" r="2.2"/>
       </g>
     </svg>
   );
@@ -15745,11 +15746,8 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
               {/* Macros: hero (Calories left) + 3-up mini cards */}
               <div data-tour-id="fuel-macros">
                 {(() => {
-                  const calConsumed = (typeof mt.calories === "number")
-                    ? mt.calories
-                    : Math.round((mt.protein||0)*4 + (mt.carbs||0)*4 + (mt.fats||0)*9);
-                  const calLeft = Math.max(0, calGoal - calConsumed);
-                  const calPct  = Math.min(1, calConsumed / Math.max(1, calGoal));
+                  const calLeft = Math.max(0, calGoal - calToday);
+                  const calPct  = Math.min(1, calToday / Math.max(1, calGoal));
                   return (
                     <div style={{
                       background:T.card, borderRadius:20, padding:"22px 22px 20px",
@@ -15769,7 +15767,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                             strokeDasharray={`${calPct*276.46} 276.46`} transform="rotate(-90 50 50)"/>
                         </svg>
                         <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                          <FoodIcon kind="flame" size={34} color="#e85d04"/>
+                          <FoodIcon kind="flame" size={40} color="#e85d04"/>
                         </div>
                       </div>
                     </div>
@@ -15777,7 +15775,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                 })()}
 
                 <div style={{ display:"flex", gap:10, marginBottom:10 }}>
-                  {macros.map(m => {
+                  {macros.filter(m => m.label !== "CALORIES").map(m => {
                     const left = Math.max(0, m.goal - m.current);
                     const pct  = Math.min(1, m.current / Math.max(1, m.goal));
                     const iconName = m.label === "PROTEIN" ? "drumstick"
@@ -15802,7 +15800,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                               strokeDasharray={`${pct*276.46} 276.46`} transform="rotate(-90 50 50)"/>
                           </svg>
                           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                            <FoodIcon kind={iconName} size={24} color={m.color}/>
+                            <FoodIcon kind={iconName} size={30} color={m.color}/>
                           </div>
                         </div>
                       </div>

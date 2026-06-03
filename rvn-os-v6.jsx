@@ -58,6 +58,46 @@ function LI({ n, size = 15, color = "currentColor", style = {} }) {
   );
 }
 
+// ── Filled food icons (Cal AI-style) for hero/macro cards. Chunky filled shapes
+// read better at small sizes inside progress rings than thin line icons.
+function FoodIcon({ kind, color = "currentColor", size = 24, style = {} }) {
+  const common = { width: size, height: size, viewBox: "0 0 24 24",
+    "aria-hidden": true, style: { display: "block", flexShrink: 0, ...style } };
+  if (kind === "flame") return (
+    <svg {...common}>
+      <path fill={color} d="M12 2c.4 2.2 1.9 4 3.5 5.5C17.3 9.2 18.5 11.3 18.5 13.5a6.5 6.5 0 1 1-13 0c0-1.4.5-2.6 1.3-3.6-.3 1.1-.3 2.3.3 3.4a3 3 0 0 0 5.4-2c-.3-1-.9-1.8-1.3-2.7C9.8 7 10.3 4.6 12 2z"/>
+    </svg>
+  );
+  if (kind === "drumstick") return (
+    <svg {...common}>
+      <g fill={color}>
+        <circle cx="14.5" cy="8.5" r="5.5"/>
+        <path d="M10.4 12.6 5.6 17.4a2 2 0 1 0 1 1l4.8-4.8z"/>
+      </g>
+    </svg>
+  );
+  if (kind === "wheat") return (
+    <svg {...common}>
+      <g fill={color}>
+        <rect x="11.3" y="3.5" width="1.4" height="17" rx=".7"/>
+        <ellipse cx="8.6" cy="7" rx="2.6" ry="1.5" transform="rotate(-30 8.6 7)"/>
+        <ellipse cx="15.4" cy="7" rx="2.6" ry="1.5" transform="rotate(30 15.4 7)"/>
+        <ellipse cx="8.6" cy="11.5" rx="2.6" ry="1.5" transform="rotate(-30 8.6 11.5)"/>
+        <ellipse cx="15.4" cy="11.5" rx="2.6" ry="1.5" transform="rotate(30 15.4 11.5)"/>
+        <ellipse cx="8.6" cy="16" rx="2.6" ry="1.5" transform="rotate(-30 8.6 16)"/>
+        <ellipse cx="15.4" cy="16" rx="2.6" ry="1.5" transform="rotate(30 15.4 16)"/>
+      </g>
+    </svg>
+  );
+  if (kind === "avocado") return (
+    <svg {...common}>
+      <path fill={color} fillRule="evenodd" clipRule="evenodd"
+        d="M12 3a5.5 5.5 0 0 0-5.5 5.5c0 4.9 2 12.5 5.5 12.5s5.5-7.6 5.5-12.5A5.5 5.5 0 0 0 12 3zm0 7.5a2.6 2.6 0 1 0 0 5.2 2.6 2.6 0 0 0 0-5.2z"/>
+    </svg>
+  );
+  return null;
+}
+
 
 // ─── MOBILE PERFORMANCE FLAG ──────────────────────────────────────────────────
 // backdrop-filter blur + many simultaneous animations overwhelm mobile GPUs.
@@ -15724,12 +15764,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                       </div>
                       <div style={{ position:"relative", width:84, height:84, flexShrink:0 }}>
                         <svg width="84" height="84" viewBox="0 0 100 100">
-                          <circle cx="50" cy="50" r="44" fill="none" stroke={T.glass} strokeWidth="7"/>
+                          <circle cx="50" cy="50" r="44" fill="none" stroke="#e85d0426" strokeWidth="7"/>
                           <circle cx="50" cy="50" r="44" fill="none" stroke="#e85d04" strokeWidth="7" strokeLinecap="round"
                             strokeDasharray={`${calPct*276.46} 276.46`} transform="rotate(-90 50 50)"/>
                         </svg>
                         <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                          <LI n="flame" size={28} color="#e85d04"/>
+                          <FoodIcon kind="flame" size={34} color="#e85d04"/>
                         </div>
                       </div>
                     </div>
@@ -15741,7 +15781,7 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                     const left = Math.max(0, m.goal - m.current);
                     const pct  = Math.min(1, m.current / Math.max(1, m.goal));
                     const iconName = m.label === "PROTEIN" ? "drumstick"
-                                   : m.label === "CARBS"   ? "bowl"
+                                   : m.label === "CARBS"   ? "wheat"
                                    : "avocado";
                     const niceLabel = m.label === "PROTEIN" ? "Protein left"
                                     : m.label === "CARBS"   ? "Carbs left"
@@ -15757,12 +15797,12 @@ function GymProtocol({ user, bioData, archetypeId, inventory, onBack, onChangelo
                         <div style={{ fontSize:11.5, color:T.muted, marginTop:4, marginBottom:14 }}>{niceLabel}</div>
                         <div style={{ position:"relative", width:52, height:52, margin:"0 auto" }}>
                           <svg width="52" height="52" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="44" fill="none" stroke={T.glass} strokeWidth="8"/>
+                            <circle cx="50" cy="50" r="44" fill="none" stroke={`${m.color}26`} strokeWidth="8"/>
                             <circle cx="50" cy="50" r="44" fill="none" stroke={m.color} strokeWidth="8" strokeLinecap="round"
                               strokeDasharray={`${pct*276.46} 276.46`} transform="rotate(-90 50 50)"/>
                           </svg>
                           <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                            <LI n={iconName} size={18} color={m.color}/>
+                            <FoodIcon kind={iconName} size={24} color={m.color}/>
                           </div>
                         </div>
                       </div>

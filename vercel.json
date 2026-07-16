@@ -4,6 +4,10 @@
   "installCommand": "npm install",
   "framework": "vite",
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "rvnvision.com" }], "destination": "https://app.kailulabs.com/$1", "permanent": true },
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "www.rvnvision.com" }], "destination": "https://app.kailulabs.com/$1", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ]

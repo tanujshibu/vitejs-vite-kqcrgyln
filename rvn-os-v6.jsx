@@ -9928,7 +9928,7 @@ function ShareCard({ arch, bioScore, streaks, profile, theme, onClose }) {
         }}/>
         <div style={{ position:"relative" }}>{activeCard}</div>
         <div style={{ textAlign:"center", fontSize:11, color:T.faint, letterSpacing:".03em", marginTop:18, position:"relative" }}>
-          rvnvision.app · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+          app.kailulabs.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
         </div>
       </motion.div>
 
@@ -10062,7 +10062,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
       ctx.font = "600 26px -apple-system, sans-serif";
       ctx.fillStyle = "#ffffff22";
       ctx.textAlign = "center";
-      ctx.fillText(`rvnvision.com · ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`, W/2, H - 80);
+      ctx.fillText(`app.kailulabs.com · ${new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`, W/2, H - 80);
 
       // Export
       canvas.toBlob(async (blob) => {
@@ -10181,7 +10181,7 @@ function WorkoutShareCard({ arch, bioScore, exercises, setsDone, streaks, veloci
 
         {/* Footer */}
         <div style={{ textAlign:"center", fontSize:11, color:T.faint, letterSpacing:".03em" }}>
-          rvnvision.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+          app.kailulabs.com · {new Date().toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
         </div>
       </motion.div>
 
@@ -31881,7 +31881,7 @@ function WhatsNewScreen({ theme, onBack }) {
 
         {/* Footer */}
         <div style={{ textAlign: "center", marginTop: 8 }}>
-          <div style={{ fontSize: 11.5, color: T.faint, letterSpacing: ".03em" }}>rvnvision.com · Build {OS_BUILD}</div>
+          <div style={{ fontSize: 11.5, color: T.faint, letterSpacing: ".03em" }}>app.kailulabs.com · Build {OS_BUILD}</div>
         </div>
       </div>
     </Screen>
